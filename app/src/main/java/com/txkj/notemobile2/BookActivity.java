@@ -671,59 +671,37 @@ public class BookActivity extends AppCompatActivity {
 //    boolean isEraser = false;
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.pen:
-                onPen();
-                break;
-
-            case R.id.eraser:
-                onEraser();
-                break;
-
-            case R.id.undo:
-                onUndo();
-                break;
-
-            case R.id.redo:
-                onRedo();
-                break;
-
-            case R.id.grid:
-                if (SAVING_ASYNC) {
-                    if (task == null) {
-                        task = new SavingTask(false);
-                        task.executeOnExecutor(newFixedThreadPool);
-                    }
-                } else {
-                    gotoGridPage();
+        if (item.getItemId() == R.id.pen) {
+            onPen();
+        } else if (item.getItemId() == R.id.eraser) {
+            onEraser();
+        } else if (item.getItemId() == R.id.undo) {
+            onUndo();
+        } else if (item.getItemId() == R.id.redo) {
+            onRedo();
+        } else if (item.getItemId() == R.id.grid) {
+            if (SAVING_ASYNC) {
+                if (task == null) {
+                    task = new SavingTask(false);
+                    task.executeOnExecutor(newFixedThreadPool);
                 }
-                break;
-
-            case R.id.firstPage:
-                gotoFirstPage();
-                break;
-
-            case R.id.prevPage:
-                gotoPrevPage();
-                break;
-
-            case R.id.nextPage:
-                gotoNextPage();
-                break;
-
-            case R.id.lastPage:
-                gotoLastPage();
-                break;
-
-            case R.id.addPage:
-                addNewPageAndGo(true);
-                break;
-
-            case R.id.share:
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    share();
-                }
-                break;
+            } else {
+                gotoGridPage();
+            }
+        } else if (item.getItemId() == R.id.firstPage) {
+            gotoFirstPage();
+        } else if (item.getItemId() == R.id.prevPage) {
+            gotoPrevPage();
+        } else if (item.getItemId() == R.id.nextPage) {
+            gotoNextPage();
+        } else if (item.getItemId() == R.id.lastPage) {
+            gotoLastPage();
+        } else if (item.getItemId() == R.id.addPage) {
+            addNewPageAndGo(true);
+        } else if (item.getItemId() == R.id.share) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                share();
+            }
         }
         return true;
     }

@@ -517,14 +517,10 @@ public class BookListActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.newBook:
-                onNewBook();
-                break;
-
-            case R.id.settings:
-                onSettings();
-                break;
+        if (item.getItemId() == R.id.newBook) {
+            onNewBook();
+        } else if (item.getItemId() == R.id.settings) {
+            onSettings();
         }
         return true;
     }

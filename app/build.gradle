@@ -1,18 +1,19 @@
 plugins {
-    id 'com.android.application'
+    alias(libs.plugins.android.application)
 }
 
 android {
-    namespace 'com.txkj.drawingapp' //'io.github.karino2.pngnotemod'
-    compileSdk 29//compileSdk 34
+    namespace 'com.txkj.drawingapp'
+    compileSdk {
+        version = release(36)
+    }
 
     defaultConfig {
-        applicationId "com.txkj.drawingapp" //"io.github.karino2.pngnotemod"
-        minSdk 21
-        //noinspection ExpiredTargetSdkVersion
-        targetSdk 29//targetSdk 34
-        versionCode 108
-        versionName "1.8"
+        applicationId "com.txkj.drawingapp"
+        minSdk 23 //24
+        targetSdk 36
+        versionCode 110
+        versionName "1.10"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -29,7 +30,8 @@ Thanks to everyone who tried to help!
         //for jni so
         ndk {
             //https://www.cnblogs.com/zhangzhxb/p/14493600.html
-            abiFilters 'armeabi-v7a'
+            //xunfei need arm64
+            abiFilters 'armeabi-v7a', "arm64-v8a"
         }
     }
 
@@ -40,9 +42,16 @@ Thanks to everyone who tried to help!
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11 //don't use VERSION_8
+        targetCompatibility JavaVersion.VERSION_11
     }
+
+    //---------------
+    //added for BuildConfig Not Found
+    buildFeatures {
+        buildConfig = true
+    }
+
     //-----------------------
     //added for compiling
 
@@ -65,10 +74,16 @@ Thanks to everyone who tried to help!
 }
 
 dependencies {
-
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation libs.appcompat
+    implementation libs.material
+    testImplementation libs.junit
+    androidTestImplementation libs.ext.junit
+    androidTestImplementation libs.espresso.core
+//
 ////    implementation 'androidx.appcompat:appcompat:1.7.0'
 //    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'androidx.appcompat:appcompat:1.0.1'
+//    implementation 'androidx.appcompat:appcompat:1.0.1'
 
 //    implementation 'com.google.android.material:material:1.12.0'
 //    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
@@ -83,4 +98,9 @@ dependencies {
     implementation 'androidx.annotation:annotation:1.0.0'
 
     implementation 'androidx.cardview:cardview:1.0.0'
+
+    //xunfei
+    implementation files('libs/SparkChain.aar')
+    implementation files('libs/xxpermissions-8.2.aar')
+    api 'com.google.code.gson:gson:2.8.8'
 }

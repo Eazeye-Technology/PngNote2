@@ -19,7 +19,7 @@ package kankan.wheel.widget;
 /**
  * Wheel adapter interface
  *
- * @deprecated Use WheelViewAdapter
+ * deprecated Use WheelViewAdapter
  */
 public interface WheelAdapter {
 	/**

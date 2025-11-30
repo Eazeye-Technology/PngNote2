@@ -12,6 +12,7 @@
         android:layout_margin="0dp"
         android:gravity="center_vertical"
         android:id="@+id/llTab"
+        android:background="#FCFCFC"
         >
 
         <LinearLayout
@@ -670,6 +671,22 @@
                     </androidx.cardview.widget.CardView>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:id="@+id/llASR"
+            android:background="#CCCCCC"
+            android:orientation="horizontal"
+            >
+<!--            <fragment-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                />-->
+            <!--android:name="com.gzsys.speech.activity.RecordingFragment"
+                -->
         </LinearLayout>
     </RelativeLayout>
 </LinearLayout>

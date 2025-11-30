@@ -23,7 +23,7 @@ import kankan.wheel.widget.WheelAdapter;
 /**
  * Adapter class for old wheel adapter (deprecated WheelAdapter class).
  *
- * @deprecated Will be removed soon
+ * deprecated Will be removed soon
  */
 public class AdapterWheel extends AbstractWheelTextAdapter {
 

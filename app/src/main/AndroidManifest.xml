@@ -5,18 +5,34 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
+    <!--xunfei-->
+<!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
+<!--    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+<!--
+java.lang.SecurityException: Permission Denial: startForeground from pid=13110, uid=10412 requires android.permission.FOREGROUND_SERVICE
+at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.java:181)
+-->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+
+
     <application
         android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher_drawingapp"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_drawingapp"
         android:supportsRtl="true"
-        android:theme="@style/Theme.PngNote"
+        android:theme="@style/Theme.PngNote2"
 
         android:requestLegacyExternalStorage="true"
         android:largeHeap="true"
         android:vmSafeMode="false"
+        android:name="com.gzsys.speech.app.SpeechApp"
         >
 
         <!--
@@ -94,6 +110,49 @@
 <!--                <category android:name="android.intent.category.LAUNCHER" />-->
 <!--            </intent-filter>-->
         </activity>
+
+
+
+        <!--xunfei-->
+        <activity
+            android:name="com.example.sparkchaindemo.ai.rtasr.RTASRActivity"
+            android:exported="true">
+        </activity>
+<!--        <activity android:name="com.example.sparkchaindemo.ai.asr.asrActivity"/>-->
+        <activity android:name="com.example.sparkchaindemo.ai.raasr.RAASRActivity"
+            android:exported="true"
+            >
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+        </activity>
+<!--        <activity android:name="com.example.sparkchaindemo.ai.imageTrans.IMTSActivity" />-->
+<!--        <activity android:name="com.example.sparkchaindemo.ai.ist.ISTActivity"/>-->
+
+
+
+        <!--xunfei old sdk, see https://www.xfyun.cn/sdk/dispatcher-->
+        <activity android:name="com.gzsys.speech.activity.RecordingActivity"
+            android:exported="true"
+            >
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+        </activity>
+        <service android:name="com.gzsys.speech.service.RecordingService" />
+        <activity android:name="com.gzsys.speech.activity.DictResultActivity">
+        </activity>
+        <!-- 移动统计分析 -->
+        <meta-data
+            android:name="IFLYTEK_APPKEY"
+            android:value="'598ab79d'" />
+        <meta-data
+            android:name="IFLYTEK_CHANNEL"
+            android:value="Android_Demo" />
+
+
     </application>
 
 </manifest>

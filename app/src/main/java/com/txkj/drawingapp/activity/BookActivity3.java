@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -438,9 +439,10 @@ public class BookActivity3 extends AppCompatActivity {
             R.id.left_toolkit_item2,
     };
     public int getActiveIconId(int id, boolean isActive) {
-        switch (id) {
-            case R.id.left_toolkit_item1: return isActive ? R.drawable.ic_baseline_edit_24_white: R.drawable.ic_baseline_edit_24;
-            case R.id.left_toolkit_item2: return isActive ? R.mipmap.eraser_button: R.mipmap.eraser_button_selected;
+        if (id == R.id.left_toolkit_item1) {
+            return isActive ? R.drawable.ic_baseline_edit_24_white : R.drawable.ic_baseline_edit_24;
+        } else if (id == R.id.left_toolkit_item2) {
+            return isActive ? R.mipmap.eraser_button: R.mipmap.eraser_button_selected;
         }
         return 0;
     }
@@ -481,11 +483,14 @@ public class BookActivity3 extends AppCompatActivity {
             R.id.top_toolkit_item4,
     };
     public int getActiveIconId3(int id, boolean isActive) {
-        switch (id) {
-            case R.id.top_toolkit_item1: return isActive ? R.drawable.ic_baseline_draw_24_white: R.drawable.ic_baseline_draw_24;
-            case R.id.top_toolkit_item2: return isActive ? R.drawable.ic_baseline_font_download_24_white: R.drawable.ic_baseline_font_download_24;
-            case R.id.top_toolkit_item3: return isActive ? R.drawable.ic_baseline_people_outline_24_white: R.drawable.ic_baseline_people_outline_24;
-            case R.id.top_toolkit_item4: return isActive ? R.drawable.ic_baseline_format_shapes_24_white: R.drawable.ic_baseline_format_shapes_24;
+        if (id == R.id.top_toolkit_item1) {
+            return isActive ? R.drawable.ic_baseline_draw_24_white : R.drawable.ic_baseline_draw_24;
+        } else if (id == R.id.top_toolkit_item2) {
+            return isActive ? R.drawable.ic_baseline_font_download_24_white : R.drawable.ic_baseline_font_download_24;
+        } else if (id == R.id.top_toolkit_item3) {
+            return isActive ? R.drawable.ic_baseline_people_outline_24_white : R.drawable.ic_baseline_people_outline_24;
+        } else if (id == R.id.top_toolkit_item4) {
+            return isActive ? R.drawable.ic_baseline_format_shapes_24_white: R.drawable.ic_baseline_format_shapes_24;
         }
         return 0;
     }
@@ -521,6 +526,7 @@ public class BookActivity3 extends AppCompatActivity {
             //drawing
             dtViewBottom.setVisibility(View.GONE);
             dtView.setVisibility(View.GONE);
+            llASR.setVisibility(View.GONE);
             findViewById(R.id.left_toolkit1).setVisibility(View.VISIBLE);
             findViewById(R.id.left_toolkit4).setVisibility(View.GONE);
             canvas.setInteractionMode(FabricView.DRAW_MODE);
@@ -528,18 +534,21 @@ public class BookActivity3 extends AppCompatActivity {
             //typing
             dtViewBottom.setVisibility(View.VISIBLE);
             dtView.setVisibility(View.GONE);
+            llASR.setVisibility(View.GONE);
             findViewById(R.id.left_toolkit1).setVisibility(View.GONE);
             findViewById(R.id.left_toolkit4).setVisibility(View.GONE);
         } else if (id == R.id.top_toolkit_item3) {
             //AI note talking
             dtViewBottom.setVisibility(View.GONE);
             dtView.setVisibility(View.GONE);
+            llASR.setVisibility(View.GONE);
             findViewById(R.id.left_toolkit1).setVisibility(View.GONE);
             findViewById(R.id.left_toolkit4).setVisibility(View.GONE);
         } else if (id == R.id.top_toolkit_item4) {
             //Selection
             dtViewBottom.setVisibility(View.GONE);
             dtView.setVisibility(View.GONE);
+            llASR.setVisibility(View.GONE);
             findViewById(R.id.left_toolkit1).setVisibility(View.GONE);
             findViewById(R.id.left_toolkit4).setVisibility(View.VISIBLE);
             canvas.setInteractionMode(FabricView.SELECT_MODE);
@@ -550,6 +559,7 @@ public class BookActivity3 extends AppCompatActivity {
     FabricView canvas;
     View dtViewBottom;
     DrawTextView dtView;
+    LinearLayout llASR;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -771,6 +781,7 @@ public class BookActivity3 extends AppCompatActivity {
         //FIXME:throw new RuntimeException("not implemented");
         canvas = (FabricView) findViewById(R.id.canvas);
         dtView = (DrawTextView) findViewById(R.id.dtView);
+        llASR = (LinearLayout) findViewById(R.id.llASR);
         dtViewBottom = (View) findViewById(R.id.dtViewBottom);
         dtViewBottom.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -895,59 +906,37 @@ public class BookActivity3 extends AppCompatActivity {
     //    boolean isEraser = false;
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.pen:
-                onPen();
-                break;
-
-            case R.id.eraser:
-                onEraser();
-                break;
-
-            case R.id.undo:
-                onUndo();
-                break;
-
-            case R.id.redo:
-                onRedo();
-                break;
-
-            case R.id.grid:
-                if (SAVING_ASYNC) {
-                    if (task == null) {
-                        task = new SavingTask(false);
-                        task.executeOnExecutor(newFixedThreadPool);
-                    }
-                } else {
-                    gotoGridPage();
+        if (item.getItemId() == R.id.pen) {
+            onPen();
+        } else if (item.getItemId() == R.id.eraser) {
+            onEraser();
+        } else if (item.getItemId() == R.id.undo) {
+            onUndo();
+        } else if (item.getItemId() == R.id.redo) {
+            onRedo();
+        } else if (item.getItemId() == R.id.grid) {
+            if (SAVING_ASYNC) {
+                if (task == null) {
+                    task = new SavingTask(false);
+                    task.executeOnExecutor(newFixedThreadPool);
                 }
-                break;
-
-            case R.id.firstPage:
+            } else {
+                gotoGridPage();
+            }
+        } else if (item.getItemId() == R.id.firstPage) {
                 gotoFirstPage();
-                break;
-
-            case R.id.prevPage:
+        } else if (item.getItemId() == R.id.prevPage) {
                 gotoPrevPage();
-                break;
-
-            case R.id.nextPage:
+        } else if (item.getItemId() == R.id.nextPage) {
                 gotoNextPage();
-                break;
-
-            case R.id.lastPage:
+        } else if (item.getItemId() == R.id.lastPage) {
                 gotoLastPage();
-                break;
-
-            case R.id.addPage:
+        } else if (item.getItemId() == R.id.addPage) {
                 addNewPageAndGo(true);
-                break;
-
-            case R.id.share:
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    share();
-                }
-                break;
+        } else if (item.getItemId() == R.id.share) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                share();
+            }
         }
         return true;
     }
