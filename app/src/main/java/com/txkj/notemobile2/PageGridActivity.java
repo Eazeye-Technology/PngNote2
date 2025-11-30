@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.txkj.drawingapp.activity.BookActivity2;
+import com.txkj.drawingapp.activity.BookActivity3;
 import com.txkj.notemobile2.book.FastFile;
 import com.txkj.notemobile2.book.BookIO;
 import com.txkj.notemobile2.ui.CanvasBoox;
@@ -176,7 +177,8 @@ public class PageGridActivity extends AppCompatActivity {
 
     public void openPage(int pageIdx) {
         Intent it = new Intent(this,
-                Config.USE_NEW_UI == 1 ? BookActivity2.class : BookActivity.class);
+                Config.USE_NEW_UI == 2 ? BookActivity3.class :
+                        (Config.USE_NEW_UI == 1 ? BookActivity2.class : BookActivity.class));
         it.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         it.setData(this.getBookDir().getUri());
         it.putExtra(BookActivity.EXTRA_DIRURLPATH, this.getBookDir().getFilePath());

@@ -22,6 +22,7 @@ import android.view.View;
 import java.util.concurrent.locks.Lock;
 
 import com.txkj.drawingapp.activity.BookActivity2;
+import com.txkj.drawingapp.activity.BookActivity3;
 import com.txkj.notemobile2.BookActivity;
 import com.txkj.notemobile2.book.BookIO;
 import com.txkj.notemobile2.colorpicker.Dips;
@@ -467,6 +468,8 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
                     backText = ((BookActivity)act).curPattern;
                 } else if (act instanceof BookActivity2) {
                     backText = ((BookActivity2)act).curPattern;
+                } else if (act instanceof BookActivity3) {
+                    backText = ((BookActivity3)act).curPattern;
                 }
             }
             if (backText != null) {
@@ -492,6 +495,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
                     Paint paint = new Paint();
                     paint.setColor(0xFFCCCCCC);
                     paint.setAntiAlias(true);
+                    paint.setStyle(Paint.Style.FILL);
                     for (int i = 1; i < h / Dips.dpToPx(25) + 1; i++) {
                         // 1 because no line at the beginning
                         for (int j = 1; j < w / Dips.dpToPx(25) + 1; j++) {

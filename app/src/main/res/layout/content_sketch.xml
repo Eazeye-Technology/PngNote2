@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/content_sketch"
+    android:layout_alignParentTop="true">
+    <!--app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
+    <!--tools:context="com.helluva.telephone_pictionary_android.MainActivity"-->
+    <!--tools:showIn="@layout/activity_sketch">-->
+
+    <!--<Button-->
+    <!--android:text="Red"-->
+    <!--android:layout_width="59dp"-->
+    <!--android:layout_height="38dp"-->
+    <!--android:layout_gravity="bottom|right"-->
+    <!--android:id="@+id/red_button" />-->
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#000000FF"
+        android:id="@+id/llTop"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="#000000FF"
+            >
+            <TextView
+                android:text="TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/description_text_view"
+                android:textSize="20sp"
+                android:textColor="#000000"
+                android:paddingBottom="5dp"
+                android:paddingTop="5dp"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp" />
+            <Button
+                android:text="Draw"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/draw_mode"
+                android:textColor="#000000"
+                />
+            <Button
+                android:text="Select"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/select_mode"
+                android:textColor="#000000"
+                />
+            <Button
+                android:text="Rotate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/rotate_mode"
+                android:textColor="#000000"
+                />
+            <Button
+                android:text="Clean"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/clean_page"
+                android:textColor="#000000"
+                />
+            <Button
+                android:text="Undo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/undo_btn"
+                android:textColor="#000000"
+                />
+            <Button
+                android:text="Redo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/redo_btn"
+                android:textColor="#000000"
+                />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="#000000FF"
+            >
+            <Button
+                android:text="Text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/text_btn"
+                android:textColor="#000000"
+                />
+            <Button
+                android:text="Image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/image_btn"
+                android:textColor="#000000"
+                />
+        </LinearLayout>
+    </LinearLayout>
+
+
+    <com.agsw.FabricView.FabricView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/fabricView"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/llTop"
+        android:layout_marginBottom="60dp"/>
+
+    <Button
+        android:text="Done"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/next_button_sketch"
+        android:layout_marginRight="0dp"
+        android:layout_marginLeft="230dp"
+        android:layout_marginBottom="11dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="24dp" />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/color_spinner"
+        android:layout_alignTop="@+id/size_spinner"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="35dp">
+
+    </Spinner>
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/size_spinner"
+        android:layout_alignTop="@+id/next_button_sketch"
+        android:layout_centerHorizontal="true">
+    </Spinner>
+
+</RelativeLayout>
+
+
+

@@ -48,13 +48,23 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.txkj.drawingapp.activity.BookActivity2"
-            android:screenOrientation="landscape"
-            tools:ignore="LockedOrientationActivity"
+            android:name="com.txkj.drawingapp.activity.BookActivity3"
             android:launchMode="singleTask"
             android:exported="true"
             >
         </activity>
+        <!--android:screenOrientation="landscape"
+            tools:ignore="LockedOrientationActivity"
+            -->
+        <activity
+            android:name="com.txkj.drawingapp.activity.BookActivity2"
+            android:launchMode="singleTask"
+            android:exported="true"
+            >
+        </activity>
+        <!--android:screenOrientation="landscape"
+    tools:ignore="LockedOrientationActivity"
+    -->
         <activity
             android:name="com.txkj.notemobile2.BookActivity"
             android:screenOrientation="portrait"
@@ -73,6 +83,17 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+
+
+        <activity
+            android:name="com.helluva.telephone_pictionary_android.SketchActivity"
+            android:label="Sketch the description"
+            android:windowSoftInputMode="stateHidden">
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+        </activity>
     </application>
 
 </manifest>
