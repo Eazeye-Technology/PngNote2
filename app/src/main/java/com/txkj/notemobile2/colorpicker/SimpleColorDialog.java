@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 
 import com.txkj.drawingapp.activity.BookActivity2;
 import com.txkj.drawingapp.activity.BookActivity3;
+import com.txkj.drawingapp.activity.BookActivity4;
 import com.txkj.notemobile2.BookActivity;
 import com.txkj.drawingapp.R;
 
@@ -81,6 +82,9 @@ public class SimpleColorDialog extends Dialog {
                         act.setPenColor(colors[selectIndex]);
                     } else if (context != null && context instanceof BookActivity3) {
                         BookActivity3 act = (BookActivity3) context;
+                        act.setPenColor(colors[selectIndex]);
+                    } else if (context != null && context instanceof BookActivity4) {
+                        BookActivity4 act = (BookActivity4) context;
                         act.setPenColor(colors[selectIndex]);
                     }
 //                    view.setBackgroundResource(R.drawable.com_facebook_button_blue);

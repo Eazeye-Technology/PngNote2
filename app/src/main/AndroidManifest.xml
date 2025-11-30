@@ -64,7 +64,7 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
             </intent-filter>
         </activity>
         <activity
-            android:name="com.txkj.drawingapp.activity.BookActivity3"
+            android:name="com.txkj.drawingapp.activity.BookActivity4"
             android:launchMode="singleTask"
             android:exported="true"
             >
@@ -152,6 +152,19 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
             android:name="IFLYTEK_CHANNEL"
             android:value="Android_Demo" />
 
+
+
+            <!--freepaint -->
+        <activity
+            android:name="io.github.pastthepixels.freepaint.MainActivity"
+            android:configChanges="orientation|screenSize|uiMode"
+            android:exported="true"
+            android:theme="@style/Theme.FreePaint">
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+        </activity>
 
     </application>
 

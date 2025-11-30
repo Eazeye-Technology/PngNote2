@@ -23,6 +23,7 @@ import java.util.concurrent.locks.Lock;
 
 import com.txkj.drawingapp.activity.BookActivity2;
 import com.txkj.drawingapp.activity.BookActivity3;
+import com.txkj.drawingapp.activity.BookActivity4;
 import com.txkj.notemobile2.BookActivity;
 import com.txkj.notemobile2.book.BookIO;
 import com.txkj.notemobile2.colorpicker.Dips;
@@ -470,6 +471,8 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
                     backText = ((BookActivity2)act).curPattern;
                 } else if (act instanceof BookActivity3) {
                     backText = ((BookActivity3)act).curPattern;
+                } else if (act instanceof BookActivity4) {
+                    backText = ((BookActivity4)act).curPattern;
                 }
             }
             if (backText != null) {

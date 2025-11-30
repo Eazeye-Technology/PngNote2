@@ -42,7 +42,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
                 android:layout_gravity="center"
-                android:value="16.0"
+                android:value="5.0"
                 android:valueFrom="1.0"
                 android:valueTo="32.0" />
 
@@ -81,7 +81,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_margin="40dp"
+            android:layout_margin="5dp"
             >
             <TextView
                 android:layout_width="wrap_content"
@@ -104,13 +104,15 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    app:cardBackgroundColor="#F1EDEC"
+                    app:cardBackgroundColor="#1C1B1B"
                     app:cardCornerRadius="10dp"
                     app:cardElevation="5dp"
                     android:layout_gravity="center"
                     android:layout_marginRight="10dp"
                     android:layout_margin="10dp"
+                    android:id="@+id/colorBtn001"
                     >
+                    <!--#F1EDEC-->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -134,14 +136,15 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="@dimen/mtmobile__treefontsize4"
+                            android:textSize="14sp"
                             android:text="Black"
-                            android:textColor="#000000"
+                            android:textColor="#FFFFFF"
                             android:layout_gravity="center"
                             android:gravity="center"
                             android:layout_marginLeft="10px"
                             android:layout_marginRight="10px"
                             android:visibility="visible"
+                            android:tag="binding_1"
                             />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -155,6 +158,7 @@
                     android:layout_gravity="center"
                     android:layout_marginRight="10dp"
                     android:layout_margin="10dp"
+                    android:id="@+id/colorBtn002"
                     >
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -179,14 +183,15 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="@dimen/mtmobile__treefontsize4"
-                            android:text="Blue"
+                            android:textSize="14sp"
+                            android:text="DimGray"
                             android:textColor="#000000"
                             android:layout_gravity="center"
                             android:gravity="center"
                             android:layout_marginLeft="10px"
                             android:layout_marginRight="10px"
                             android:visibility="visible"
+                            android:tag="binding_1"
                             />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -200,6 +205,7 @@
                     android:layout_gravity="center"
                     android:layout_marginRight="10dp"
                     android:layout_margin="10dp"
+                    android:id="@+id/colorBtn003"
                     >
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -224,14 +230,15 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="@dimen/mtmobile__treefontsize4"
-                            android:text="Red"
+                            android:textSize="14sp"
+                            android:text="Gray"
                             android:textColor="#000000"
                             android:layout_gravity="center"
                             android:gravity="center"
                             android:layout_marginLeft="10px"
                             android:layout_marginRight="10px"
                             android:visibility="visible"
+                            android:tag="binding_1"
                             />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -251,6 +258,7 @@
                     android:layout_gravity="center"
                     android:layout_marginRight="10dp"
                     android:layout_margin="10dp"
+                    android:id="@+id/colorBtn004"
                     >
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -275,14 +283,15 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="@dimen/mtmobile__treefontsize4"
-                            android:text="Green"
+                            android:textSize="14sp"
+                            android:text="DarkGray"
                             android:textColor="#000000"
                             android:layout_gravity="center"
                             android:gravity="center"
                             android:layout_marginLeft="10px"
                             android:layout_marginRight="10px"
                             android:visibility="visible"
+                            android:tag="binding_1"
                             />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -296,6 +305,7 @@
                     android:layout_gravity="center"
                     android:layout_marginRight="10dp"
                     android:layout_margin="10dp"
+                    android:id="@+id/colorBtn005"
                     >
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -320,14 +330,15 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="@dimen/mtmobile__treefontsize4"
-                            android:text="Orange"
+                            android:textSize="14sp"
+                            android:text="Silver"
                             android:textColor="#000000"
                             android:layout_gravity="center"
                             android:gravity="center"
                             android:layout_marginLeft="10px"
                             android:layout_marginRight="10px"
                             android:visibility="visible"
+                            android:tag="binding_1"
                             />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -341,6 +352,7 @@
                     android:layout_gravity="center"
                     android:layout_marginRight="10dp"
                     android:layout_margin="10dp"
+                    android:id="@+id/colorBtn006"
                     >
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -365,14 +377,15 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="@dimen/mtmobile__treefontsize4"
-                            android:text="Yellow"
+                            android:textSize="14sp"
+                            android:text="LightGray"
                             android:textColor="#000000"
                             android:layout_gravity="center"
                             android:gravity="center"
                             android:layout_marginLeft="10px"
                             android:layout_marginRight="10px"
                             android:visibility="visible"
+                            android:tag="binding_1"
                             />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -392,6 +405,7 @@
                     android:layout_gravity="center"
                     android:layout_marginRight="10dp"
                     android:layout_margin="10dp"
+                    android:id="@+id/colorBtn007"
                     >
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -416,14 +430,15 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="@dimen/mtmobile__treefontsize4"
-                            android:text="Purple"
+                            android:textSize="14sp"
+                            android:text="Gainsboro"
                             android:textColor="#000000"
                             android:layout_gravity="center"
                             android:gravity="center"
                             android:layout_marginLeft="10px"
                             android:layout_marginRight="10px"
                             android:visibility="visible"
+                            android:tag="binding_1"
                             />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -437,6 +452,7 @@
                     android:layout_gravity="center"
                     android:layout_marginRight="10dp"
                     android:layout_margin="10dp"
+                    android:id="@+id/colorBtn008"
                     >
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -461,14 +477,15 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="@dimen/mtmobile__treefontsize4"
-                            android:text="Brown"
+                            android:textSize="14sp"
+                            android:text="WhiteSmoke"
                             android:textColor="#000000"
                             android:layout_gravity="center"
                             android:gravity="center"
                             android:layout_marginLeft="10px"
                             android:layout_marginRight="10px"
                             android:visibility="visible"
+                            android:tag="binding_1"
                             />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -482,6 +499,7 @@
                     android:layout_gravity="center"
                     android:layout_marginRight="10dp"
                     android:layout_margin="10dp"
+                    android:id="@+id/colorBtn009"
                     >
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -506,14 +524,15 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="@dimen/mtmobile__treefontsize4"
-                            android:text="Gray"
+                            android:textSize="14sp"
+                            android:text="White"
                             android:textColor="#000000"
                             android:layout_gravity="center"
                             android:gravity="center"
                             android:layout_marginLeft="10px"
                             android:layout_marginRight="10px"
                             android:visibility="visible"
+                            android:tag="binding_1"
                             />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>

@@ -12,8 +12,8 @@ android {
         applicationId "com.txkj.drawingapp"
         minSdk 23 //24
         targetSdk 36
-        versionCode 112
-        versionName "1.12"
+        versionCode 114
+        versionName "1.14"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -103,4 +103,9 @@ dependencies {
     implementation files('libs/SparkChain.aar')
     implementation files('libs/xxpermissions-8.2.aar')
     api 'com.google.code.gson:gson:2.8.8'
+
+    //freepaint
+    implementation 'androidx.preference:preference:1.2.1'
+    implementation 'com.takisoft.preferencex:preferencex:1.1.0'
+    implementation 'dev.romainguy:pathway:0.18.0'
 }

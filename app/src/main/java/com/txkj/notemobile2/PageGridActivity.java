@@ -176,9 +176,7 @@ public class PageGridActivity extends AppCompatActivity {
     }
 
     public void openPage(int pageIdx) {
-        Intent it = new Intent(this,
-                Config.USE_NEW_UI == 2 ? BookActivity3.class :
-                        (Config.USE_NEW_UI == 1 ? BookActivity2.class : BookActivity.class));
+        Intent it = new Intent(this, Config.getCls());
         it.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         it.setData(this.getBookDir().getUri());
         it.putExtra(BookActivity.EXTRA_DIRURLPATH, this.getBookDir().getFilePath());

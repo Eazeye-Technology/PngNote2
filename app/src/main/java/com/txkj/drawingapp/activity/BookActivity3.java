@@ -1,5 +1,6 @@
 package com.txkj.drawingapp.activity;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -1045,6 +1046,14 @@ public class BookActivity3 extends AppCompatActivity {
         //FIXME:throw new RuntimeException("not implemented");
         canvas = (FabricView) findViewById(R.id.canvas);
         dtView = (DrawTextView) findViewById(R.id.dtView);
+        dtView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (dtView != null) {
+                    dtView.hideSoftInput();
+                }
+            }
+        }, 100);
         llASR = (LinearLayout) findViewById(R.id.llASR);
         rl_ai = (RelativeLayout) findViewById(R.id.rl_ai);
         dtViewBottom = (View) findViewById(R.id.dtViewBottom);
@@ -1144,6 +1153,7 @@ public class BookActivity3 extends AppCompatActivity {
         return (int) (spValue * fontScale + 0.5f);
     }
 
+    @SuppressLint("GestureBackNavigation")
     @Override
     public void onBackPressed() {
         //FIXME:
@@ -1560,4 +1570,10 @@ public class BookActivity3 extends AppCompatActivity {
 //            canvas.drawImage(0, 0, initialBmp.getWidth(), initialBmp.getHeight(), initialBmp);
 //        }
     }
+
+
+    //FIXME:TODO:
+    //@SuppressLint("GestureBackNavigation")
+    //    @Override
+    //    public void onBackPressed() {
 }

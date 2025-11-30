@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- Permanent settings -->
+
+    <com.rarepebble.colorpicker.ColorPreference
+        android:defaultValue="#000000"
+        android:key="strokeColor"
+        android:title="@string/pref_stroke_color"
+        app:colorpicker_noneSelectedSummaryText="No color selected"
+        app:colorpicker_selectNoneButtonText="No color" />
+
+    <com.rarepebble.colorpicker.ColorPreference
+        android:key="fillColor"
+        android:title="@string/pref_fill_color"
+        app:colorpicker_noneSelectedSummaryText="No color selected"
+        app:colorpicker_selectNoneButtonText="No color" />
+
+    <com.takisoft.preferencex.EditTextPreference
+        android:digits="0123456789"
+        android:inputType="numberDecimal"
+        android:defaultValue="5"
+        app:key="strokeSize"
+        app:title="@string/stroke_size"
+        app:useSimpleSummaryProvider="true" />
+
+    <SwitchPreference
+        android:defaultValue="false"
+        app:key="drawFilledShapes"
+        app:title="@string/pref_closed_paths"
+        app:widgetLayout="@layout/switch_preference_material" />
+
+    <com.takisoft.preferencex.EditTextPreference
+        android:digits="0123456789"
+        android:inputType="numberDecimal"
+        android:defaultValue="0"
+        app:key="simplificationAmount"
+        app:title="@string/simplification_amount"
+        app:useSimpleSummaryProvider="true" />
+
+    <!-- Is set whenever you open a file, and by default is letter (according to Inkscape) -->
+    <com.takisoft.preferencex.EditTextPreference
+        android:digits="0123456789"
+        android:inputType="numberDecimal"
+        android:defaultValue="816"
+        app:key="documentWidth"
+        app:title="@string/document_width_setting"
+        app:useSimpleSummaryProvider="true" />
+
+    <com.takisoft.preferencex.EditTextPreference
+        android:digits="0123456789"
+        android:inputType="numberDecimal"
+        android:defaultValue="1056"
+        app:key="documentHeight"
+        app:title="@string/document_height_setting"
+        app:useSimpleSummaryProvider="true" />
+
+    <!-- Non-tool preferences -->
+    <SwitchPreference
+        android:defaultValue="true"
+        app:key="savePrefsOnExit"
+        app:title="@string/save_preferences_on_exit"
+        app:widgetLayout="@layout/switch_preference_material" />
+
+</PreferenceScreen>

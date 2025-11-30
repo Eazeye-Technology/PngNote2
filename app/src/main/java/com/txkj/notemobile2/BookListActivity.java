@@ -41,6 +41,7 @@ import java.util.Map;
 
 import com.txkj.drawingapp.activity.BookActivity2;
 import com.txkj.drawingapp.activity.BookActivity3;
+import com.txkj.drawingapp.activity.BookActivity4;
 import com.txkj.notemobile2.book.BookIO;
 import com.txkj.notemobile2.book.FastFile;
 import com.txkj.notemobile2.book.SimpleFileMeta;
@@ -209,9 +210,17 @@ public class BookListActivity extends AppCompatActivity {
                 FastFile f = files.get(i);
                 if (f != null && f.getName() != null && f.getName().equals(APP_FILE)) {
                     int pageIdx = i;
-                    Intent intent = new Intent(BookListActivity.this,
-                            Config.USE_NEW_UI == 2 ? BookActivity3.class :
-                                    (Config.USE_NEW_UI == 1 ? BookActivity2.class : BookActivity.class));
+                    Class<?> cls = null;
+                    if (Config.USE_NEW_UI == 3) {
+                        cls = BookActivity4.class;
+                    } else if (Config.USE_NEW_UI == 2) {
+                        cls = BookActivity3.class;
+                    } else if (Config.USE_NEW_UI == 1) {
+                        cls = BookActivity2.class;
+                    } else {
+                        cls = BookActivity.class;
+                    }
+                    Intent intent = new Intent(BookListActivity.this, cls);
                     intent.setData(files.get(pageIdx).getUri());
                     intent.putExtra(BookActivity.EXTRA_DIRURLPATH, files.get(pageIdx).getFilePath());
                     startActivity(intent);
@@ -447,9 +456,7 @@ public class BookListActivity extends AppCompatActivity {
                 }
                 if (position >= 0) {
                     int pageIdx = position;
-                    Intent intent = new Intent(BookListActivity.this,
-                            Config.USE_NEW_UI == 2 ? BookActivity3.class :
-                                    (Config.USE_NEW_UI == 1 ? BookActivity2.class : BookActivity.class));
+                    Intent intent = new Intent(BookListActivity.this, Config.getCls());
                     intent.setData(files.get(pageIdx).getUri());
                     String filePath = files.get(pageIdx).getFilePath();
                     //FIXME:可能乱序了
@@ -562,9 +569,7 @@ public class BookListActivity extends AppCompatActivity {
                             FastFile f = files.get(i);
                             if (f != null && f.getName() != null && f.getName().equals(newBookName)) {
                                 int pageIdx = i;
-                                Intent intent = new Intent(BookListActivity.this,
-                                        Config.USE_NEW_UI == 2 ? BookActivity3.class :
-                                                (Config.USE_NEW_UI == 1 ? BookActivity2.class : BookActivity.class));
+                                Intent intent = new Intent(BookListActivity.this, Config.getCls());
                                 intent.setData(files.get(pageIdx).getUri());
                                 intent.putExtra(BookActivity.EXTRA_DIRURLPATH, files.get(pageIdx).getFilePath());
                                 if (backText != null) {

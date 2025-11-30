@@ -1,0 +1,33 @@
+<resources>
+<!--    <string name="app_name">FreePaint</string>-->
+    <string name="action_settings">Settings</string>
+    <!-- Actions -->
+    <string name="action_save">Save as…</string>
+    <string name="action_load">Load file</string>
+    <!-- Tools -->
+    <string name="tool_paintbrush">Paintbrush</string>
+    <string name="tool_pan">Pan</string>
+    <string name="tool_eraser">Eraser</string>
+    <string name="tool_select">Select and move</string>
+    <!-- MainActivity elements -->
+    <string name="toggleToolbar">Toggle toolbar visibility</string>
+    <!-- Settings -->
+    <string name="document_width_setting">Document width (pixels)</string>
+    <string name="document_height_setting">Document height (pixels)</string>
+    <string name="stroke_size">Stroke size (pixels)</string>
+    <string name="pref_closed_paths">Draw closed paths</string>
+    <string name="pref_fill_color">Fill color</string>
+    <string name="pref_stroke_color">Stroke color</string>
+    <string name="settings_header">Settings</string>
+    <!-- other -->
+    <string name="draw_canvas_description">A canvas containing a rectangle, representing a document which users may draw on.</string>
+    <string name="toggleToolbarToggle">Show a button to toggle the toolbar</string>
+    <string name="save_preferences_on_exit">Remember preferences</string>
+    <string name="action_undo">Undo</string>
+    <string name="action_redo">Redo</string>
+    <string name="opt_category_file">File</string>
+    <string name="action_set_stroke">Set stroke color</string>
+    <string name="action_set_fill">Set fill color</string>
+    <string name="action_export">Export</string>
+    <string name="simplification_amount">Line simplification amount</string>
+</resources>

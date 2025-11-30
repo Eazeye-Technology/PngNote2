@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 
 import com.txkj.drawingapp.activity.BookActivity2;
 import com.txkj.drawingapp.activity.BookActivity3;
+import com.txkj.drawingapp.activity.BookActivity4;
 import com.txkj.notemobile2.BookActivity;
 import com.txkj.notemobile2.BookListActivity;
 import com.txkj.drawingapp.R;
@@ -79,6 +80,10 @@ public class PaintSelectDialog extends Dialog {
                     act.onPaintSelect(backText);
                 } else if (context != null && context instanceof BookActivity3) {
                     BookActivity3 act = (BookActivity3) context;
+                    String backText = recentNoteAdapter.getSelectText();
+                    act.onPaintSelect(backText);
+                } else if (context != null && context instanceof BookActivity4) {
+                    BookActivity4 act = (BookActivity4) context;
                     String backText = recentNoteAdapter.getSelectText();
                     act.onPaintSelect(backText);
                 }

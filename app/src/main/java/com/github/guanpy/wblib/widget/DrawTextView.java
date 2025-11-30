@@ -358,7 +358,7 @@ public class DrawTextView extends RelativeLayout implements
         });
     }
 
-    private void hideSoftInput() {
+    public void hideSoftInput() {
         if (this == null || mContext == null || mEtTextEdit == null) {
             return;
         }
