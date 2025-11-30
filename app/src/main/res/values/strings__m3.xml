@@ -1,0 +1,14 @@
+<resources>
+    <string-array name="cat_textfield_exposed_dropdown_content1" translatable="false">
+        <item>Alex</item>
+        <item>Jamie</item>
+        <item>Casey</item>
+        <item>Taylor</item>
+    </string-array>
+    <string-array name="cat_textfield_exposed_dropdown_content2" translatable="false">
+        <item>Meeting</item>
+        <item>Lecture</item>
+        <item>Interview</item>
+        <item>Brainstorming</item>
+    </string-array>
+</resources>
