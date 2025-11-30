@@ -520,4 +520,18 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
     public int getPenType() {
         return this.penType;
     }
+    private boolean eraserMode = false;
+    public boolean getEraserMode() {
+        return eraserMode;
+    }
+    public void setEraserMode(boolean eraserMode) {
+        this.eraserMode = eraserMode;
+    }
+    private boolean scaleMode = false;
+    public boolean getScaleMode() {
+        return scaleMode;
+    }
+    public void setScaleMode(boolean scaleMode) {
+        this.scaleMode = scaleMode;
+    }
 }

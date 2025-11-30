@@ -27,6 +27,8 @@ public class SelectionTool implements Tool {
     boolean changedDrawPaths = false;
     private TOUCH_MODES mode;
 
+    public Point scalePoint;
+
 
     /**
      * Creates a SelectionTool instance, saying that the selection path has to be closed (it's a rectangle)
@@ -92,6 +94,15 @@ public class SelectionTool implements Tool {
                 } else {
                     mode = TOUCH_MODES.move;
                     previousPoint = null;
+
+                    if (getScaleMode()) {
+//                    Point touchPoint = canvas.mapPoint(event.getX(), event.getY());
+//                    scalePoint = touchPoint;
+                        currentPath.beginScale();
+                        for (DrawPath path : selectedPaths) {
+                            path.beginScale();
+                        }
+                    }
                 }
                 break;
 
@@ -106,12 +117,22 @@ public class SelectionTool implements Tool {
                     currentPath.addPoint(new Point(originalPoint.x, touchPoint.y));
                 }
                 if (mode == TOUCH_MODES.move && previousPoint != null) {
-                    // If we're trying to move all the paths we selected... well, move them!
-                    changedDrawPaths = true;
-                    currentPath.translate(touchPoint.clone().applySubtract(previousPoint));
-                    for (DrawPath path : selectedPaths) {
-                        path.translate(touchPoint.clone().applySubtract(previousPoint));
-                        path.cachePath();
+                    if (getScaleMode()) {
+                        if (scalePoint != null) {
+                            currentPath.scale(scalePoint, touchPoint.clone().applySubtract(scalePoint));
+                            for (DrawPath path : selectedPaths) {
+                                path.scale(scalePoint, touchPoint.clone().applySubtract(scalePoint));
+                                path.cachePath();
+                            }
+                        }
+                    } else {
+                        // If we're trying to move all the paths we selected... well, move them!
+                        changedDrawPaths = true;
+                        currentPath.translate(touchPoint.clone().applySubtract(previousPoint));
+                        for (DrawPath path : selectedPaths) {
+                            path.translate(touchPoint.clone().applySubtract(previousPoint));
+                            path.cachePath();
+                        }
                     }
                 }
                 // Important for second if statement
@@ -124,6 +145,17 @@ public class SelectionTool implements Tool {
                     // do math to actually select those paths.
                     selectPaths();
                     currentPath.appearance = APPEARANCE_SELECTED;
+                } else {
+                    //---------------
+                    if (getScaleMode()) {
+                        if (mode == TOUCH_MODES.move) {
+                            scalePoint = null;
+                            if (currentPath != null) {
+                                currentPath.endScale();
+                            }
+                        }
+                    }
+                    //---------------
                 }
                 mode = TOUCH_MODES.none;
                 break; // Usually we would say we consumed the input and we shouldn't do a redraw
@@ -184,14 +216,23 @@ public class SelectionTool implements Tool {
             }
         }
 
-        // Yep, we are rebuilding the current path to reflect not the bounds the user selected,
-        // but the bounds of the *paths* the user selected.
-        currentPath.clear();
-        if (boundsTop != null) {
-            currentPath.addPoint(boundsTop);
-            currentPath.addPoint(new Point(boundsBottom.x, boundsTop.y));
-            currentPath.addPoint(boundsBottom);
-            currentPath.addPoint(new Point(boundsTop.x, boundsBottom.y));
+        if (canvas.getEraserMode()) {
+            eraseCurrentPath();
+        } else {
+            // Yep, we are rebuilding the current path to reflect not the bounds the user selected,
+            // but the bounds of the *paths* the user selected.
+            currentPath.clear();
+            if (boundsTop != null) {
+                currentPath.addPoint(boundsTop);
+                currentPath.addPoint(new Point(boundsBottom.x, boundsTop.y));
+                currentPath.addPoint(boundsBottom);
+                currentPath.addPoint(new Point(boundsTop.x, boundsBottom.y));
+
+                if (getScaleMode()) {
+                    scalePoint = new Point((boundsTop.x + boundsBottom.x) / 2,
+                            (boundsTop.y + boundsBottom.y) / 2);
+                }
+            }
         }
     }
 
@@ -204,4 +245,16 @@ public class SelectionTool implements Tool {
      * different conditions and reset once you lift your finger off the screen.
      */
     private enum TOUCH_MODES {none, define, move}
+
+    public void eraseCurrentPath() {
+        for (DrawPath path : canvas.paths) {
+            path.erase(currentPath);
+            path.cachePath();
+        }
+        currentPath.clear();
+        init();
+    }
+    private boolean getScaleMode() {
+        return canvas.getScaleMode();
+    }
 }

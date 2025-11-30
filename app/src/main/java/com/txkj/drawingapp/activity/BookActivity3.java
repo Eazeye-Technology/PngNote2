@@ -765,7 +765,7 @@ public class BookActivity3 extends AppCompatActivity {
         setContentView(R.layout.activity_book3);
 
         if (this.dirUrlPath != null) {
-            ((TextView) findViewById(R.id.newTitle)).setText(this.dirUrlPath);
+            ((TextView) findViewById(R.id.newTitle)).setText(getBookName(this.dirUrlPath));
         }
 
         if (false) { //for debugging
@@ -1580,6 +1580,20 @@ public class BookActivity3 extends AppCompatActivity {
 //        }
     }
 
+    public String getBookName(String url) {
+        if (url == null) {
+            return "";
+        }
+        try {
+            return new File(url).getName();
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+        }
+        if (url.contains("/")) {
+            return url.substring(url.lastIndexOf("/") + 1);
+        }
+        return url;
+    }
 
     //FIXME:TODO:
     //@SuppressLint("GestureBackNavigation")

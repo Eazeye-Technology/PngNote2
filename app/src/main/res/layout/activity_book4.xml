@@ -731,8 +731,10 @@
                         android:layout_margin="8dp"
                         android:layout_gravity="center"
                         android:text="Toggle Note Taking panel"
-                        app:icon="@drawable/ic_baseline_add_24"
+                        app:icon="@drawable/ic_my_bar_panel_011_w"
                         android:id="@+id/btnPanel"
+                        android:textColor="#FFFFFF"
+                        app:iconTint="@color/white"
                         />
                     <!--
                     android:contentDescription="@string/m3_primary_small_extended_fab_content_desc"

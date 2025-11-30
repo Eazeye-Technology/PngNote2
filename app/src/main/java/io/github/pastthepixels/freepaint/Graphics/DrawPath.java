@@ -405,6 +405,26 @@ public class DrawPath {
         }
     }
 
+    public ArrayList<Point> points_beforeScale = new ArrayList<>();
+    public void beginScale() {
+        points_beforeScale.clear();
+        for (Point point: points) {
+            points_beforeScale.add(point.clone());
+        }
+    }
+    public void endScale() {
+        points_beforeScale.clear();
+    }
+    public void scale(Point center, Point by) {
+        double scale = Math.sqrt(by.x * by.x + by.y * by.y) / Math.sqrt(2) / 10;
+        for (int i = 0; i < points.size(); ++i) {
+            Point point = points.get(i);
+            Point point_beforeScale = points_beforeScale.get(i);
+            point.x = (float)(center.x + (point_beforeScale.x - center.x) * scale);
+            point.y = (float)(center.y + (point_beforeScale.y - center.y) * scale);
+        }
+    }
+
     /**
      * Point-shape collisions. This should be better than other implementations because by using Path.op we can account
      * for cases where getPath() returns a path with curves instead of a polygon with straight lines!

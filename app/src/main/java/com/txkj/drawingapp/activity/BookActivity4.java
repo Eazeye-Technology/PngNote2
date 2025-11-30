@@ -776,18 +776,26 @@ public class BookActivity4 extends AppCompatActivity {
             if (id == R.id.left_toolkit_item41) {
                 //移动
                 canvas.setTool(DrawCanvas.TOOLS.select);
+                canvas.setEraserMode(false);
+                canvas.setScaleMode(false);
             } else if (id == R.id.left_toolkit_item42) {
-                //选择
+                //多选
                 canvas.setTool(DrawCanvas.TOOLS.select);
+                canvas.setEraserMode(false);
+                canvas.setScaleMode(false);
             } else if (id == R.id.left_toolkit_item43) {
-                //选择
+                //放大
                 canvas.setTool(DrawCanvas.TOOLS.select);
+                canvas.setEraserMode(false);
+                canvas.setScaleMode(true);
             } else if (id == R.id.left_toolkit_item44) {
                 //拖动
                 canvas.setTool(DrawCanvas.TOOLS.pan);
             } else if (id == R.id.left_toolkit_item45) {
                 //删除
                 canvas.setTool(DrawCanvas.TOOLS.select);
+                canvas.setEraserMode(true);
+                canvas.setScaleMode(false);
             }
         }
     }
@@ -915,7 +923,7 @@ public class BookActivity4 extends AppCompatActivity {
         setPenColor(0xFF000000); //FIXME:初始化画笔
 
         if (this.dirUrlPath != null) {
-            ((TextView) findViewById(R.id.newTitle)).setText(this.dirUrlPath);
+            ((TextView) findViewById(R.id.newTitle)).setText(getBookName(this.dirUrlPath));
         }
 
         if (false) { //for debugging
@@ -1792,6 +1800,21 @@ public class BookActivity4 extends AppCompatActivity {
 
             }
         });
+    }
+
+    public String getBookName(String url) {
+        if (url == null) {
+            return "";
+        }
+        try {
+            return new File(url).getName();
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+        }
+        if (url.contains("/")) {
+            return url.substring(url.lastIndexOf("/") + 1);
+        }
+        return url;
     }
 
     //FIXME:TODO:
