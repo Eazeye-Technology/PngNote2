@@ -228,9 +228,18 @@ public class BookActivity2 extends AppCompatActivity {
     }
 
     private void ensureSave() {
-        if (this.isDirty) {
-            this.isDirty = false;
-            this.savePageInMain(this.getPageIdx(), this.pageBmp);
+        try {
+            if (this.isDirty) {
+                this.isDirty = false;
+                this.savePageInMain(this.getPageIdx(), this.pageBmp);
+            }
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+            try {
+                Toast.makeText(this, "Save failed", Toast.LENGTH_SHORT).show();
+            } catch (Throwable eee2) {
+                eee2.printStackTrace();
+            }
         }
     }
 

@@ -71,6 +71,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -279,9 +280,18 @@ public class BookActivity4 extends AppCompatActivity {
     }
 
     private void ensureSave() {
-        if (this.isDirty) {
-            this.isDirty = false;
-            this.savePageInMain(this.getPageIdx(), this.pageBmp);
+        try {
+            if (this.isDirty) {
+                this.isDirty = false;
+                this.savePageInMain(this.getPageIdx(), this.pageBmp);
+            }
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+            try {
+                Toast.makeText(this, "Save failed", Toast.LENGTH_SHORT).show();
+            } catch (Throwable eee2) {
+                eee2.printStackTrace();
+            }
         }
     }
 
@@ -874,6 +884,9 @@ public class BookActivity4 extends AppCompatActivity {
         }
         this.findViewById(R.id.bottomDialog1).setVisibility(View.GONE);
         this.findViewById(R.id.bottomDialog2).setVisibility(View.GONE);
+        if (dtView != null) {
+            dtView.hideSoftInput();
+        }
     }
     //--------------------------
 
@@ -1220,7 +1233,7 @@ public class BookActivity4 extends AppCompatActivity {
 
         //FIXME:throw new RuntimeException("not implemented");
         canvas = (DrawCanvas) findViewById(R.id.canvas);
-        canvas.setPenType(DrawAppearance.PEN_TYPE_0);
+        canvas.setPenType(DrawAppearance.PEN_TYPE_1);
         dtView = (DrawTextView) findViewById(R.id.dtView);
         dtView.postDelayed(new Runnable() {
             @Override

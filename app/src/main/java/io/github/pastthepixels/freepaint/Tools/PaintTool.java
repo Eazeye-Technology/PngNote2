@@ -60,7 +60,12 @@ public class PaintTool implements Tool {
                 appearance.penType = canvas.getPenType();
                 // Starts a new line in the path -- whether or not it is closed is taken from the preferences (defaults to false)
                 currentPath = new DrawPath(null);
-                currentPath.simplificationAmount = Double.parseDouble(PreferenceManager.getDefaultSharedPreferences(canvas.getContext()).getString("simplificationAmount", "0"));
+                if (appearance.penType == DrawAppearance.PEN_TYPE_6) {
+                    currentPath.simplificationAmount = 100;
+                } else {
+                    currentPath.simplificationAmount = 0;
+                }
+                //currentPath.simplificationAmount = Double.parseDouble(PreferenceManager.getDefaultSharedPreferences(canvas.getContext()).getString("simplificationAmount", "0"));
                 currentPath.isClosed = PreferenceManager.getDefaultSharedPreferences(canvas.getContext()).getBoolean("drawFilledShapes", false);
                 currentPath.appearance = appearance.clone();
                 canvas.paths.add(currentPath);

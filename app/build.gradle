@@ -5,15 +5,15 @@ plugins {
 android {
     namespace 'com.txkj.drawingapp'
     compileSdk {
-        version = release(36)
+        version = release(35) //release(36) //(35) //
     }
 
     defaultConfig {
         applicationId "com.txkj.drawingapp"
-        minSdk 23 //24
-        targetSdk 36
-        versionCode 114
-        versionName "1.14"
+        minSdk 21 //23 //24
+        targetSdk 35//36 //35 //
+        versionCode 116
+        versionName "1.16"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 

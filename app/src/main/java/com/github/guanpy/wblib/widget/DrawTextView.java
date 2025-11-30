@@ -129,6 +129,7 @@ public class DrawTextView extends RelativeLayout implements
         mRlContent = (RelativeLayout) findViewById(R.id.rl_content);
         mRlText = (RelativeLayout) findViewById(R.id.rl_text);
         mEtTextEdit = (EditText) findViewById(R.id.et_text_edit);
+        mEtTextEdit.setEnabled(true);
         mTvTextEdit = (TextView) findViewById(R.id.tv_text_edit);
         mBtTextDelete = (Button) findViewById(R.id.bt_text_delete);
         mBtTextEdit = (Button) findViewById(R.id.bt_text_edit);
@@ -351,9 +352,15 @@ public class DrawTextView extends RelativeLayout implements
         et.post(new Runnable() {
             @Override
             public void run() {
+                mEtTextEdit.setEnabled(true);
+                mEtTextEdit.requestFocus();
                 // 弹出输入法
                 InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(et, InputMethodManager.RESULT_UNCHANGED_SHOWN);
+                if (true) {
+                    imm.showSoftInput(et, 0);//InputMethodManager.RESULT_UNCHANGED_SHOWN);
+                } else {
+                    imm.showSoftInput(et, InputMethodManager.SHOW_IMPLICIT);
+                }
             }
         });
     }
@@ -362,6 +369,7 @@ public class DrawTextView extends RelativeLayout implements
         if (this == null || mContext == null || mEtTextEdit == null) {
             return;
         }
+        mEtTextEdit.setEnabled(false);
         // 隐藏输入法
         ((InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE))
                 .hideSoftInputFromWindow(mEtTextEdit.getWindowToken(), 0);

@@ -49,19 +49,28 @@ public class Book {
 
     //FIXME:????
     public Book assignNonEmpty(int pageIdx) {
-        if (!this.getPage(pageIdx).getFile().isEmpty()) {
+        BookPage page = this.getPage(pageIdx);
+        if (page != null && page.getFile() != null && !page.getFile().isEmpty()) {
             return this;
         }
 
         List<FastFile> it = new ArrayList<FastFile>();
-        for (int idx = 0; idx < this.pages.size(); ++idx) {
-            FastFile file = this.pages.get(idx);
-            if (idx != pageIdx) {
-                it.add(file);
-            } else {
-                it.add(FastFile.copy(file, null, null, null, 0L,
-                        null, 1000L, null, 47, null));
+        try {
+            for (int idx = 0; idx < this.pages.size(); ++idx) {
+                FastFile file = this.pages.get(idx);
+                if (idx != pageIdx) {
+                    it.add(file);
+                } else {
+                    try {
+                        it.add(FastFile.copy(file, null, null, null, 0L,
+                                null, 1000L, null, 47, null));
+                    } catch (Throwable eee) {
+                        eee.printStackTrace();
+                    }
+                }
             }
+        } catch (Throwable eee2) {
+            eee2.printStackTrace();
         }
         return new Book(this.bookDir, it, this.bgImage);
     }

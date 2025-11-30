@@ -582,10 +582,12 @@ public class RecordingActivity extends Activity implements OnItemClickListener, 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE) {
-            if (Environment.isExternalStorageManager()) {
-                // 权限已授予
-            } else {
-                // 权限未授予
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (Environment.isExternalStorageManager()) {
+                    // 权限已授予
+                } else {
+                    // 权限未授予
+                }
             }
         }
     }

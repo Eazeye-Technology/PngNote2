@@ -11,7 +11,10 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
@@ -39,6 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.foobnix.pdf.info.Android6Mod;
 import com.txkj.drawingapp.activity.BookActivity2;
 import com.txkj.drawingapp.activity.BookActivity3;
 import com.txkj.drawingapp.activity.BookActivity4;
@@ -684,6 +688,17 @@ public class BookListActivity extends AppCompatActivity {
         void onDismiss();
     }
 
+    /*
+com.foobnix.pdf.info.Android6
+if (!Android6.canWrite(this)) {
+Android6.checkPermissions(this, true);
+return;
+}
+@Override // androidx.fragment.app.FragmentActivity, androidx.activity.ComponentActivity, android.app.Activity
+public void onRequestPermissionsResult(int i, String[] strArr, int[] iArr) {
+Android6.onRequestPermissionsResult(this, i, strArr, iArr);
+}
+*/
     private static final String STATE_STARTED = "STATE_STARTED";
     //原文链接：https://blog.csdn.net/zuo_er_lyf/article/details/82659426
     //https://www.dev2qa.com/android-read-write-external-storage-file-example/
@@ -701,12 +716,15 @@ public class BookListActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        Android6Mod.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CODE_WRITE_EXTERNAL_STORAGE_PERMISSION) {
             int grantResultsLength = grantResults.length;
             if (grantResultsLength > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 //Toast.makeText(getApplicationContext(), "You grant write external storage permission. Please click original button again to continue.", Toast.LENGTH_LONG).show();
+                getPermission2();
             } else {
                 //Toast.makeText(getApplicationContext(), "You denied write external storage permission.", Toast.LENGTH_LONG).show();
+                getPermission2();
             }
         }
     }
@@ -769,5 +787,35 @@ public class BookListActivity extends AppCompatActivity {
             }
         }
         return true;
+    }
+
+    private final static int REQUEST_CODE = 1111;
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (Environment.isExternalStorageManager()) {
+                    // 权限已授予
+                } else {
+                    // 权限未授予
+                }
+            }
+        }
+    }
+    private void getPermission2(){
+        if (false) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (!Environment.isExternalStorageManager()) {
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                    startActivityForResult(intent, REQUEST_CODE);
+                }
+            }
+        } else {
+            if (!Android6Mod.canWrite(this)) {
+                Android6Mod.checkPermissions(this, true);
+                return;
+            }
+        }
     }
 }
