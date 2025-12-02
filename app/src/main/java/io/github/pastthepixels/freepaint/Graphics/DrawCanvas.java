@@ -7,17 +7,22 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 
+import com.agsw.FabricView.DrawableObjects.CText;
 import com.agsw.FabricView.FabricView;
 import com.txkj.drawingapp.activity.BookActivity4;
+import com.txkj.notemobile2.book.BookIO;
 import com.txkj.notemobile2.colorpicker.Dips;
+import com.txkj.notemobile2.ui.CanvasBoox;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -353,10 +358,14 @@ public final class DrawCanvas extends View {
             path.draw(canvas, paint, screenDensity, getScaleFactor());
         }
         if (!drawMinimal && getTool() != null && getTool().getToolPaths() != null) {
-            if (getTool() instanceof EraserTool) {
-                paint.setARGB(150, 0, 0, 0);
-                paint.setStyle(Paint.Style.FILL);
-                canvas.drawPaint(paint);
+            if (EraserTool.USE_SIMPLE_IMPL) {
+                //skip, 不显示上方的全局灰色遮罩层
+            } else {
+                if (getTool() instanceof EraserTool) {
+                    paint.setARGB(150, 0, 0, 0);
+                    paint.setStyle(Paint.Style.FILL);
+                    canvas.drawPaint(paint);
+                }
             }
             for (DrawPath path : getTool().getToolPaths()) {
                 paint.reset();
@@ -533,5 +542,105 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
     }
     public void setScaleMode(boolean scaleMode) {
         this.scaleMode = scaleMode;
+    }
+    public void drawText(String text, int x, int y, Paint p) {
+        if (p == null) {
+            int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 20, getContext().getResources().getDisplayMetrics());
+            p = new Paint();
+            p.setTextSize(px);
+            p.setColor(Color.BLACK);
+        }
+        final boolean debug = true;
+        DrawAppearance appearance = new DrawAppearance(Color.BLACK, -1);
+        appearance.loadFromSettings(getContext());
+        appearance.penType = DrawAppearance.PEN_TYPE_4; //getPenType();
+        // Starts a new line in the path -- whether or not it is closed is taken from the preferences (defaults to false)
+        DrawPath currentPath = new DrawPath(null, DrawPath.POINTS_TYPE_TEXT);
+        currentPath.isClosed = PreferenceManager.getDefaultSharedPreferences(getContext()).getBoolean("drawFilledShapes", false);
+        currentPath.appearance = appearance.clone();
+
+        currentPath.pointsType = DrawPath.POINTS_TYPE_TEXT;
+        Point mapP = this.mapPoint(x, y);
+        currentPath.pointsTextX = mapP.x;
+        currentPath.pointsTextY = mapP.y;
+        currentPath.pointsText = text;
+
+        if (debug) {
+            currentPath.addPoint(this.mapPoint(x, y));
+            currentPath.addPoint(this.mapPoint(x + 100, y));
+            currentPath.addPoint(this.mapPoint(x + 100, y + 100));
+            currentPath.addPoint(this.mapPoint(x, y + 100));
+            currentPath.addPoint(this.mapPoint(x, y));
+            if (false) {
+                currentPath.finalise(); //don't use finalise
+            }
+            currentPath.cachePath();
+            this.paths.add(currentPath);
+        } else {
+//            currentPath.addPoint(this.mapPoint(x, y));
+//            currentPath.cachePath();
+            this.paths.add(currentPath);
+        }
+        if (true) { //FIXME:???
+            invalidate();
+        }
+    }
+    public void drawImage(int x, int y, int width, int height, Bitmap pic, boolean needMap) {
+        final boolean debug = true;
+        DrawAppearance appearance = new DrawAppearance(Color.BLACK, -1);
+        appearance.loadFromSettings(getContext());
+        appearance.penType = DrawAppearance.PEN_TYPE_4; //getPenType();
+        // Starts a new line in the path -- whether or not it is closed is taken from the preferences (defaults to false)
+        DrawPath currentPath = new DrawPath(null, DrawPath.POINTS_TYPE_TEXT);
+        currentPath.isClosed = PreferenceManager.getDefaultSharedPreferences(getContext()).getBoolean("drawFilledShapes", false);
+        currentPath.appearance = appearance.clone();
+
+        currentPath.pointsType = DrawPath.POINTS_TYPE_IMAGE;
+        Point mapP = null;
+        if (needMap) {
+            mapP = this.mapPoint(x, y);
+        } else {
+            mapP = new Point(x, y);
+        }
+        currentPath.pointsTextX = mapP.x;
+        currentPath.pointsTextY = mapP.y;
+        currentPath.pointsBitmap = pic;
+
+        if (debug) {
+            currentPath.addPoint(this.mapPoint(x, y));
+            currentPath.addPoint(this.mapPoint(x + width, y));
+            currentPath.addPoint(this.mapPoint(x + width, y + height));
+            currentPath.addPoint(this.mapPoint(x, y + height));
+            currentPath.addPoint(this.mapPoint(x, y));
+            if (false) {
+                currentPath.finalise(); //don't use finalise
+            }
+            currentPath.cachePath();
+            this.paths.add(currentPath);
+        } else {
+//            currentPath.addPoint(this.mapPoint(x, y));
+//            currentPath.cachePath();
+            this.paths.add(currentPath);
+        }
+        if (true) { //FIXME:???
+            invalidate();
+        }
+    }
+    public int pageIdx;
+    public void onPageIdx(int idx, CanvasBoox.OnLoadBitmapListener bitmapLoader) {
+        if (bitmapLoader != null) {
+            if (this.pageIdx != idx) {
+                this.pageIdx = idx;
+                Bitmap newBmp = bitmapLoader.onLoadBitmap(idx);
+                this.initialBmp = newBmp;
+
+                // Clear path list/history
+                paths.clear();
+                versions.clear();
+                version_index = -1;
+
+                this.invalidate();
+            }
+        }
     }
 }

@@ -20,7 +20,7 @@ public class SelectionTool implements Tool {
     private final LinkedList<DrawPath> toolPaths = new LinkedList<>();
     private final LinkedList<DrawPath> selectedPaths = new LinkedList<>();
 
-    private final DrawPath currentPath = new DrawPath(null);
+    private final DrawPath currentPath = new DrawPath(null, DrawPath.POINTS_TYPE_STROKE);
     private final DrawCanvas canvas;
     public Point originalPoint = new Point(0, 0);
     public Point previousPoint = null;

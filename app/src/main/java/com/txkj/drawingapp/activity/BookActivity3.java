@@ -1077,7 +1077,7 @@ public class BookActivity3 extends AppCompatActivity {
                         int lastY = (int) event.getY();
                         dtViewBottom.setVisibility(View.GONE);
                         dtView.setVisibility(View.VISIBLE);
-                        dtView.init2(lastX, lastY, "", new DrawTextView.CallBackListener() {
+                        dtView.init2(lastX, lastY, "", 0xFF000000, new DrawTextView.CallBackListener() {
                             @Override
                             public void onUpdate(DrawPoint drawPoint) {
 

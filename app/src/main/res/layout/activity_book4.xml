@@ -34,12 +34,15 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="150dp"
-            android:layout_marginLeft="50dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="10dp"
             android:id="@+id/left_toolkit1"
             android:visibility="gone"
             >
+            <!--
+            android:layout_marginTop="150dp"
+            android:layout_marginLeft="50dp"-->
+
             <androidx.cardview.widget.CardView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -325,12 +328,15 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="150dp"
-            android:layout_marginLeft="50dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="10dp"
             android:id="@+id/left_toolkit4"
             android:visibility="gone"
             >
+            <!--
+            android:layout_marginTop="150dp"
+            android:layout_marginLeft="50dp"
+            -->
             <androidx.cardview.widget.CardView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -574,12 +580,14 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="150dp"
-            android:layout_marginLeft="50dp"
+            android:layout_height="match_parent"
             android:id="@+id/left_toolkit2"
+            android:layout_marginLeft="10dp"
             android:visibility="visible"
             >
+            <!--android:layout_marginTop="150dp"
+            android:layout_marginLeft="50dp"-->
+
             <androidx.cardview.widget.CardView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

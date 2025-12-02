@@ -59,7 +59,7 @@ public class PaintTool implements Tool {
                 appearance.loadFromSettings(canvas.getContext());
                 appearance.penType = canvas.getPenType();
                 // Starts a new line in the path -- whether or not it is closed is taken from the preferences (defaults to false)
-                currentPath = new DrawPath(null);
+                currentPath = new DrawPath(null, DrawPath.POINTS_TYPE_STROKE);
                 if (appearance.penType == DrawAppearance.PEN_TYPE_6) {
                     currentPath.simplificationAmount = 100;
                 } else {

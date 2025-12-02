@@ -1,5 +1,6 @@
 package io.github.pastthepixels.freepaint.Graphics;
 
+import android.graphics.Bitmap;
 import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -30,6 +31,16 @@ public class DrawPath {
      * List of points
      */
     public ArrayList<Point> points = new ArrayList<>();
+    //---------------------
+    //added
+    public String pointsText = "";
+    public Bitmap pointsBitmap = null;
+    public float pointsTextX = 0, pointsTextY = 0;
+    public int pointsType = POINTS_TYPE_STROKE;
+    public final static int POINTS_TYPE_STROKE = 0;
+    public final static int POINTS_TYPE_TEXT = 1;
+    public final static int POINTS_TYPE_IMAGE = 2;
+    //---------------------
 
     /**
      * Whether or not the path is closed (a line is drawn from the end point to the start point)
@@ -54,8 +65,9 @@ public class DrawPath {
     /**
      * Constructor for DrawPath
      */
-    public DrawPath(Path path) {
+    public DrawPath(Path path, int pointsType) {
         this.path = path;
+        this.pointsType = pointsType;
     }
 
     /**
@@ -209,6 +221,7 @@ public class DrawPath {
      * @param paint       The Paint instance to use -- this code is built for reusing the same one so memory can be saved.
      * @param scaleFactor Necessary so we can draw the dots for points to always be the same size
      */
+    //onDraw(Canvas)
     public void draw(Canvas canvas, Paint paint, float screenDensity, float scaleFactor) {
         Path toDraw = getPath();
         if (toDraw == null) {
@@ -230,75 +243,105 @@ public class DrawPath {
                 paint.setColor(appearance.stroke);
             }
             paint.setStyle(Paint.Style.STROKE);
-            if (appearance.penType == DrawAppearance.PEN_TYPE_1 ||
-                    appearance.penType == DrawAppearance.PEN_TYPE_5) {
-                int baseColor = paint.getColor();
-                Paint base = new Paint(paint);
-                for (int i = 0; i < points.size() - 1; ++i) {
-                    Point p0 = points.get(i);
-                    Point p1 = points.get(i + 1);
+            if (pointsType == POINTS_TYPE_STROKE) {
+                if (appearance.penType == DrawAppearance.PEN_TYPE_1 ||
+                        appearance.penType == DrawAppearance.PEN_TYPE_5) {
+                    int baseColor = paint.getColor();
+                    Paint base = new Paint(paint);
+                    for (int i = 0; i < points.size() - 1; ++i) {
+                        Point p0 = points.get(i);
+                        Point p1 = points.get(i + 1);
 
-                    if (points.size() - i < paint.getStrokeWidth()) {
-                        base.setColor((baseColor & 0xFFFFFF) | (((int) (0xFF/*stroke.opacity*/ * (float)(points.size() - i) / (float)base.getStrokeWidth())) << 24));
-                        if (appearance.penType == DrawAppearance.PEN_TYPE_1) {
-                            base.setStrokeWidth(points.size() - i);
-                        } else if (appearance.penType == DrawAppearance.PEN_TYPE_5) {
+                        if (points.size() - i < paint.getStrokeWidth()) {
+                            base.setColor((baseColor & 0xFFFFFF) | (((int) (0xFF/*stroke.opacity*/ * (float) (points.size() - i) / (float) base.getStrokeWidth())) << 24));
+                            if (appearance.penType == DrawAppearance.PEN_TYPE_1) {
+                                base.setStrokeWidth(points.size() - i);
+                            } else if (appearance.penType == DrawAppearance.PEN_TYPE_5) {
+                                base.setStrokeWidth(paint.getStrokeWidth());
+                            }
+                        } else {
+                            base.setColor((baseColor & 0xFFFFFF) | (((int) (0xFF/*stroke.opacity*/ * 1.0)) << 24));
                             base.setStrokeWidth(paint.getStrokeWidth());
                         }
-                    } else {
-                        base.setColor((baseColor & 0xFFFFFF) | (((int) (0xFF/*stroke.opacity*/ * 1.0)) << 24));
-                        base.setStrokeWidth(paint.getStrokeWidth());
-                    }
-                    base.setStyle(Paint.Style.STROKE);
-                    base.setAntiAlias(true);
-                    canvas.drawLine(p0.x, p0.y, p1.x, p1.y, base);
-                }
-            } else if (appearance.penType == DrawAppearance.PEN_TYPE_2) {
-                //see
-                // Pastel: chalky, layered dabs with grain
-                {
-                    int baseColor = paint.getColor();
-                    Random rnd = new Random(2718);
-                    for (Point p : points) {
-                        float w = appearance.strokeSize;//(stroke.width * p.pressure).clamp(0.5, 220.0);
-                        // Base smudge
-                        Paint base = new Paint();
-                        base.setColor((baseColor & 0xFFFFFF) | (((int)(0xFF/*stroke.opacity*/ * 0.35)) << 24));
-                        base.setStyle(Paint.Style.FILL);
+                        base.setStyle(Paint.Style.STROKE);
                         base.setAntiAlias(true);
-                        base.setMaskFilter(new BlurMaskFilter(0.8f, BlurMaskFilter.Blur.NORMAL));
-                        canvas.drawCircle(p.x, p.y, w * 0.55f, base);
+                        canvas.drawLine(p0.x, p0.y, p1.x, p1.y, base);
+                    }
+                } else if (appearance.penType == DrawAppearance.PEN_TYPE_2) {
+                    //see
+                    // Pastel: chalky, layered dabs with grain
+                    {
+                        int baseColor = paint.getColor();
+                        Random rnd = new Random(2718);
+                        for (Point p : points) {
+                            float w = appearance.strokeSize;//(stroke.width * p.pressure).clamp(0.5, 220.0);
+                            // Base smudge
+                            Paint base = new Paint();
+                            base.setColor((baseColor & 0xFFFFFF) | (((int) (0xFF/*stroke.opacity*/ * 0.35)) << 24));
+                            base.setStyle(Paint.Style.FILL);
+                            base.setAntiAlias(true);
+                            base.setMaskFilter(new BlurMaskFilter(0.8f, BlurMaskFilter.Blur.NORMAL));
+                            canvas.drawCircle(p.x, p.y, w * 0.55f, base);
 
-                        // Chalk body
-                        Paint body = new Paint();
-                        body.setColor((baseColor & 0xFFFFFF) | (((int)(0xFF/*stroke.opacity*/ * 0.55)) << 24));
-                        body.setStyle(Paint.Style.FILL);
-                        body.setAntiAlias(true);
-                        canvas.drawCircle(p.x, p.y, w * 0.42f, body);
+                            // Chalk body
+                            Paint body = new Paint();
+                            body.setColor((baseColor & 0xFFFFFF) | (((int) (0xFF/*stroke.opacity*/ * 0.55)) << 24));
+                            body.setStyle(Paint.Style.FILL);
+                            body.setAntiAlias(true);
+                            canvas.drawCircle(p.x, p.y, w * 0.42f, body);
 
-                        // Grain speckles around
-                        float grainDensity = (/*stroke.pastelGrainDensity ? ?*/ 1.0f);//.clamp(0.3, 3.0);
-                        float grains = Math.round(w * 0.8 * grainDensity);//.clamp(4, 50);
-                        grains = Math.min(Math.max(grains, 4.0f), 50.0f);
-                        for (int i = 0; i < grains; i++) {
-                            double ang = rnd.nextDouble() * 2 * Math.PI;
-                            double dist = rnd.nextDouble() * w * 0.6 * 2; //FIXME: add *5
-                            double gSize = 0.6 + rnd.nextDouble() * 1.4;
-                            PointF gOff = new android.graphics.PointF((float)(Math.cos(ang) * dist), (float)(Math.sin(ang) * dist));
-                            int alpha = (int)(0xFF/*stroke.opacity*/ * (0.06 + rnd.nextDouble() * 0.24));
-                            alpha = Math.min(Math.max(alpha, 0x0), 0xFF);
-                            Paint speck = new Paint();
-                            speck.setColor((baseColor & 0xFFFFFF) | (alpha << 24));
-                            speck.setStyle(Paint.Style.FILL);
-                            speck.setAntiAlias(true);
-                            canvas.drawCircle(p.x + gOff.x, p.y + gOff.y, (float)gSize, speck);
+                            // Grain speckles around
+                            float grainDensity = (/*stroke.pastelGrainDensity ? ?*/ 1.0f);//.clamp(0.3, 3.0);
+                            float grains = Math.round(w * 0.8 * grainDensity);//.clamp(4, 50);
+                            grains = Math.min(Math.max(grains, 4.0f), 50.0f);
+                            for (int i = 0; i < grains; i++) {
+                                double ang = rnd.nextDouble() * 2 * Math.PI;
+                                double dist = rnd.nextDouble() * w * 0.6 * 2; //FIXME: add *5
+                                double gSize = 0.6 + rnd.nextDouble() * 1.4;
+                                PointF gOff = new android.graphics.PointF((float) (Math.cos(ang) * dist), (float) (Math.sin(ang) * dist));
+                                int alpha = (int) (0xFF/*stroke.opacity*/ * (0.06 + rnd.nextDouble() * 0.24));
+                                alpha = Math.min(Math.max(alpha, 0x0), 0xFF);
+                                Paint speck = new Paint();
+                                speck.setColor((baseColor & 0xFFFFFF) | (alpha << 24));
+                                speck.setStyle(Paint.Style.FILL);
+                                speck.setAntiAlias(true);
+                                canvas.drawCircle(p.x + gOff.x, p.y + gOff.y, (float) gSize, speck);
+                            }
                         }
                     }
+                    canvas.drawPath(toDraw, paint);
+                } else {
+                    canvas.drawPath(toDraw, paint);
                 }
-                canvas.drawPath(toDraw, paint);
-            } else {
-                canvas.drawPath(toDraw, paint);
+            } else if (pointsType == POINTS_TYPE_TEXT) {
+                //canvas.drawPath(toDraw, paint);
+                paint.reset();
+                paint.setTextSize(28);
+                paint.setColor(Color.BLACK);
+                paint.setStyle(Paint.Style.FILL); //FIXME:draw text don't use stroke style
+                paint.setAntiAlias(true);
+                if (false) {
+                    //text is left bottom align
+                    canvas.drawText(pointsText, pointsTextX, pointsTextY, paint);
+                } else {
+                    //text is left top align
+                    float textWidth = paint.measureText(pointsText);
+                    float x = pointsTextX;
+                    float y = pointsTextY - paint.ascent() - ((paint.descent() - paint.ascent()) / 2);
+                    canvas.drawText(pointsText, x, y, paint);
+                }
+            } else if (pointsType == POINTS_TYPE_IMAGE) {
+                //canvas.drawPath(toDraw, paint);
+                paint.reset();
+                paint.setStyle(Paint.Style.FILL);
+                paint.setAntiAlias(true);
+                //text is left bottom align
+                if (pointsBitmap != null) {
+                    canvas.drawBitmap(pointsBitmap, pointsTextX, pointsTextY, paint);
+                }
             }
+        } else {
+
         }
         // If enabled, draw points on top of everything else
         if (drawPoints) {
@@ -345,6 +388,33 @@ public class DrawPath {
             regeneratePoints(erased);
         } else {
             eraseFromStroke(path);
+        }
+    }
+    public void eraseSimple(DrawPath path_) {
+        // If there's no path to erase we can't do an erasing operation 💀
+        if (getPath() == null) {
+            return;
+        }
+        boolean isContain = false;
+        if (false) {
+            //判断划过的地方是否包含已有笔划
+            for (Point point : points) {
+                if (path_.containsSimple(point)) {
+                    isContain = true;
+                    break;
+                }
+            }
+        } else {
+            //改成判断已有笔划是否包含划过的地方
+            for (Point point : path_.points) {
+                if (this.contains(point)) {
+                    isContain = true;
+                    break;
+                }
+            }
+        }
+        if (isContain) {
+            clear();
         }
     }
 
@@ -440,6 +510,12 @@ public class DrawPath {
         pointPath.op(getPathOrGenerate(), Path.Op.DIFFERENCE);
         return pointPath.isEmpty();
     }
+    public boolean containsSimple(Point point) {
+        Path pointPath = new Path();
+        pointPath.addCircle(point.x, point.y, 5, Path.Direction.CW);
+        pointPath.op(getPathOrGenerate(), Path.Op.DIFFERENCE);
+        return pointPath.isEmpty();
+    }
 
     /**
      * Deep clones a DrawPath.
@@ -449,7 +525,7 @@ public class DrawPath {
     @NonNull
     @Override
     public DrawPath clone() {
-        DrawPath cloned = new DrawPath(new Path());
+        DrawPath cloned = new DrawPath(new Path(), this.pointsType);
         // 1. Copy variables.
         cloned.drawPoints = drawPoints;
         cloned.isClosed = isClosed;

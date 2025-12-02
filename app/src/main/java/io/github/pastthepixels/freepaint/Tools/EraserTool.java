@@ -23,7 +23,7 @@ public class EraserTool implements Tool {
     /**
      * The eraser path
      */
-    private final DrawPath currentPath = new DrawPath(null);
+    private final DrawPath currentPath = new DrawPath(null, DrawPath.POINTS_TYPE_STROKE);
 
     /**
      * The canvas
@@ -37,7 +37,12 @@ public class EraserTool implements Tool {
      */
     public EraserTool(DrawCanvas canvas) {
         this.canvas = canvas;
-        this.currentPath.appearance = new DrawAppearance(-1, Color.RED);
+        if (USE_SIMPLE_IMPL) {
+            this.currentPath.appearance = new DrawAppearance(Color.RED, -1); //for debug
+            //this.currentPath.appearance = new DrawAppearance(-1, -1);
+        } else {
+            this.currentPath.appearance = new DrawAppearance(-1, Color.RED);
+        }
     }
 
     /**
@@ -68,6 +73,9 @@ public class EraserTool implements Tool {
             case MotionEvent.ACTION_MOVE:
                 // Draws line between last point and this point
                 currentPath.addPoint(canvas.mapPoint(event.getX(), event.getY()));
+                if (USE_SIMPLE_IMPL) {
+                    eraseCurrentPath(); //立刻删除
+                }
                 break;
 
             case MotionEvent.ACTION_UP:
@@ -87,7 +95,11 @@ public class EraserTool implements Tool {
      */
     public void eraseCurrentPath() {
         for (DrawPath path : canvas.paths) {
-            path.erase(currentPath);
+            if (USE_SIMPLE_IMPL) {
+                path.eraseSimple(currentPath);
+            } else {
+                path.erase(currentPath);
+            }
             path.cachePath();
         }
         currentPath.clear();
@@ -100,19 +112,23 @@ public class EraserTool implements Tool {
      */
     public void init() {
         toolPaths.clear();
-        for (DrawPath path : canvas.paths) {
-            DrawPath cloned = new DrawPath(path.getPath());
-            cloned.points = path.points;
-            cloned.isClosed = path.isClosed;
-            if (cloned.isClosed) {
-                cloned.appearance = new DrawAppearance(-1, Color.GREEN);
-            } else {
-                cloned.appearance = new DrawAppearance(Color.GREEN, -1);
-                cloned.appearance.strokeSize = 1;
-                cloned.appearance.useDP = true;
-                cloned.drawPoints = true;
+        if (USE_SIMPLE_IMPL) {
+            //skip
+        } else {
+            for (DrawPath path : canvas.paths) {
+                DrawPath cloned = new DrawPath(path.getPath(), DrawPath.POINTS_TYPE_STROKE);
+                cloned.points = path.points;
+                cloned.isClosed = path.isClosed;
+                if (cloned.isClosed) {
+                    cloned.appearance = new DrawAppearance(-1, Color.GREEN);
+                } else {
+                    cloned.appearance = new DrawAppearance(Color.GREEN, -1);
+                    cloned.appearance.strokeSize = 1;
+                    cloned.appearance.useDP = true;
+                    cloned.drawPoints = true;
+                }
+                toolPaths.add(cloned);
             }
-            toolPaths.add(cloned);
         }
         toolPaths.add(currentPath);
     }
@@ -121,4 +137,5 @@ public class EraserTool implements Tool {
         return true;
     }
 
+    public final static boolean USE_SIMPLE_IMPL = true;
 }

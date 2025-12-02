@@ -43,12 +43,14 @@
                             app:cardElevation="2dp"
                             android:layout_gravity="center|center_vertical"
                             android:layout_margin="5dp"
+                            android:id="@+id/btnBold"
                             >
                             <ImageView
                                 android:layout_width="60dp"
                                 android:layout_height="60dp"
                                 android:scaleType="fitXY"
                                 android:src="@drawable/ic_my_para_bold_011"
+                                android:tag="icon"
                                 />
                         </androidx.cardview.widget.CardView>
                     </LinearLayout>
@@ -64,12 +66,14 @@
                             app:cardElevation="2dp"
                             android:layout_gravity="center|center_vertical"
                             android:layout_margin="5dp"
+                            android:id="@+id/btnItalics"
                             >
                             <ImageView
                                 android:layout_width="60dp"
                                 android:layout_height="60dp"
                                 android:scaleType="center"
                                 android:src="@drawable/ic_my_para_italics_012"
+                                android:tag="icon"
                                 />
                         </androidx.cardview.widget.CardView>
                     </LinearLayout>
@@ -85,12 +89,14 @@
                             app:cardElevation="2dp"
                             android:layout_gravity="center|center_vertical"
                             android:layout_margin="5dp"
+                            android:id="@+id/btnUnderline"
                             >
                             <ImageView
                                 android:layout_width="60dp"
                                 android:layout_height="60dp"
                                 android:scaleType="center"
                                 android:src="@drawable/ic_my_para_underline_013"
+                                android:tag="icon"
                                 />
                         </androidx.cardview.widget.CardView>
                     </LinearLayout>
@@ -106,12 +112,14 @@
                             app:cardElevation="2dp"
                             android:layout_gravity="center|center_vertical"
                             android:layout_margin="5dp"
+                            android:id="@+id/btnFormatClear"
                             >
                             <ImageView
                                 android:layout_width="60dp"
                                 android:layout_height="60dp"
                                 android:scaleType="center"
                                 android:src="@drawable/ic_my_para_format_clear_014"
+                                android:tag="icon"
                                 />
                         </androidx.cardview.widget.CardView>
                     </LinearLayout>
@@ -137,12 +145,14 @@
                             app:cardElevation="2dp"
                             android:layout_gravity="center|center_vertical"
                             android:layout_margin="5dp"
+                            android:id="@+id/btnAlignLeft"
                             >
                             <ImageView
                                 android:layout_width="60dp"
                                 android:layout_height="60dp"
                                 android:scaleType="center"
                                 android:src="@drawable/ic_my_para_left_015"
+                                android:tag="icon"
                                 />
                         </androidx.cardview.widget.CardView>
                     </LinearLayout>
@@ -158,12 +168,14 @@
                             app:cardElevation="2dp"
                             android:layout_gravity="center|center_vertical"
                             android:layout_margin="5dp"
+                            android:id="@+id/btnAlignCenter"
                             >
                             <ImageView
                                 android:layout_width="60dp"
                                 android:layout_height="60dp"
                                 android:scaleType="center"
                                 android:src="@drawable/ic_my_para_center_017"
+                                android:tag="icon"
                                 />
                         </androidx.cardview.widget.CardView>
                     </LinearLayout>
@@ -179,12 +191,14 @@
                             app:cardElevation="2dp"
                             android:layout_gravity="center|center_vertical"
                             android:layout_margin="5dp"
+                            android:id="@+id/btnAlignRight"
                             >
                             <ImageView
                                 android:layout_width="60dp"
                                 android:layout_height="60dp"
                                 android:scaleType="center"
                                 android:src="@drawable/ic_my_para_right_016"
+                                android:tag="icon"
                                 />
                         </androidx.cardview.widget.CardView>
                     </LinearLayout>
@@ -200,12 +214,14 @@
                             app:cardElevation="2dp"
                             android:layout_gravity="center|center_vertical"
                             android:layout_margin="5dp"
+                            android:id="@+id/btnAlignJustify"
                             >
                             <ImageView
                                 android:layout_width="60dp"
                                 android:layout_height="60dp"
                                 android:scaleType="center"
                                 android:src="@drawable/ic_my_para_justify_018"
+                                android:tag="icon"
                                 />
                         </androidx.cardview.widget.CardView>
                     </LinearLayout>
@@ -231,12 +247,14 @@
                             app:cardElevation="2dp"
                             android:layout_gravity="center|center_vertical"
                             android:layout_margin="5dp"
+                            android:id="@+id/btnBullet"
                             >
                             <ImageView
                                 android:layout_width="60dp"
                                 android:layout_height="60dp"
                                 android:scaleType="center"
                                 android:src="@drawable/ic_my_para_bullet_019"
+                                android:tag="icon"
                                 />
                         </androidx.cardview.widget.CardView>
                     </LinearLayout>
@@ -252,12 +270,14 @@
                             app:cardElevation="2dp"
                             android:layout_gravity="center|center_vertical"
                             android:layout_margin="5dp"
+                            android:id="@+id/btnNumber"
                             >
                             <ImageView
                                 android:layout_width="60dp"
                                 android:layout_height="60dp"
                                 android:scaleType="center"
                                 android:src="@drawable/ic_my_para_number_020"
+                                android:tag="icon"
                                 />
                         </androidx.cardview.widget.CardView>
                     </LinearLayout>
@@ -339,12 +359,14 @@
                             app:cardElevation="2dp"
                             android:layout_gravity="center|center_vertical"
                             android:layout_margin="5dp"
+                            android:id="@+id/btnTitle"
                             >
                             <ImageView
                                 android:layout_width="60dp"
                                 android:layout_height="60dp"
                                 android:scaleType="fitXY"
                                 android:src="@drawable/ic_my_style_title_001"
+                                android:tag="icon"
                                 />
                         </androidx.cardview.widget.CardView>
                     </LinearLayout>
@@ -436,12 +458,14 @@
                             app:cardElevation="2dp"
                             android:layout_gravity="center|center_vertical"
                             android:layout_margin="5dp"
+                            android:id="@+id/btnH1"
                             >
                             <ImageView
                                 android:layout_width="60dp"
                                 android:layout_height="60dp"
                                 android:scaleType="center"
                                 android:src="@drawable/ic_my_style_h1_002"
+                                android:tag="icon"
                                 />
                         </androidx.cardview.widget.CardView>
                     </LinearLayout>
@@ -457,12 +481,14 @@
                             app:cardElevation="2dp"
                             android:layout_gravity="center|center_vertical"
                             android:layout_margin="5dp"
+                            android:id="@+id/btnH2"
                             >
                             <ImageView
                                 android:layout_width="60dp"
                                 android:layout_height="60dp"
                                 android:scaleType="center"
                                 android:src="@drawable/ic_my_style_h2_003"
+                                android:tag="icon"
                                 />
                         </androidx.cardview.widget.CardView>
                     </LinearLayout>
@@ -478,12 +504,14 @@
                             app:cardElevation="2dp"
                             android:layout_gravity="center|center_vertical"
                             android:layout_margin="5dp"
+                            android:id="@+id/btnH3"
                             >
                             <ImageView
                                 android:layout_width="60dp"
                                 android:layout_height="60dp"
                                 android:scaleType="center"
                                 android:src="@drawable/ic_my_style_h3_004"
+                                android:tag="icon"
                                 />
                         </androidx.cardview.widget.CardView>
                     </LinearLayout>
@@ -545,7 +573,7 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    app:cardBackgroundColor="#F1EDEC"
+                    app:cardBackgroundColor="#1C1B1B"
                     app:cardCornerRadius="10dp"
                     app:cardElevation="5dp"
                     android:layout_gravity="center"
@@ -553,6 +581,7 @@
                     android:layout_margin="10dp"
                     android:id="@+id/colorBtn101"
                     >
+                    <!--F1EDEC-->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -578,13 +607,15 @@
                             android:layout_height="wrap_content"
                             android:textSize="14sp"
                             android:text="Black"
-                            android:textColor="#000000"
+                            android:textColor="#FFFFFF"
                             android:layout_gravity="center"
                             android:gravity="center"
                             android:layout_marginLeft="10px"
                             android:layout_marginRight="10px"
                             android:visibility="visible"
+                            android:tag="binding_1"
                             />
+                        <!--000000-->
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
                 <androidx.cardview.widget.CardView
@@ -630,6 +661,7 @@
                             android:layout_marginLeft="10px"
                             android:layout_marginRight="10px"
                             android:visibility="visible"
+                            android:tag="binding_1"
                             />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -676,6 +708,7 @@
                             android:layout_marginLeft="10px"
                             android:layout_marginRight="10px"
                             android:visibility="visible"
+                            android:tag="binding_1"
                             />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -728,6 +761,7 @@
                             android:layout_marginLeft="10px"
                             android:layout_marginRight="10px"
                             android:visibility="visible"
+                            android:tag="binding_1"
                             />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -774,6 +808,7 @@
                             android:layout_marginLeft="10px"
                             android:layout_marginRight="10px"
                             android:visibility="visible"
+                            android:tag="binding_1"
                             />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -820,6 +855,7 @@
                             android:layout_marginLeft="10px"
                             android:layout_marginRight="10px"
                             android:visibility="visible"
+                            android:tag="binding_1"
                             />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -872,6 +908,7 @@
                             android:layout_marginLeft="10px"
                             android:layout_marginRight="10px"
                             android:visibility="visible"
+                            android:tag="binding_1"
                             />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -918,6 +955,7 @@
                             android:layout_marginLeft="10px"
                             android:layout_marginRight="10px"
                             android:visibility="visible"
+                            android:tag="binding_1"
                             />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -964,6 +1002,7 @@
                             android:layout_marginLeft="10px"
                             android:layout_marginRight="10px"
                             android:visibility="visible"
+                            android:tag="binding_1"
                             />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -1012,12 +1051,14 @@
                         app:cardElevation="2dp"
                         android:layout_gravity="center|center_vertical"
                         android:layout_margin="5dp"
+                        android:id="@+id/btnStyleHand"
                         >
                         <ImageView
                             android:layout_width="60dp"
                             android:layout_height="60dp"
                             android:scaleType="center"
                             android:src="@drawable/ic_my_style_hand_005"
+                            android:tag="icon"
                             />
                     </androidx.cardview.widget.CardView>
                 </LinearLayout>
@@ -1042,12 +1083,14 @@
                         app:cardElevation="2dp"
                         android:layout_gravity="center|center_vertical"
                         android:layout_margin="5dp"
+                        android:id="@+id/btnSerif"
                         >
                         <ImageView
                             android:layout_width="60dp"
                             android:layout_height="60dp"
                             android:scaleType="center"
                             android:src="@drawable/ic_my_style_serif_006"
+                            android:tag="icon"
                             />
                     </androidx.cardview.widget.CardView>
                 </LinearLayout>
@@ -1072,12 +1115,14 @@
                         app:cardElevation="2dp"
                         android:layout_gravity="center|center_vertical"
                         android:layout_margin="5dp"
+                        android:id="@+id/btnSans"
                         >
                         <ImageView
                             android:layout_width="60dp"
                             android:layout_height="60dp"
                             android:scaleType="center"
                             android:src="@drawable/ic_my_style_sans_007"
+                            android:tag="icon"
                             />
                     </androidx.cardview.widget.CardView>
                 </LinearLayout>

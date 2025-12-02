@@ -49,7 +49,7 @@ public class DrawTextView extends RelativeLayout implements
     /** */
     private RelativeLayout mRlText;
     /** */
-    private EditText mEtTextEdit;
+    public/*private*/ EditText mEtTextEdit;
     /** */
     private TextView mTvTextEdit;
     /** */
@@ -100,11 +100,12 @@ public class DrawTextView extends RelativeLayout implements
         switchView(TEXT_EDIT/*mDrawPoint.getDrawText().getStatus()*/);
     }
 
-    public void init2(int x, int y, String text, CallBackListener callBackListener) {
+    public void init2(int x, int y, String text, int textColor, CallBackListener callBackListener) {
         this.mCallBackListener = callBackListener;
         mDrawPoint.getDrawText().setX(x);
         mDrawPoint.getDrawText().setY(y);
         mDrawPoint.getDrawText().setStr(text);
+        mDrawPoint.getDrawText().setColor(textColor);
         //don't call initUI();
         if (null != mDrawPoint) {
             setText(mDrawPoint.getDrawText().getStr());
@@ -224,8 +225,13 @@ public class DrawTextView extends RelativeLayout implements
             mEtTextEdit.setText(strText);
             mTvTextEdit.setText(strText);
         }
-        mEtTextEdit.setTextColor(0xFFFF0000/*mDrawPoint.getDrawText().getColor()*/);
-        mTvTextEdit.setTextColor(0xFFFF0000/*mDrawPoint.getDrawText().getColor()*/);
+        if (false) {
+            mEtTextEdit.setTextColor(0xFFFF0000/*mDrawPoint.getDrawText().getColor()*/);
+            mTvTextEdit.setTextColor(0xFFFF0000/*mDrawPoint.getDrawText().getColor()*/);
+        } else {
+            mEtTextEdit.setTextColor(mDrawPoint.getDrawText().getColor());
+            mTvTextEdit.setTextColor(mDrawPoint.getDrawText().getColor());
+        }
 //        if (mDrawPoint.getDrawText().getIsUnderline()) {
 //            mTvTextEdit.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
 //            mEtTextEdit.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
@@ -238,11 +244,29 @@ public class DrawTextView extends RelativeLayout implements
     }
 
     private void setLayoutParams() {
+/*
+        <RelativeLayout
+            android:id="@+id/rl_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dip"
+            android:layout_marginRight="15dip"
+            android:background="@drawable/draw_text_border"
+            android:gravity="center_vertical"
+            android:paddingTop="25dip"
+            android:paddingBottom="25dip"
+            android:paddingLeft="30dip"
+            android:paddingRight="30dip" >
+ */
         LayoutParams layParamsTxt = new LayoutParams(
                 LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        layParamsTxt.leftMargin = (int) mDrawPoint.getDrawText().getX(); //FIXME:
-        layParamsTxt.topMargin = (int) mDrawPoint.getDrawText().getY();
+        layParamsTxt.leftMargin = (int) (mDrawPoint.getDrawText().getX() - dp2px(getContext(), 30)); //FIXME:
+        layParamsTxt.topMargin = (int) (mDrawPoint.getDrawText().getY() - dp2px(getContext(), 25));
         mRlContent.setLayoutParams(layParamsTxt);
+    }
+    public static int dp2px(Context context, float dpValue) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (dpValue * scale + 0.5f); // 0.5f用于四舍五入
     }
 
     public void switchView(int currentStatus) {

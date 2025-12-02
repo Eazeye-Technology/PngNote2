@@ -161,7 +161,7 @@ public class SVG {
             Node node = nodes.item(i);
             if (node.getNodeType() == Node.ELEMENT_NODE && ((Element) node).getTagName().equals("path")) {
                 Element element = (Element) node;
-                DrawPath path = new DrawPath(null);
+                DrawPath path = new DrawPath(null, DrawPath.POINTS_TYPE_STROKE);
                 path.appearance.stroke = path.appearance.fill = -1;
                 path.isClosed = element.getAttribute("d").toUpperCase().contains("Z");
                 // Points

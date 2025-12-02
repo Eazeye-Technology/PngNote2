@@ -8,21 +8,30 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
+import android.graphics.Rect;
+import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.DrawableWrapper;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
@@ -37,15 +46,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.preference.PreferenceManager;
 
 import com.agsw.FabricView.FabricView;
+import com.foobnix.android.utils.KeyboardsMod;
 import com.github.guanpy.wblib.bean.DrawPoint;
 import com.github.guanpy.wblib.widget.DrawTextView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.slider.Slider;
+import com.helluva.telephone_pictionary_android.SketchActivity;
 import com.txkj.drawingapp.R;
 import com.txkj.notemobile2.Book;
 import com.txkj.notemobile2.BookActivity;
@@ -78,8 +90,13 @@ import java.util.concurrent.locks.ReentrantLock;
 import io.github.pastthepixels.freepaint.Graphics.DrawAppearance;
 import io.github.pastthepixels.freepaint.Graphics.DrawCanvas;
 import io.github.pastthepixels.freepaint.MainActivity;
+import io.github.pastthepixels.freepaint.Tools.EraserTool;
 import io.material.catalog.windowpreferences.WindowPreferencesManager;
 
+//FIXME:this.isDirty should be always true
+//FIXME:I need to remove isDirty var
+//isDirty = true; //FIXME: force save
+//TODO:notifyForceSave, when view onSizeChanged or other events, need call it
 public class BookActivity4 extends AppCompatActivity {
     private Slider slider;
     private final SettingsBottomSheet settingsBottomSheet = new SettingsBottomSheet();
@@ -302,6 +319,7 @@ public class BookActivity4 extends AppCompatActivity {
             this.savePageInMain(this.getPageIdx(), this.pageBmp);
         }
         super.onStop();
+        runNormalScreen(this);
     }
 
     //FIXME: remove RequiresApi
@@ -487,6 +505,306 @@ public class BookActivity4 extends AppCompatActivity {
         }
     }
     //--------------------------
+    private void onClickBottomButton1(int id, boolean isToggle, boolean isClear, boolean isClick) {
+        if (id == R.id.btnBold) {
+            if (isToggle) {
+                setBold(!isBold);
+            } else if (isClear) {
+                setBold(false);
+            }
+        } else if (id == R.id.btnItalics) {
+            if (isToggle) {
+                setItalics(!isItalics);
+            } else if (isClear) {
+                setItalics(false);
+            }
+        } else if (id == R.id.btnUnderline) {
+            if (isToggle) {
+                setUnderline(!isUnderline);
+            } else {
+                setUnderline(false);
+            }
+        } else if (id == R.id.btnFormatClear) {
+            setBold(false);
+            setItalics(false);
+            setUnderline(false);
+        } else if (id == R.id.btnAlignLeft) {
+            if (isToggle) {
+                if (alignType != ALIGN_TYPE_LEFT) {
+                    setAlignType(ALIGN_TYPE_LEFT);
+                } else {
+                    setAlignType(ALIGN_TYPE_NONE);
+                }
+            } else {
+                setAlignType(ALIGN_TYPE_NONE);
+            }
+        } else if (id == R.id.btnAlignCenter) {
+            if (isToggle) {
+                if (alignType != ALIGN_TYPE_CENTER) {
+                    setAlignType(ALIGN_TYPE_CENTER);
+                } else {
+                    setAlignType(ALIGN_TYPE_NONE);
+                }
+            } else {
+                setAlignType(ALIGN_TYPE_NONE);
+            }
+        } else if (id == R.id.btnAlignRight) {
+            if (isToggle) {
+                if (alignType != ALIGN_TYPE_RIGHT) {
+                    setAlignType(ALIGN_TYPE_RIGHT);
+                } else {
+                    setAlignType(ALIGN_TYPE_NONE);
+                }
+            } else {
+                setAlignType(ALIGN_TYPE_NONE);
+            }
+        } else if (id == R.id.btnAlignJustify) {
+            if (isToggle) {
+                if (alignType != ALIGN_TYPE_JUSTIFY) {
+                    setAlignType(ALIGN_TYPE_JUSTIFY);
+                } else {
+                    setAlignType(ALIGN_TYPE_NONE);
+                }
+            } else {
+                setAlignType(ALIGN_TYPE_NONE);
+            }
+        } else if (id == R.id.btnBullet) {
+            if (isToggle) {
+                if (listType != LIST_TYPE_BULLET) {
+                    setListType(LIST_TYPE_BULLET);
+                } else {
+                    setListType(LIST_TYPE_NONE);
+                }
+            } else {
+                setListType(LIST_TYPE_NONE);
+            }
+        } else if (id == R.id.btnNumber) {
+            if (isToggle) {
+                if (listType != LIST_TYPE_NUMBER) {
+                    setListType(LIST_TYPE_NUMBER);
+                } else {
+                    setListType(LIST_TYPE_NONE);
+                }
+            } else {
+                setListType(LIST_TYPE_NONE);
+            }
+        } else if (id == R.id.btnStyleHand) {
+            if (isToggle) {
+                if (styleType != STYLE_TYPE_HAND) {
+                    setStyleType(STYLE_TYPE_HAND);
+                } else {
+                    setStyleType(STYLE_TYPE_NONE);
+                }
+            } else {
+                setStyleType(STYLE_TYPE_NONE);
+            }
+        } else if (id == R.id.btnSerif) {
+            if (isToggle) {
+                if (styleType != STYLE_TYPE_SERIF) {
+                    setStyleType(STYLE_TYPE_SERIF);
+                } else {
+                    setStyleType(STYLE_TYPE_NONE);
+                }
+            } else {
+                setStyleType(STYLE_TYPE_NONE);
+            }
+        } else if (id == R.id.btnSans) {
+            if (isToggle) {
+                if (styleType != STYLE_TYPE_SANS) {
+                    setStyleType(STYLE_TYPE_SANS);
+                } else {
+                    setStyleType(STYLE_TYPE_NONE);
+                }
+            } else {
+                setStyleType(STYLE_TYPE_NONE);
+            }
+        } else if (id == R.id.btnTitle) {
+            if (isToggle) {
+                if (sizeType != SIZE_TYPE_TITLE) {
+                    setSizeType(SIZE_TYPE_TITLE);
+                } else {
+                    setSizeType(SIZE_TYPE_NONE);
+                }
+            } else {
+                setSizeType(SIZE_TYPE_NONE);
+            }
+        } else if (id == R.id.btnH1) {
+            if (isToggle) {
+                if (sizeType != SIZE_TYPE_H1) {
+                    setSizeType(SIZE_TYPE_H1);
+                } else {
+                    setSizeType(SIZE_TYPE_NONE);
+                }
+            } else {
+                setSizeType(SIZE_TYPE_NONE);
+            }
+        } else if (id == R.id.btnH2) {
+            if (isToggle) {
+                if (sizeType != SIZE_TYPE_H2) {
+                    setSizeType(SIZE_TYPE_H2);
+                } else {
+                    setSizeType(SIZE_TYPE_NONE);
+                }
+            } else {
+                setSizeType(SIZE_TYPE_NONE);
+            }
+        } else if (id == R.id.btnH3) {
+            if (isToggle) {
+                if (sizeType != SIZE_TYPE_H3) {
+                    setSizeType(SIZE_TYPE_H3);
+                } else {
+                    setSizeType(SIZE_TYPE_NONE);
+                }
+            } else {
+                setSizeType(SIZE_TYPE_NONE);
+            }
+        }
+        CardView viewCard_bold = (CardView) findViewById(R.id.btnBold);
+        ImageView icon_bold = (ImageView) viewCard_bold.findViewWithTag("icon");
+        CardView viewCard_italics = (CardView) findViewById(R.id.btnItalics);
+        ImageView icon_italics = (ImageView) viewCard_italics.findViewWithTag("icon");
+        CardView viewCard_underline = (CardView) findViewById(R.id.btnUnderline);
+        ImageView icon_underline = (ImageView) viewCard_underline.findViewWithTag("icon");
+        if (isBold) {
+            viewCard_bold.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            icon_bold.setImageResource(R.drawable.ic_my_para_bold_011_w);
+        } else {
+            viewCard_bold.setCardBackgroundColor(0x00585858);
+            icon_bold.setImageResource(R.drawable.ic_my_para_bold_011);
+        }
+        if (isItalics) {
+            viewCard_italics.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            icon_italics.setImageResource(R.drawable.ic_my_para_italics_012_w);
+        } else {
+            viewCard_italics.setCardBackgroundColor(0x00585858);
+            icon_italics.setImageResource(R.drawable.ic_my_para_italics_012);
+        }
+        if (isUnderline) {
+            viewCard_underline.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            icon_underline.setImageResource(R.drawable.ic_my_para_underline_013_w);
+        } else {
+            viewCard_underline.setCardBackgroundColor(0x00585858);
+            icon_underline.setImageResource(R.drawable.ic_my_para_underline_013);
+        }
+        CardView viewCard_alignLeft = (CardView) findViewById(R.id.btnAlignLeft);
+        ImageView icon_alignLeft = (ImageView) viewCard_alignLeft.findViewWithTag("icon");
+        CardView viewCard_alignCenter = (CardView) findViewById(R.id.btnAlignCenter);
+        ImageView icon_alignCenter = (ImageView) viewCard_alignCenter.findViewWithTag("icon");
+        CardView viewCard_alignRight = (CardView) findViewById(R.id.btnAlignRight);
+        ImageView icon_alignRight = (ImageView) viewCard_alignRight.findViewWithTag("icon");
+        CardView viewCard_justify = (CardView) findViewById(R.id.btnAlignJustify);
+        ImageView icon_justify = (ImageView) viewCard_justify.findViewWithTag("icon");
+        if (alignType == ALIGN_TYPE_LEFT) {
+            viewCard_alignLeft.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            icon_alignLeft.setImageResource(R.drawable.ic_my_para_left_015_w);
+        } else {
+            viewCard_alignLeft.setCardBackgroundColor(0x00585858);
+            icon_alignLeft.setImageResource(R.drawable.ic_my_para_left_015);
+        }
+        if (alignType == ALIGN_TYPE_CENTER) {
+            viewCard_alignCenter.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            icon_alignCenter.setImageResource(R.drawable.ic_my_para_center_017_w);
+        } else {
+            viewCard_alignCenter.setCardBackgroundColor(0x00585858);
+            icon_alignCenter.setImageResource(R.drawable.ic_my_para_center_017);
+        }
+        if (alignType == ALIGN_TYPE_RIGHT) {
+            viewCard_alignRight.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            icon_alignRight.setImageResource(R.drawable.ic_my_para_right_016_w);
+        } else {
+            viewCard_alignRight.setCardBackgroundColor(0x00585858);
+            icon_alignRight.setImageResource(R.drawable.ic_my_para_right_016);
+        }
+        if (alignType == ALIGN_TYPE_JUSTIFY) {
+            viewCard_justify.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            icon_justify.setImageResource(R.drawable.ic_my_para_justify_018_w);
+        } else {
+            viewCard_justify.setCardBackgroundColor(0x00585858);
+            icon_justify.setImageResource(R.drawable.ic_my_para_justify_018);
+        }
+        CardView viewCard_bullet = (CardView) findViewById(R.id.btnBullet);
+        ImageView icon_bullet = (ImageView) viewCard_bullet.findViewWithTag("icon");
+        CardView viewCard_number = (CardView) findViewById(R.id.btnNumber);
+        ImageView icon_number = (ImageView) viewCard_number.findViewWithTag("icon");
+        if (listType == LIST_TYPE_BULLET) {
+            viewCard_bullet.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            icon_bullet.setImageResource(R.drawable.ic_my_para_bullet_019_w);
+        } else {
+            viewCard_bullet.setCardBackgroundColor(0x00585858);
+            icon_bullet.setImageResource(R.drawable.ic_my_para_bullet_019);
+        }
+        if (listType == LIST_TYPE_NUMBER) {
+            viewCard_number.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            icon_number.setImageResource(R.drawable.ic_my_para_number_020_w);
+        } else {
+            viewCard_number.setCardBackgroundColor(0x00585858);
+            icon_number.setImageResource(R.drawable.ic_my_para_number_020);
+        }
+        CardView viewCard_hand = (CardView) findViewById(R.id.btnStyleHand);
+        ImageView icon_hand = (ImageView) viewCard_hand.findViewWithTag("icon");
+        CardView viewCard_serif = (CardView) findViewById(R.id.btnSerif);
+        ImageView icon_serif = (ImageView) viewCard_serif.findViewWithTag("icon");
+        CardView viewCard_sans = (CardView) findViewById(R.id.btnSans);
+        ImageView icon_sans = (ImageView) viewCard_sans.findViewWithTag("icon");
+        if (styleType == STYLE_TYPE_HAND) {
+            viewCard_hand.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            icon_hand.setImageResource(R.drawable.ic_my_style_hand_005_w);
+        } else {
+            viewCard_hand.setCardBackgroundColor(0x00585858);
+            icon_hand.setImageResource(R.drawable.ic_my_style_hand_005);
+        }
+        if (styleType == STYLE_TYPE_SERIF) {
+            viewCard_serif.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            icon_serif.setImageResource(R.drawable.ic_my_style_serif_006_w);
+        } else {
+            viewCard_serif.setCardBackgroundColor(0x00585858);
+            icon_serif.setImageResource(R.drawable.ic_my_style_serif_006);
+        }
+        if (styleType == STYLE_TYPE_SANS) {
+            viewCard_sans.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            icon_sans.setImageResource(R.drawable.ic_my_style_sans_007_w);
+        } else {
+            viewCard_sans.setCardBackgroundColor(0x00585858);
+            icon_sans.setImageResource(R.drawable.ic_my_style_sans_007);
+        }
+        CardView viewCard_title = (CardView) findViewById(R.id.btnTitle);
+        ImageView icon_title = (ImageView) viewCard_title.findViewWithTag("icon");
+        CardView viewCard_h1 = (CardView) findViewById(R.id.btnH1);
+        ImageView icon_h1 = (ImageView) viewCard_h1.findViewWithTag("icon");
+        CardView viewCard_h2 = (CardView) findViewById(R.id.btnH2);
+        ImageView icon_h2 = (ImageView) viewCard_h2.findViewWithTag("icon");
+        CardView viewCard_h3 = (CardView) findViewById(R.id.btnH3);
+        ImageView icon_h3 = (ImageView) viewCard_h3.findViewWithTag("icon");
+        if (sizeType == SIZE_TYPE_TITLE) {
+            viewCard_title.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            icon_title.setImageResource(R.drawable.ic_my_style_title_001_w);
+        } else {
+            viewCard_title.setCardBackgroundColor(0x00585858);
+            icon_title.setImageResource(R.drawable.ic_my_style_title_001);
+        }
+        if (sizeType == SIZE_TYPE_H1) {
+            viewCard_h1.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            icon_h1.setImageResource(R.drawable.ic_my_style_h1_002_w);
+        } else {
+            viewCard_h1.setCardBackgroundColor(0x00585858);
+            icon_h1.setImageResource(R.drawable.ic_my_style_h1_002);
+        }
+        if (sizeType == SIZE_TYPE_H2) {
+            viewCard_h2.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            icon_h2.setImageResource(R.drawable.ic_my_style_h2_003_w);
+        } else {
+            viewCard_h2.setCardBackgroundColor(0x00585858);
+            icon_h2.setImageResource(R.drawable.ic_my_style_h2_003);
+        }
+        if (sizeType == SIZE_TYPE_H3) {
+            viewCard_h3.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            icon_h3.setImageResource(R.drawable.ic_my_style_h3_004_w);
+        } else {
+            viewCard_h3.setCardBackgroundColor(0x00585858);
+            icon_h3.setImageResource(R.drawable.ic_my_style_h3_004);
+        }
+    }
+    //--------------------------
     private final static int iconsBottomMenu1[] = {
             R.id.colorBtn001,
             R.id.colorBtn002,
@@ -557,27 +875,51 @@ public class BookActivity4 extends AppCompatActivity {
         setPenColor(color);
     }
     private void onClickBottomMenu2(int id, boolean isClick) {
+        View view = findViewById(id);
+        for (int i = 0; i < iconsBottomMenu2.length; ++i) {
+            View viewIcon = this.findViewById(iconsBottomMenu2[i]);
+            if (viewIcon != null) {
+                ((CardView) viewIcon).setCardBackgroundColor(0xFFF1EDEC); //白色背景
+                //((CardView) viewIcon).setCardElevation(0.0f);
+//                if (viewIcon.findViewWithTag("binding_1") != null) {
+//                    ((AppCompatImageView) viewIcon.findViewWithTag("binding_1")).setBackgroundResource(
+//                            getActiveIconIdSubmenu1(iconsSubmenu1[i], false));
+//                }
+                if (viewIcon.findViewWithTag("binding_1") != null) {
+                    ((TextView) viewIcon.findViewWithTag("binding_1")).setTextColor(0xFF000000); //黑色字
+                }
+            }
+        }
+        if (view != null) {
+            ((CardView) view).setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            //((CardView) view).setCardElevation(5.0f);
+
+            if (view.findViewWithTag("binding_1") != null) {
+                ((TextView) view.findViewWithTag("binding_1")).setTextColor(0xFFFFFFFF); //白色字
+            }
+        }
         int color = Color.BLACK;
         if (id == R.id.colorBtn101) {
-            color = 0xFF000000;
+            color = 0xFF000000; //Black //0xFF000000;
         } else if (id == R.id.colorBtn102) {
-            color = 0xFF0000FF;
+            color = 0xFF696969; //DimGray //0xFF0000FF;
         } else if (id == R.id.colorBtn103) {
-            color = 0xFFFF0000;
+            color = 0xFF808080; //Gray //0xFFFF0000;
         } else if (id == R.id.colorBtn104) {
-            color = 0xFF00FF00;
+            color = 0xFFA9A9A9; //DarkGray //0xFF00FF00;
         } else if (id == R.id.colorBtn105) {
-            color = 0xFFFFA500;
+            color = 0xFFC0C0C0; //Silver //0xFFFFA500;
         } else if (id == R.id.colorBtn106) {
-            color = 0xFFFFFF00;
+            color = 0xFFD3D3D3; //LightGray //0xFFFFFF00;
         } else if (id == R.id.colorBtn107) {
-            color = 0xFF800080;
+            color = 0xFFDCDCDC; //Gainsboro //0xFF800080;
         } else if (id == R.id.colorBtn108) {
-            color = 0xFFA52A2A;
+            color = 0xFFF5F5F5; //WhiteSmoke//0xFFA52A2A;
         } else if (id == R.id.colorBtn109) {
-            color = 0xFF808080;
+            color = 0xFFFFFFFF; //White//0xFF808080;
         }
         //setPenColor(color);
+        this.setEditTextColor(color);
     }
     //--------------------------
     private final static int iconsSubmenu1[] = {
@@ -793,9 +1135,17 @@ public class BookActivity4 extends AppCompatActivity {
                 canvas.setTool(DrawCanvas.TOOLS.pan);
             } else if (id == R.id.left_toolkit_item45) {
                 //删除
-                canvas.setTool(DrawCanvas.TOOLS.select);
-                canvas.setEraserMode(true);
-                canvas.setScaleMode(false);
+                if (false) {
+                    canvas.setTool(DrawCanvas.TOOLS.select);
+                    canvas.setEraserMode(true);
+                    canvas.setScaleMode(false);
+                } else {
+                    if (EraserTool.USE_SIMPLE_IMPL) {
+                        //use simple impl of EraserTool
+                    }
+                    canvas.setTool(DrawCanvas.TOOLS.eraser);
+                    canvas.setEraserMode(true);
+                }
             }
         }
     }
@@ -1078,6 +1428,109 @@ public class BookActivity4 extends AppCompatActivity {
                 findViewById(R.id.btnTitleBack).performClick();
             }
         });
+        findViewById(R.id.btnBold).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickBottomButton1(R.id.btnBold, true, false, true);
+            }
+        });
+        findViewById(R.id.btnItalics).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickBottomButton1(R.id.btnItalics, true, false, true);
+            }
+        });
+        findViewById(R.id.btnUnderline).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickBottomButton1(R.id.btnUnderline, true, false, true);
+            }
+        });
+        findViewById(R.id.btnFormatClear).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickBottomButton1(R.id.btnFormatClear, false, true, true);
+            }
+        });
+        findViewById(R.id.btnAlignLeft).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickBottomButton1(R.id.btnAlignLeft, true, false, true);
+            }
+        });
+        findViewById(R.id.btnAlignCenter).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickBottomButton1(R.id.btnAlignCenter, true, false, true);
+            }
+        });
+        findViewById(R.id.btnAlignRight).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickBottomButton1(R.id.btnAlignRight, true, false, true);
+            }
+        });
+        findViewById(R.id.btnAlignJustify).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickBottomButton1(R.id.btnAlignJustify, true, false, true);
+            }
+        });
+        findViewById(R.id.btnBullet).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickBottomButton1(R.id.btnBullet, true, false, true);
+            }
+        });
+        findViewById(R.id.btnNumber).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickBottomButton1(R.id.btnNumber, true, false, false);
+            }
+        });
+        findViewById(R.id.btnStyleHand).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickBottomButton1(R.id.btnStyleHand, true, false, false);
+            }
+        });
+        findViewById(R.id.btnSerif).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickBottomButton1(R.id.btnSerif, true, false, true);
+            }
+        });
+        findViewById(R.id.btnSans).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickBottomButton1(R.id.btnSans, true, false, true);
+            }
+        });
+        findViewById(R.id.btnTitle).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickBottomButton1(R.id.btnTitle, true, false, true);
+            }
+        });
+        findViewById(R.id.btnH1).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickBottomButton1(R.id.btnH1, true, false, false);
+            }
+        });
+        findViewById(R.id.btnH2).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickBottomButton1(R.id.btnH2, true, false, true);
+            }
+        });
+        findViewById(R.id.btnH3).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickBottomButton1(R.id.btnH3, true, false, true);
+            }
+        });
+
 
         ActionBar topAppBar = getSupportActionBar();
         if (topAppBar != null) {
@@ -1265,7 +1718,7 @@ public class BookActivity4 extends AppCompatActivity {
                         int lastY = (int) event.getY();
                         dtViewBottom.setVisibility(View.GONE);
                         dtView.setVisibility(View.VISIBLE);
-                        dtView.init2(lastX, lastY, "", new DrawTextView.CallBackListener() {
+                        dtView.init2(lastX, lastY, "", BookActivity4.this.editTextColor, new DrawTextView.CallBackListener() {
                             @Override
                             public void onUpdate(DrawPoint drawPoint) {
 
@@ -1276,8 +1729,8 @@ public class BookActivity4 extends AppCompatActivity {
                                 if (drawPoint != null && drawPoint.getDrawText() != null) {
                                     if (true) {
                                         Paint paint = new Paint();
-                                        paint.setColor(0xFFFF0000);
-                                        paint.setTextSize(sp2px(BookActivity4.this, 24));
+//                                        paint.setColor(0xFFFF0000);
+//                                        paint.setTextSize(sp2px(BookActivity4.this, 24));
                                         drawText(canvas,
                                                 drawPoint.getDrawText().getStr(),
                                                 (int) drawPoint.getDrawText().getX(),
@@ -1291,7 +1744,24 @@ public class BookActivity4 extends AppCompatActivity {
                                         drawText(canvas, "hello", 100, 100, paint);
                                     }
                                 }
-                                findViewById(R.id.top_toolkit_item1).performClick(); //返回绘画模式
+                                if (false) {
+                                    findViewById(R.id.top_toolkit_item1).performClick(); //返回绘画模式
+                                } else {
+                                    //保留在编辑模式
+                                    //FIXME:调用点击
+                                    if (true) {
+                                        findViewById(R.id.top_toolkit_item2).performClick();
+                                    } else {
+                                        dtViewBottom.setVisibility(View.VISIBLE);
+                                        dtView.setVisibility(View.GONE);
+                                        llASR.setVisibility(View.GONE);
+                                        rl_ai.setVisibility(View.GONE);
+                                        findViewById(R.id.left_toolkit1).setVisibility(View.GONE);
+                                        findViewById(R.id.left_toolkit2).setVisibility(View.VISIBLE);
+                                        findViewById(R.id.left_toolkit4).setVisibility(View.GONE);
+                                    }
+                                    //skip, keep in text toolkit
+                                }
                             }
                         });
                         break;
@@ -1343,6 +1813,8 @@ public class BookActivity4 extends AppCompatActivity {
         setPenEraserBrush(canvas,1);
 
         onClickTopBar(iconsTopBar[0], false); //init
+
+        runFullScreen(this);
     }
 
     public static int sp2px(Context context, float spValue) {
@@ -1618,8 +2090,97 @@ public class BookActivity4 extends AppCompatActivity {
 
     public void onPaintSelect(String backText) {
         this.backText = backText;
+        setBackText(canvas, backText); //FIXME: added
         addNewPageAndGo_old();
     }
+
+
+    //-----------------------
+    //search R.id.full_screen
+
+    public static void runFullScreen(final Activity a) {
+        try {
+            a.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            a.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                a.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+                a.getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER;
+                a.getWindow().setAttributes(a.getWindow().getAttributes());
+            }
+
+            KeyboardsMod.hideNavigation(a);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void runFullScreenCutOut(final Activity a) {
+        try {
+
+            setNavBarTintColor(a);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+
+
+                a.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+                a.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+                a.getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+                a.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+                a.getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+                a.getWindow().setAttributes(a.getWindow().getAttributes());
+
+
+            }
+
+
+            KeyboardsMod.hideNavigation(a);
+
+
+        } catch (Exception e) {
+//            LOG.e(e);
+            e.printStackTrace();
+        }
+    }
+
+    public static void setNavBarTintColor(Activity a) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            //FIXME:
+            int color = 0xFFFCFCFC;
+            a.getWindow().setNavigationBarColor(color);//TintUtil.color);
+        }
+    }
+
+    public static void runNormalScreen(final Activity a) {
+        try {
+            a.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+            a.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+            final View decorView = a.getWindow().getDecorView();
+            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+
+            setNavBarTintColor(a);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                a.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+                a.getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT;
+                a.getWindow().setAttributes(a.getWindow().getAttributes());
+            }
+
+
+        } catch (Exception e) {
+//            LOG.e(e);
+            e.printStackTrace();
+        }
+    }
+
+
+    //search R.id.full_screen
+    //-----------------------
 
 
 
@@ -1710,6 +2271,7 @@ public class BookActivity4 extends AppCompatActivity {
                 });
     }
 
+//--------------------------------
     //FIXME:not good
     private void setPenEraserBrush(DrawCanvas canvas, int index) {
         if (index == 0) {
@@ -1742,6 +2304,9 @@ public class BookActivity4 extends AppCompatActivity {
     }
     private void onPageIdx(DrawCanvas canvas, int idx, CanvasBoox.OnLoadBitmapListener bitmapLoader) {
         //TODO:
+        if (canvas != null) {
+            canvas.onPageIdx(idx, bitmapLoader);
+        }
     }
     private void setBackText(DrawCanvas canvas, String backText) {
         //TODO:
@@ -1763,15 +2328,23 @@ public class BookActivity4 extends AppCompatActivity {
 //            canvas.drawImage(0, 0, background.getWidth(), background.getHeight(), background);
 //        }
         canvas.initialBmp = initialBmp;
+        canvas.pageIdx = initialPageIdx;
 //        if (canvas != null && initialBmp != null) {
 //            canvas.drawImage(0, 0, initialBmp.getWidth(), initialBmp.getHeight(), initialBmp);
 //        }
     }
     private void drawText(DrawCanvas canvas, String text, int x, int y, Paint p) {
-
+        if (canvas != null) {
+            canvas.drawText(text, x, y, p);
+        }
+    }
+    private void drawImage(DrawCanvas canvas, int x, int y, int width, int height, Bitmap pic, boolean needMap) {
+        if (canvas != null) {
+            canvas.drawImage(x, y, width, height, pic, needMap);
+        }
     }
     private Bitmap getCanvasBitmap(DrawCanvas canvas) {
-        return canvas.toBitmap();
+        return canvas != null ? canvas.toBitmap() : null;
     }
     private void setColor(DrawCanvas canvas, int color) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -1794,12 +2367,59 @@ public class BookActivity4 extends AppCompatActivity {
 
     private void showPopupMenu(View view) {
         //see LineWidthDialog
-        CopyCutMenuDialog.show(this, view, new CopyCutMenuDialog.WidthChangedListener() {
+        CopyCutMenuDialog.show(this, view, (getPageIdx() + 1), pageNum, new View.OnClickListener() {
             @Override
-            public void onWidthChanged(float value) {
-
+            public void onClick(View view) {
+                if (view != null) {
+                    if (view.getId() == R.id.popButtonGrid) {
+                        notifyForceSave();
+                        if (SAVING_ASYNC) {
+                            if (task == null) {
+                                task = new SavingTask(false);
+                                task.executeOnExecutor(newFixedThreadPool);
+                            }
+                        } else {
+                            gotoGridPage();
+                        }
+                    } else if (view.getId() == R.id.popButtonPrevPage) {
+                        notifyForceSave();
+                        gotoPrevPage();
+                    } else if (view.getId() == R.id.popButtonNextPage) {
+                        notifyForceSave();
+                        gotoNextPage();
+                    } else if (view.getId() == R.id.popButtonRemovePage) {
+                        notifyForceSave();
+                        removeCurrentPageAndGo();
+                    } else if (view.getId() == R.id.popButtonAddPage) {
+                        notifyForceSave();
+                        addNewPageAndGo(true);
+                    } else if (view.getId() == R.id.popTextViewInsertImage) {
+                        Drawable drawable = ContextCompat.getDrawable(BookActivity4.this, R.mipmap.ic_launcher);
+                        //https://blog.csdn.net/jaycee110905/article/details/38817871
+                        Bitmap.Config config = drawable.getOpacity() != PixelFormat.OPAQUE ?
+                                Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565;
+                        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), config);
+                        Canvas canvas_ = new Canvas(bitmap);
+                        drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+                        drawable.draw(canvas_);
+                        //myFabricView.drawImage(200, 200, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), bitmap);
+                        drawImage(canvas, 200, 400, bitmap.getWidth(), bitmap.getHeight(), bitmap, false);
+                    }
+                }
             }
         });
+    }
+
+    private void notifyForceSave() {
+        //FIXME:this.isDirty should be always true
+        //FIXME:I need to remove isDirty var
+        if (true) {
+            if (mOnUpdateBmpListener != null) { //FIXME:force save
+                mOnUpdateBmpListener.onUpdateBmp(canvas.toBitmap());
+            }
+        } else {
+            isDirty = true; //FIXME: force save
+        }
     }
 
     public String getBookName(String url) {
@@ -1815,6 +2435,108 @@ public class BookActivity4 extends AppCompatActivity {
             return url.substring(url.lastIndexOf("/") + 1);
         }
         return url;
+    }
+    private boolean isBold = false;
+    public void setBold(boolean bold) {
+        this.isBold = bold;
+        setBoldItalicsStyle();
+    }
+    public void setBoldItalicsStyle() {
+        if (this.dtView != null && this.dtView.mEtTextEdit != null) {
+            int style = Typeface.NORMAL;
+            if (this.isBold) {
+                style |= Typeface.BOLD;
+            }
+            if (this.isItalics) {
+                style |= Typeface.ITALIC;
+            }
+            Typeface family = Typeface.DEFAULT;
+            if (this.styleType == STYLE_TYPE_NONE) {
+
+            } else if (this.styleType == STYLE_TYPE_HAND) {
+
+            } else if (this.styleType == STYLE_TYPE_SERIF) {
+                family = Typeface.SERIF;
+            } else if (this.styleType == STYLE_TYPE_SANS) {
+                family = Typeface.SANS_SERIF;
+            }
+            Typeface font = Typeface.create(family, style);
+            this.dtView.mEtTextEdit.setTypeface(font);
+        }
+    }
+    private boolean isItalics = false;
+    public void setItalics(boolean italics) {
+        this.isItalics = italics;
+        setBoldItalicsStyle();
+    }
+    private boolean isUnderline = false;
+    public void setUnderline(boolean isUnderline) {
+        this.isUnderline = isUnderline;
+    }
+    public final static int ALIGN_TYPE_NONE = 0;
+    public final static int ALIGN_TYPE_LEFT = 1;
+    public final static int ALIGN_TYPE_CENTER = 2;
+    public final static int ALIGN_TYPE_RIGHT = 3;
+    public final static int ALIGN_TYPE_JUSTIFY = 4;
+    private int alignType = ALIGN_TYPE_NONE;
+    public void setAlignType(int alignType) {
+        this.alignType = alignType;
+        if (this.dtView != null && this.dtView.mEtTextEdit != null) {
+            if (alignType == ALIGN_TYPE_NONE ||
+                    alignType == ALIGN_TYPE_LEFT ||
+                    alignType == ALIGN_TYPE_JUSTIFY) {
+                this.dtView.mEtTextEdit.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+            } else if (alignType == ALIGN_TYPE_CENTER) {
+                this.dtView.mEtTextEdit.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            } else if (alignType == ALIGN_TYPE_RIGHT) {
+                this.dtView.mEtTextEdit.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
+            }
+        }
+    }
+    public final static int LIST_TYPE_NONE = 0;
+    public final static int LIST_TYPE_BULLET = 1;
+    public final static int LIST_TYPE_NUMBER = 2;
+    private int listType = LIST_TYPE_NONE;
+    public void setListType(int listType) {
+        this.listType = listType;
+    }
+    public final static int STYLE_TYPE_NONE = 0;
+    public final static int STYLE_TYPE_HAND = 1;
+    public final static int STYLE_TYPE_SERIF = 2;
+    public final static int STYLE_TYPE_SANS = 3;
+    private int styleType = STYLE_TYPE_NONE;
+    public void setStyleType(int styleType) {
+        this.styleType = styleType;
+        setBoldItalicsStyle();
+    }
+    private final static int SIZE_TYPE_NONE = 0;
+    private final static int SIZE_TYPE_TITLE = 1;
+    private final static int SIZE_TYPE_H1= 2;
+    private final static int SIZE_TYPE_H2 = 3;
+    private final static int SIZE_TYPE_H3 = 4;
+    private int sizeType = SIZE_TYPE_NONE;
+    public void setSizeType(int sizeType) {
+        this.sizeType = sizeType;
+        if (this.dtView != null && this.dtView.mEtTextEdit != null) {
+            if (sizeType == SIZE_TYPE_NONE) {
+                this.dtView.mEtTextEdit.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 32);
+            } else if (sizeType == SIZE_TYPE_TITLE) {
+                this.dtView.mEtTextEdit.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 48);
+            } else if (sizeType == SIZE_TYPE_H1) {
+                this.dtView.mEtTextEdit.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 42);
+            } else if (sizeType == SIZE_TYPE_H2) {
+                this.dtView.mEtTextEdit.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 38);
+            } else if (sizeType == SIZE_TYPE_H3) {
+                this.dtView.mEtTextEdit.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 36);
+            }
+        }
+    }
+    private int editTextColor = 0xFF000000;
+    public void setEditTextColor(int editTextColor) {
+        this.editTextColor = editTextColor;
+        if (this.dtView != null && this.dtView.mEtTextEdit != null) {
+            this.dtView.mEtTextEdit.setTextColor(editTextColor);
+        }
     }
 
     //FIXME:TODO:
