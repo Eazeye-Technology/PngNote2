@@ -18,11 +18,10 @@
 			android:layout_weight="1"
 			>
 			<ImageButton
-				android:id="@+id/imageButtonBack"
+                android:id="@+id/imageButtonBack"
 				android:layout_width="@dimen/mtmobile__treefontsize5"
 				android:layout_height="@dimen/mtmobile__treefontsize5"
 				android:layout_gravity="center"
-				android:background="@drawable/toolbar_button"
 				android:gravity="center"
 				android:paddingLeft="5dp"
 				android:paddingRight="5dp"
@@ -34,7 +33,11 @@
 				android:layout_marginLeft="5dp"
 				android:layout_marginRight="5dp"
 				android:src="@drawable/ic_baseline_arrow_back_24"
-				/>
+                android:foreground="?android:attr/selectableItemBackground"
+                android:background="@null"
+                />
+            <!--android:background="@drawable/toolbar_button"
+				-->
 <!--android:src="@mipmap/ic_launcher"
 				-->
 			<TextView
@@ -61,7 +64,6 @@
 				android:layout_height="@dimen/mtmobile__treefontsize5"
 				android:layout_centerVertical="true"
 				android:layout_gravity="center"
-				android:background="@drawable/toolbar_button"
 				android:gravity="center"
 				android:paddingLeft="5dp"
 				android:paddingRight="5dp"
@@ -70,8 +72,12 @@
 				android:text="NEW BOOK"
 				android:textAllCaps="true"
 				android:textColor="@color/black"
-				android:textSize="11sp" />
-
+				android:textSize="11sp"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:background="@null"
+                />
+            <!--android:background="@drawable/toolbar_button"
+				-->
 			<TextView
 				android:id="@+id/upload_buttontxt"
 				android:layout_width="wrap_content"

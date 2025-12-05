@@ -68,7 +68,7 @@ public class PageGridActivity extends AppCompatActivity {
             if (idx < 0) {
                 throw new IndexOutOfBoundsException(); //FIXME:
             }
-            Page page = new Page(String.valueOf(idx + 1), PageGridData.getBlankBitmap(), this.getBgImage());
+            Page page = new Page(String.valueOf(idx + 1), PageGridData.getBlankBitmap(), this.getBgImage(), String.valueOf(idx + 1));
             result.add(page);
         }
         return result;

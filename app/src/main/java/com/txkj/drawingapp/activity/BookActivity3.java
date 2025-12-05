@@ -100,6 +100,11 @@ public class BookActivity3 extends AppCompatActivity {
         _bookDir = bookDir_init();
         _bookIO = bookIO_init();
         _pageIdx = pageIdx_init();
+        try {
+            ((TextView) findViewById(R.id.newTitle)).setText(_bookDir.getName());
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+        }
     }
     private void onPageIdxChange() {
         int idx = getPageIdx();
@@ -765,7 +770,9 @@ public class BookActivity3 extends AppCompatActivity {
         setContentView(R.layout.activity_book3);
 
         if (this.dirUrlPath != null) {
-            ((TextView) findViewById(R.id.newTitle)).setText(getBookName(this.dirUrlPath));
+            if (false) {
+                ((TextView) findViewById(R.id.newTitle)).setText(getBookNameNG(this.dirUrlPath));
+            }
         }
 
         if (false) { //for debugging
@@ -1580,7 +1587,7 @@ public class BookActivity3 extends AppCompatActivity {
 //        }
     }
 
-    public String getBookName(String url) {
+    public String getBookNameNG(String url) {
         if (url == null) {
             return "";
         }

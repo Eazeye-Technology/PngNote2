@@ -25,7 +25,7 @@ public class PageGridData {
     }
 
     private Page makeBlankPage() {
-        return new Page("", blankBitmap, null);
+        return new Page("", blankBitmap, null, "");
     }
 
     public Page getPage(int row, int col) {

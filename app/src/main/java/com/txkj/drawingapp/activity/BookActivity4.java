@@ -155,6 +155,11 @@ public class BookActivity4 extends AppCompatActivity {
         _bookDir = bookDir_init();
         _bookIO = bookIO_init();
         _pageIdx = pageIdx_init();
+        try {
+            ((TextView) findViewById(R.id.newTitle)).setText(_bookDir.getDisplayName());
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+        }
     }
     private void onPageIdxChange() {
         int idx = getPageIdx();
@@ -1273,7 +1278,9 @@ public class BookActivity4 extends AppCompatActivity {
         setPenColor(0xFF000000); //FIXME:初始化画笔
 
         if (this.dirUrlPath != null) {
-            ((TextView) findViewById(R.id.newTitle)).setText(getBookName(this.dirUrlPath));
+            if (false) {
+                ((TextView) findViewById(R.id.newTitle)).setText(getBookNameNG(this.dirUrlPath));
+            }
         }
 
         if (false) { //for debugging
@@ -1735,13 +1742,14 @@ public class BookActivity4 extends AppCompatActivity {
                                                 drawPoint.getDrawText().getStr(),
                                                 (int) drawPoint.getDrawText().getX(),
                                                 (int) drawPoint.getDrawText().getY(),
-                                                paint
+                                                paint,
+                                                isBold, isItalics, isUnderline, styleType, editTextColor
                                         );
                                     } else {
                                         Paint paint = new Paint();
                                         paint.setColor(0xFFFF0000);
                                         paint.setTextSize(18 * 5);
-                                        drawText(canvas, "hello", 100, 100, paint);
+                                        drawText(canvas, "hello", 100, 100, paint, false, false, false, 0, 0xFF000000);
                                     }
                                 }
                                 if (false) {
@@ -2333,9 +2341,15 @@ public class BookActivity4 extends AppCompatActivity {
 //            canvas.drawImage(0, 0, initialBmp.getWidth(), initialBmp.getHeight(), initialBmp);
 //        }
     }
-    private void drawText(DrawCanvas canvas, String text, int x, int y, Paint p) {
+    private void drawText(DrawCanvas canvas, String text, int x, int y, Paint p, boolean isBold,
+                          boolean isItalics,
+                          boolean isUnderline,
+                          int styleType, int pointsTextColor) {
         if (canvas != null) {
-            canvas.drawText(text, x, y, p);
+            canvas.drawText(text, x, y, p, isBold,
+                isItalics,
+                isUnderline,
+                styleType, pointsTextColor);
         }
     }
     private void drawImage(DrawCanvas canvas, int x, int y, int width, int height, Bitmap pic, boolean needMap) {
@@ -2422,7 +2436,7 @@ public class BookActivity4 extends AppCompatActivity {
         }
     }
 
-    public String getBookName(String url) {
+    public String getBookNameNG(String url) {
         if (url == null) {
             return "";
         }

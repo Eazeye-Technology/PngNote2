@@ -7,8 +7,11 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
+import android.graphics.Typeface;
 
 import androidx.annotation.NonNull;
+
+import com.txkj.drawingapp.activity.BookActivity4;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -40,6 +43,12 @@ public class DrawPath {
     public final static int POINTS_TYPE_STROKE = 0;
     public final static int POINTS_TYPE_TEXT = 1;
     public final static int POINTS_TYPE_IMAGE = 2;
+
+    public boolean isBold = false;
+    public boolean isItalics = false;
+    public boolean isUnderline = false;
+    public int styleType = BookActivity4.STYLE_TYPE_NONE;
+    public int pointsTextColor = 0;
     //---------------------
 
     /**
@@ -325,6 +334,32 @@ public class DrawPath {
                     canvas.drawText(pointsText, pointsTextX, pointsTextY, paint);
                 } else {
                     //text is left top align
+                    int style = Typeface.NORMAL;
+                    if (this.isBold) {
+                        style |= Typeface.BOLD;
+                    }
+                    if (this.isItalics) {
+                        style |= Typeface.ITALIC;
+                    }
+                    Typeface family = Typeface.DEFAULT;
+                    if (this.styleType == BookActivity4.STYLE_TYPE_NONE) {
+
+                    } else if (this.styleType == BookActivity4.STYLE_TYPE_HAND) {
+
+                    } else if (this.styleType == BookActivity4.STYLE_TYPE_SERIF) {
+                        family = Typeface.SERIF;
+                    } else if (this.styleType == BookActivity4.STYLE_TYPE_SANS) {
+                        family = Typeface.SANS_SERIF;
+                    }
+                    Typeface font = Typeface.create(family, style);
+                    paint.setTypeface(font);
+                    if (this.isUnderline) {
+                        paint.setUnderlineText(true);
+                    }
+                    if (this.pointsTextColor != 0) {
+                        paint.setColor(this.pointsTextColor);
+                    }
+
                     float textWidth = paint.measureText(pointsText);
                     float x = pointsTextX;
                     float y = pointsTextY - paint.ascent() - ((paint.descent() - paint.ascent()) / 2);

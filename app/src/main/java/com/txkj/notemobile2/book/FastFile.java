@@ -8,18 +8,34 @@ import android.provider.DocumentsContract;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import com.txkj.notemobile2.Book;
+import com.txkj.notemobile2.BookListActivity;
+
+import org.json.JSONObject;
 
 public class FastFile {
+    public final static boolean USE_SKETCH = true; //new sketch format
+    public final static String USE_SKETCH_PREFIX = "SKETCH_";
+    public final static String USE_SKETCH_CONFIG = "sketch.meta";
+    public final static String USE_SKETCH_CONFIG_DISPNAME = "dispName";
+
     private final static boolean D = true;
     private final static String TAG = "FastFile";
 
@@ -30,9 +46,10 @@ public class FastFile {
     private long size;
     private ContentResolver resolver;
     private String filePath;
+    private String metaDispName;
 
     public FastFile(Uri uri, String filePath, String name, long lastModified, String mimeType,
-                    long size, ContentResolver resolver) {
+                    long size, ContentResolver resolver, String metaDispName) {
         this.uri = uri;
         this.filePath = filePath;
         if (this.filePath != null && !this.filePath.startsWith("/")) {
@@ -45,6 +62,7 @@ public class FastFile {
         this.mimeType = mimeType;
         this.size = size;
         this.resolver = resolver;
+        this.metaDispName = metaDispName;
     }
 
     public String getFilePath() {
@@ -54,6 +72,15 @@ public class FastFile {
         return this.uri;
     }
     public String getName() {
+        return this.name;
+    }
+    public String getMetaDispName() {
+        return this.metaDispName;
+    }
+    public String getDisplayName() {
+        if (this.metaDispName != null) {
+            return this.metaDispName;
+        }
         return this.name;
     }
     public long getLastModified() {
@@ -92,7 +119,7 @@ public class FastFile {
             }
             if (it != null) {
                 result = new FastFile(it, null, fileDisplayName,
-                        new Date().getTime(), fileMimeType, 0L, this.resolver);
+                        new Date().getTime(), fileMimeType, 0L, this.resolver, null);
             }
         } else {
             File file = null;
@@ -109,7 +136,7 @@ public class FastFile {
             }
             if (isOK) {
                 result = new FastFile(null, file.getAbsolutePath(), fileDisplayName,
-                        new Date().getTime(), fileMimeType, 0L, this.resolver);
+                        new Date().getTime(), fileMimeType, 0L, this.resolver, null);
             } else {
                 System.out.println("create failed!"); //FIXME:
             }
@@ -268,7 +295,7 @@ public class FastFile {
 
     public FastFile copy(Uri uri, String filePath, String name, long lastModified, String mimeType,
                                long size, ContentResolver resolver) {
-        return new FastFile(uri, filePath, name, lastModified, mimeType, size, resolver);
+        return new FastFile(uri, filePath, name, lastModified, mimeType, size, resolver, null);
     }
 
     //FIXME:
@@ -365,16 +392,105 @@ public class FastFile {
             long lm = getLong(cur, "last_modified");
             String mimeType = getString(cur, "mime_type");
             long size = getLong(cur, "_size");
-            FastFile file = new FastFile(uri, null, disp, lm, mimeType, size, resolver);
+            FastFile file = new FastFile(uri, null, disp, lm, mimeType, size, resolver, null);
             return file;
         } else {
             File file_ = new File(filePath);
             String disp = file_.getName();
+            String dispMetaName = getDipslayMetaName(file_);
+
             long lm = file_.lastModified();
             String extension = MimeTypeMap.getFileExtensionFromUrl(filePath);
             String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase());
             long size = file_.length();
-            return new FastFile(uri, filePath, disp, lm, mimeType, size, resolver);
+            return new FastFile(uri, filePath, disp, lm, mimeType, size, resolver, dispMetaName);
+        }
+    }
+    public static String getDipslayMetaName(File file_) {
+        if (file_ == null) {
+            return null;
+        }
+        String uuid = UUID.randomUUID().toString();
+        String dispMetaName = null;
+        if (file_.getName().startsWith(USE_SKETCH_PREFIX) &&
+                file_.getName().length() == USE_SKETCH_PREFIX.length() + uuid.length()) {
+            try {
+                File file_2 = new File(file_, USE_SKETCH_CONFIG);
+                if (file_2.exists() && file_2.canRead()) {
+                    String metaTxt = loadMetaText(file_2);
+                    JSONObject item = new JSONObject(metaTxt);
+                    dispMetaName = item.optString(USE_SKETCH_CONFIG_DISPNAME);
+                }
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+            }
+        }
+        return dispMetaName;
+    }
+
+    private static String loadMetaText(File file) {
+        InputStream fis = null;
+        InputStreamReader isr = null;
+        BufferedReader reader = null;
+        try {
+            fis = new FileInputStream(file);
+            isr = new InputStreamReader(fis, "UTF-8");
+            reader = new BufferedReader(isr);
+            StringBuffer recentFilesBuffer = new StringBuffer();
+            while (true) {
+                String line = reader.readLine();
+                if (line != null) {
+                    recentFilesBuffer.append(line);
+                    recentFilesBuffer.append("\n");
+                } else {
+                    break;
+                }
+            }
+            return recentFilesBuffer.toString();
+        } catch (IOException eee) {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(isr != null) {
+                try {
+                    isr.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return "";
+    }
+
+    public static void saveMetaText(File file, String json) {
+        OutputStream it = null;
+        try {
+            it = new FileOutputStream(file);
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(it, StandardCharsets.UTF_8);
+            BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
+            bufferedWriter.write(json);
+            bufferedWriter.flush();
+        } catch (Throwable e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (it != null) {
+                    it.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

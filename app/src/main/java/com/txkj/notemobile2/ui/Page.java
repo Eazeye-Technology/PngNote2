@@ -7,16 +7,21 @@ public class Page {
     private Bitmap thumbnail;
     private Bitmap bgThumbnail;
     private boolean isEmpty;
+    private String name;
 
-    public Page(String title, Bitmap thumbnail, Bitmap bgThumbnail) {
+    public Page(String title, Bitmap thumbnail, Bitmap bgThumbnail, String name) {
         this.title = title;
         this.thumbnail = thumbnail;
         this.bgThumbnail = bgThumbnail;
         this.isEmpty = this.title == null || "".equals(this.title);
+        this.name = name;
     }
 
     public String getTitle() {
         return this.title;
+    }
+    public String getName() {
+        return this.name;
     }
     public Bitmap getThumbnail() {
         return this.thumbnail;
@@ -40,7 +45,8 @@ public class Page {
     public Page copy(String title, Bitmap thumbnail, Bitmap bgThumbnail) {
         return new Page(title != null ? title : this.title,
                 thumbnail != null ? thumbnail : this.thumbnail,
-                bgThumbnail != null ? bgThumbnail : this.bgThumbnail);
+                bgThumbnail != null ? bgThumbnail : this.bgThumbnail,
+                title != null ? title : this.title);
     }
 
     @Override

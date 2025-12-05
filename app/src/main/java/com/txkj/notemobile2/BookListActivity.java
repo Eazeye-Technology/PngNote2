@@ -22,10 +22,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -35,14 +38,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import com.foobnix.pdf.info.Android6Mod;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.txkj.drawingapp.activity.BookActivity2;
 import com.txkj.drawingapp.activity.BookActivity3;
 import com.txkj.drawingapp.activity.BookActivity4;
@@ -50,6 +56,7 @@ import com.txkj.notemobile2.book.BookIO;
 import com.txkj.notemobile2.book.FastFile;
 import com.txkj.notemobile2.book.SimpleFileMeta;
 import com.txkj.notemobile2.booklist.BookList;
+import com.txkj.notemobile2.colorpicker.FileMeta;
 import com.txkj.notemobile2.colorpicker.NewNoteDialog;
 import com.txkj.notemobile2.ui.CanvasBoox;
 import com.txkj.notemobile2.ui.Page;
@@ -141,7 +148,7 @@ public class BookListActivity extends AppCompatActivity {
         this.files.addAll(newFiles);
         List<Page> tempList = new ArrayList<Page>(newFiles.size() > 0 ? newFiles.size() : 10);
         for (FastFile file : newFiles) {
-            tempList.add(new Page(file.getName(), this.blankBitmap, this.blankBitmap));
+            tempList.add(new Page(file.getDisplayName(), this.blankBitmap, this.blankBitmap, file.getName()));
         }
         List<SimpleFileMeta> datas = null;
         try {
@@ -323,8 +330,8 @@ public class BookListActivity extends AppCompatActivity {
             Collections.sort(result, new Comparator<FastFile>() {
                 @Override
                 public int compare(FastFile item0, FastFile item1) {
-                    String name0 = item0.getName();
-                    String name1 = item1.getName();
+                    String name0 = item0.getDisplayName();
+                    String name1 = item1.getDisplayName();
                     if (name0 == null) name0 = "";
                     if (name1 == null) name1 = "";
                     return -name0.compareTo(name1);
@@ -423,7 +430,8 @@ public class BookListActivity extends AppCompatActivity {
                                 Page p = pageList.get(position_);
                                 for (int k = 0; k < files.size(); ++k) {
                                     FastFile f = files.get(k);
-                                    if (f != null && f.getName().equals(p.getTitle())) {
+                                    //FIXME: this is a bad idea
+                                    if (f != null && f.getName().equals(p.getName())) {
                                         position = k;
                                         break;
                                     }
@@ -453,7 +461,7 @@ public class BookListActivity extends AppCompatActivity {
                 Page p = pageList.get(position_);
                 for (int k = 0; k < files.size(); ++k) {
                     FastFile f = files.get(k);
-                    if (f != null && f.getName().equals(p.getTitle())) {
+                    if (f != null && f.getName().equals(p.getName())) {
                         position = k;
                         break;
                     }
@@ -491,7 +499,7 @@ public class BookListActivity extends AppCompatActivity {
         }
 
         if (stateStarted == 0) {
-            checkPermissioin();
+            checkPermission();
         }
 
         if (BookIO.USE_CONTENT_RESOLVER) {
@@ -563,15 +571,27 @@ public class BookListActivity extends AppCompatActivity {
         }
         if (rootDir != null) {
             try {
-                rootDir.createDirectory(newBookName);
+                if (FastFile.USE_SKETCH) {
+                    String newBookName2 = FastFile.USE_SKETCH_PREFIX + UUID.randomUUID().toString();
+                    rootDir.createDirectory(newBookName2);
+                    File folder = new File(rootDir.getFilePath(), newBookName2);
+                    File file_2 = new File(folder, FastFile.USE_SKETCH_CONFIG);
+                    JSONObject item = new JSONObject();
+                    item.put(FastFile.USE_SKETCH_CONFIG_DISPNAME, newBookName);
+                    FastFile.saveMetaText(file_2, item.toString());
+                } else {
+                    rootDir.createDirectory(newBookName);
+                }
                 this.openRootDir(this._url, this._urlPath);
                 this.bookListAdapter.notifyDataSetChanged();
                 this.listview.postDelayed(new Runnable() {
                     @Override
                     public void run() {
+                        boolean found = false;
                         for (int i = 0; i < files.size(); ++i) {
                             FastFile f = files.get(i);
-                            if (f != null && f.getName() != null && f.getName().equals(newBookName)) {
+                            //FIXME: this is a bad idea
+                            if (f != null && f.getDisplayName() != null && f.getDisplayName().equals(newBookName)) {
                                 int pageIdx = i;
                                 Intent intent = new Intent(BookListActivity.this, Config.getCls());
                                 intent.setData(files.get(pageIdx).getUri());
@@ -579,9 +599,13 @@ public class BookListActivity extends AppCompatActivity {
                                 if (backText != null) {
                                     intent.putExtra(BookActivity.EXTRA_BACKTEXT, backText);
                                 }
+                                found = true;
                                 startActivity(intent);
                                 break;
                             }
+                        }
+                        if (!found) {
+                            showMessage("Can't create book directory (" + newBookName + ").");
                         }
                     }
                 }, 500);
@@ -674,10 +698,121 @@ public class BookListActivity extends AppCompatActivity {
                 }
             });
             dialog.show();
+        } else if (true) {
+            AlertDialog dialog = new MaterialAlertDialogBuilder(this, getCenteredTitleThemeOverlay())
+                    //.setTitle(title)
+                    .setView(R.layout.activity_booklist_dialog1)
+                    .setCancelable(false)
+                    .setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    TextView input = ((AlertDialog) dialog).findViewById(R.id.textState);
+                                    //Toast.makeText(BookListActivity.this, input.getText(), Toast.LENGTH_LONG).show();
+                                    showNewNote2Dialog(input.getText().toString());
+                                }
+                            })
+                    .setNegativeButton("Cancel", null)
+                    .create();
+            dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface dialog) {
+//                    TextView tvDialogTitle = ((AlertDialog) dialog).findViewById(R.id.tvDialogTitle);
+//                    tvDialogTitle.setText("New note");
+                    TextView input = ((AlertDialog) dialog).findViewById(R.id.textState);
+                    String defaultNoteName = generateNoteName();
+                    input.setText(defaultNoteName);
+                }
+            });
+            dialog.show();
         } else {
-            NewNoteDialog dialog = new NewNoteDialog(this);
+            String defaultNoteName = generateNoteName();
+            NewNoteDialog dialog = new NewNoteDialog(this, defaultNoteName);
             dialog.show();
         }
+    }
+
+    public void showNewNote2Dialog(final String newNoteName) {
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this, getCenteredTitleThemeOverlay())
+                //.setTitle(title)
+                .setView(R.layout.activity_booklist_dialog2)
+                .setCancelable(false)
+                .setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        RadioButton radioLine = ((AlertDialog) dialog).findViewById(R.id.radio1);
+                        RadioButton radioBlank = ((AlertDialog) dialog).findViewById(R.id.radio2);
+                        RadioButton radioGrid = ((AlertDialog) dialog).findViewById(R.id.radio3);
+                        RadioButton radioDotted = ((AlertDialog) dialog).findViewById(R.id.radio4);
+                        RadioButton radioInfinite = ((AlertDialog) dialog).findViewById(R.id.radio5);
+                        String backText = null;
+                        if (radioLine.isChecked()) {
+                            backText = FileMeta.LINED;
+                        } else if (radioBlank.isChecked()) {
+                            backText = FileMeta.NONE;
+                        } else if (radioGrid.isChecked()) {
+                            backText = FileMeta.GRAPH;
+                        } else if (radioDotted.isChecked()) {
+                            backText = FileMeta.DOTTED;
+                        } else if (radioInfinite.isChecked()) {
+                            backText = FileMeta.NONE;
+                        }
+                        if (backText != null) {
+                            onNewBook(newNoteName, backText);
+                        }
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                int[] ids = {
+                    R.id.radio1,
+                    R.id.radio2,
+                    R.id.radio3,
+                    R.id.radio4,
+                    R.id.radio5,
+                };
+                for (int id : ids) {
+                    RadioButton input = ((AlertDialog) dialog).findViewById(id);
+                    input.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            for (int id2 : ids) {
+                                if (id2 != id) {
+                                    RadioButton input = ((AlertDialog) dialog).findViewById(id2);
+                                    input.setChecked(false);
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        });
+        dialog.show();
+    }
+
+    protected int getCenteredTitleThemeOverlay() {
+        //return com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog_Centered;
+        return R.style.MyThemeOverlayAlertDialog;
+    }
+
+    public String generateNoteName() {
+        String noteName = "Note 1";
+        List<String> bookTitleList = new ArrayList<>();
+        if (files != null) {
+            for (FastFile book : files) {
+                if (book != null && book.getDisplayName() != null) {
+                    bookTitleList.add(book.getDisplayName());
+                }
+            }
+        }
+        int index = 1;
+        while (bookTitleList.contains(noteName)) {
+            index++;
+            noteName = "Note " + index;
+        }
+        return noteName;
     }
 
     public interface OnNewBookListener {
@@ -703,7 +838,7 @@ Android6.onRequestPermissionsResult(this, i, strArr, iArr);
     //原文链接：https://blog.csdn.net/zuo_er_lyf/article/details/82659426
     //https://www.dev2qa.com/android-read-write-external-storage-file-example/
     private final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE_PERMISSION = 100;
-    private void checkPermissioin(){
+    private void checkPermission(){
         // Check whether this app has write external storage permission or not.
         int writeExternalStoragePermission = ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
         // If do not grant write external storage permission.
@@ -711,6 +846,8 @@ Android6.onRequestPermissionsResult(this, i, strArr, iArr);
             // Request user to grant write external storage permission.
             ActivityCompat.requestPermissions(this, new String[]{
                     Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_WRITE_EXTERNAL_STORAGE_PERMISSION);
+        } else {
+            getPermission2();
         }
     }
     @Override

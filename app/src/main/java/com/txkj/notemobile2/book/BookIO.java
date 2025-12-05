@@ -371,6 +371,7 @@ public class BookIO {
 
             itemFound.setPath(name); //FIXME:可能不是读目录名称
             itemFound.setName(name);
+            itemFound.setDispName(FastFile.getDipslayMetaName(folder));
             itemFound.setUpdateTime("" + new Date().getTime());
 
             //https://blog.csdn.net/ocean__yang/article/details/113740043
@@ -452,6 +453,7 @@ public class BookIO {
                 obj.put("path", meta.getPath());
                 obj.put("createTime", meta.getCreateTime());
                 obj.put("updateTime", meta.getUpdateTime());
+                obj.put("dispName", meta.getDispName());
                 arr.put(obj);
                 Log.e(TAG, "<<< adding node: " + meta.getName());
             }
@@ -496,6 +498,7 @@ public class BookIO {
                 obj.put("path", meta.getPath());
                 obj.put("createTime", meta.getCreateTime());
                 obj.put("updateTime", meta.getUpdateTime());
+                obj.put("dispName", meta.getDispName());
                 arr.put(obj);
                 Log.e(TAG, "<<< adding node: " + meta.getName());
             }
@@ -734,6 +737,7 @@ public class BookIO {
                     String path = item.optString("path");
                     String createTime = item.optString("createTime");
                     String updateTime = item.optString("updateTime");
+                    String dispName = item.optString("dispName");
 
                     SimpleFileMeta meta = new SimpleFileMeta();
                     meta.setPreview(preview);
@@ -741,6 +745,7 @@ public class BookIO {
                     meta.setPath(path);
                     meta.setCreateTime(createTime);
                     meta.setUpdateTime(updateTime);
+                    meta.setDispName(dispName);
                     recentNoteList2.add(meta);
                 }
             }

@@ -8,6 +8,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -543,7 +544,10 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
     public void setScaleMode(boolean scaleMode) {
         this.scaleMode = scaleMode;
     }
-    public void drawText(String text, int x, int y, Paint p) {
+    public void drawText(String text, int x, int y, Paint p, boolean isBold,
+        boolean isItalics,
+        boolean isUnderline,
+        int styleType, int pointsTextColor) {
         if (p == null) {
             int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 20, getContext().getResources().getDisplayMetrics());
             p = new Paint();
@@ -564,8 +568,14 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
         currentPath.pointsTextX = mapP.x;
         currentPath.pointsTextY = mapP.y;
         currentPath.pointsText = text;
+        currentPath.isBold = isBold;
+        currentPath.isItalics = isItalics;
+        currentPath.isUnderline = isUnderline;
+        currentPath.styleType = styleType;
+        currentPath.pointsTextColor = pointsTextColor;
 
-        if (debug) {
+
+            if (debug) {
             currentPath.addPoint(this.mapPoint(x, y));
             currentPath.addPoint(this.mapPoint(x + 100, y));
             currentPath.addPoint(this.mapPoint(x + 100, y + 100));

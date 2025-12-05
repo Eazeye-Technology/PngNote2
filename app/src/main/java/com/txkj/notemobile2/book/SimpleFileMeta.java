@@ -6,6 +6,7 @@ public class SimpleFileMeta {
     private String path;
     private String createTime;
     private String updateTime;
+    private String dispName;
 
     public String getPreview() {
         return preview;
@@ -45,5 +46,13 @@ public class SimpleFileMeta {
 
     public void setUpdateTime(String updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public String getDispName() {
+        return dispName;
+    }
+
+    public void setDispName(String dispName) {
+        this.dispName = dispName;
     }
 }

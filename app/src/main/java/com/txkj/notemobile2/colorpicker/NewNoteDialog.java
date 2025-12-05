@@ -33,7 +33,7 @@ public class NewNoteDialog extends Dialog {
     EditText g_textState = null;
     Button btnCreate = null;
 
-    public NewNoteDialog(@NonNull final Context context) {
+    public NewNoteDialog(@NonNull final Context context, String defaultNoteName) {
         super(context);
 
         this.setContentView(R.layout.dialog_loadpages2);
@@ -107,5 +107,9 @@ public class NewNoteDialog extends Dialog {
                 recentNoteAdapter.select(position);
             }
         });
+        if (defaultNoteName != null && g_textState != null) {
+            g_textState.setText(defaultNoteName);
+            g_textState.selectAll();
+        }
     }
 }
