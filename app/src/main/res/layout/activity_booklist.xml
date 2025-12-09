@@ -1,56 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     >
-
-    <LinearLayout
-        android:id="@+id/bookTab"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/toolbar"
-        android:orientation="vertical">
-        <include layout="@layout/booklist_toolbar"/>
-    </LinearLayout>
-    <View
-        android:layout_height="1dp"
-        android:paddingTop="0dp"
-        android:paddingBottom="0dp"
-        android:layout_width="match_parent"
-        android:background="#448E8F90" />
-    <FrameLayout
-        android:layout_width="match_parent"
+    <LinearLayout android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:id="@+id/llTop"
         >
-        <ListView
-            android:id="@+id/booklistview"
+        <LinearLayout
+            android:id="@+id/bookTab"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/toolbar"
+            android:orientation="vertical">
+            <include layout="@layout/booklist_toolbar"/>
+        </LinearLayout>
+        <View
+            android:layout_height="1dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
+            android:layout_width="match_parent"
+            android:background="#448E8F90" />
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:color/transparent"
-            android:paddingLeft="1dp"
-            android:paddingRight="1dp"
-            android:gravity="center"
-            android:visibility="visible"
-            />
-        <GridView
-            android:id="@+id/bookgridview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@android:color/transparent"
-            android:numColumns="2"
-            android:paddingLeft="1dp"
-            android:paddingRight="1dp"
-            android:gravity="center"
-            android:stretchMode="columnWidth"
-            android:visibility="invisible"
-            />
-    </FrameLayout>
-<!--
-android:gravity="center"
-   android:stretchMode="columnWidth"
-android:background="#FFCCCCCC"
+            >
+            <ListView
+                android:id="@+id/booklistview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:paddingLeft="1dp"
+                android:paddingRight="1dp"
+                android:gravity="center"
+                android:visibility="visible"
+                />
+            <GridView
+                android:id="@+id/bookgridview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:numColumns="2"
+                android:paddingLeft="1dp"
+                android:paddingRight="1dp"
+                android:gravity="center"
+                android:stretchMode="columnWidth"
+                android:visibility="invisible"
+                />
+        </FrameLayout>
+    <!--
+    android:gravity="center"
+       android:stretchMode="columnWidth"
+    android:background="#FFCCCCCC"
 
--->
+    -->
 
-</LinearLayout>
+    </LinearLayout>
+    <TextView
+        android:id="@+id/tvLoading"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Loading..."
+        android:textColor="#000000"
+        android:layout_gravity="center_vertical|center"
+        />
+</FrameLayout>

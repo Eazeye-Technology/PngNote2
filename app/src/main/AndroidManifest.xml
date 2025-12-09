@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
@@ -16,7 +17,9 @@ java.lang.SecurityException: Permission Denial: startForeground from pid=13110, 
 at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.java:181)
 -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+<!--    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />-->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+
 
 
     <application
@@ -58,6 +61,7 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
         <activity
             android:name="com.txkj.notemobile2.BookListActivity"
             android:exported="true">
+            <!---->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -65,6 +69,12 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
         </activity>
         <activity
             android:name="com.txkj.drawingapp.activity.BookActivity4"
+            android:launchMode="singleTask"
+            android:exported="true"
+            >
+        </activity>
+        <activity
+            android:name="com.txkj.drawingapp.activity.BookActivity4test2"
             android:launchMode="singleTask"
             android:exported="true"
             >
@@ -141,7 +151,10 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
 <!--                <category android:name="android.intent.category.LAUNCHER" />-->
 <!--            </intent-filter>-->
         </activity>
-        <service android:name="com.gzsys.speech.service.RecordingService" />
+        <service
+            android:name="com.gzsys.speech.service.RecordingService"
+            android:foregroundServiceType="microphone"
+            />
         <activity android:name="com.gzsys.speech.activity.DictResultActivity">
         </activity>
         <!-- 移动统计分析 -->

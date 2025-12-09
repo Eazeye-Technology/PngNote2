@@ -18,6 +18,8 @@ import com.gzsys.speech.util.RecordingMode;
 import com.gzsys.speech.util.WavConverter;
 import com.txkj.drawingapp.R;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -27,6 +29,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.graphics.Color;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
@@ -40,6 +44,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 
 public class RecordingService extends Service {
@@ -125,15 +130,20 @@ public class RecordingService extends Service {
 		}
 	};
 
-	public void onCreate() {
+	@SuppressLint("UnspecifiedRegisterReceiverFlag")
+    public void onCreate() {
 		mDatabase = new RecordingsDatabase(getApplicationContext());
 		sendBroadcast(new Intent("com.mohammadag.soundrecorder.SERVICE_STARTED"));
 		
 		IntentFilter iF = new IntentFilter();
 		iF.addAction(Intent.ACTION_SHUTDOWN);
 		iF.addAction("android.intent.action.QUICKBOOT_POWEROFF");
-		registerReceiver(mShutdownReceiver, iF);
-	};
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            registerReceiver(mShutdownReceiver, iF, RECEIVER_NOT_EXPORTED);
+        } else {
+            registerReceiver(mShutdownReceiver, iF);
+        }
+    };
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
@@ -160,7 +170,17 @@ public class RecordingService extends Service {
 		mFilePath = file.getAbsolutePath();
 		mPrettyRecordingName = file.getName().replace(".pcm", "");
 
-		mAudioRecord = new AudioRecord(AUDIO_SOURCE,
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        mAudioRecord = new AudioRecord(AUDIO_SOURCE,
 				SAMPLING_RATE, CHANNEL_IN_CONFIG,
 				AUDIO_FORMAT, BUFFER_SIZE);
 
@@ -182,7 +202,7 @@ public class RecordingService extends Service {
 
 		startTimer();
 
-		startForeground(1, createNotification());
+		startForeground(1, createNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE);
 	}
 
 	public boolean isRecording() {

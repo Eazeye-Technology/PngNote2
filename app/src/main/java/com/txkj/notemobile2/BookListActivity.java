@@ -2,6 +2,7 @@ package com.txkj.notemobile2;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -46,6 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
 
 import com.foobnix.pdf.info.Android6Mod;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -360,6 +362,8 @@ public class BookListActivity extends AppCompatActivity {
     private PageGridAdapter bookGridAdapter;
     private ListView listview;
     private PageListAdapter bookListAdapter;
+    boolean isIntentNew = false;
+    boolean isIntentOpen = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -491,6 +495,15 @@ public class BookListActivity extends AppCompatActivity {
                 Log.e(TAG, "APP_OPEN:" + APP_OPEN);
                 Log.e(TAG, "APP_FILE:" + APP_FILE);
             }
+            if (APP_OPEN != null && APP_OPEN.equals("NEW")) {
+                isIntentNew = true;
+            } else if (APP_FILE != null && !APP_FILE.equals("")) {
+                isIntentOpen = true;
+            }
+            if (isIntentNew || isIntentOpen) {
+                findViewById(R.id.llTop).setVisibility(View.GONE);
+                findViewById(R.id.tvLoading).setVisibility(View.GONE);
+            }
         }
         int stateStarted = 0;
         if (savedInstanceState != null) {
@@ -563,6 +576,7 @@ public class BookListActivity extends AppCompatActivity {
     }
 
     private void addNewBook(String newBookName, String backText) {
+        createWaitingProgressDialog();
         FastFile rootDir = null;
         if (BookIO.USE_CONTENT_RESOLVER && this._url != null) {
             rootDir = FastFile.fromTreeUri(this, this._url, this._urlPath);
@@ -601,15 +615,20 @@ public class BookListActivity extends AppCompatActivity {
                                 }
                                 found = true;
                                 startActivity(intent);
+                                if (isIntentNew) {
+                                    finish();
+                                }
                                 break;
                             }
                         }
+                        cancelWaitingProgressDialog();
                         if (!found) {
                             showMessage("Can't create book directory (" + newBookName + ").");
                         }
                     }
-                }, 500);
+                }, 0/*500*/);
             } catch (Exception var8) {
+                cancelWaitingProgressDialog();
                 this.showMessage("Can't create book directory (" + newBookName + ").");
             }
             return;
@@ -619,6 +638,25 @@ public class BookListActivity extends AppCompatActivity {
             throw new RuntimeException("Can't open dir"); //FIXME:
         } else {
             Toast.makeText(this, "Can't open dir", Toast.LENGTH_SHORT).show();
+        }
+        cancelWaitingProgressDialog();
+    }
+
+    private ProgressDialog mProgressDialog = null; // 对话框对象
+    protected void createWaitingProgressDialog() {
+        if (mProgressDialog == null || !mProgressDialog.isShowing()) {
+            mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            mProgressDialog.setTitle("");
+            mProgressDialog.setMessage("Creating note, please wait...");
+            mProgressDialog.setCancelable(false);
+            mProgressDialog.show();
+        }
+    }
+    protected void cancelWaitingProgressDialog() {
+        if (mProgressDialog != null && mProgressDialog.isShowing()) {
+            mProgressDialog.dismiss();
+            mProgressDialog = null;
         }
     }
 
@@ -698,7 +736,7 @@ public class BookListActivity extends AppCompatActivity {
                 }
             });
             dialog.show();
-        } else if (true) {
+        } else if (false) {
             AlertDialog dialog = new MaterialAlertDialogBuilder(this, getCenteredTitleThemeOverlay())
                     //.setTitle(title)
                     .setView(R.layout.activity_booklist_dialog1)
@@ -716,18 +754,22 @@ public class BookListActivity extends AppCompatActivity {
             dialog.setOnShowListener(new DialogInterface.OnShowListener() {
                 @Override
                 public void onShow(DialogInterface dialog) {
-//                    TextView tvDialogTitle = ((AlertDialog) dialog).findViewById(R.id.tvDialogTitle);
-//                    tvDialogTitle.setText("New note");
+                    TextView tvDialogTitle = ((AlertDialog) dialog).findViewById(R.id.tvDialogTitle);
+                    tvDialogTitle.setText("New note");
                     TextView input = ((AlertDialog) dialog).findViewById(R.id.textState);
                     String defaultNoteName = generateNoteName();
                     input.setText(defaultNoteName);
                 }
             });
             dialog.show();
-        } else {
+        } else if (false) {
             String defaultNoteName = generateNoteName();
             NewNoteDialog dialog = new NewNoteDialog(this, defaultNoteName);
             dialog.show();
+        } else {
+            String defaultNoteName = generateNoteName();
+            String backText = FileMeta.NONE;
+            onNewBook(defaultNoteName, backText);
         }
     }
 
@@ -792,7 +834,7 @@ public class BookListActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    protected int getCenteredTitleThemeOverlay() {
+    public static int getCenteredTitleThemeOverlay() {
         //return com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog_Centered;
         return R.style.MyThemeOverlayAlertDialog;
     }

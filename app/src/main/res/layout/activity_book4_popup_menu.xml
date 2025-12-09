@@ -214,6 +214,7 @@
                             android:layout_marginLeft="10px"
                             android:layout_marginRight="10px"
                             android:visibility="visible"
+                            android:id="@+id/popTextViewRenameFile"
                             />
                     </LinearLayout>
 
@@ -250,6 +251,7 @@
                             android:layout_marginLeft="10px"
                             android:layout_marginRight="10px"
                             android:visibility="visible"
+                            android:id="@+id/popTextViewPageBackground"
                             />
                     </LinearLayout>
 

@@ -269,6 +269,7 @@ public class BookIO {
         return result;
     }
 
+    //FIXME:最好先读取出来
     public void saveMeta(String pattern, String dirUrlPath, String displayName) {
         OutputStream it = null;
         try {
@@ -276,10 +277,14 @@ public class BookIO {
             if (D) {
                 Log.e(TAG, "saving meta " + pattern + " to " + dirUrlPath + ", " + displayName);
             }
+            String oldContent = FastFile.loadMetaText(new File(dirUrlPath, displayName));
             it = new FileOutputStream(new File(dirUrlPath, displayName));
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(it, StandardCharsets.UTF_8);
             BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
             JSONObject item = new JSONObject();
+            if (oldContent != null && oldContent.length() > 0){
+                item = new JSONObject(oldContent);
+            }
             item.put("pattern", pattern);
             bufferedWriter.write(item.toString());
             bufferedWriter.flush();

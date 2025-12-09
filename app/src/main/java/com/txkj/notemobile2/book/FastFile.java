@@ -428,7 +428,7 @@ public class FastFile {
         return dispMetaName;
     }
 
-    private static String loadMetaText(File file) {
+    public static String loadMetaText(File file) {
         InputStream fis = null;
         InputStreamReader isr = null;
         BufferedReader reader = null;

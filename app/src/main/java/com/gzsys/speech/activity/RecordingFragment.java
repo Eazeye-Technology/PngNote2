@@ -84,7 +84,7 @@ public class RecordingFragment extends Fragment implements OnItemClickListener, 
 	private TextView state_view;
 	private TextView filename_textview;
 	private TextView bars;
-	private Button button1; 
+	public Button button1;
 	private Button button2; 
 	private MediaPlayer mPlayer;
 	
@@ -92,91 +92,6 @@ public class RecordingFragment extends Fragment implements OnItemClickListener, 
 		public List<String> items;
 		public List<String> itemInfos1;	
 		public List<String> itemInfos2;	
-	}
-	
-	private final static class ReaderItemsAdapter extends BaseAdapter implements OnDatabaseChangedListener {
-		private LayoutInflater mInflater;
-
-		private Context mContext;
-		private RecordingsDatabase mDatabase;
-		private static final SimpleDateFormat mDateAddedFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-		private static final SimpleDateFormat mDateFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());		
-		
-		private String mMeetingId;
-		private String mAgendaId;
-		
-		public ReaderItemsAdapter(Context context, String meetingId, String agendaId) {
-			this.mInflater = LayoutInflater.from(context);
-			mContext = context;
-			mDatabase = new RecordingsDatabase(context);
-			mDatabase.setOnDatabaseChangedListener(this);
-			mMeetingId = meetingId;
-			mAgendaId = agendaId;
-		}
-		
-		@Override
-		public int getCount() {
-			if (mDatabase != null) {
-				return mDatabase.getCount(this.mMeetingId, this.mAgendaId);
-			}
-			return 0;
-		}
-
-		@Override
-		public Object getItem(int position) {
-			return mDatabase.getItemAt(position, this.mMeetingId, this.mAgendaId);
-		}
-
-		@Override
-		public long getItemId(int position) {
-			return position;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-           ViewHolder holder;
-            if (convertView == null) {
-				convertView = mInflater.inflate(R.layout.speech__list_item_recording, null);
-				holder = new ViewHolder();
-				holder.title = (TextView) convertView.findViewById(R.id.title);
-				holder.date = (TextView) convertView.findViewById(R.id.date);
-                convertView.setTag(holder);
-            } else {
-                holder = (ViewHolder) convertView.getTag();
-            }
-    		RecordingItem item = (RecordingItem)getItem(position);
-            if (item != null) {
-            	if (item.getRecType() != null && item.getRecType().equals("text")) {
-            		holder.title.setText(item.getRecContent());
-                } else {
-            		holder.title.setText(item.getName());
-            	}
-            	holder.date.setText(getTime(item.getTime()));
-        		//lengthView.setText(getLengthString(item.getLength()));
-        	} else {
-            	holder.title.setText("");
-            }
-            return convertView;
-		}
-		
-		public static String getTime(long milliSeconds) {
-			Date date = new Date(milliSeconds);
-			return mDateAddedFormatter.format(date);
-		}
-		
-        private static final class ViewHolder {
-        	TextView title;
-        	TextView date;
-        }
-
-		@Override
-		public void onDatabaseEntryUpdated() {
-			this.notifyDataSetChanged();
-		}
-		
-		public void remove(RecordingItem item) {
-			mDatabase.removeItemWithId(item.getId(), this.mMeetingId, this.mAgendaId);
-		}
 	}
 
     @Override
@@ -610,7 +525,9 @@ public class RecordingFragment extends Fragment implements OnItemClickListener, 
                     Log.d(TAG,"获取到的权限有："+granted.get(i));
                 }
                 if(all) {
-                    Toast.makeText(getActivity(), "Get recording permission successfully", Toast.LENGTH_SHORT).show();
+                    if (false) {
+                        Toast.makeText(getActivity(), "Get recording permission successfully", Toast.LENGTH_SHORT).show();
+                    }
                     getPermission2();
                 }
             }

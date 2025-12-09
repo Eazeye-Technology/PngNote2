@@ -14,19 +14,25 @@
 	        android:layout_width="0dp"
 	        android:layout_height="wrap_content"
 	        android:layout_weight="1"
-	        android:text="Mandarin" />
+	        android:text="Mandarin"
+            android:textColor="#CCC"
+            />
 	    <Button
 	        android:id="@+id/btnListen2"
 	        android:layout_width="0dp"
 	        android:layout_height="wrap_content"
 	        android:layout_weight="1"
-	        android:text="Cantonese" />
+	        android:text="Cantonese"
+            android:textColor="#CCC"
+            />
 		<Button
 	        android:id="@+id/btnListen3"
 	        android:layout_width="0dp"
 	        android:layout_height="wrap_content"
 	        android:layout_weight="1"
-	        android:text="Engish" />
+	        android:text="Engish"
+            android:textColor="#CCC"
+            />
     </LinearLayout>
     <TextView
         android:id="@+id/textView1"
@@ -63,7 +69,9 @@
 	        android:id="@+id/buttonClose"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        android:text="Close" />
+	        android:text="Close"
+            android:textColor="#CCC"
+            />
     </LinearLayout>
 
 </LinearLayout>

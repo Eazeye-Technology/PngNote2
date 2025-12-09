@@ -239,11 +239,14 @@ public final class DrawCanvas extends View {
     /**
      * Gets a bitmap from a DrawCanvas.
      */
+    @SuppressLint("WrongCall")
     public Bitmap toBitmap() {
+        //FIXME:可能大小不对
         Bitmap bitmap = Bitmap.createBitmap((int) this.documentSize.x, (int) this.documentSize.y, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         this.drawMinimal = true;
-        this.draw(canvas);
+        //this.draw(canvas);
+        this.onDraw(canvas);
         this.drawMinimal = false;
         return bitmap;
     }
@@ -321,7 +324,9 @@ public final class DrawCanvas extends View {
      */
     protected void onDraw(@NonNull Canvas canvas) {
         // Allows us to do things like setting a custom background
-        super.onDraw(canvas);
+        if (!drawMinimal) {
+            super.onDraw(canvas);
+        }
         float screenDensity = getResources().getDisplayMetrics().density;
         //
         if (getContext() instanceof MainActivity) {
@@ -342,7 +347,9 @@ public final class DrawCanvas extends View {
         if (!drawMinimal) {
             paint.setShadowLayer(12, 0, 0, Color.argb(200, 0, 0, 0));
         }
-        canvas.drawRect(0, 0, documentSize.x, documentSize.y, paint);
+        if (!drawMinimal) {
+            canvas.drawRect(0, 0, documentSize.x, documentSize.y, paint);
+        }
         paint.reset();
         // Draws a stroke for the page
         if (!drawMinimal) {
@@ -393,27 +400,29 @@ public final class DrawCanvas extends View {
     private Paint.Style mStyle = Paint.Style.STROKE;
     private float mSize = 5f;
     public void drawBackground(Canvas canvas, int backgroundMode, float w, float h) {
-        if (backgroundMode != FabricView.BACKGROUND_STYLE_BLANK) {
-            Paint linePaint = new Paint();
-            linePaint.setColor(Color.argb(50, 0, 0, 0));
-            linePaint.setStyle(mStyle);
-            linePaint.setStrokeJoin(Paint.Join.ROUND);
-            linePaint.setStrokeWidth(mSize - 2f);
-            switch (backgroundMode) {
-                case FabricView.BACKGROUND_STYLE_GRAPH_PAPER:
-                    drawGraphPaperBackground(canvas, linePaint, w, h);
-                    break;
+        if (!drawMinimal) {
+            if (backgroundMode != FabricView.BACKGROUND_STYLE_BLANK) {
+                Paint linePaint = new Paint();
+                linePaint.setColor(Color.argb(50, 0, 0, 0));
+                linePaint.setStyle(mStyle);
+                linePaint.setStrokeJoin(Paint.Join.ROUND);
+                linePaint.setStrokeWidth(mSize - 2f);
+                switch (backgroundMode) {
+                    case FabricView.BACKGROUND_STYLE_GRAPH_PAPER:
+                        drawGraphPaperBackground(canvas, linePaint, w, h);
+                        break;
 
-                case FabricView.BACKGROUND_STYLE_NOTEBOOK_PAPER:
-                    drawNotebookPaperBackground(canvas, linePaint, w, h);
-                    break;
+                    case FabricView.BACKGROUND_STYLE_NOTEBOOK_PAPER:
+                        drawNotebookPaperBackground(canvas, linePaint, w, h);
+                        break;
 
-                case FabricView.BACKGROUND_STYLE_DOT_PAPER:
-                    drawDotPaperBackground(canvas, linePaint, w, h);
-                    break;
+                    case FabricView.BACKGROUND_STYLE_DOT_PAPER:
+                        drawDotPaperBackground(canvas, linePaint, w, h);
+                        break;
 
-                default:
-                    break;
+                    default:
+                        break;
+                }
             }
         }
         //FIXME:

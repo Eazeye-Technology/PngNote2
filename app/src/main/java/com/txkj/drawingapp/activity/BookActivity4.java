@@ -14,6 +14,7 @@ import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.DrawableWrapper;
 import android.net.Uri;
@@ -30,10 +31,13 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.PopupMenu;
+import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,19 +52,32 @@ import androidx.appcompat.widget.AppCompatImageView;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.core.widget.NestedScrollView;
+import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 
 import com.agsw.FabricView.FabricView;
 import com.foobnix.android.utils.KeyboardsMod;
 import com.github.guanpy.wblib.bean.DrawPoint;
 import com.github.guanpy.wblib.widget.DrawTextView;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.slider.Slider;
+import com.gzsys.speech.activity.DictResultActivity;
+import com.gzsys.speech.activity.ReaderItemsAdapter;
+import com.gzsys.speech.activity.RecordingFragment;
+import com.gzsys.speech.dialog.PlayerDialog;
+import com.gzsys.speech.dialog.RecognizeDialog;
+import com.gzsys.speech.pojo.RecordingItem;
 import com.helluva.telephone_pictionary_android.SketchActivity;
 import com.txkj.drawingapp.R;
 import com.txkj.notemobile2.Book;
 import com.txkj.notemobile2.BookActivity;
+import com.txkj.notemobile2.BookListActivity;
 import com.txkj.notemobile2.Config;
 import com.txkj.notemobile2.PageGridActivity;
 import com.txkj.notemobile2.book.BookIO;
@@ -73,6 +90,7 @@ import com.txkj.notemobile2.colorpicker.PaintSelectDialog;
 import com.txkj.notemobile2.colorpicker.SimpleColorDialog;
 import com.txkj.notemobile2.ui.CanvasBoox;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -98,6 +116,11 @@ import io.material.catalog.windowpreferences.WindowPreferencesManager;
 //isDirty = true; //FIXME: force save
 //TODO:notifyForceSave, when view onSizeChanged or other events, need call it
 public class BookActivity4 extends AppCompatActivity {
+    private final static boolean D = true;
+    private final static String TAG = "BookActivity4";
+
+    private boolean isRecording = false; //FIXME:
+    private BookReaderItemsAdapter adapter;
     private Slider slider;
     private final SettingsBottomSheet settingsBottomSheet = new SettingsBottomSheet();
     public static class SettingsBottomSheet extends BottomSheetDialogFragment {
@@ -180,6 +203,7 @@ public class BookActivity4 extends AppCompatActivity {
                         JSONObject item = new JSONObject(metaTxt);
                         if (item != null) {
                             curPattern = item.optString("pattern");
+                            backText = curPattern; //FIXME:added
                         }
                     } catch (Throwable eee) {
                         eee.printStackTrace();
@@ -1268,7 +1292,11 @@ public class BookActivity4 extends AppCompatActivity {
         if (intent != null) {
             this.dirUrl = intent.getData();
             this.dirUrlPath = intent.getStringExtra(EXTRA_DIRURLPATH);
-            this.backText = intent.getStringExtra(EXTRA_BACKTEXT);
+            if (false) {
+                this.backText = intent.getStringExtra(EXTRA_BACKTEXT);
+            } else {
+                //TODO: read config
+            }
             this.handlePageIdxArg(intent);
             isInitBackText = true;
         }
@@ -1368,6 +1396,12 @@ public class BookActivity4 extends AppCompatActivity {
         findViewById(R.id.btnPanel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (false) {
+                    AppCompatImageView btnPanel = (AppCompatImageView) findViewById(R.id.btnPanel);
+                    AnimationDrawable anim = (AnimationDrawable) btnPanel.getDrawable();
+                    anim.start();
+                }
+
                 LinearLayout llPanel = (LinearLayout) findViewById(R.id.llPanel);
                 if (llPanel != null) {
                     if (llPanel.getVisibility() == View.VISIBLE) {
@@ -1375,6 +1409,15 @@ public class BookActivity4 extends AppCompatActivity {
                     } else {
                         llPanel.setVisibility(View.VISIBLE);
                     }
+                }
+            }
+        });
+        findViewById(R.id.closeTrans).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                LinearLayout llPanel = (LinearLayout) findViewById(R.id.llPanel);
+                if (llPanel != null) {
+                    llPanel.setVisibility(View.GONE);
                 }
             }
         });
@@ -1406,17 +1449,232 @@ public class BookActivity4 extends AppCompatActivity {
             public void onClick(View view) {
                 findViewById(R.id.llTab).setVisibility(View.GONE);
                 findViewById(R.id.llTopBar).setVisibility(View.GONE);
-                findViewById(R.id.llFullscreen).setVisibility(View.VISIBLE);
+                //findViewById(R.id.llFullscreen).setVisibility(View.VISIBLE);
+                findViewById(R.id.llFullscreen2).setVisibility(View.VISIBLE);
+                findViewById(R.id.llFullscreen2_demo).setVisibility(View.VISIBLE);
+                findViewById(R.id.left_toolkit_global).setVisibility(View.GONE);
             }
         });
+        //not used this exit button
         findViewById(R.id.btnExitFullscreen).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 findViewById(R.id.llTab).setVisibility(View.VISIBLE);
                 findViewById(R.id.llTopBar).setVisibility(View.VISIBLE);
-                findViewById(R.id.llFullscreen).setVisibility(View.GONE);
+                //findViewById(R.id.llFullscreen).setVisibility(View.GONE);
+                findViewById(R.id.llFullscreen2).setVisibility(View.GONE);
+                findViewById(R.id.llFullscreen2_demo).setVisibility(View.GONE);
+                findViewById(R.id.left_toolkit_global).setVisibility(View.VISIBLE);
             }
         });
+        findViewById(R.id.btnFullscreenExit).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                findViewById(R.id.llTab).setVisibility(View.VISIBLE);
+                findViewById(R.id.llTopBar).setVisibility(View.VISIBLE);
+                //findViewById(R.id.llFullscreen).setVisibility(View.GONE);
+                findViewById(R.id.llFullscreen2).setVisibility(View.GONE);
+                findViewById(R.id.llFullscreen2_demo).setVisibility(View.GONE);
+                findViewById(R.id.left_toolkit_global).setVisibility(View.VISIBLE);
+            }
+        });
+        findViewById(R.id.llFullscreen2_demo).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                findViewById(R.id.llFullscreen2_demo).setVisibility(View.GONE);
+
+//                if (true) {
+//                    BottomSheet2 bottomSheet = new BottomSheet2();
+//                    bottomSheet.setCancelable(false);
+//                    bottomSheet.show(getSupportFragmentManager(), "");
+//                } else {
+//                    MainActivity.ToolsBottomSheet toolsBottomSheet = new MainActivity.ToolsBottomSheet();
+//                    toolsBottomSheet.show(getSupportFragmentManager(), "");
+//                }
+            }
+        });
+        {
+            NestedScrollView arBottomSheet = this.findViewById(R.id.ar_bottom_sheet);
+            View ar_recording_check_view = findViewById(R.id.ar_recording_check_view);
+            BottomSheetBehavior<NestedScrollView> behavior = BottomSheetBehavior.from(arBottomSheet);
+            ar_recording_check_view.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    if (behavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
+                        behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                        //textViewPageInfo
+                        TextView textViewPageInfoBottom = (TextView) findViewById(R.id.textViewPageInfoBottom);
+                        textViewPageInfoBottom.setText("" + (getPageIdx() + 1) + "/" + pageNum);
+                    } else {
+                        behavior.setState(BottomSheetBehavior.STATE_HIDDEN);//BottomSheetBehavior.STATE_COLLAPSED);
+                    }
+                    return true;
+                }
+            });
+            ar_recording_check_view.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    findViewById(R.id.rl_bottom_sheet).requestLayout();
+                    behavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+                    findViewById(R.id.rl_bottom_sheet).setVisibility(View.VISIBLE);
+                }
+            }, 500);
+            findViewById(R.id.addPageButton).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    behavior.setState(BottomSheetBehavior.STATE_HIDDEN);//BottomSheetBehavior.STATE_COLLAPSED);
+                    addNewPageAndGo(false);
+                }
+            });
+            findViewById(R.id.cardShowPageNumInfo).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    behavior.setState(BottomSheetBehavior.STATE_HIDDEN);//BottomSheetBehavior.STATE_COLLAPSED);
+                    AlertDialog dialog = new BookActivity4PageGridDialog(BookActivity4.this,
+                            BookActivity4.this.dirUrl,
+                            BookActivity4.this.dirUrlPath)
+                            .create();
+                    dialog.show();
+                }
+            });
+        }
+        {
+            View.OnClickListener onClickListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    RecordingFragment fragment = (RecordingFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_recording);
+                    if (fragment != null && fragment.button1 != null) {
+                        fragment.button1.performClick();
+                        isRecording = !isRecording;
+                    }
+                    if (adapter != null) {
+                        adapter.notifyDataSetChanged();
+                    }
+                    AppCompatImageView btnPanel = (AppCompatImageView) findViewById(R.id.btnPanel);
+                    AnimationDrawable anim = (AnimationDrawable) btnPanel.getDrawable();
+                    if (isRecording) { //FIXME: use var not good
+                        anim.start();
+                        findViewById(R.id.startRecord).setVisibility(View.GONE);
+                        findViewById(R.id.stopRecord).setVisibility(View.VISIBLE);
+                    } else {
+                        anim.stop();
+                        findViewById(R.id.startRecord).setVisibility(View.VISIBLE);
+                        findViewById(R.id.stopRecord).setVisibility(View.GONE);
+                    }
+                    Toast.makeText(BookActivity4.this, "total : " + adapter.getCount(), Toast.LENGTH_LONG).show();
+                }
+            };
+            findViewById(R.id.startRecord).setOnClickListener(onClickListener);
+            findViewById(R.id.stopRecord).setOnClickListener(onClickListener);
+            ListView viewListViewBook = (ListView) this.findViewById(R.id.viewListViewBook);
+            String meetingId = "";
+            String agendaId = "";
+            adapter = new BookReaderItemsAdapter(this, meetingId, agendaId);
+            viewListViewBook.setAdapter(adapter);
+            viewListViewBook.setFastScrollEnabled(true);
+            viewListViewBook.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    if (D) {
+                        Log.d(TAG, "onItemClick " + position);
+                    }
+                    RecordingItem item = (RecordingItem)adapter.getItem(position);
+                    if (item != null) {
+                        if (item.getRecType() != null && item.getRecType().equals("text")) {
+
+                        } else {
+                            PlayerDialog playerDialog = new PlayerDialog(BookActivity4.this, item);
+                            playerDialog.show();
+                        }
+
+                    }
+                }
+            });
+            viewListViewBook.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> av, View v, int position, long id) {
+                    android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(BookActivity4.this);
+                    final RecordingItem item = (RecordingItem)adapter.getItem(position);
+                    if (item.getRecType() != null
+                            && item.getRecType().equals("text")) {
+                        builder.setTitle("Sync recognition result")
+                                .setItems(new String[] {
+                                        "Delete", //0
+                                }, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        if (item != null) {
+                                            switch (which) {
+                                                case 0:
+                                                    adapter.remove(item);
+                                                    break;
+                                            }
+                                        }
+                                    }
+                                });
+                    } else {
+                        builder.setTitle(item.getName())
+                                .setItems(new String[] {
+                                        "History", //0
+                                        "To Mandarin", //1
+                                        "To Cantonese", //2
+                                        "To English", //3
+                                        "", //4
+                                        "----", //5
+                                        "Clear repeat", //6
+                                        "Clear History", //7
+                                        "Delete", //8
+                                }, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        if (item != null) {
+                                            switch (which) {
+                                                case 0:
+                                                    startActivity(new Intent(BookActivity4.this, DictResultActivity.class).putExtra(DictResultActivity.EXTRA_RECORDING_ID, item.getId()));
+                                                    break;
+
+                                                case 1: {
+                                                    //Toast.makeText(MainActivity.this, item.getFilePath(), Toast.LENGTH_SHORT).show();
+                                                    RecognizeDialog recogizeDialog = new RecognizeDialog(BookActivity4.this, item, RecognizeDialog.LANG_CHINESE);
+                                                    recogizeDialog.show();
+                                                }
+                                                break;
+
+                                                case 2: {
+                                                    //Toast.makeText(MainActivity.this, item.getFilePath(), Toast.LENGTH_SHORT).show();
+                                                    RecognizeDialog recogizeDialog = new RecognizeDialog(BookActivity4.this, item, RecognizeDialog.LANG_CHINESE_GD);
+                                                    recogizeDialog.show();
+                                                }
+                                                break;
+
+                                                case 3: {
+                                                    //Toast.makeText(MainActivity.this, item.getFilePath(), Toast.LENGTH_SHORT).show();
+                                                    RecognizeDialog recogizeDialog = new RecognizeDialog(BookActivity4.this, item, RecognizeDialog.LANG_ENGLISH);
+                                                    recogizeDialog.show();
+                                                }
+                                                break;
+
+                                                case 6:
+                                                    //clearHistoryRepeat(item);
+                                                    break;
+
+                                                case 7:
+                                                    //clearHistory(item);
+                                                    break;
+
+                                                case 8:
+                                                    adapter.remove(item);
+                                                    break;
+                                            }
+                                        }
+                                    }
+                                });
+                    }
+                    builder.show();
+                    return true;
+                }
+            });
+        }
+
+
         findViewById(R.id.btnFullscreenUndo).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -1792,6 +2050,7 @@ public class BookActivity4 extends AppCompatActivity {
                 JSONObject item = new JSONObject(metaTxt);
                 if (item != null) {
                     curPattern = item.optString("pattern");
+                    backText = curPattern;
                 }
             } catch (Throwable eee) {
                 eee.printStackTrace();
@@ -2418,6 +2677,133 @@ public class BookActivity4 extends AppCompatActivity {
                         drawable.draw(canvas_);
                         //myFabricView.drawImage(200, 200, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), bitmap);
                         drawImage(canvas, 200, 400, bitmap.getWidth(), bitmap.getHeight(), bitmap, false);
+                    } else if (view.getId() == R.id.popTextViewRenameFile) {
+                        AlertDialog dialog = new MaterialAlertDialogBuilder(BookActivity4.this, BookListActivity.getCenteredTitleThemeOverlay())
+                                //.setTitle(title)
+                                .setView(R.layout.activity_booklist_dialog1)
+                                .setCancelable(false)
+                                .setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        TextView input = ((AlertDialog) dialog).findViewById(R.id.textState);
+                                        //Toast.makeText(BookListActivity.this, input.getText(), Toast.LENGTH_LONG).show();
+                                        boolean isFailed = false;
+                                        if (_bookDir == null || _bookDir.getName() == null ||!_bookDir.getName().startsWith(FastFile.USE_SKETCH_PREFIX)) {
+                                            isFailed = true;
+                                        }
+                                        String folder = _bookDir.getFilePath();
+                                        if (folder == null ||
+                                                !new File(folder, FastFile.USE_SKETCH_CONFIG).exists() ||
+                                                !new File(folder, FastFile.USE_SKETCH_CONFIG).canWrite()
+                                            ) {
+                                            isFailed = true;
+                                        }
+                                        try {
+                                            File file_2 = new File(folder, FastFile.USE_SKETCH_CONFIG);
+                                            String str = FastFile.loadMetaText(file_2);
+                                            JSONObject item = new JSONObject(str);
+                                            item.put(FastFile.USE_SKETCH_CONFIG_DISPNAME, input.getText().toString());
+                                            FastFile.saveMetaText(file_2, item.toString());
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                            isFailed = true;
+                                        }
+                                        if (isFailed) {
+                                            new MaterialAlertDialogBuilder(BookActivity4.this, BookListActivity.getCenteredTitleThemeOverlay())
+                                                    .setTitle("Error")
+                                                    .setMessage("Rename failed : " + _bookDir.getFilePath() + ",\n" +
+                                                            "please check the path starts with '" + FastFile.USE_SKETCH_PREFIX + "' prefix, " +
+                                                            "and make sure " + FastFile.USE_SKETCH_CONFIG + " file exists.")
+                                                    .setPositiveButton("OK", null)
+                                                    .show();
+                                        } else {
+                                            onCreateAct();
+                                            try {
+                                                ((TextView) findViewById(R.id.newTitle)).setText(_bookDir.getDisplayName());
+                                            } catch (Throwable eee) {
+                                                eee.printStackTrace();
+                                            }
+                                        }
+                                    }
+                                })
+                                .setNegativeButton("Cancel", null)
+                                .create();
+                        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                            @Override
+                            public void onShow(DialogInterface dialog) {
+//                                TextView tvDialogTitle = ((AlertDialog) dialog).findViewById(R.id.tvDialogTitle);
+//                                tvDialogTitle.setText("Rename note");
+                                TextView input = ((AlertDialog) dialog).findViewById(R.id.textState);
+                                try {
+                                    input.setText(_bookDir.getDisplayName());
+                                } catch (Throwable eee) {
+                                    eee.printStackTrace();
+                                }
+                            }
+                        });
+                        dialog.show();
+                    } else if (view.getId() == R.id.popTextViewPageBackground) {
+                        AlertDialog dialog = new MaterialAlertDialogBuilder(BookActivity4.this, BookListActivity.getCenteredTitleThemeOverlay())
+                                //.setTitle(title)
+                                .setView(R.layout.activity_booklist_dialog2)
+                                .setCancelable(false)
+                                .setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        RadioButton radioLine = ((AlertDialog) dialog).findViewById(R.id.radio1);
+                                        RadioButton radioBlank = ((AlertDialog) dialog).findViewById(R.id.radio2);
+                                        RadioButton radioGrid = ((AlertDialog) dialog).findViewById(R.id.radio3);
+                                        RadioButton radioDotted = ((AlertDialog) dialog).findViewById(R.id.radio4);
+                                        RadioButton radioInfinite = ((AlertDialog) dialog).findViewById(R.id.radio5);
+                                        String backText = null;
+                                        if (radioLine.isChecked()) {
+                                            backText = FileMeta.LINED;
+                                        } else if (radioBlank.isChecked()) {
+                                            backText = FileMeta.NONE;
+                                        } else if (radioGrid.isChecked()) {
+                                            backText = FileMeta.GRAPH;
+                                        } else if (radioDotted.isChecked()) {
+                                            backText = FileMeta.DOTTED;
+                                        } else if (radioInfinite.isChecked()) {
+                                            backText = FileMeta.NONE;
+                                        }
+                                        if (backText != null) {
+                                            setBackText(canvas, backText);
+                                        }
+                                        if (BookIO.USE_META_TXT) {
+                                            getBookIO().saveMeta(backText, BookActivity4.this.dirUrlPath, String.format("%04d", BookActivity4.this.pageNum - 1) + ".meta");
+                                        }
+                                    }
+                                })
+                                .setNegativeButton("Cancel", null)
+                                .create();
+                        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                            @Override
+                            public void onShow(DialogInterface dialog) {
+                                int[] ids = {
+                                        R.id.radio1,
+                                        R.id.radio2,
+                                        R.id.radio3,
+                                        R.id.radio4,
+                                        R.id.radio5,
+                                };
+                                for (int id : ids) {
+                                    RadioButton input = ((AlertDialog) dialog).findViewById(id);
+                                    input.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            for (int id2 : ids) {
+                                                if (id2 != id) {
+                                                    RadioButton input = ((AlertDialog) dialog).findViewById(id2);
+                                                    input.setChecked(false);
+                                                }
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                        dialog.show();
                     }
                 }
             }
@@ -2551,6 +2937,12 @@ public class BookActivity4 extends AppCompatActivity {
         if (this.dtView != null && this.dtView.mEtTextEdit != null) {
             this.dtView.mEtTextEdit.setTextColor(editTextColor);
         }
+    }
+
+    public void openPage(int pageIdx) {
+        this.ensureSave();
+        this._pageIdx = pageIdx;
+        onPageIdxChange();
     }
 
     //FIXME:TODO:
