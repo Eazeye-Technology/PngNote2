@@ -70,6 +70,7 @@ import com.txkj.drawingapp.R;
 import org.json.JSONObject;
 
 public class BookListActivity extends AppCompatActivity {
+    private final static boolean USE_CREATING_PROGRESS = false;
     private final static boolean D = true;
     private final static String TAG = "BookListActivity";
 
@@ -503,6 +504,7 @@ public class BookListActivity extends AppCompatActivity {
             if (isIntentNew || isIntentOpen) {
                 findViewById(R.id.llTop).setVisibility(View.GONE);
                 findViewById(R.id.tvLoading).setVisibility(View.GONE);
+                findViewById(R.id.progressLoading1).setVisibility(View.VISIBLE);
             }
         }
         int stateStarted = 0;
@@ -576,7 +578,9 @@ public class BookListActivity extends AppCompatActivity {
     }
 
     private void addNewBook(String newBookName, String backText) {
-        createWaitingProgressDialog();
+        if (USE_CREATING_PROGRESS) {
+            createWaitingProgressDialog();
+        }
         FastFile rootDir = null;
         if (BookIO.USE_CONTENT_RESOLVER && this._url != null) {
             rootDir = FastFile.fromTreeUri(this, this._url, this._urlPath);

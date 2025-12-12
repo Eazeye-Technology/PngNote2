@@ -30,6 +30,8 @@ public class CopyCutMenuDialog {
                 R.id.popTextViewInsertImage,
                 R.id.popTextViewRenameFile,
                 R.id.popTextViewPageBackground,
+                R.id.popButtonShare,
+                R.id.popButtonPan,
         };
         for (int id : ids) {
             View popButton = layout.findViewById(id); //R.id.popButtonGrid

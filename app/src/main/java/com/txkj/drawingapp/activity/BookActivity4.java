@@ -8,15 +8,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
-import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.DrawableWrapper;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -24,6 +23,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -36,24 +36,23 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.PopupMenu;
 import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.widget.NestedScrollView;
-import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 
 import com.agsw.FabricView.FabricView;
@@ -64,16 +63,12 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.slider.Slider;
 import com.gzsys.speech.activity.DictResultActivity;
-import com.gzsys.speech.activity.ReaderItemsAdapter;
 import com.gzsys.speech.activity.RecordingFragment;
 import com.gzsys.speech.dialog.PlayerDialog;
 import com.gzsys.speech.dialog.RecognizeDialog;
 import com.gzsys.speech.pojo.RecordingItem;
-import com.helluva.telephone_pictionary_android.SketchActivity;
 import com.txkj.drawingapp.R;
 import com.txkj.notemobile2.Book;
 import com.txkj.notemobile2.BookActivity;
@@ -96,17 +91,18 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Field;
+import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import io.github.pastthepixels.freepaint.Graphics.DrawAppearance;
 import io.github.pastthepixels.freepaint.Graphics.DrawCanvas;
+import io.github.pastthepixels.freepaint.Graphics.Point;
 import io.github.pastthepixels.freepaint.MainActivity;
 import io.github.pastthepixels.freepaint.Tools.EraserTool;
 import io.material.catalog.windowpreferences.WindowPreferencesManager;
@@ -116,6 +112,10 @@ import io.material.catalog.windowpreferences.WindowPreferencesManager;
 //isDirty = true; //FIXME: force save
 //TODO:notifyForceSave, when view onSizeChanged or other events, need call it
 public class BookActivity4 extends AppCompatActivity {
+    //TODO:check .setCancelable(false)
+    //TODO:android:background="#00000000"
+    private final static boolean USE_OLD_PEN_SETTING_PANEL = false;
+
     private final static boolean D = true;
     private final static String TAG = "BookActivity4";
 
@@ -1004,6 +1004,7 @@ public class BookActivity4 extends AppCompatActivity {
             }
         }
         if (isClick) {
+            canvas.setTool(DrawCanvas.TOOLS.paint);
             if (id == R.id.left_toolkit_item1) {
                 //findViewById(R.id.buttonPen2).performClick();
                 canvas.setPenType(DrawAppearance.PEN_TYPE_1);
@@ -1025,16 +1026,92 @@ public class BookActivity4 extends AppCompatActivity {
 
             this.findViewById(R.id.bottomDialog2).setVisibility(View.GONE);
             if (isShowBottom) {
-                if (this.findViewById(R.id.bottomDialog1).getVisibility() == View.VISIBLE) {
-                    this.findViewById(R.id.bottomDialog1).setVisibility(View.GONE);
+                //!USE_OLD_PEN_SETTING_PANEL) { //
+                if (false) { //id == R.id.left_toolkit_item6) {
+                    AlertDialog dialog = new MaterialAlertDialogBuilder(BookActivity4.this, BookListActivity.getCenteredTitleThemeOverlay())
+                            //.setTitle(title)
+                            .setView(R.layout.activity_book4_brush)
+                            .setCancelable(true)
+                            .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+
+                                }
+                            })
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+
+                                }
+                            })
+                            .create();
+                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                        @Override
+                        public void onShow(DialogInterface dialogInterface) {
+                            View llEdit = ((AlertDialog) dialogInterface).findViewById(R.id.llEdit);
+                            llEdit.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    showNewBrushDialog();
+                                }
+                            });
+                        }
+                    });
+                    dialog.show();
                 } else {
-                    this.findViewById(R.id.bottomDialog1).setVisibility(View.VISIBLE);
+                    if (this.findViewById(R.id.bottomDialog1).getVisibility() == View.VISIBLE) {
+                        this.findViewById(R.id.bottomDialog1).setVisibility(View.GONE);
+                    } else {
+                        this.findViewById(R.id.bottomDialog1).setVisibility(View.VISIBLE);
+                    }
                 }
             } else {
                 this.findViewById(R.id.bottomDialog1).setVisibility(View.GONE);
             }
             //settingsBottomSheet.show(getSupportFragmentManager(), MainActivity.SettingsBottomSheet.TAG);
         }
+    }
+    public void onLongClickSubmenu1(int id, boolean isClick) {
+        AlertDialog dialog = new MaterialAlertDialogBuilder(BookActivity4.this, BookListActivity.getCenteredTitleThemeOverlay())
+                //.setTitle(title)
+                .setView(R.layout.activity_book4_brush2_edit)
+                .setCancelable(true)
+                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                })
+                .create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+                String title = "Edit pen brush";
+                if (id == R.id.left_toolkit_item1) {
+                    title = "Edit fountain pen brush";
+                } else if (id == R.id.left_toolkit_item2) { //hidden
+                    title = "Edit pen brush";
+                } else if (id == R.id.left_toolkit_item3) {
+                    title = "Edit highlighter brush";
+                } else if (id == R.id.left_toolkit_item4) {
+                    title = "Edit marker pen brush";
+                } else if (id == R.id.left_toolkit_item5) { //hidden
+                    title = "Edit pen brush";
+                } else if (id == R.id.left_toolkit_item6) {
+                    title = "Edit pen brush";
+                }
+                AlertDialog dialog = (AlertDialog) dialogInterface;
+                TextView ivTitle = (TextView) dialog.findViewById(R.id.ivTitle);
+                ivTitle.setText(title);
+            }
+        });
+        dialog.show();
     }
     //--------------------------
     private final static int iconsSubmenu2[] = {
@@ -1343,6 +1420,13 @@ public class BookActivity4 extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     onClickSubmenu1(id, true);
+                }
+            });
+            this.findViewById(id).setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    onLongClickSubmenu1(id, true);
+                    return true;
                 }
             });
         }
@@ -2617,7 +2701,7 @@ public class BookActivity4 extends AppCompatActivity {
         }
     }
     private Bitmap getCanvasBitmap(DrawCanvas canvas) {
-        return canvas != null ? canvas.toBitmap() : null;
+        return canvas != null ? canvas.toBitmap(false) : null;
     }
     private void setColor(DrawCanvas canvas, int color) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -2645,7 +2729,7 @@ public class BookActivity4 extends AppCompatActivity {
             public void onClick(View view) {
                 if (view != null) {
                     if (view.getId() == R.id.popButtonGrid) {
-                        notifyForceSave();
+                        notifyForceSave(false);
                         if (SAVING_ASYNC) {
                             if (task == null) {
                                 task = new SavingTask(false);
@@ -2655,33 +2739,53 @@ public class BookActivity4 extends AppCompatActivity {
                             gotoGridPage();
                         }
                     } else if (view.getId() == R.id.popButtonPrevPage) {
-                        notifyForceSave();
+                        notifyForceSave(false);
                         gotoPrevPage();
                     } else if (view.getId() == R.id.popButtonNextPage) {
-                        notifyForceSave();
+                        notifyForceSave(false);
                         gotoNextPage();
                     } else if (view.getId() == R.id.popButtonRemovePage) {
-                        notifyForceSave();
+                        notifyForceSave(false);
                         removeCurrentPageAndGo();
                     } else if (view.getId() == R.id.popButtonAddPage) {
-                        notifyForceSave();
+                        notifyForceSave(false);
                         addNewPageAndGo(true);
+                    } else if (view.getId() == R.id.popButtonPan) {
+                        if (canvas != null) {
+                            canvas.setTool(DrawCanvas.TOOLS.pan);
+                        }
+                    } else if (view.getId() == R.id.popButtonShare) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            notifyForceSave(true);
+                            //isDrawBG == true, because I want to draw lined bg
+                            share();
+                        } else {
+                            AlertDialog dialog = new MaterialAlertDialogBuilder(BookActivity4.this, BookListActivity.getCenteredTitleThemeOverlay())
+                                    .setTitle("Error")
+                                    .setMessage("Sharing failed. Requires Android 8.0 or above.")
+                                    .setCancelable(true)
+                                    .setPositiveButton("OK", null)
+                                    .show();
+                        }
                     } else if (view.getId() == R.id.popTextViewInsertImage) {
-                        Drawable drawable = ContextCompat.getDrawable(BookActivity4.this, R.mipmap.ic_launcher);
-                        //https://blog.csdn.net/jaycee110905/article/details/38817871
-                        Bitmap.Config config = drawable.getOpacity() != PixelFormat.OPAQUE ?
-                                Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565;
-                        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), config);
-                        Canvas canvas_ = new Canvas(bitmap);
-                        drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
-                        drawable.draw(canvas_);
-                        //myFabricView.drawImage(200, 200, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), bitmap);
-                        drawImage(canvas, 200, 400, bitmap.getWidth(), bitmap.getHeight(), bitmap, false);
+                        if (false) {
+                            loadFileDemo();
+                        } else {
+                            if (canvas != null) {
+                                canvas.disableCenter = true;
+                            }
+                            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                            intent.addCategory(Intent.CATEGORY_OPENABLE);
+                            intent.setType("image/*");
+                            intent.putExtra(Intent.EXTRA_TITLE, "input.png");
+                            intent = Intent.createChooser(intent, "Load image file");
+                            activityResultLauncherLoad.launch(intent);
+                        }
                     } else if (view.getId() == R.id.popTextViewRenameFile) {
                         AlertDialog dialog = new MaterialAlertDialogBuilder(BookActivity4.this, BookListActivity.getCenteredTitleThemeOverlay())
                                 //.setTitle(title)
                                 .setView(R.layout.activity_booklist_dialog1)
-                                .setCancelable(false)
+                                .setCancelable(true)
                                 .setPositiveButton("Done", new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
@@ -2779,27 +2883,61 @@ public class BookActivity4 extends AppCompatActivity {
                                 .create();
                         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
                             @Override
-                            public void onShow(DialogInterface dialog) {
-                                int[] ids = {
-                                        R.id.radio1,
-                                        R.id.radio2,
-                                        R.id.radio3,
-                                        R.id.radio4,
-                                        R.id.radio5,
+                            public void onShow(DialogInterface dialogInterface) {
+                                AlertDialog dialog = (AlertDialog) dialogInterface;
+                                int[] ll_ids = {
+                                        R.id.llradio1,
+                                        R.id.llradio2,
+                                        R.id.llradio3,
+                                        R.id.llradio4,
+                                        R.id.llradio5,
                                 };
-                                for (int id : ids) {
-                                    RadioButton input = ((AlertDialog) dialog).findViewById(id);
+                                int[] ids = {
+                                        R.id.radio1, //Note book
+                                        R.id.radio2, //Blank
+                                        R.id.radio3, //Grid
+                                        R.id.radio4, //Dotted
+                                        R.id.radio5, //Infinite canvas
+                                };
+                                for (int index = 0; index < ids.length; ++index) {
+                                    int ll_id = ll_ids[index];
+                                    int id = ids[index];
+                                    View ll = dialog.findViewById(ll_id);
+                                    RadioButton input = dialog.findViewById(id);
+                                    ll.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            dialog.findViewById(id).performClick();
+                                        }
+                                    });
                                     input.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View view) {
                                             for (int id2 : ids) {
                                                 if (id2 != id) {
-                                                    RadioButton input = ((AlertDialog) dialog).findViewById(id2);
+                                                    RadioButton input = (RadioButton)dialog.findViewById(id2);
                                                     input.setChecked(false);
                                                 }
                                             }
+                                            RadioButton input = (RadioButton)dialog.findViewById(id);
+                                            input.setChecked(true);
                                         }
                                     });
+                                }
+                                if (canvas != null) {
+                                    if (canvas.getBackgroundMode() == FabricView.BACKGROUND_STYLE_GRAPH_PAPER) {
+                                        RadioButton input = (RadioButton)dialog.findViewById(R.id.radio3);
+                                        input.setChecked(true);
+                                    } else if (canvas.getBackgroundMode() == FabricView.BACKGROUND_STYLE_NOTEBOOK_PAPER) {
+                                        RadioButton input = (RadioButton)dialog.findViewById(R.id.radio1);
+                                        input.setChecked(true);
+                                    } else if (canvas.getBackgroundMode() == FabricView.BACKGROUND_STYLE_DOT_PAPER) {
+                                        RadioButton input = (RadioButton)dialog.findViewById(R.id.radio4);
+                                        input.setChecked(true);
+                                    } else if (canvas.getBackgroundMode() == FabricView.BACKGROUND_STYLE_BLANK) {
+                                        RadioButton input = (RadioButton)dialog.findViewById(R.id.radio2);
+                                        input.setChecked(true);
+                                    }
                                 }
                             }
                         });
@@ -2810,12 +2948,13 @@ public class BookActivity4 extends AppCompatActivity {
         });
     }
 
-    private void notifyForceSave() {
+    //isDrawBG is false, unless I want to share
+    private void notifyForceSave(boolean isDrawBG) {
         //FIXME:this.isDirty should be always true
         //FIXME:I need to remove isDirty var
         if (true) {
             if (mOnUpdateBmpListener != null) { //FIXME:force save
-                mOnUpdateBmpListener.onUpdateBmp(canvas.toBitmap());
+                mOnUpdateBmpListener.onUpdateBmp(canvas.toBitmap(isDrawBG));
             }
         } else {
             isDirty = true; //FIXME: force save
@@ -2943,6 +3082,94 @@ public class BookActivity4 extends AppCompatActivity {
         this.ensureSave();
         this._pageIdx = pageIdx;
         onPageIdxChange();
+    }
+
+    public void showNewBrushDialog() {
+        AlertDialog dialog = new MaterialAlertDialogBuilder(BookActivity4.this, BookListActivity.getCenteredTitleThemeOverlay())
+                //.setTitle(title)
+                .setView(R.layout.activity_book4_brush_new)
+                .setCancelable(false)
+                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                })
+                .create();
+        dialog.show();
+    }
+
+    private void loadFileDemo() {
+        Drawable drawable = ContextCompat.getDrawable(BookActivity4.this, R.mipmap.ic_launcher);
+        //https://blog.csdn.net/jaycee110905/article/details/38817871
+        Bitmap.Config config = drawable.getOpacity() != PixelFormat.OPAQUE ?
+                Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565;
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), config);
+        Canvas canvas_ = new Canvas(bitmap);
+        drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+        drawable.draw(canvas_);
+        //myFabricView.drawImage(200, 200, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), bitmap);
+        drawImage(canvas, 200, 400, bitmap.getWidth(), bitmap.getHeight(), bitmap, false);
+    }
+    private final ActivityResultLauncher<Intent> activityResultLauncherLoad = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            (result) -> {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    Uri uri = result.getData().getData();
+                    System.out.println(Objects.requireNonNull(uri).getPath());
+                    try {
+                        InputStream inputStream = BookActivity4.this.getContentResolver().openInputStream(uri);
+                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                        int x = canvas.getWidth() / 2 - bitmap.getWidth() / 2;
+                        int y = canvas.getHeight() / 2 - bitmap.getHeight() / 2;
+                        Point p = canvas.mapPoint(x, y);
+                        drawImage(canvas, (int)p.x, (int)p.y, bitmap.getWidth(), bitmap.getHeight(), bitmap, false);
+                        if (inputStream != null) {
+                            inputStream.close();
+                        }
+                    } catch (Exception e) {
+                        Toast.makeText(getApplicationContext(), "An error was encountered while loading.", Toast.LENGTH_LONG).show();
+                        e.printStackTrace();
+                    }
+                }
+                if (canvas != null) {
+                    canvas.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            canvas.disableCenter = false;
+                        }
+                    }, 200); //FIXME:????
+                }
+            }
+    );
+
+    DrawCanvas.TOOLS lastTool = DrawCanvas.TOOLS.none;
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_SPACE) {
+//            if (this.canvas != null) {
+//                lastTool = this.canvas.tool;
+//                this.canvas.setTool(DrawCanvas.TOOLS.pan);
+//            }
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_SPACE) {
+            if (this.canvas != null) {
+//                this.canvas.setTool(lastTool);
+                this.canvas.setTool(DrawCanvas.TOOLS.pan);
+            }
+        }
+        return super.onKeyUp(keyCode, event);
     }
 
     //FIXME:TODO:

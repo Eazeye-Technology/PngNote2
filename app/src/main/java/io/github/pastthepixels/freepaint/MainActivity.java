@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
                     System.out.println(Objects.requireNonNull(uri).getPath());
                     try (OutputStream stream = getApplicationContext().getContentResolver().openOutputStream(uri, "wt")) {
                         assert stream != null;
-                        drawCanvas.toBitmap().compress(Bitmap.CompressFormat.PNG, 100, stream);
+                        drawCanvas.toBitmap(false).compress(Bitmap.CompressFormat.PNG, 100, stream);
                     } catch (Exception e) {
                         Toast.makeText(getApplicationContext(), "An error was encountered while loading.", Toast.LENGTH_LONG).show();
                         e.printStackTrace();

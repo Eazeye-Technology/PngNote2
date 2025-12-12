@@ -56,6 +56,7 @@
                         android:padding="1dp"
                         android:orientation="horizontal"
                         android:layout_marginTop="10dp"
+                        android:id="@+id/llradio1"
                         >
                         <ImageView
                             android:layout_width="40dp"
@@ -92,6 +93,7 @@
                         android:padding="1dp"
                         android:orientation="horizontal"
                         android:layout_marginTop="10dp"
+                        android:id="@+id/llradio2"
                         >
                         <ImageView
                             android:layout_width="40dp"
@@ -128,6 +130,7 @@
                         android:padding="1dp"
                         android:orientation="horizontal"
                         android:layout_marginTop="10dp"
+                        android:id="@+id/llradio3"
                         >
                         <ImageView
                             android:layout_width="40dp"
@@ -164,6 +167,7 @@
                         android:padding="1dp"
                         android:orientation="horizontal"
                         android:layout_marginTop="10dp"
+                        android:id="@+id/llradio4"
                         >
                         <ImageView
                             android:layout_width="40dp"
@@ -200,6 +204,7 @@
                         android:padding="1dp"
                         android:orientation="horizontal"
                         android:layout_marginTop="10dp"
+                        android:id="@+id/llradio5"
                         >
                         <ImageView
                             android:layout_width="40dp"
@@ -225,7 +230,7 @@
                             android:id="@+id/radio5"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
-                            android:checked="true"
+                            android:checked="false"
                             android:enabled="true"
                             android:paddingStart="8dp"
                             android:text=""

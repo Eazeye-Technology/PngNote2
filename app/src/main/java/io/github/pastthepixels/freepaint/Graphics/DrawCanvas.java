@@ -57,11 +57,12 @@ public final class DrawCanvas extends View {
     public LinkedList<DrawPath> paths = new LinkedList<>();
     public int documentColor = Color.WHITE;
     private int version_index = -1;
-    private TOOLS tool = TOOLS.none;
+    public TOOLS tool = TOOLS.none;
 
     // Drawing flags
     // Draws only the document, without any tool paths, or any rotation/translation.
     private boolean drawMinimal = false;
+    private boolean drawMinimalBG = false;
 
     /**
      * Constructor
@@ -103,6 +104,9 @@ public final class DrawCanvas extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
+        if (disableCenter) {
+            return;
+        }
         centerDocument();
     }
 
@@ -240,14 +244,20 @@ public final class DrawCanvas extends View {
      * Gets a bitmap from a DrawCanvas.
      */
     @SuppressLint("WrongCall")
-    public Bitmap toBitmap() {
+    public Bitmap toBitmap(boolean isDrawBG) {
         //FIXME:可能大小不对
         Bitmap bitmap = Bitmap.createBitmap((int) this.documentSize.x, (int) this.documentSize.y, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         this.drawMinimal = true;
+        if (isDrawBG) {
+            this.drawMinimalBG = true;
+        } else {
+            this.drawMinimalBG = false;
+        }
         //this.draw(canvas);
         this.onDraw(canvas);
         this.drawMinimal = false;
+        this.drawMinimalBG = false;
         return bitmap;
     }
 
@@ -400,7 +410,7 @@ public final class DrawCanvas extends View {
     private Paint.Style mStyle = Paint.Style.STROKE;
     private float mSize = 5f;
     public void drawBackground(Canvas canvas, int backgroundMode, float w, float h) {
-        if (!drawMinimal) {
+        if (!drawMinimal || drawMinimalBG) {
             if (backgroundMode != FabricView.BACKGROUND_STYLE_BLANK) {
                 Paint linePaint = new Paint();
                 linePaint.setColor(Color.argb(50, 0, 0, 0));
@@ -662,4 +672,5 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
             }
         }
     }
+    public boolean disableCenter = false;
 }
