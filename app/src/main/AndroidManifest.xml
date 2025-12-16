@@ -35,7 +35,7 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
         android:requestLegacyExternalStorage="true"
         android:largeHeap="true"
         android:vmSafeMode="false"
-        android:name="com.gzsys.speech.app.SpeechApp"
+        android:name="com.sys.speech.app.SpeechApp"
         >
 
         <!--
@@ -143,7 +143,7 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
 
 
         <!--xunfei old sdk, see https://www.xfyun.cn/sdk/dispatcher-->
-        <activity android:name="com.gzsys.speech.activity.RecordingActivity"
+        <activity android:name="com.sys.speech.activity.RecordingActivity"
             android:exported="true"
             >
 <!--            <intent-filter>-->
@@ -152,10 +152,10 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
 <!--            </intent-filter>-->
         </activity>
         <service
-            android:name="com.gzsys.speech.service.RecordingService"
+            android:name="com.sys.speech.service.RecordingService"
             android:foregroundServiceType="microphone"
             />
-        <activity android:name="com.gzsys.speech.activity.DictResultActivity">
+        <activity android:name="com.sys.speech.activity.DictResultActivity">
         </activity>
         <!-- 移动统计分析 -->
         <meta-data

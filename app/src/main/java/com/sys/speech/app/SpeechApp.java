@@ -1,8 +1,7 @@
-package com.gzsys.speech.app;
+package com.sys.speech.app;
 
 import android.app.Application;
 
-import com.iflytek.cloud.Setting;
 import com.iflytek.cloud.SpeechUtility;
 import com.txkj.drawingapp.R;
 

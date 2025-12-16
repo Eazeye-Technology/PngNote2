@@ -1,10 +1,8 @@
-package com.gzsys.speech.util;
+package com.sys.speech.util;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-
-import android.util.Log;
 
 /**
  * Json结果解析类

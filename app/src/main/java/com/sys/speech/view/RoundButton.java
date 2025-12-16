@@ -1,4 +1,4 @@
-package com.gzsys.speech.view;
+package com.sys.speech.view;
 
 import android.content.Context;
 import android.graphics.Bitmap;

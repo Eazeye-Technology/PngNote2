@@ -1,6 +1,6 @@
-package com.gzsys.speech.pojo;
+package com.sys.speech.pojo;
 
-import com.gzsys.speech.dialog.RecognizeDialog;
+import com.sys.speech.dialog.RecognizeDialog;
 
 import android.os.Parcel;
 import android.os.Parcelable;

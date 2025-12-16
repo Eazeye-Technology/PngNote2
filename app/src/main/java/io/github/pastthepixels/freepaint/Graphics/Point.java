@@ -12,6 +12,7 @@ public class Point extends PointF {
      * Works best with Paint.setBlendMode(BlendMode.EXCLUSION);
      */
     public int color = Color.WHITE;
+    public float pressure = 1.0f;
 
     /**
      * Command for the point -- when we draw a line, we loop through all points. When we get to this point,
@@ -37,6 +38,11 @@ public class Point extends PointF {
      */
     public Point(float x, float y) {
         super(x, y);
+    }
+
+    public Point(float x, float y, float pressure) {
+        super(x, y);
+        this.pressure = pressure;
     }
 
     public Point(float x, float y, COMMANDS command) {

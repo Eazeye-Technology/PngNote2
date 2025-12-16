@@ -1,4 +1,4 @@
-package com.gzsys.speech.dialog;
+package com.sys.speech.dialog;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -20,8 +20,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.gzsys.speech.db.RecordingsDatabase;
-import com.gzsys.speech.util.JsonParser;
+import com.sys.speech.db.RecordingsDatabase;
+import com.sys.speech.util.JsonParser;
 import com.iflytek.cloud.ErrorCode;
 import com.iflytek.cloud.InitListener;
 import com.iflytek.cloud.RecognizerListener;

@@ -6,8 +6,10 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PathMeasure;
 import android.graphics.PointF;
 import android.graphics.Typeface;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -261,16 +263,22 @@ public class DrawPath {
                         Point p0 = points.get(i);
                         Point p1 = points.get(i + 1);
 
-                        if (points.size() - i < paint.getStrokeWidth()) {
-                            base.setColor((baseColor & 0xFFFFFF) | (((int) (0xFF/*stroke.opacity*/ * (float) (points.size() - i) / (float) base.getStrokeWidth())) << 24));
-                            if (appearance.penType == DrawAppearance.PEN_TYPE_1) {
-                                base.setStrokeWidth(points.size() - i);
-                            } else if (appearance.penType == DrawAppearance.PEN_TYPE_5) {
+                        if (DrawCanvas.isEmulator()) {
+                            //emulate pressure
+                            if (points.size() - i < paint.getStrokeWidth()) {
+                                base.setColor((baseColor & 0xFFFFFF) | (((int) (0xFF/*stroke.opacity*/ * (float) (points.size() - i) / (float) base.getStrokeWidth())) << 24));
+                                if (appearance.penType == DrawAppearance.PEN_TYPE_1) {
+                                    base.setStrokeWidth(points.size() - i);
+                                } else if (appearance.penType == DrawAppearance.PEN_TYPE_5) {
+                                    base.setStrokeWidth(paint.getStrokeWidth());
+                                }
+                            } else {
+                                base.setColor((baseColor & 0xFFFFFF) | (((int) (0xFF/*stroke.opacity*/ * 1.0)) << 24));
                                 base.setStrokeWidth(paint.getStrokeWidth());
                             }
                         } else {
                             base.setColor((baseColor & 0xFFFFFF) | (((int) (0xFF/*stroke.opacity*/ * 1.0)) << 24));
-                            base.setStrokeWidth(paint.getStrokeWidth());
+                            base.setStrokeWidth(paint.getStrokeWidth() * p0.pressure);
                         }
                         base.setStyle(Paint.Style.STROKE);
                         base.setAntiAlias(true);
@@ -284,6 +292,9 @@ public class DrawPath {
                         Random rnd = new Random(2718);
                         for (Point p : points) {
                             float w = appearance.strokeSize;//(stroke.width * p.pressure).clamp(0.5, 220.0);
+                            if (!DrawCanvas.isEmulator()) {
+                                w = appearance.strokeSize * p.pressure;
+                            }
                             // Base smudge
                             Paint base = new Paint();
                             base.setColor((baseColor & 0xFFFFFF) | (((int) (0xFF/*stroke.opacity*/ * 0.35)) << 24));
@@ -321,6 +332,23 @@ public class DrawPath {
                     canvas.drawPath(toDraw, paint);
                 } else {
                     canvas.drawPath(toDraw, paint);
+                }
+
+                if (false) { //for DEBUG
+                    PathMeasure pm = new PathMeasure(path, false);
+                    float[] pos = new float[2];
+                    float[] tan = new float[2];
+                    int count = (int) Math.floor(pm.getLength());
+                    float[] pointsArray = new float[count * 2];
+
+                    Log.e("path", "public PointF[] path = {");
+                    for (int i = 0; i < count; i++) {
+                        pm.getPosTan(i, pos, tan);
+                        pointsArray[i * 2] = pos[0];
+                        pointsArray[i * 2 + 1] = pos[1];
+                        Log.e("path", "new PointF(" + pos[0] + "f, " + pos[1] + "f),");
+                    }
+                    Log.e("path", "};");
                 }
             } else if (pointsType == POINTS_TYPE_TEXT) {
                 //canvas.drawPath(toDraw, paint);
@@ -372,7 +400,12 @@ public class DrawPath {
                 paint.setAntiAlias(true);
                 //text is left bottom align
                 if (pointsBitmap != null) {
-                    canvas.drawBitmap(pointsBitmap, pointsTextX, pointsTextY, paint);
+                    canvas.drawBitmap(pointsBitmap, pointsTextX - pointsBitmap.getWidth() / 2, pointsTextY - pointsBitmap.getHeight() / 2, paint);
+                    boolean debug = false;
+                    if (debug) {
+                        paint.setColor(0xCCFF0000); //debug area, red region
+                        canvas.drawPath(toDraw, paint);
+                    }
                 }
             }
         } else {
@@ -507,6 +540,10 @@ public class DrawPath {
     public void translate(Point by) {
         for (Point point : points) {
             point.add(by);
+        }
+        if (pointsType == POINTS_TYPE_IMAGE) {
+            pointsTextX += by.x;
+            pointsTextY += by.y;
         }
     }
 

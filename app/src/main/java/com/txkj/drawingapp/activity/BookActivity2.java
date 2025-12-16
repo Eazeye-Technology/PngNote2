@@ -838,6 +838,7 @@ public class BookActivity2 extends AppCompatActivity {
             gotoLastPage();
         } else if (item.getItemId() == R.id.addPage) {
             addNewPageAndGo(true);
+            //addNewPageAndGo(false);
         } else if (item.getItemId() == R.id.share) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 share();

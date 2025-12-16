@@ -1,11 +1,11 @@
-package com.gzsys.speech.util;
+package com.sys.speech.util;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import com.gzsys.speech.service.RecordingService;
+import com.sys.speech.service.RecordingService;
 
 public class WavConverter {
 	private static final long SAMPLE_RATE = RecordingService.SAMPLING_RATE;

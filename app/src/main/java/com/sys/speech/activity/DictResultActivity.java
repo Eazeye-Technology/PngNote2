@@ -1,4 +1,4 @@
-package com.gzsys.speech.activity;
+package com.sys.speech.activity;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -23,9 +23,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.gzsys.speech.db.DictationsDatabase;
-import com.gzsys.speech.db.DictationsDatabase.OnDatabaseChangedListener;
-import com.gzsys.speech.pojo.DictationItem;
+import com.sys.speech.db.DictationsDatabase;
+import com.sys.speech.db.DictationsDatabase.OnDatabaseChangedListener;
+import com.sys.speech.pojo.DictationItem;
 import com.txkj.drawingapp.R;
 
 public class DictResultActivity extends Activity implements OnItemClickListener, OnItemLongClickListener {

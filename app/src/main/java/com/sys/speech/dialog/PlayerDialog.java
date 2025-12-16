@@ -1,4 +1,4 @@
-package com.gzsys.speech.dialog;
+package com.sys.speech.dialog;
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -15,9 +15,9 @@ import android.view.Window;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.gzsys.speech.pojo.RecordingItem;
-import com.gzsys.speech.view.RoundButton;
-import com.gzsys.speech.view.RoundButton.Type;
+import com.sys.speech.pojo.RecordingItem;
+import com.sys.speech.view.RoundButton;
+import com.sys.speech.view.RoundButton.Type;
 import com.txkj.drawingapp.R;
 
 public class PlayerDialog extends Dialog implements Dialog.OnCancelListener {

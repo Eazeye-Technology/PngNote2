@@ -190,7 +190,22 @@
                 android:value="3.0"
                 android:valueFrom="1.0"
                 android:valueTo="5.0"
+                android:stepSize="1"
+                app:trackHeight="20dp"
+                app:thumbHeight="80dp"
+                app:thumbRadius="3dp"
+                app:thumbElevation="1dp"
+                app:thumbTrackGapSize="10dp"
+                app:haloRadius="1dp"
+                app:labelBehavior="withinBounds"
+                app:labelStyle="@style/Widget.App.Tooltip"
                 />
+            <!--bubble-->
+            <!--
+            app:thumbHeight="56dp"
+            app:trackCornerSize="16dp"
+            app:trackHeight="48dp"
+            -->
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -226,6 +241,7 @@
             android:layout_height="match_parent"
             android:padding="1dp"
             android:orientation="horizontal"
+            android:visibility="gone"
             >
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/textinput_box_outline_no_hint"
@@ -242,6 +258,8 @@
                     android:imeOptions="flagNoExtractUi"
                     android:text="3"
                     android:textColor="#000"
+                    android:editable="false"
+                    android:enabled="false"
                     />
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
@@ -328,13 +346,14 @@
             android:layout_gravity="center"
             android:layout_marginRight="10dp"
             android:layout_margin="10dp"
-            android:id="@+id/colorBtn003"
+            android:id="@+id/colorBtn002"
             >
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
                 android:orientation="vertical"
+                android:background="#00000000"
                 >
                 <ImageView
                     android:layout_width="40dp"
@@ -349,6 +368,7 @@
                     android:text="PEN"
                     android:layout_gravity="center"
                     android:gravity="center"
+                    android:background="#00000000"
                     />
                 <TextView
                     android:layout_width="wrap_content"
@@ -362,6 +382,7 @@
                     android:layout_marginRight="10px"
                     android:visibility="visible"
                     android:tag="binding_1"
+                    android:background="#00000000"
                     />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -376,13 +397,14 @@
             android:layout_gravity="center"
             android:layout_marginRight="10dp"
             android:layout_margin="10dp"
-            android:id="@+id/colorBtn009"
+            android:id="@+id/colorBtn003"
             >
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
                 android:orientation="vertical"
+                android:background="#00000000"
                 >
                 <ImageView
                     android:layout_width="40dp"
@@ -397,6 +419,7 @@
                     android:text="PEN"
                     android:layout_gravity="center"
                     android:gravity="center"
+                    android:background="#00000000"
                     />
                 <TextView
                     android:layout_width="wrap_content"
@@ -410,6 +433,7 @@
                     android:layout_marginRight="10px"
                     android:visibility="visible"
                     android:tag="binding_1"
+                    android:background="#00000000"
                     />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -424,7 +448,7 @@
             android:layout_gravity="center"
             android:layout_marginRight="10dp"
             android:layout_margin="10dp"
-            android:id="@+id/colorBtn002"
+            android:id="@+id/colorBtn004"
             android:visibility="invisible"
             >
             <LinearLayout
@@ -432,6 +456,7 @@
                 android:layout_height="wrap_content"
                 android:padding="10dp"
                 android:orientation="vertical"
+                android:background="#00000000"
                 >
                 <ImageView
                     android:layout_width="40dp"
@@ -446,6 +471,7 @@
                     android:text="PEN"
                     android:layout_gravity="center"
                     android:gravity="center"
+                    android:background="#00000000"
                     />
                 <TextView
                     android:layout_width="wrap_content"
@@ -459,6 +485,7 @@
                     android:layout_marginRight="10px"
                     android:visibility="visible"
                     android:tag="binding_1"
+                    android:background="#00000000"
                     />
             </LinearLayout>
         </androidx.cardview.widget.CardView>

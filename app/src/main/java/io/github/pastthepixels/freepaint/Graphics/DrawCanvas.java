@@ -10,8 +10,11 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
+import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -41,6 +44,8 @@ import io.github.pastthepixels.freepaint.Tools.SelectionTool;
 import io.github.pastthepixels.freepaint.Tools.Tool;
 
 public final class DrawCanvas extends View {
+    private final static boolean DEBUG_EVENT = false;
+    private final static String TAG = "DrawCanvas";
 
     public final Paint paint = new Paint();
     // Stores previous "versions" of DrawCanvas.paths you can restore
@@ -161,6 +166,9 @@ public final class DrawCanvas extends View {
         version_index += 1;
     }
 
+    boolean isPan = false;
+    int lastSource = 0;
+
     /**
      * Adds touch points when the user touches the screen.
      *
@@ -169,8 +177,68 @@ public final class DrawCanvas extends View {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (DEBUG_EVENT) {
+            Log.e(TAG, "event.getDeviceId() == " + event.getDeviceId());
+            Log.e(TAG, "event.getSource() == " + event.getSource());
+            Log.e(TAG, "InputDevice.SOURCE_STYLUS == " + ((event.getSource() & InputDevice.SOURCE_STYLUS) == InputDevice.SOURCE_STYLUS) +
+                    ", event.getPressure() == " + event.getPressure() +
+                    ", event.getToolType() == " + event.getToolType(0));
+
+                /*
+touch:
+event.getDeviceId() == 4
+event.getSource() == 4098
+InputDevice.SOURCE_STYLUS == false, event.getPressure() == 1.0
+stylus:
+event.getDeviceId() == 4
+event.getSource() == 20482
+InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.06642247
+stylus eraser:
+event.getDeviceId() == 4
+event.getSource() == 20482
+InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
+
+
+    public static final int TOOL_TYPE_ERASER = 4;
+    public static final int TOOL_TYPE_FINGER = 1;
+    public static final int TOOL_TYPE_MOUSE = 3;
+    public static final int TOOL_TYPE_STYLUS = 2;
+    public static final int TOOL_TYPE_UNKNOWN = 0;
+                 */
+        }
+
         // Runs chosenTool.onTouchEvent if it exists, otherwise don't update the screen.
-        if (tool == TOOLS.none || !Objects.requireNonNull(getTool()).onTouchEvent(event)) {
+        TOOLS curTool = this.tool; //temporary, don't modify current Tool
+        if (tool == TOOLS.paint) {
+            if (isEmulator()) {
+                //skip
+            } else {
+                boolean lastSourceChanged = false;
+                if (event != null && event.getSource() != lastSource) {
+                    lastSource = event.getSource();
+                    lastSourceChanged = true;
+                }
+                if (isPan) {
+                    curTool = TOOLS.pan;
+                    if (lastSourceChanged || (event != null && event.getAction() == MotionEvent.ACTION_UP)) {
+                        isPan = false;
+                        curTool = this.tool;
+                    }
+                } else if (event != null && event.getAction() == MotionEvent.ACTION_DOWN) {
+                    //don't check SOURCE_TOUCHSCREEN, because SOURCE_STYLUS contains SOURCE_TOUCHSCREEN
+                    boolean isStylus = ((event.getSource() & InputDevice.SOURCE_STYLUS) == InputDevice.SOURCE_STYLUS);
+                    boolean isStylusScreen = (((event.getSource() & InputDevice.SOURCE_STYLUS) == InputDevice.SOURCE_STYLUS) &&
+                            event.getPointerCount() > 0 &&
+                            event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER);
+                    if (!isStylus || isStylusScreen) {
+                        curTool = TOOLS.pan;
+                        isPan = true;
+                    }
+                }
+            }
+        }
+
+        if (tool == TOOLS.none || !Objects.requireNonNull(getTool_(curTool)).onTouchEvent(event)) {
             return false;
         } else {
             if (getTool().allowVersionBackup() && event.getAction() == MotionEvent.ACTION_UP) {
@@ -282,6 +350,22 @@ public final class DrawCanvas extends View {
         return null;
     }
 
+    private Tool getTool_(TOOLS tool_) {
+        switch (tool_) {
+            case none:
+                return null;
+            case paint:
+                return paintTool;
+            case eraser:
+                return eraserTool;
+            case pan:
+                return panTool;
+            case select:
+                return selectionTool;
+        }
+        return null;
+    }
+
     /**
      * Setting tools
      *
@@ -302,10 +386,11 @@ public final class DrawCanvas extends View {
      * @param y Y of the screen point (top left corner = origin point)
      * @return New Point instance for the point in Canvas coordinates (has its own origin point)
      */
-    public Point mapPoint(float x, float y) {
+    public Point mapPoint(float x, float y, float pressure) {
         return new Point(
                 (x / panTool.scaleFactor) - panTool.offset.x - panTool.panOffset.x,
-                (y / panTool.scaleFactor) - panTool.offset.y - panTool.panOffset.y
+                (y / panTool.scaleFactor) - panTool.offset.y - panTool.panOffset.y,
+                pressure
         );
     }
 
@@ -583,7 +668,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
         currentPath.appearance = appearance.clone();
 
         currentPath.pointsType = DrawPath.POINTS_TYPE_TEXT;
-        Point mapP = this.mapPoint(x, y);
+        Point mapP = this.mapPoint(x, y, 1.0f);
         currentPath.pointsTextX = mapP.x;
         currentPath.pointsTextY = mapP.y;
         currentPath.pointsText = text;
@@ -595,11 +680,11 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
 
 
             if (debug) {
-            currentPath.addPoint(this.mapPoint(x, y));
-            currentPath.addPoint(this.mapPoint(x + 100, y));
-            currentPath.addPoint(this.mapPoint(x + 100, y + 100));
-            currentPath.addPoint(this.mapPoint(x, y + 100));
-            currentPath.addPoint(this.mapPoint(x, y));
+            currentPath.addPoint(this.mapPoint(x, y, 1.0f));
+            currentPath.addPoint(this.mapPoint(x + 100, y, 1.0f));
+            currentPath.addPoint(this.mapPoint(x + 100, y + 100, 1.0f));
+            currentPath.addPoint(this.mapPoint(x, y + 100, 1.0f));
+            currentPath.addPoint(this.mapPoint(x, y, 1.0f));
             if (false) {
                 currentPath.finalise(); //don't use finalise
             }
@@ -614,8 +699,11 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
             invalidate();
         }
     }
+
+    //if x, y are from mapPoint, then needMap = false
     public void drawImage(int x, int y, int width, int height, Bitmap pic, boolean needMap) {
-        final boolean debug = true;
+        //final boolean debug = true;
+        //boolean needMap = false;
         DrawAppearance appearance = new DrawAppearance(Color.BLACK, -1);
         appearance.loadFromSettings(getContext());
         appearance.penType = DrawAppearance.PEN_TYPE_4; //getPenType();
@@ -627,7 +715,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
         currentPath.pointsType = DrawPath.POINTS_TYPE_IMAGE;
         Point mapP = null;
         if (needMap) {
-            mapP = this.mapPoint(x, y);
+            mapP = this.mapPoint(x, y, 1.0f);
         } else {
             mapP = new Point(x, y);
         }
@@ -635,12 +723,20 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
         currentPath.pointsTextY = mapP.y;
         currentPath.pointsBitmap = pic;
 
-        if (debug) {
-            currentPath.addPoint(this.mapPoint(x, y));
-            currentPath.addPoint(this.mapPoint(x + width, y));
-            currentPath.addPoint(this.mapPoint(x + width, y + height));
-            currentPath.addPoint(this.mapPoint(x, y + height));
-            currentPath.addPoint(this.mapPoint(x, y));
+        if (true) { //debug) {
+            if (needMap) {
+                currentPath.addPoint(this.mapPoint(x - width / 2, y - height / 2, 1.0f));
+                currentPath.addPoint(this.mapPoint(x + width / 2, y - height / 2, 1.0f));
+                currentPath.addPoint(this.mapPoint(x + width / 2, y + height / 2, 1.0f));
+                currentPath.addPoint(this.mapPoint(x - width / 2, y + height / 2, 1.0f));
+                currentPath.addPoint(this.mapPoint(x - width / 2, y - height / 2, 1.0f));
+            } else {
+                currentPath.addPoint(new Point(x - width / 2, y - height / 2, 1.0f));
+                currentPath.addPoint(new Point(x + width / 2, y - height / 2, 1.0f));
+                currentPath.addPoint(new Point(x + width / 2, y + height / 2, 1.0f));
+                currentPath.addPoint(new Point(x - width / 2, y + height / 2, 1.0f));
+                currentPath.addPoint(new Point(x - width / 2, y - height / 2, 1.0f));
+            }
             if (false) {
                 currentPath.finalise(); //don't use finalise
             }
@@ -673,4 +769,18 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
         }
     }
     public boolean disableCenter = false;
+
+    public static boolean isEmulator() {
+        String manufacturer = android.os.Build.MANUFACTURER;
+        String product = android.os.Build.PRODUCT;
+        return Build.MODEL.startsWith("Android SDK") ||
+                Build.DEVICE.contains("emulator") ||
+                Build.MODEL.contains("sdk_gphone64_x86_64") ||
+                manufacturer.contains("Genymotion") ||
+                manufacturer.contains("unknown") ||
+                product.contains("google_sdk") ||
+                product.contains("sdk_gphone") ||
+                product.contains("sdk_x86") ||
+                product.contains("vbox86p");
+    }
 }

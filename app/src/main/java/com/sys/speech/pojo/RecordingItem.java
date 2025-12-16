@@ -1,4 +1,4 @@
-package com.gzsys.speech.pojo;
+package com.sys.speech.pojo;
 
 
 import android.os.Parcel;

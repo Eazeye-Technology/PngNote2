@@ -85,7 +85,7 @@ public class SelectionTool implements Tool {
                 changedDrawPaths = false;
                 // If the touch action is outside the currently selected rectangle, we're not trying to manipulate it
                 // -- we're trying to make a new one
-                originalPoint = canvas.mapPoint(event.getX(), event.getY());
+                originalPoint = canvas.mapPoint(event.getX(), event.getY(), event.getPressure());
                 if (!currentPath.contains(originalPoint)) {
                     currentPath.appearance = APPEARANCE.clone();
                     mode = TOUCH_MODES.define;
@@ -107,7 +107,7 @@ public class SelectionTool implements Tool {
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                Point touchPoint = canvas.mapPoint(event.getX(), event.getY());
+                Point touchPoint = canvas.mapPoint(event.getX(), event.getY(), event.getPressure());
                 if (mode == TOUCH_MODES.define) {
                     // If we're trying to define a new selection, redraw the current path with the bounds
                     currentPath.clear();
@@ -173,8 +173,8 @@ public class SelectionTool implements Tool {
      * so it now represents the bounds of the selection.
      */
     public void selectPaths() {
-        Point startPoint = canvas.mapPoint(0, 0);
-        Point endPoint = canvas.mapPoint(canvas.getWidth(), canvas.getHeight());
+        Point startPoint = canvas.mapPoint(0, 0, 1.0f);
+        Point endPoint = canvas.mapPoint(canvas.getWidth(), canvas.getHeight(), 1.0f);
         Region clip = new Region(Math.round(startPoint.x), Math.round(startPoint.y), Math.round(endPoint.x), Math.round(endPoint.y));
 
         // Top left of a bounding box for all selections ('cause we're rebuilding currentPath after this!)

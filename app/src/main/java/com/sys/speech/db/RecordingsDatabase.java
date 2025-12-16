@@ -1,4 +1,4 @@
-package com.gzsys.speech.db;
+package com.sys.speech.db;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.util.Log;
 
-import com.gzsys.speech.pojo.RecordingItem;
+import com.sys.speech.pojo.RecordingItem;
 
 public class RecordingsDatabase extends SQLiteOpenHelper {
 	private static final String TAG = "RecordingsDatabase";

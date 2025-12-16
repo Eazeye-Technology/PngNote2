@@ -1,10 +1,9 @@
 /**
  * 
  */
-package com.gzsys.speech.activity;
+package com.sys.speech.activity;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -27,7 +26,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -35,23 +33,20 @@ import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
-import com.gzsys.speech.db.DictationsDatabase;
-import com.gzsys.speech.db.RecordingsDatabase;
-import com.gzsys.speech.db.RecordingsDatabase.OnDatabaseChangedListener;
-import com.gzsys.speech.dialog.ListenDialog;
-import com.gzsys.speech.dialog.PlayerDialog;
-import com.gzsys.speech.dialog.RecognizeDialog;
-import com.gzsys.speech.pojo.RecordingItem;
-import com.gzsys.speech.service.RecordingService;
-import com.gzsys.speech.service.RecordingService.OnAudioLevelChangedListener;
-import com.gzsys.speech.service.RecordingService.OnTimerChangedListener;
-import com.gzsys.speech.util.RecordingMode;
+import com.sys.speech.db.DictationsDatabase;
+import com.sys.speech.dialog.ListenDialog;
+import com.sys.speech.dialog.PlayerDialog;
+import com.sys.speech.dialog.RecognizeDialog;
+import com.sys.speech.pojo.RecordingItem;
+import com.sys.speech.service.RecordingService;
+import com.sys.speech.service.RecordingService.OnAudioLevelChangedListener;
+import com.sys.speech.service.RecordingService.OnTimerChangedListener;
+import com.sys.speech.util.RecordingMode;
 import com.hjq.permissions.OnPermission;
 import com.hjq.permissions.XXPermissions;
 import com.txkj.drawingapp.R;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 

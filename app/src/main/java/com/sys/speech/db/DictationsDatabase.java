@@ -1,4 +1,4 @@
-package com.gzsys.speech.db;
+package com.sys.speech.db;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.util.Log;
 
-import com.gzsys.speech.pojo.DictationItem;
+import com.sys.speech.pojo.DictationItem;
 
 public class DictationsDatabase extends SQLiteOpenHelper {
 	private static final boolean D = true;

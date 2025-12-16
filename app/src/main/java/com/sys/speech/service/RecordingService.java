@@ -1,4 +1,4 @@
-package com.gzsys.speech.service;
+package com.sys.speech.service;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -12,10 +12,10 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.gzsys.speech.activity.RecordingActivity;
-import com.gzsys.speech.db.RecordingsDatabase;
-import com.gzsys.speech.util.RecordingMode;
-import com.gzsys.speech.util.WavConverter;
+import com.sys.speech.activity.RecordingActivity;
+import com.sys.speech.db.RecordingsDatabase;
+import com.sys.speech.util.RecordingMode;
+import com.sys.speech.util.WavConverter;
 import com.txkj.drawingapp.R;
 
 import android.Manifest;

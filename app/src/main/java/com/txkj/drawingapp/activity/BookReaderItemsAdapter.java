@@ -7,8 +7,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.gzsys.speech.db.RecordingsDatabase;
-import com.gzsys.speech.pojo.RecordingItem;
+import com.sys.speech.db.RecordingsDatabase;
+import com.sys.speech.pojo.RecordingItem;
 import com.txkj.drawingapp.R;
 
 import java.text.SimpleDateFormat;

@@ -64,11 +64,11 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
-import com.gzsys.speech.activity.DictResultActivity;
-import com.gzsys.speech.activity.RecordingFragment;
-import com.gzsys.speech.dialog.PlayerDialog;
-import com.gzsys.speech.dialog.RecognizeDialog;
-import com.gzsys.speech.pojo.RecordingItem;
+import com.sys.speech.activity.DictResultActivity;
+import com.sys.speech.activity.RecordingFragment;
+import com.sys.speech.dialog.PlayerDialog;
+import com.sys.speech.dialog.RecognizeDialog;
+import com.sys.speech.pojo.RecordingItem;
 import com.txkj.drawingapp.R;
 import com.txkj.notemobile2.Book;
 import com.txkj.notemobile2.BookActivity;
@@ -112,6 +112,8 @@ import io.material.catalog.windowpreferences.WindowPreferencesManager;
 //isDirty = true; //FIXME: force save
 //TODO:notifyForceSave, when view onSizeChanged or other events, need call it
 public class BookActivity4 extends AppCompatActivity {
+    private final static boolean ENABLE_BOTTOM_SHEET = false;
+    
     //TODO:check .setCancelable(false)
     //TODO:android:background="#00000000"
     private final static boolean USE_OLD_PEN_SETTING_PANEL = false;
@@ -1072,45 +1074,7 @@ public class BookActivity4 extends AppCompatActivity {
         }
     }
     public void onLongClickSubmenu1(int id, boolean isClick) {
-        AlertDialog dialog = new MaterialAlertDialogBuilder(BookActivity4.this, BookListActivity.getCenteredTitleThemeOverlay())
-                //.setTitle(title)
-                .setView(R.layout.activity_book4_brush2_edit)
-                .setCancelable(true)
-                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-
-                    }
-                })
-                .create();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-                String title = "Edit pen brush";
-                if (id == R.id.left_toolkit_item1) {
-                    title = "Edit fountain pen brush";
-                } else if (id == R.id.left_toolkit_item2) { //hidden
-                    title = "Edit pen brush";
-                } else if (id == R.id.left_toolkit_item3) {
-                    title = "Edit highlighter brush";
-                } else if (id == R.id.left_toolkit_item4) {
-                    title = "Edit marker pen brush";
-                } else if (id == R.id.left_toolkit_item5) { //hidden
-                    title = "Edit pen brush";
-                } else if (id == R.id.left_toolkit_item6) {
-                    title = "Edit pen brush";
-                }
-                AlertDialog dialog = (AlertDialog) dialogInterface;
-                TextView ivTitle = (TextView) dialog.findViewById(R.id.ivTitle);
-                ivTitle.setText(title);
-            }
-        });
+        AlertDialog dialog = new BookActivity4BrushEditDialog(this, id).create();
         dialog.show();
     }
     //--------------------------
@@ -1595,14 +1559,16 @@ public class BookActivity4 extends AppCompatActivity {
                     return true;
                 }
             });
-            ar_recording_check_view.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    findViewById(R.id.rl_bottom_sheet).requestLayout();
-                    behavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-                    findViewById(R.id.rl_bottom_sheet).setVisibility(View.VISIBLE);
-                }
-            }, 500);
+            if (ENABLE_BOTTOM_SHEET) {
+                ar_recording_check_view.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        findViewById(R.id.rl_bottom_sheet).requestLayout();
+                        behavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+                        findViewById(R.id.rl_bottom_sheet).setVisibility(View.VISIBLE);
+                    }
+                }, 500);
+            }
             findViewById(R.id.addPageButton).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -2729,14 +2695,22 @@ public class BookActivity4 extends AppCompatActivity {
             public void onClick(View view) {
                 if (view != null) {
                     if (view.getId() == R.id.popButtonGrid) {
-                        notifyForceSave(false);
-                        if (SAVING_ASYNC) {
-                            if (task == null) {
-                                task = new SavingTask(false);
-                                task.executeOnExecutor(newFixedThreadPool);
+                        if (false) {
+                            notifyForceSave(false);
+                            if (SAVING_ASYNC) {
+                                if (task == null) {
+                                    task = new SavingTask(false);
+                                    task.executeOnExecutor(newFixedThreadPool);
+                                }
+                            } else {
+                                gotoGridPage();
                             }
                         } else {
-                            gotoGridPage();
+                            AlertDialog dialog = new BookActivity4PageGridDialog(BookActivity4.this,
+                                    BookActivity4.this.dirUrl,
+                                    BookActivity4.this.dirUrlPath)
+                                    .create();
+                            dialog.show();
                         }
                     } else if (view.getId() == R.id.popButtonPrevPage) {
                         notifyForceSave(false);
@@ -2749,7 +2723,8 @@ public class BookActivity4 extends AppCompatActivity {
                         removeCurrentPageAndGo();
                     } else if (view.getId() == R.id.popButtonAddPage) {
                         notifyForceSave(false);
-                        addNewPageAndGo(true);
+                        //addNewPageAndGo(true);
+                        addNewPageAndGo(false);
                     } else if (view.getId() == R.id.popButtonPan) {
                         if (canvas != null) {
                             canvas.setTool(DrawCanvas.TOOLS.pan);
@@ -3126,9 +3101,10 @@ public class BookActivity4 extends AppCompatActivity {
                     try {
                         InputStream inputStream = BookActivity4.this.getContentResolver().openInputStream(uri);
                         Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                        int x = canvas.getWidth() / 2 - bitmap.getWidth() / 2;
-                        int y = canvas.getHeight() / 2 - bitmap.getHeight() / 2;
-                        Point p = canvas.mapPoint(x, y);
+                        int x = canvas.getWidth() / 2;
+                        int y = canvas.getHeight() / 2;
+                        //Point p = new Point(x, y, 1.0f);
+                        Point p = canvas.mapPoint(x, y, 1.0f);
                         drawImage(canvas, (int)p.x, (int)p.y, bitmap.getWidth(), bitmap.getHeight(), bitmap, false);
                         if (inputStream != null) {
                             inputStream.close();
@@ -3143,6 +3119,7 @@ public class BookActivity4 extends AppCompatActivity {
                         @Override
                         public void run() {
                             canvas.disableCenter = false;
+                            runFullScreen(BookActivity4.this);
                         }
                     }, 200); //FIXME:????
                 }

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.gzsys.speech.activity;
+package com.sys.speech.activity;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -16,7 +16,6 @@ import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -29,8 +28,6 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -42,18 +39,17 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.sparkchaindemo.ai.rtasr.RTASRActivity;
-import com.gzsys.speech.db.DictationsDatabase;
-import com.gzsys.speech.db.RecordingsDatabase;
-import com.gzsys.speech.db.RecordingsDatabase.OnDatabaseChangedListener;
-import com.gzsys.speech.dialog.ListenDialog;
-import com.gzsys.speech.dialog.PlayerDialog;
-import com.gzsys.speech.dialog.RecognizeDialog;
-import com.gzsys.speech.pojo.RecordingItem;
-import com.gzsys.speech.service.RecordingService;
-import com.gzsys.speech.service.RecordingService.OnAudioLevelChangedListener;
-import com.gzsys.speech.service.RecordingService.OnTimerChangedListener;
-import com.gzsys.speech.util.RecordingMode;
+import com.sys.speech.db.DictationsDatabase;
+import com.sys.speech.db.RecordingsDatabase;
+import com.sys.speech.db.RecordingsDatabase.OnDatabaseChangedListener;
+import com.sys.speech.dialog.ListenDialog;
+import com.sys.speech.dialog.PlayerDialog;
+import com.sys.speech.dialog.RecognizeDialog;
+import com.sys.speech.pojo.RecordingItem;
+import com.sys.speech.service.RecordingService;
+import com.sys.speech.service.RecordingService.OnAudioLevelChangedListener;
+import com.sys.speech.service.RecordingService.OnTimerChangedListener;
+import com.sys.speech.util.RecordingMode;
 import com.hjq.permissions.OnPermission;
 import com.hjq.permissions.XXPermissions;
 import com.txkj.drawingapp.R;
