@@ -69,20 +69,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:text="麦克风转写测试"/>
+            android:text="麦克风转写测试"
+            android:textColor="#fff"
+            />
         <Button
             android:id="@+id/ai_rtasr_file_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_weight="0.5"
-            android:text="文件转写测试"/>
+            android:text="文件转写测试"
+            android:textColor="#fff"
+            />
         <Button
             android:id="@+id/ai_rtasr_btn_stop"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_weight="0.5"
-            android:text="停止转写"/>
+            android:text="停止转写"
+            android:textColor="#fff"
+            />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

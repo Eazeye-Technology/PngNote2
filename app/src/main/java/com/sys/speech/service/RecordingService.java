@@ -139,7 +139,7 @@ public class RecordingService extends Service {
 		iF.addAction(Intent.ACTION_SHUTDOWN);
 		iF.addAction("android.intent.action.QUICKBOOT_POWEROFF");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            registerReceiver(mShutdownReceiver, iF, RECEIVER_NOT_EXPORTED);
+            registerReceiver(mShutdownReceiver, iF, Context.RECEIVER_NOT_EXPORTED);
         } else {
             registerReceiver(mShutdownReceiver, iF);
         }

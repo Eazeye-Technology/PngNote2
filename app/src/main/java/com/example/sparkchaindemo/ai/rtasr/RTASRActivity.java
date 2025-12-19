@@ -190,6 +190,10 @@ public class RTASRActivity extends AppCompatActivity implements View.OnClickList
                         toend(tv_result);
                     }else if(status == 2){//子句plain结果
                         asrFinalResult = asrFinalResult + data;
+                        //FIXME:added
+                        String asrText = asrFinalResult;
+                        tv_result.setText(asrText);
+                        toend(tv_result);
                     }else if(status == 3){//end结果
                         tv_result.setText(asrFinalResult);
                         toend(tv_result);

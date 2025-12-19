@@ -66,6 +66,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
 import com.sys.speech.activity.DictResultActivity;
 import com.sys.speech.activity.RecordingFragment;
+import com.sys.speech.db.DictationsDatabase;
+import com.sys.speech.db.RecordingsDatabase;
 import com.sys.speech.dialog.PlayerDialog;
 import com.sys.speech.dialog.RecognizeDialog;
 import com.sys.speech.pojo.RecordingItem;
@@ -112,6 +114,11 @@ import io.material.catalog.windowpreferences.WindowPreferencesManager;
 //isDirty = true; //FIXME: force save
 //TODO:notifyForceSave, when view onSizeChanged or other events, need call it
 public class BookActivity4 extends AppCompatActivity {
+    private final static boolean USE_RTASR = true;
+    BookActivity4RTASRDialog rtasrDialog = null;
+    private final static boolean USE_LISTEN = false; //listen or recording?
+    BookActivity4ListenDialog listenDialog;
+
     private final static boolean ENABLE_BOTTOM_SHEET = false;
     
     //TODO:check .setCancelable(false)
@@ -1022,6 +1029,9 @@ public class BookActivity4 extends AppCompatActivity {
             } else if (id == R.id.left_toolkit_item6) {
                 canvas.setPenType(DrawAppearance.PEN_TYPE_6);
             }
+
+            updateAppear(id);
+
 //            if (bottomSheetDialog1 != null) {
 //                bottomSheetDialog1.show();
 //            }
@@ -1073,9 +1083,65 @@ public class BookActivity4 extends AppCompatActivity {
             //settingsBottomSheet.show(getSupportFragmentManager(), MainActivity.SettingsBottomSheet.TAG);
         }
     }
+    private int left_toolkit_item1_color = Color.BLACK;
+    private int left_toolkit_item2_color = Color.BLACK;
+    private int left_toolkit_item3_color = Color.BLACK;
+    private int left_toolkit_item4_color = Color.BLACK;
+    private int left_toolkit_item5_color = Color.BLACK;
+    private int left_toolkit_item6_color = Color.BLACK;
+    private int left_toolkit_item1_size = 1;
+    private int left_toolkit_item2_size = 1;
+    private int left_toolkit_item3_size = 1;
+    private int left_toolkit_item4_size = 1;
+    private int left_toolkit_item5_size = 1;
+    private int left_toolkit_item6_size = 1;
     public void onLongClickSubmenu1(int id, boolean isClick) {
-        AlertDialog dialog = new BookActivity4BrushEditDialog(this, id).create();
-        dialog.show();
+        BookActivity4BrushEditDialog dialog = new BookActivity4BrushEditDialog(this, id);
+        if (id == R.id.left_toolkit_item1) {
+            dialog.outputColor = left_toolkit_item1_color;
+            dialog.outputBrushSize = left_toolkit_item1_size;
+        } else if (id == R.id.left_toolkit_item2) {
+            dialog.outputColor = left_toolkit_item2_color;
+            dialog.outputBrushSize = left_toolkit_item2_size;
+        } else if (id == R.id.left_toolkit_item3) {
+            dialog.outputColor = left_toolkit_item3_color;
+            dialog.outputBrushSize = left_toolkit_item3_size;
+        } else if (id == R.id.left_toolkit_item4) {
+            dialog.outputColor = left_toolkit_item4_color;
+            dialog.outputBrushSize = left_toolkit_item4_size;
+        } else if (id == R.id.left_toolkit_item5) {
+            dialog.outputColor = left_toolkit_item5_color;
+            dialog.outputBrushSize = left_toolkit_item5_size;
+        } else if (id == R.id.left_toolkit_item6) {
+            dialog.outputColor = left_toolkit_item6_color;
+            dialog.outputBrushSize = left_toolkit_item6_size;
+        }
+        AlertDialog aDialog = dialog.create();
+        aDialog.show();
+    }
+    public void onLongClickSubmenu1_after(BookActivity4BrushEditDialog dialog, int id) {
+        if (dialog.outputIsSave) {
+            if (id == R.id.left_toolkit_item1) {
+                left_toolkit_item1_color = dialog.outputColor;
+                left_toolkit_item1_size = dialog.outputBrushSize;
+            } else if (id == R.id.left_toolkit_item2) {
+                left_toolkit_item2_color = dialog.outputColor;
+                left_toolkit_item2_size = dialog.outputBrushSize;
+            } else if (id == R.id.left_toolkit_item3) {
+                left_toolkit_item3_color = dialog.outputColor;
+                left_toolkit_item3_size = dialog.outputBrushSize;
+            } else if (id == R.id.left_toolkit_item4) {
+                left_toolkit_item4_color = dialog.outputColor;
+                left_toolkit_item4_size = dialog.outputBrushSize;
+            } else if (id == R.id.left_toolkit_item5) {
+                left_toolkit_item5_color = dialog.outputColor;
+                left_toolkit_item5_size = dialog.outputBrushSize;
+            } else if (id == R.id.left_toolkit_item6) {
+                left_toolkit_item6_color = dialog.outputColor;
+                left_toolkit_item6_size = dialog.outputBrushSize;
+            }
+            updateAppear(id);
+        }
     }
     //--------------------------
     private final static int iconsSubmenu2[] = {
@@ -1456,6 +1522,12 @@ public class BookActivity4 extends AppCompatActivity {
                         llPanel.setVisibility(View.GONE);
                     } else {
                         llPanel.setVisibility(View.VISIBLE);
+                        try {
+                            ListView viewListViewBook = (ListView) findViewById(R.id.viewListViewBook);
+                            viewListViewBook.setSelection(adapter.getCount() - 1);
+                        } catch (Throwable eee) {
+                            eee.printStackTrace();
+                        }
                     }
                 }
             }
@@ -1487,6 +1559,7 @@ public class BookActivity4 extends AppCompatActivity {
                 findViewById(R.id.bottomLineTranscript).setVisibility(View.VISIBLE);
             }
         });
+        findViewById(R.id.rlTranscript).performClick(); //FIXME:init show transcript
         windowPreferencesManager = new WindowPreferencesManager(this);
         bottomSheetDialog1 = new BottomSheetDialog(this);
         bottomSheetDialog1.setContentView(R.layout.cat_bottomsheet_content);
@@ -1592,26 +1665,44 @@ public class BookActivity4 extends AppCompatActivity {
             View.OnClickListener onClickListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    RecordingFragment fragment = (RecordingFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_recording);
-                    if (fragment != null && fragment.button1 != null) {
-                        fragment.button1.performClick();
-                        isRecording = !isRecording;
-                    }
-                    if (adapter != null) {
-                        adapter.notifyDataSetChanged();
-                    }
-                    AppCompatImageView btnPanel = (AppCompatImageView) findViewById(R.id.btnPanel);
-                    AnimationDrawable anim = (AnimationDrawable) btnPanel.getDrawable();
-                    if (isRecording) { //FIXME: use var not good
-                        anim.start();
-                        findViewById(R.id.startRecord).setVisibility(View.GONE);
-                        findViewById(R.id.stopRecord).setVisibility(View.VISIBLE);
+                    if (USE_RTASR) {
+                        if (rtasrDialog == null) {
+                            rtasrDialog = new BookActivity4RTASRDialog(BookActivity4.this);
+                            rtasrDialog.onClick_audio();
+                        } else {
+                            rtasrDialog.onClick_stop();
+                            rtasrDialog = null;
+                        }
+                    } else if (USE_LISTEN) {
+                        if (listenDialog == null) {
+                            listenDialog = new BookActivity4ListenDialog(BookActivity4.this, "", "", null);
+                            listenDialog.onCreate();
+                        } else {
+                            listenDialog.onCancel();
+                            listenDialog = null;
+                        }
                     } else {
-                        anim.stop();
-                        findViewById(R.id.startRecord).setVisibility(View.VISIBLE);
-                        findViewById(R.id.stopRecord).setVisibility(View.GONE);
+                        RecordingFragment fragment = (RecordingFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_recording);
+                        if (fragment != null && fragment.button1 != null) {
+                            fragment.button1.performClick();
+                            isRecording = !isRecording;
+                        }
+                        if (adapter != null) {
+                            adapter.notifyDataSetChanged();
+                        }
+                        AppCompatImageView btnPanel = (AppCompatImageView) findViewById(R.id.btnPanel);
+                        AnimationDrawable anim = (AnimationDrawable) btnPanel.getDrawable();
+                        if (isRecording) { //FIXME: use var not good
+                            anim.start();
+                            findViewById(R.id.startRecord).setVisibility(View.GONE);
+                            findViewById(R.id.stopRecord).setVisibility(View.VISIBLE);
+                        } else {
+                            anim.stop();
+                            findViewById(R.id.startRecord).setVisibility(View.VISIBLE);
+                            findViewById(R.id.stopRecord).setVisibility(View.GONE);
+                        }
+                        Toast.makeText(BookActivity4.this, "total : " + adapter.getCount(), Toast.LENGTH_LONG).show();
                     }
-                    Toast.makeText(BookActivity4.this, "total : " + adapter.getCount(), Toast.LENGTH_LONG).show();
                 }
             };
             findViewById(R.id.startRecord).setOnClickListener(onClickListener);
@@ -3147,6 +3238,93 @@ public class BookActivity4 extends AppCompatActivity {
             }
         }
         return super.onKeyUp(keyCode, event);
+    }
+
+    private long rowId = -1;
+    public void tv_result_setText(String str) {
+        Log.e(TAG, "tv_result_setText : " + str);
+        try {
+            RecordingsDatabase mDatabase = new RecordingsDatabase(this);
+            RecordingItem mItem = new RecordingItem();
+            if (rowId == -1) {
+                rowId = mDatabase.addRecording(
+                        "rtasr-" + System.currentTimeMillis(),
+                        "",
+                        0,
+                        "", "",
+                        "text", str);
+            } else {
+                mDatabase.updateItemContent(rowId, str);
+            }
+            mDatabase.close();
+            if (adapter != null) {
+                adapter.notifyDataSetChanged();
+                ListView viewListViewBook = (ListView) this.findViewById(R.id.viewListViewBook);
+                viewListViewBook.setSelection(adapter.getCount() - 1);
+            }
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+        }
+//        AppCompatImageView btnPanel = (AppCompatImageView) findViewById(R.id.btnPanel);
+//        AnimationDrawable anim = (AnimationDrawable) btnPanel.getDrawable();
+//        if (isRecording) { //FIXME: use var not good
+//            anim.start();
+//            findViewById(R.id.startRecord).setVisibility(View.GONE);
+//            findViewById(R.id.stopRecord).setVisibility(View.VISIBLE);
+//        } else {
+//            anim.stop();
+//            findViewById(R.id.startRecord).setVisibility(View.VISIBLE);
+//            findViewById(R.id.stopRecord).setVisibility(View.GONE);
+//        }
+//        Toast.makeText(BookActivity4.this, "total : " + adapter.getCount(), Toast.LENGTH_LONG).show();
+    }
+    public void btn_audio_start_setEnabled(boolean enable) {
+        Log.e(TAG, "btn_audio_start_setEnabled : " + enable);
+        AppCompatImageView btnPanel = (AppCompatImageView) findViewById(R.id.btnPanel);
+        AnimationDrawable anim = (AnimationDrawable) btnPanel.getDrawable();
+        if (!enable) {
+            anim.start();
+            findViewById(R.id.startRecord).setVisibility(View.GONE);
+            findViewById(R.id.stopRecord).setVisibility(View.VISIBLE);
+        } else {
+            anim.stop();
+            anim.selectDrawable(0);
+            findViewById(R.id.startRecord).setVisibility(View.VISIBLE);
+            findViewById(R.id.stopRecord).setVisibility(View.GONE);
+        }
+    }
+
+    public void updateAppear(int id) {
+        int stroke = 0xFF000000;
+        int strokeSize = 1;
+        if (id == R.id.left_toolkit_item1) {
+            stroke = left_toolkit_item1_color;
+            strokeSize = left_toolkit_item1_size;
+        } else if (id == R.id.left_toolkit_item2) {
+            stroke = left_toolkit_item2_color;
+            strokeSize = left_toolkit_item2_size;
+        } else if (id == R.id.left_toolkit_item3) {
+            stroke = left_toolkit_item3_color;
+            strokeSize = left_toolkit_item3_size;
+        } else if (id == R.id.left_toolkit_item4) {
+            stroke = left_toolkit_item4_color;
+            strokeSize = left_toolkit_item4_size;
+        } else if (id == R.id.left_toolkit_item5) {
+            stroke = left_toolkit_item5_color;
+            strokeSize = left_toolkit_item5_size;
+        } else if (id == R.id.left_toolkit_item6) {
+            stroke = left_toolkit_item6_color;
+            strokeSize = left_toolkit_item6_size;
+        }
+        if (true) {
+            //see loadFromSettings
+            setColor(canvas, stroke);
+            setSize(canvas, strokeSize);
+        } else {
+            //don't use this
+            canvas.getPaintTool().getAppearance().stroke = left_toolkit_item6_color;
+            canvas.getPaintTool().getAppearance().strokeSize = left_toolkit_item6_size;
+        }
     }
 
     //FIXME:TODO:

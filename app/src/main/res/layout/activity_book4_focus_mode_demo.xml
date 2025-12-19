@@ -133,6 +133,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="180dp"
+        android:visibility="gone"
         />
 
     <androidx.cardview.widget.CardView
@@ -144,6 +145,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="100dp"
+        android:visibility="gone"
         >
         <TextView
             android:layout_width="wrap_content"

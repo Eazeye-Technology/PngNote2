@@ -21,6 +21,11 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
 
 
+<!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
+<!--    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
+<!--    <uses-permission android:name="android.permission.INTERNET" />-->
+<!--    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />-->
+<!--    <uses-permission android:name="android.permission.RECORD_AUDIO" />-->
 
     <application
         android:allowBackup="true"
@@ -61,7 +66,7 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
         <activity
             android:name="com.txkj.notemobile2.BookListActivity"
             android:exported="true">
-            <!---->
+            <!--main-->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -178,6 +183,25 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
 <!--                <category android:name="android.intent.category.LAUNCHER" />-->
 <!--            </intent-filter>-->
         </activity>
+
+
+        <activity
+            android:name="com.iflytek.voicedemo.IatDemo"
+            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|fontScale"
+            android:screenOrientation="portrait"
+            android:exported="true"
+            >
+        </activity>
+        <activity android:name="com.iflytek.speech.setting.IatSettings" />
+        <activity
+            android:name="com.example.sparkchaindemo.ai.AIMainActivity"
+            android:exported="true"
+            >
+            <!--main-->
+        </activity>
+        <activity
+            android:name="com.example.sparkchaindemo.ai.asr.asrActivity"
+            />
 
     </application>
 

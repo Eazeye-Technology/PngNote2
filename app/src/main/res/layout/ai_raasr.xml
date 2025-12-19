@@ -32,7 +32,9 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="10dp"
-                android:text="选择音频"/>
+                android:text="选择音频"
+                android:textColor="#fff"
+                />
             <TextView
                 android:id="@+id/ai_raasr_pathinfo"
                 android:layout_width="match_parent"
@@ -52,7 +54,9 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="10dp"
-            android:text="上传音频"/>
+            android:text="上传音频"
+            android:textColor="#fff"
+            />
 
         <Button
             android:id="@+id/ai_raasr_getResult"
@@ -73,7 +77,9 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="10dp"
-            android:text="停止上传"/>
+            android:text="停止上传"
+            android:textColor="#fff"
+            />
 
 
     </RelativeLayout>

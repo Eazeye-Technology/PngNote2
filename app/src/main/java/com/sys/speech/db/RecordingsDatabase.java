@@ -179,4 +179,16 @@ public class RecordingsDatabase extends SQLiteOpenHelper {
 	public void setOnDatabaseChangedListener(OnDatabaseChangedListener listener) {
 		mOnDatabaseChangedListener = listener;
 	}
+
+    public void updateItemContent(long id, String content) {
+		SQLiteDatabase db = getWritableDatabase();
+
+		ContentValues values = new ContentValues();
+		values.put(RecordingDatabaseItem.COLUMN_NAME_REC_CONTENT, content);
+		db.update(RecordingDatabaseItem.TABLE_NAME, values,
+				RecordingDatabaseItem._ID + "=" + id, null);
+
+		if (mOnDatabaseChangedListener != null)
+			mOnDatabaseChangedListener.onDatabaseEntryUpdated();
+	}
 }

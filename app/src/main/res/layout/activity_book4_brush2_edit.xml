@@ -137,6 +137,7 @@
                         android:layout_gravity="center"
                         android:gravity="center"
                         android:tag="binding_1"
+                        android:id="@+id/ivPenIcon"
                         />
                     <TextView
                         android:layout_width="wrap_content"

@@ -15,7 +15,7 @@ public class DrawAppearance {
     public EFFECTS effect = EFFECTS.none;
     public int stroke;
     public int fill;
-    public int strokeSize = 5;
+    public int strokeSize = 1;//5;
     // If this is set to true, stroke size is measured in dp instead of px
     public boolean useDP = false;
 
@@ -71,10 +71,10 @@ public class DrawAppearance {
         this.stroke = PreferenceManager.getDefaultSharedPreferences(context).getInt("strokeColor", -1);
         this.fill = PreferenceManager.getDefaultSharedPreferences(context).getInt("fillColor", -1);
         try {
-            this.strokeSize = (int) Float.parseFloat(PreferenceManager.getDefaultSharedPreferences(context).getString("strokeSize", "5"));
+            this.strokeSize = (int) Float.parseFloat(PreferenceManager.getDefaultSharedPreferences(context).getString("strokeSize", "1")); //"5"
         } catch (Throwable eee) {
             eee.printStackTrace();
-            this.strokeSize = 5;
+            this.strokeSize = 1; // 5
         }
     }
 

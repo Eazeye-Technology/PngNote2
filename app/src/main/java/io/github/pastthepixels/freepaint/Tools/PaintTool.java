@@ -104,4 +104,8 @@ public class PaintTool implements Tool {
         currentPath.appearance = appearance.clone();
         canvas.paths.add(currentPath);
     }
+
+    public DrawAppearance getAppearance() {
+        return appearance;
+    }
 }

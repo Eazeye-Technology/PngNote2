@@ -783,4 +783,8 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
                 product.contains("sdk_x86") ||
                 product.contains("vbox86p");
     }
+
+    public PaintTool getPaintTool() {
+        return paintTool;
+    }
 }

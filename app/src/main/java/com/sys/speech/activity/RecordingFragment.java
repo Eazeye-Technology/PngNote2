@@ -343,7 +343,11 @@ public class RecordingFragment extends Fragment implements OnItemClickListener, 
             IntentFilter iF = new IntentFilter();
             iF.addAction(RecordingService.INTENT_RECORDING_STARTED);
             iF.addAction(RecordingService.INTENT_RECORDING_STOPPED);
-            getActivity().registerReceiver(mStateChangedReceiver, iF); //FIXME:
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                getActivity().registerReceiver(mStateChangedReceiver, iF, Context.RECEIVER_NOT_EXPORTED);
+            } else {
+                getActivity().registerReceiver(mStateChangedReceiver, iF); //FIXME:
+            }
 
             if (mRecordingService == null)
                 return;

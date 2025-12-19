@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:layout_margin="40dp"
     >
     <LinearLayout
         android:layout_width="match_parent"
@@ -36,7 +37,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="30sp"
-                        android:text="Goto page"
+                        android:text="Note pages"
                         android:textColor="#000000"
                         android:layout_gravity="center"
                         android:gravity="center"
@@ -47,9 +48,68 @@
                     <!--New note-->
                 </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="right"
+                    android:layout_marginTop="40dp"
+                    android:layout_marginBottom="20dp"
+                    >
+                        <Button
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Reorder"
+                            android:layout_marginRight="40dp"
+                            android:textColor="#CCC"
+                            android:textAllCaps="false"
+                            />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            >
+
+                            <Button
+                                style="?attr/materialButtonStyle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="start|top"
+                                android:text="Select"
+                                android:textColor="#CCC"
+                                android:textAllCaps="false"
+                                />
+
+                            <Button
+                                style="?attr/materialButtonOutlinedStyle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="start|top"
+                                android:text="Duplicate"
+                                android:textColor="#000"
+                                android:textAllCaps="false"
+                                />
+
+                            <Button
+                                style="?attr/materialButtonOutlinedStyle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="start|top"
+                                android:text="Delete"
+                                app:icon="@drawable/ic_outline_delete_forever_24"
+                                app:iconPadding="0dp"
+                                android:textColor="#000"
+                                android:textAllCaps="false"
+                                android:drawableTint="@color/black"
+                                app:tint="@color/black"
+                                />
+                        </LinearLayout>
+                </LinearLayout>
+
                 <GridView
                     android:layout_width="match_parent"
-                    android:layout_height="700dp"
+                    android:layout_height="match_parent"
                     android:id="@+id/bookgridview"
                     android:background="@android:color/transparent"
                     android:gravity="center"
@@ -57,6 +117,7 @@
                     android:paddingLeft="1dp"
                     android:paddingRight="1dp"
                     android:stretchMode="columnWidth"
+                    android:minHeight="200dp"
                     />
                 <!--
                 android:layout_height="match_parent"
