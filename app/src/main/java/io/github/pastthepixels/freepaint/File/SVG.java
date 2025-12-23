@@ -2,6 +2,7 @@ package io.github.pastthepixels.freepaint.File;
 
 import android.annotation.SuppressLint;
 import android.graphics.Color;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 
@@ -89,10 +90,12 @@ public class SVG {
      * @param stream The InputStream to parse. The method is designed such that it would be passed from a DrawCanvas with <code>DrawCanvas.loadFile()</code>
      */
     public void loadFile(InputStream stream) {
-        parseFile(
-                (new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8)))
-                        .lines().collect(Collectors.joining("\n"))
-        );
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            parseFile(
+                    (new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8)))
+                            .lines().collect(Collectors.joining("\n"))
+            );
+        }
     }
 
     /**

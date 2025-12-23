@@ -19,16 +19,15 @@ import androidx.cardview.widget.CardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
 import com.txkj.drawingapp.R;
-import com.txkj.notemobile2.BookListActivity;
 
 public class BookActivity4BrushEditDialog {
-    public BookActivity4BrushEditDialog(BookActivity4 ctx, int brushId) {
+    public BookActivity4BrushEditDialog(Activity ctx, int brushId) {
         onCreateAct(ctx, brushId);
     }
 
     public AlertDialog create() {
         //
-        AlertDialog dialog = new MaterialAlertDialogBuilder(mContext, BookListActivity.getCenteredTitleThemeOverlay())
+        AlertDialog dialog = new MaterialAlertDialogBuilder(mContext, BookActivity4Utils.getCenteredTitleThemeOverlay())
                 //.setTitle(title)
                 .setView(R.layout.activity_book4_brush2_edit)
                 .setCancelable(true)
@@ -39,9 +38,8 @@ public class BookActivity4BrushEditDialog {
                         Slider slider = dialog.findViewById(R.id.slider);
                         outputBrushSize = (int)slider.getValue();
                         outputIsSave = true;
-                        if (mContext != null) {
-                            mContext.onLongClickSubmenu1_after(BookActivity4BrushEditDialog.this, mBrushId);
-                        }
+                        BookActivity4Utils.onLongClickSubmenu1_after(mContext,
+                                BookActivity4BrushEditDialog.this, mBrushId);
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -80,11 +78,11 @@ public class BookActivity4BrushEditDialog {
         return dialog;
     }
 
-    private void onCreateAct(BookActivity4 ctx, int brushId) {
+    private void onCreateAct(Activity ctx, int brushId) {
         this.mContext = ctx;
         this.mBrushId = brushId;
     }
-    private BookActivity4 mContext;
+    private Activity mContext;
     private int mBrushId;
     public int outputColor = 0xff000000;
     public int outputBrushSize = 1;

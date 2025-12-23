@@ -1,30 +1,31 @@
 package com.txkj.drawingapp.activity;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.BlendMode;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.GridView;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.txkj.drawingapp.R;
 import com.txkj.notemobile2.Book;
-import com.txkj.notemobile2.BookListActivity;
 import com.txkj.notemobile2.book.BookIO;
 import com.txkj.notemobile2.book.FastFile;
 import com.txkj.notemobile2.ui.CanvasBoox;
 import com.txkj.notemobile2.ui.Page;
-import com.txkj.notemobile2.ui.PageGridAdapter;
 import com.txkj.notemobile2.ui.PageGridData;
 
 import org.json.JSONObject;
@@ -39,7 +40,7 @@ public class BookActivity4PageGridDialog {
     }
 
     public AlertDialog create() {
-        AlertDialog dialog = new MaterialAlertDialogBuilder(mContext, BookListActivity.getCenteredTitleThemeOverlay())
+        AlertDialog dialog = new MaterialAlertDialogBuilder(mContext, BookActivity4Utils.getCenteredTitleThemeOverlay())
                 //.setTitle(title)
                 .setView(R.layout.activity_book4_dialog_jump)
                 .setCancelable(true)
@@ -47,8 +48,9 @@ public class BookActivity4PageGridDialog {
                 .create();
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
-            public void onShow(DialogInterface dialog) {
-                gridview = (GridView) ((AlertDialog)dialog).findViewById(R.id.bookgridview);
+            public void onShow(DialogInterface dialogInterface) {
+                AlertDialog dialog = (AlertDialog)dialogInterface;
+                gridview = (GridView) dialog.findViewById(R.id.bookgridview);
                 gridview.setSelector(new ColorDrawable(Color.TRANSPARENT));
                 //gridview.setBackgroundColor(Color.WHITE);
                 bookGridAdapter = new BookPageGridAdapter(mContext, getPageList());
@@ -56,14 +58,159 @@ public class BookActivity4PageGridDialog {
                 gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        int pageIdx = position;
-                        openPage(dialog, pageIdx);
+                        if (bookGridAdapter != null &&
+                                bookGridAdapter.checkMode != BookPageGridAdapter.CHECK_MODE_NONE) {
+                            if (bookGridAdapter.checkMode == BookPageGridAdapter.CHECK_MODE_CHECK) {
+                                Page page = _pageList.get(position);
+                                if (page != null) {
+                                    page.checked = !page.checked;
+                                    bookGridAdapter.notifyDataSetChanged();
+                                }
+                            }
+                        } else {
+                            int pageIdx = position;
+                            openPage(dialog, pageIdx);
+                        }
                     }
                 });
+                btnReorder = (Button) dialog.findViewById(R.id.btnReorder);
+                btnSelect = (Button) dialog.findViewById(R.id.btnSelect);
+                btnDuplicate = (Button) dialog.findViewById(R.id.btnDuplicate);
+                btnDelete = (Button) dialog.findViewById(R.id.btnDelete);
+                btnReorder.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (bookGridAdapter != null) {
+                            if (bookGridAdapter.checkMode != BookPageGridAdapter.CHECK_MODE_MOVE) {
+                                bookGridAdapter.checkMode = BookPageGridAdapter.CHECK_MODE_MOVE;
+                            } else {
+                                bookGridAdapter.checkMode = BookPageGridAdapter.CHECK_MODE_NONE;
+                            }
+                            bookGridAdapter.notifyDataSetChanged();
+                            updateButtons();
+                        }
+                    }
+                });
+                btnSelect.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (bookGridAdapter != null) {
+                            if (bookGridAdapter.checkMode != BookPageGridAdapter.CHECK_MODE_CHECK) {
+                                bookGridAdapter.checkMode = BookPageGridAdapter.CHECK_MODE_CHECK;
+                                if (_pageList != null) {
+                                    for (Page page : _pageList) {
+                                        if (page != null) {
+                                            page.checked = false;
+                                        }
+                                    }
+                                }
+                            } else {
+                                bookGridAdapter.checkMode = BookPageGridAdapter.CHECK_MODE_NONE;
+                            }
+                            bookGridAdapter.notifyDataSetChanged();
+                            updateButtons();
+                        }
+                    }
+                });
+                btnDuplicate.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (bookGridAdapter != null &&
+                                bookGridAdapter.checkMode == BookPageGridAdapter.CHECK_MODE_CHECK) {
+
+                        }
+                    }
+                });
+                btnDelete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (bookGridAdapter != null &&
+                                bookGridAdapter.checkMode == BookPageGridAdapter.CHECK_MODE_CHECK) {
+                            List<Page> pages = new ArrayList<>();
+                            for (Page page : _pageList) {
+                                if (page != null && page.checked) {
+                                    pages.add(page);
+                                }
+                            }
+                            deletePages(dialog, pages);
+                            bookGridAdapter.checkMode = BookPageGridAdapter.CHECK_MODE_NONE;
+                            bookGridAdapter.notifyDataSetChanged();
+                        }
+                    }
+                });
+                updateButtons();
                 requestLoadPages();
             }
         });
         return dialog;
+    }
+    Button btnReorder;
+    Button btnSelect;
+    Button btnDuplicate;
+    Button btnDelete;
+    public void updateButtons() {
+        if (btnReorder != null && btnSelect != null &&
+                btnDuplicate != null && btnDelete != null &&
+                bookGridAdapter != null) {
+            if (bookGridAdapter.checkMode == BookPageGridAdapter.CHECK_MODE_CHECK) {
+                btnDuplicate.setTextColor(0xFF000000);
+                btnDelete.setTextColor(0xFF000000);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    btnDelete.setCompoundDrawableTintList(ColorStateList.valueOf(0xFF000000));
+                    btnDelete.setCompoundDrawableTintMode(PorterDuff.Mode.SRC_IN);
+                }
+
+                btnSelect.setTextColor(0xFFFFFFFF);
+                btnSelect.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    btnSelect.setBackgroundTintBlendMode(BlendMode.SRC_IN);
+                }
+
+                btnReorder.setTextColor(0xFF000000);
+                btnReorder.setBackgroundTintList(ColorStateList.valueOf(Color.TRANSPARENT));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    btnReorder.setBackgroundTintBlendMode(BlendMode.SRC_IN);
+                }
+            } else if (bookGridAdapter.checkMode == BookPageGridAdapter.CHECK_MODE_MOVE) {
+                btnDuplicate.setTextColor(0xFFCCCCCC);
+                btnDelete.setTextColor(0xFFCCCCCC);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    btnDelete.setCompoundDrawableTintList(ColorStateList.valueOf(0xFFCCCCCC));
+                    btnDelete.setCompoundDrawableTintMode(PorterDuff.Mode.SRC_IN);
+                }
+
+                btnSelect.setTextColor(0xFF000000);
+                btnSelect.setBackgroundTintList(ColorStateList.valueOf(Color.TRANSPARENT));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    btnSelect.setBackgroundTintBlendMode(BlendMode.SRC_IN);
+                }
+
+                btnReorder.setTextColor(0xFFFFFFFF);
+                btnReorder.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    btnReorder.setBackgroundTintBlendMode(BlendMode.SRC_IN);
+                }
+            } else if (bookGridAdapter.checkMode == BookPageGridAdapter.CHECK_MODE_NONE) {
+                btnDuplicate.setTextColor(0xFFCCCCCC);
+                btnDelete.setTextColor(0xFFCCCCCC);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    btnDelete.setCompoundDrawableTintList(ColorStateList.valueOf(0xFFCCCCCC));
+                    btnDelete.setCompoundDrawableTintMode(PorterDuff.Mode.SRC_IN);
+                }
+
+                btnSelect.setTextColor(0xFF000000);
+                btnSelect.setBackgroundTintList(ColorStateList.valueOf(Color.TRANSPARENT));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    btnSelect.setBackgroundTintBlendMode(BlendMode.SRC_IN);
+                }
+
+                btnReorder.setTextColor(0xFF000000);
+                btnReorder.setBackgroundTintList(ColorStateList.valueOf(Color.TRANSPARENT));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    btnReorder.setBackgroundTintBlendMode(BlendMode.SRC_IN);
+                }
+            }
+        }
     }
 
     public void openPage(DialogInterface dialog, int pageIdx) {
@@ -74,9 +221,11 @@ public class BookActivity4PageGridDialog {
         } catch (Throwable eee) {
             eee.printStackTrace();
         }
-        if (mContext instanceof BookActivity4) {
-            ((BookActivity4) mContext).openPage(pageIdx);
-        }
+        BookActivity4Utils.openPage(mContext, pageIdx);
+    }
+
+    public void deletePages(DialogInterface dialog, List<Page> pages) {
+        BookActivity4Utils.deletePages(mContext, pages);
     }
 
     private void requestLoadPages() {

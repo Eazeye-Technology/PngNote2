@@ -5,10 +5,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:cardBackgroundColor="#F1EDEC"
-        app:cardCornerRadius="40dp"
-        app:cardElevation="1dp"
+        app:cardCornerRadius="40px"
+        app:cardElevation="1px"
         android:layout_gravity="center|center_vertical"
-        android:paddingBottom="20dp"
+        android:paddingBottom="20px"
         >
         <LinearLayout
             android:layout_width="match_parent"
@@ -24,14 +24,14 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="20dp"
+                    android:padding="20px"
                     android:orientation="horizontal"
                     >
                     <TextView
-                        android:layout_width="0dp"
+                        android:layout_width="0px"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:textSize="18sp"
+                        android:textSize="18px"
                         android:text="Meeting"
                         android:textStyle="bold"
                         android:textColor="#000000"
@@ -43,8 +43,8 @@
                         />
                     <ImageView
                         android:id="@+id/closeTrans"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:layout_width="40px"
+                        android:layout_height="40px"
                         android:src="@drawable/ic_baseline_close_24"
                         />
                 </LinearLayout>
@@ -52,17 +52,17 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
+                    android:layout_height="0px"
                     android:background="#ffffff"
                     android:layout_weight="1"
                     android:orientation="vertical">
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="40dp"
+                        android:layout_height="40px"
                         android:orientation="horizontal"
                         >
                         <RelativeLayout
-                            android:layout_width="0dp"
+                            android:layout_width="0px"
                             android:layout_weight="1"
                             android:layout_height="match_parent"
                             android:orientation="vertical"
@@ -71,7 +71,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textSize="18sp"
+                                android:textSize="18px"
                                 android:text="Info"
                                 android:textStyle="bold"
                                 android:textColor="#000000"
@@ -84,14 +84,14 @@
                             <View
                                 android:layout_alignParentBottom="true"
                                 android:layout_width="match_parent"
-                                android:layout_height="1dp"
+                                android:layout_height="1px"
                                 android:background="#000000"
                                 android:id="@+id/bottomLineInfo"
                                 />
                         </RelativeLayout>
 
                         <RelativeLayout
-                            android:layout_width="0dp"
+                            android:layout_width="0px"
                             android:layout_weight="1"
                             android:layout_height="match_parent"
                             android:orientation="vertical"
@@ -100,7 +100,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textSize="18sp"
+                                android:textSize="18px"
                                 android:text="Transcript"
                                 android:textStyle="bold"
                                 android:textColor="#000000"
@@ -113,7 +113,7 @@
                             <View
                                 android:layout_alignParentBottom="true"
                                 android:layout_width="match_parent"
-                                android:layout_height="1dp"
+                                android:layout_height="1px"
                                 android:background="#000000"
                                 android:visibility="invisible"
                                 android:id="@+id/bottomLineTranscript"
@@ -124,7 +124,7 @@
                     <View
                         android:layout_alignParentBottom="true"
                         android:layout_width="match_parent"
-                        android:layout_height="1dp"
+                        android:layout_height="1px"
                         android:background="#cccccc"
                         />
 
@@ -170,7 +170,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="20dp"
+                    android:padding="20px"
                     android:orientation="horizontal"
                     >
                     <FrameLayout
@@ -181,42 +181,42 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             app:cardBackgroundColor="#585858"
-                            app:cardCornerRadius="30dp"
-                            app:cardElevation="0dp"
+                            app:cardCornerRadius="30px"
+                            app:cardElevation="0px"
                             android:layout_gravity="center|center_vertical"
-                            android:layout_margin="5dp"
+                            android:layout_margin="5px"
                             android:id="@+id/stopRecord"
                             android:visibility="gone"
                             >
                             <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:paddingLeft="20dp"
+                                android:paddingLeft="20px"
                                 >
                                 <androidx.appcompat.widget.AppCompatImageView
-                                    android:layout_width="40dp"
-                                    android:layout_height="40dp"
+                                    android:layout_width="40px"
+                                    android:layout_height="40px"
                                     android:layout_centerVertical="true"
                                     android:scaleType="fitCenter"
-                                    android:textSize="11sp"
+                                    android:textSize="11px"
                                     android:textAllCaps="true"
                                     android:background="@drawable/ic_baseline_stop_24_white"
                                     android:text="PEN"
                                     android:layout_gravity="center"
                                     android:gravity="center"
                                     android:tag="binding_1"
-                                    android:layout_margin="10dp"
+                                    android:layout_margin="10px"
                                     />
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:textSize="18sp"
+                                    android:textSize="18px"
                                     android:text="Stop Recording"
                                     android:textColor="#ffffff"
                                     android:textStyle="bold"
                                     android:layout_gravity="center"
                                     android:gravity="center"
-                                    android:layout_marginRight="30dp"
+                                    android:layout_marginRight="30px"
                                     android:visibility="visible"
                                     />
                             </LinearLayout>
@@ -225,41 +225,41 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             app:cardBackgroundColor="#F6F3F2"
-                            app:cardCornerRadius="30dp"
+                            app:cardCornerRadius="30px"
                             android:layout_gravity="center|center_vertical"
-                            android:layout_margin="5dp"
+                            android:layout_margin="5px"
                             android:id="@+id/startRecord"
                             android:visibility="visible"
                             >
                             <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:paddingLeft="20dp"
+                                android:paddingLeft="20px"
                                 >
                                 <androidx.appcompat.widget.AppCompatImageView
-                                    android:layout_width="40dp"
-                                    android:layout_height="40dp"
+                                    android:layout_width="40px"
+                                    android:layout_height="40px"
                                     android:layout_centerVertical="true"
                                     android:scaleType="fitCenter"
-                                    android:textSize="11sp"
+                                    android:textSize="11px"
                                     android:textAllCaps="true"
                                     android:background="@drawable/ic_baseline_fiber_manual_record_24"
                                     android:text="PEN"
                                     android:layout_gravity="center"
                                     android:gravity="center"
                                     android:tag="binding_1"
-                                    android:layout_margin="10dp"
+                                    android:layout_margin="10px"
                                     />
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:textSize="18sp"
+                                    android:textSize="18px"
                                     android:text="Start Record"
                                     android:textColor="#000000"
                                     android:textStyle="bold"
                                     android:layout_gravity="center"
                                     android:gravity="center"
-                                    android:layout_marginRight="30dp"
+                                    android:layout_marginRight="30px"
                                     android:visibility="visible"
                                     />
                             </LinearLayout>
@@ -270,39 +270,39 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         app:cardBackgroundColor="#F6F3F2"
-                        app:cardCornerRadius="30dp"
+                        app:cardCornerRadius="30px"
                         android:layout_gravity="center|center_vertical"
-                        android:layout_margin="5dp"
+                        android:layout_margin="5px"
                         >
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:paddingLeft="20dp"
+                            android:paddingLeft="20px"
                             >
                             <androidx.appcompat.widget.AppCompatImageView
-                                android:layout_width="40dp"
-                                android:layout_height="40dp"
+                                android:layout_width="40px"
+                                android:layout_height="40px"
                                 android:layout_centerVertical="true"
                                 android:scaleType="fitCenter"
-                                android:textSize="11sp"
+                                android:textSize="11px"
                                 android:textAllCaps="true"
                                 android:background="@drawable/ic_baseline_pause_24"
                                 android:text="PEN"
                                 android:layout_gravity="center"
                                 android:gravity="center"
                                 android:tag="binding_1"
-                                android:layout_margin="10dp"
+                                android:layout_margin="10px"
                                 />
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textSize="18sp"
+                                android:textSize="18px"
                                 android:text="Pause"
                                 android:textColor="#000000"
                                 android:textStyle="bold"
                                 android:layout_gravity="center"
                                 android:gravity="center"
-                                android:layout_marginRight="30dp"
+                                android:layout_marginRight="30px"
                                 android:visibility="visible"
                                 />
                         </LinearLayout>
@@ -316,10 +316,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="#00585858"
-                app:cardCornerRadius="30dp"
-                app:cardElevation="0dp"
+                app:cardCornerRadius="30px"
+                app:cardElevation="0px"
                 android:layout_gravity="center|center_vertical"
-                android:layout_margin="5dp"
+                android:layout_margin="5px"
                 >
             </LinearLayout>
 

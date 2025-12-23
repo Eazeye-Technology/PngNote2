@@ -1,18 +1,8 @@
 package com.txkj.drawingapp.activity;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.os.Bundle;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.Spinner;
 import android.widget.TextView;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.sparkchaindemo.utils.AudioRecorderManager;
 import com.hjq.permissions.OnPermission;
@@ -62,20 +52,16 @@ public class BookActivity4RTASRDialog implements AudioRecorderManager.AudioDataC
     public void toend_tv_result() {}
     public void tv_audioPath_setText(String str) {}
     public void tv_result_setText(String str) {
-        if (mAct != null) {
-            mAct.tv_result_setText(str);
-        }
+        BookActivity4Utils.tv_result_setText(mAct, str);
     }
     public void tv_transResult_setText(String str) {}
     public void btn_audio_start_setText(String str) {}
     public void btn_audio_start_setEnabled(boolean enable) {
-        if (mAct != null) {
-            mAct.btn_audio_start_setEnabled(enable);
-        }
+        BookActivity4Utils.btn_audio_start_setEnabled (mAct, enable);
     }
     public void btn_file_start_setEnabled(boolean enable) {}
-    private BookActivity4 mAct;
-    public BookActivity4RTASRDialog(BookActivity4 act) {
+    private Activity mAct;
+    public BookActivity4RTASRDialog(Activity act) {
         this.mAct = act;
         onCreate();
     }

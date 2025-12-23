@@ -13,7 +13,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.txkj.drawingapp.activity.BookActivity4;
+import com.txkj.drawingapp.activity.BookActivity4Fragment;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -49,7 +49,7 @@ public class DrawPath {
     public boolean isBold = false;
     public boolean isItalics = false;
     public boolean isUnderline = false;
-    public int styleType = BookActivity4.STYLE_TYPE_NONE;
+    public int styleType = BookActivity4Fragment.STYLE_TYPE_NONE;
     public int pointsTextColor = 0;
     //---------------------
 
@@ -370,13 +370,13 @@ public class DrawPath {
                         style |= Typeface.ITALIC;
                     }
                     Typeface family = Typeface.DEFAULT;
-                    if (this.styleType == BookActivity4.STYLE_TYPE_NONE) {
+                    if (this.styleType == BookActivity4Fragment.STYLE_TYPE_NONE) {
 
-                    } else if (this.styleType == BookActivity4.STYLE_TYPE_HAND) {
+                    } else if (this.styleType == BookActivity4Fragment.STYLE_TYPE_HAND) {
 
-                    } else if (this.styleType == BookActivity4.STYLE_TYPE_SERIF) {
+                    } else if (this.styleType == BookActivity4Fragment.STYLE_TYPE_SERIF) {
                         family = Typeface.SERIF;
-                    } else if (this.styleType == BookActivity4.STYLE_TYPE_SANS) {
+                    } else if (this.styleType == BookActivity4Fragment.STYLE_TYPE_SANS) {
                         family = Typeface.SANS_SERIF;
                     }
                     Typeface font = Typeface.create(family, style);

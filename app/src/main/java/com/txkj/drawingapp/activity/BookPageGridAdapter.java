@@ -4,7 +4,9 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.txkj.drawingapp.R;
@@ -13,6 +15,11 @@ import com.txkj.notemobile2.ui.Page;
 import java.util.List;
 
 public class BookPageGridAdapter extends BaseAdapter {
+    public int checkMode = 0;
+    public final static int CHECK_MODE_NONE = 0;
+    public final static int CHECK_MODE_CHECK = 1;
+    public final static int CHECK_MODE_MOVE = 2;
+
     private Context context;
     private GridViewHolder gridholder;
     private List<Page> dataList;
@@ -49,6 +56,9 @@ public class BookPageGridAdapter extends BaseAdapter {
             gridholder.tfBookName = (TextView) convertView.findViewById(R.id.bookgrid_name);
             gridholder.ivCoverImage = (ImageView) convertView.findViewById(R.id.bookgrid_pic);
             gridholder.ivCoverImageBack = (ImageView) convertView.findViewById(R.id.bookgrid_pic_backgroud);
+            gridholder.rlCheckBox = (RelativeLayout) convertView.findViewById(R.id.rlCheckBox);
+            gridholder.rlMove = (RelativeLayout) convertView.findViewById(R.id.rlMove);
+            gridholder.cbSel = (CheckBox) convertView.findViewById(R.id.cbSel);
             convertView.setTag(gridholder);
         } else {
             gridholder = (GridViewHolder) convertView.getTag();
@@ -60,8 +70,25 @@ public class BookPageGridAdapter extends BaseAdapter {
                 gridholder.tfBookName.setText(page.getTitle() != null ? page.getTitle() : "no title");
                 gridholder.ivCoverImage.setImageBitmap(page.getThumbnail());
                 gridholder.ivCoverImageBack.setImageBitmap(page.getBgThumbnail());
+                if (page.checked) {
+                    gridholder.cbSel.setChecked(true);
+                } else {
+                    gridholder.cbSel.setChecked(false);
+                }
             }
         }
+
+        if (checkMode == CHECK_MODE_CHECK) {
+            gridholder.rlCheckBox.setVisibility(View.VISIBLE);
+            gridholder.rlMove.setVisibility(View.GONE);
+        } else if (checkMode == CHECK_MODE_MOVE) {
+            gridholder.rlCheckBox.setVisibility(View.GONE);
+            gridholder.rlMove.setVisibility(View.VISIBLE);
+        } else {
+            gridholder.rlCheckBox.setVisibility(View.GONE);
+            gridholder.rlMove.setVisibility(View.GONE);
+        }
+
         return convertView;
     }
 
@@ -69,5 +96,7 @@ public class BookPageGridAdapter extends BaseAdapter {
         private TextView tfBookName;
         private ImageView ivCoverImage;
         private ImageView ivCoverImageBack;
+        private RelativeLayout rlCheckBox, rlMove;
+        private CheckBox cbSel;
     }
 }

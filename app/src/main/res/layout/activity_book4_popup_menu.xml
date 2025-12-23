@@ -2,35 +2,35 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="300dp"
+    android:layout_width="300px"
     android:layout_height="wrap_content"
-    android:layout_marginTop="50dp"
-    android:layout_marginLeft="50dp"
+    android:layout_marginTop="50px"
+    android:layout_marginLeft="50px"
     >
-    <!--300dp-->
+    <!--300px-->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardBackgroundColor="#F1EDEC"
-        app:cardCornerRadius="10dp"
-        app:cardElevation="1dp"
+        app:cardCornerRadius="10px"
+        app:cardElevation="1px"
         android:layout_gravity="center|center_vertical"
         >
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="0dp"
+            android:padding="0px"
             >
-            <!--padding=10dp-->
+            <!--padding=10px-->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="#00585858"
-                app:cardCornerRadius="30dp"
-                app:cardElevation="0dp"
+                app:cardCornerRadius="30px"
+                app:cardElevation="0px"
                 android:layout_gravity="center|center_vertical"
-                android:layout_margin="5dp"
+                android:layout_margin="5px"
                 >
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -40,17 +40,17 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="1dp"
+                        android:padding="1px"
                         android:orientation="horizontal"
                         >
                         <ImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
+                            android:layout_width="40px"
+                            android:layout_height="40px"
                             android:layout_centerVertical="true"
                             android:scaleType="fitCenter"
-                            android:paddingLeft="5dp"
-                            android:paddingRight="5dp"
-                            android:textSize="11sp"
+                            android:paddingLeft="5px"
+                            android:paddingRight="5px"
+                            android:textSize="11px"
                             android:textAllCaps="true"
                             android:src="@drawable/ic_baseline_content_copy_24"
                             android:text="PEN"
@@ -60,7 +60,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="20sp"
+                            android:textSize="20px"
                             android:text="Copy"
                             android:textColor="#000000"
                             android:layout_gravity="center"
@@ -74,17 +74,17 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="1dp"
+                        android:padding="1px"
                         android:orientation="horizontal"
                         >
                         <ImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
+                            android:layout_width="40px"
+                            android:layout_height="40px"
                             android:layout_centerVertical="true"
                             android:scaleType="fitCenter"
-                            android:paddingLeft="5dp"
-                            android:paddingRight="5dp"
-                            android:textSize="11sp"
+                            android:paddingLeft="5px"
+                            android:paddingRight="5px"
+                            android:textSize="11px"
                             android:textAllCaps="true"
                             android:src="@drawable/ic_baseline_content_paste_24"
                             android:text="PEN"
@@ -94,7 +94,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="20sp"
+                            android:textSize="20px"
                             android:text="Paste"
                             android:textColor="#000000"
                             android:layout_gravity="center"
@@ -108,17 +108,17 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="1dp"
+                        android:padding="1px"
                         android:orientation="horizontal"
                         >
                         <ImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
+                            android:layout_width="40px"
+                            android:layout_height="40px"
                             android:layout_centerVertical="true"
                             android:scaleType="fitCenter"
-                            android:paddingLeft="5dp"
-                            android:paddingRight="5dp"
-                            android:textSize="11sp"
+                            android:paddingLeft="5px"
+                            android:paddingRight="5px"
+                            android:textSize="11px"
                             android:textAllCaps="true"
                             android:src="@drawable/ic_baseline_content_cut_24"
                             android:text="PEN"
@@ -128,7 +128,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="20sp"
+                            android:textSize="20px"
                             android:text="Cut"
                             android:textColor="#000000"
                             android:layout_gravity="center"
@@ -142,18 +142,18 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="1dp"
+                        android:padding="1px"
                         android:orientation="horizontal"
                         >
                         <ImageView
-                            android:layout_width="0dp"
+                            android:layout_width="0px"
                             android:layout_weight="0"
-                            android:layout_height="40dp"
+                            android:layout_height="40px"
                             android:layout_centerVertical="true"
                             android:scaleType="fitCenter"
-                            android:paddingLeft="5dp"
-                            android:paddingRight="5dp"
-                            android:textSize="11sp"
+                            android:paddingLeft="5px"
+                            android:paddingRight="5px"
+                            android:textSize="11px"
                             android:textAllCaps="true"
                             android:src="@drawable/ic_baseline_content_cut_24"
                             android:text="PEN"
@@ -165,7 +165,7 @@
                             android:id="@+id/popTextViewInsertImage"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="20sp"
+                            android:textSize="20px"
                             android:text="Insert image..."
                             android:textColor="#000000"
                             android:layout_gravity="center"
@@ -178,7 +178,7 @@
 
                     <View
                         android:layout_width="match_parent"
-                        android:layout_height="1dp"
+                        android:layout_height="1px"
                         android:background="#000000"
                         />
 
@@ -200,10 +200,10 @@
                                 android:layout_height="@dimen/mtmobile__treefontsize5"
                                 android:layout_centerVertical="true"
                                 android:scaleType="fitCenter"
-                                android:paddingLeft="5dp"
-                                android:paddingRight="5dp"
+                                android:paddingLeft="5px"
+                                android:paddingRight="5px"
                                 android:textColor="@color/black"
-                                android:textSize="11sp"
+                                android:textSize="11px"
                                 android:textAllCaps="true"
                                 android:background="@drawable/toolbar_button"
                                 android:id="@+id/popButtonGrid"
@@ -231,17 +231,17 @@
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
                             android:id="@+id/linearTextAnnot"
-                            android:layout_marginLeft="20dp"
+                            android:layout_marginLeft="20px"
                             >
                             <ImageButton
                                 android:layout_width="@dimen/mtmobile__treefontsize5"
                                 android:layout_height="@dimen/mtmobile__treefontsize5"
                                 android:layout_centerVertical="true"
                                 android:scaleType="fitCenter"
-                                android:paddingLeft="5dp"
-                                android:paddingRight="5dp"
+                                android:paddingLeft="5px"
+                                android:paddingRight="5px"
                                 android:textColor="@color/black"
-                                android:textSize="11sp"
+                                android:textSize="11px"
                                 android:textAllCaps="true"
                                 android:background="@drawable/toolbar_button"
                                 android:id="@+id/popButtonPrevPage"
@@ -271,25 +271,25 @@
                             android:text="1/1"
                             android:textStyle="bold"
                             android:gravity="center|center_vertical"
-                            android:textSize="20dp"
-                            android:layout_marginLeft="20dp"
+                            android:textSize="20px"
+                            android:layout_marginLeft="20px"
                             />
 
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            android:layout_marginLeft="20dp"
+                            android:layout_marginLeft="20px"
                             >
                             <ImageButton
                                 android:layout_width="@dimen/mtmobile__treefontsize5"
                                 android:layout_height="@dimen/mtmobile__treefontsize5"
                                 android:layout_centerVertical="true"
                                 android:scaleType="fitCenter"
-                                android:paddingLeft="5dp"
-                                android:paddingRight="5dp"
+                                android:paddingLeft="5px"
+                                android:paddingRight="5px"
                                 android:textColor="@color/black"
-                                android:textSize="11sp"
+                                android:textSize="11px"
                                 android:textAllCaps="true"
                                 android:background="@drawable/toolbar_button"
                                 android:id="@+id/popButtonNextPage"
@@ -327,14 +327,14 @@
                                 android:layout_gravity="center"
                                 android:background="@drawable/toolbar_button"
                                 android:gravity="center"
-                                android:paddingLeft="5dp"
-                                android:paddingRight="5dp"
+                                android:paddingLeft="5px"
+                                android:paddingRight="5px"
                                 android:scaleType="fitCenter"
                                 android:src="@drawable/trash_can_solid_3"
                                 android:text="REMOVE PAGE"
                                 android:textAllCaps="true"
                                 android:textColor="@color/black"
-                                android:textSize="11sp"
+                                android:textSize="11px"
                                 android:visibility="gone"
                                 />
 
@@ -356,17 +356,17 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            android:layout_marginLeft="20dp"
+                            android:layout_marginLeft="20px"
                             >
                             <ImageButton
                                 android:layout_width="@dimen/mtmobile__treefontsize5"
                                 android:layout_height="@dimen/mtmobile__treefontsize5"
                                 android:layout_centerVertical="true"
                                 android:scaleType="fitCenter"
-                                android:paddingLeft="5dp"
-                                android:paddingRight="5dp"
+                                android:paddingLeft="5px"
+                                android:paddingRight="5px"
                                 android:textColor="@color/black"
-                                android:textSize="11sp"
+                                android:textSize="11px"
                                 android:textAllCaps="true"
                                 android:background="@drawable/toolbar_button"
                                 android:id="@+id/popButtonAddPage"
@@ -392,25 +392,25 @@
 
                     <View
                         android:layout_width="match_parent"
-                        android:layout_height="1dp"
+                        android:layout_height="1px"
                         android:background="#000000"
                         />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="1dp"
+                        android:padding="1px"
                         android:orientation="horizontal"
                         >
                         <ImageView
-                            android:layout_width="0dp"
+                            android:layout_width="0px"
                             android:layout_weight="0"
-                            android:layout_height="40dp"
+                            android:layout_height="40px"
                             android:layout_centerVertical="true"
                             android:scaleType="fitCenter"
-                            android:paddingLeft="5dp"
-                            android:paddingRight="5dp"
-                            android:textSize="11sp"
+                            android:paddingLeft="5px"
+                            android:paddingRight="5px"
+                            android:textSize="11px"
                             android:textAllCaps="true"
                             android:src="@drawable/ic_baseline_content_cut_24"
                             android:text="PEN"
@@ -421,7 +421,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="20sp"
+                            android:textSize="20px"
                             android:text="Rename file..."
                             android:textColor="#000000"
                             android:layout_gravity="center"
@@ -436,18 +436,18 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="1dp"
+                        android:padding="1px"
                         android:orientation="horizontal"
                         >
                         <ImageView
-                            android:layout_width="0dp"
+                            android:layout_width="0px"
                             android:layout_weight="0"
-                            android:layout_height="40dp"
+                            android:layout_height="40px"
                             android:layout_centerVertical="true"
                             android:scaleType="fitCenter"
-                            android:paddingLeft="5dp"
-                            android:paddingRight="5dp"
-                            android:textSize="11sp"
+                            android:paddingLeft="5px"
+                            android:paddingRight="5px"
+                            android:textSize="11px"
                             android:textAllCaps="true"
                             android:src="@drawable/ic_baseline_content_cut_24"
                             android:text="PEN"
@@ -458,7 +458,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="20sp"
+                            android:textSize="20px"
                             android:text="Page background..."
                             android:textColor="#000000"
                             android:layout_gravity="center"
@@ -474,18 +474,18 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="1dp"
+                        android:padding="1px"
                         android:orientation="horizontal"
                         >
                         <ImageView
-                            android:layout_width="0dp"
+                            android:layout_width="0px"
                             android:layout_weight="0"
-                            android:layout_height="40dp"
+                            android:layout_height="40px"
                             android:layout_centerVertical="true"
                             android:scaleType="fitCenter"
-                            android:paddingLeft="5dp"
-                            android:paddingRight="5dp"
-                            android:textSize="11sp"
+                            android:paddingLeft="5px"
+                            android:paddingRight="5px"
+                            android:textSize="11px"
                             android:textAllCaps="true"
                             android:src="@drawable/ic_baseline_content_cut_24"
                             android:text="PEN"
@@ -496,7 +496,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="20sp"
+                            android:textSize="20px"
                             android:text="Move canvas"
                             android:textColor="#000000"
                             android:layout_gravity="center"
@@ -506,30 +506,30 @@
                             android:visibility="visible"
                             android:id="@+id/popButtonPan"
                             />
-                        <!-- (or press SPACE key, the emulator needs to enable Hardware Input)-->
+                        <!-- (or press pxACE key, the emulator needs to enable Hardware Input)-->
                     </LinearLayout>
 
 
                     <View
                         android:layout_width="match_parent"
-                        android:layout_height="1dp"
+                        android:layout_height="1px"
                         android:background="#000000"
                         />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="1dp"
+                        android:padding="1px"
                         android:orientation="horizontal"
                         >
                         <ImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
+                            android:layout_width="40px"
+                            android:layout_height="40px"
                             android:layout_centerVertical="true"
                             android:scaleType="fitCenter"
-                            android:paddingLeft="5dp"
-                            android:paddingRight="5dp"
-                            android:textSize="11sp"
+                            android:paddingLeft="5px"
+                            android:paddingRight="5px"
+                            android:textSize="11px"
                             android:textAllCaps="true"
                             android:src="@drawable/ic_baseline_share_24"
                             android:text="PEN"
@@ -538,10 +538,10 @@
                             android:visibility="visible"
                             />
                         <TextView
-                            android:layout_width="0dp"
+                            android:layout_width="0px"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:textSize="20sp"
+                            android:textSize="20px"
                             android:text="Share..."
                             android:textColor="#000000"
                             android:layout_gravity="center"
@@ -553,11 +553,11 @@
                             />
 
                         <ImageView
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
+                            android:layout_width="40px"
+                            android:layout_height="40px"
                             android:layout_centerVertical="true"
                             android:scaleType="fitCenter"
-                            android:textSize="11sp"
+                            android:textSize="11px"
                             android:textAllCaps="true"
                             android:src="@drawable/ic_baseline_arrow_right_24"
                             android:text="PEN"
@@ -570,37 +570,37 @@
 
                     <View
                         android:layout_width="match_parent"
-                        android:layout_height="1dp"
+                        android:layout_height="1px"
                         android:background="#000000"
                         />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="1dp"
+                        android:padding="1px"
                         android:orientation="horizontal"
                         >
                         <ImageView
-                            android:layout_width="0dp"
-                            android:layout_height="40dp"
+                            android:layout_width="40px"
+                            android:layout_height="40px"
                             android:layout_weight="0"
                             android:layout_centerVertical="true"
                             android:scaleType="fitCenter"
-                            android:paddingLeft="5dp"
-                            android:paddingRight="5dp"
-                            android:textSize="11sp"
+                            android:paddingLeft="5px"
+                            android:paddingRight="5px"
+                            android:textSize="11px"
                             android:textAllCaps="true"
-                            android:src="@drawable/ic_baseline_share_24"
+                            android:src="@drawable/ic_my_tip_008"
                             android:text="PEN"
                             android:layout_gravity="center"
                             android:gravity="center"
-                            android:visibility="invisible"
+                            android:visibility="visible"
                             />
                         <TextView
-                            android:layout_width="0dp"
+                            android:layout_width="0px"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:textSize="20sp"
+                            android:textSize="20px"
                             android:text="Shortcuts"
                             android:textColor="#000000"
                             android:layout_gravity="center"

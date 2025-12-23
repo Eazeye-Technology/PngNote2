@@ -1,12 +1,12 @@
 package com.txkj.drawingapp.activity;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -23,13 +23,12 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ImageButton;
@@ -48,11 +47,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.widget.NestedScrollView;
+import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 
 import com.agsw.FabricView.FabricView;
@@ -66,16 +67,12 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
 import com.sys.speech.activity.DictResultActivity;
 import com.sys.speech.activity.RecordingFragment;
-import com.sys.speech.db.DictationsDatabase;
 import com.sys.speech.db.RecordingsDatabase;
 import com.sys.speech.dialog.PlayerDialog;
 import com.sys.speech.dialog.RecognizeDialog;
 import com.sys.speech.pojo.RecordingItem;
 import com.txkj.drawingapp.R;
 import com.txkj.notemobile2.Book;
-import com.txkj.notemobile2.BookActivity;
-import com.txkj.notemobile2.BookListActivity;
-import com.txkj.notemobile2.Config;
 import com.txkj.notemobile2.PageGridActivity;
 import com.txkj.notemobile2.book.BookIO;
 import com.txkj.notemobile2.book.BookPage;
@@ -86,6 +83,7 @@ import com.txkj.notemobile2.colorpicker.MaterialColorDialog;
 import com.txkj.notemobile2.colorpicker.PaintSelectDialog;
 import com.txkj.notemobile2.colorpicker.SimpleColorDialog;
 import com.txkj.notemobile2.ui.CanvasBoox;
+import com.txkj.notemobile2.ui.Page;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -94,14 +92,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
+import io.github.pastthepixels.freepaint.Graphics.BitmapVector;
 import io.github.pastthepixels.freepaint.Graphics.DrawAppearance;
 import io.github.pastthepixels.freepaint.Graphics.DrawCanvas;
 import io.github.pastthepixels.freepaint.Graphics.Point;
@@ -109,11 +108,13 @@ import io.github.pastthepixels.freepaint.MainActivity;
 import io.github.pastthepixels.freepaint.Tools.EraserTool;
 import io.material.catalog.windowpreferences.WindowPreferencesManager;
 
+//FIXME:onBackPressed, onCreateOptionsMenu, onDestroy, onKeyDown, onKeyUp
+
 //FIXME:this.isDirty should be always true
 //FIXME:I need to remove isDirty var
 //isDirty = true; //FIXME: force save
 //TODO:notifyForceSave, when view onSizeChanged or other events, need call it
-public class BookActivity4 extends AppCompatActivity {
+public class BookActivity4Fragment extends Fragment {
     private final static boolean USE_RTASR = true;
     BookActivity4RTASRDialog rtasrDialog = null;
     private final static boolean USE_LISTEN = false; //listen or recording?
@@ -156,9 +157,6 @@ public class BookActivity4 extends AppCompatActivity {
 
     public final static boolean SAVING_ASYNC = true;
 
-    public final static String EXTRA_DIRURLPATH = "EXTRA_DIRURLPATH";
-    public final static String EXTRA_BACKTEXT = "EXTRA_BACKTEXT";
-    public final static String PAGE_IDX = "PAGE_IDX";
 
     public String curPattern;
     private String backText; //背景图案的种类文本
@@ -169,12 +167,12 @@ public class BookActivity4 extends AppCompatActivity {
     private FastFile _bookDir;// = bookDir_init();
     FastFile bookDir_init() {
         //FIXME:check this.dirUrlPath null
-        return FastFile.fromTreeUri(this, this.dirUrl, this.dirUrlPath);
+        return FastFile.fromTreeUri(getActivity(), this.dirUrl, this.dirUrlPath);
     }
 
     private BookIO _bookIO;// = bookIO_init();
     private BookIO bookIO_init() {
-        return new BookIO(this.getContentResolver());
+        return new BookIO(getActivity().getContentResolver());
     }
 
     private Book _book;
@@ -183,12 +181,12 @@ public class BookActivity4 extends AppCompatActivity {
         return initialPageIdx;
     }
 
-    private void onCreateAct() {
+    private void onCreateAct(View rootView) {
         _bookDir = bookDir_init();
         _bookIO = bookIO_init();
         _pageIdx = pageIdx_init();
         try {
-            ((TextView) findViewById(R.id.newTitle)).setText(_bookDir.getDisplayName());
+            ((TextView) rootView.findViewById(R.id.newTitle)).setText(_bookDir.getDisplayName());
         } catch (Throwable eee) {
             eee.printStackTrace();
         }
@@ -203,10 +201,18 @@ public class BookActivity4 extends AppCompatActivity {
         if (idx >= 0 && idx < getBook().getPages().size()) { //FIXME: null??
             onPageIdx(canvas, idx, new CanvasBoox.OnLoadBitmapListener() {
                 @Override
-                public Bitmap onLoadBitmap(int idx) {
+                public BitmapVector onLoadBitmap(int idx) {
                     BookIO bookIO = getBookIO();
                     BookPage page = getBook().getPage(idx);
-                    pageBmp = bookIO.loadBitmapOrNull(page);
+                    BitmapVector result = bookIO.loadBitmapOrNull(page);
+                    if (result != null && result.strVecJson != null && result.strVecJson.length() > 0) {
+                        pageBmp = null;
+                        if (canvas != null) {
+                            canvas.loadVecJson(result.strVecJson);
+                        }
+                    } else if (result != null) {
+                        pageBmp = result.bitmap;
+                    }
                     try {
                         String metaTxt = bookIO.loadMetaPng(page.getFile());
                         JSONObject item = new JSONObject(metaTxt);
@@ -218,7 +224,10 @@ public class BookActivity4 extends AppCompatActivity {
                         eee.printStackTrace();
                     }
                     isDirty = false;
-                    return pageBmp;
+                    BitmapVector result_ = new BitmapVector();
+                    result_.bitmap = pageBmp;
+                    result_.strVecJson = result.strVecJson;
+                    return result;
                 }
             });
             onUpdatePidxPnum();
@@ -235,7 +244,6 @@ public class BookActivity4 extends AppCompatActivity {
     private Bitmap pageBmp;
     private boolean isDirty;
     private static final long SAVE_INTERVAL_MILL = 5000L;
-    private static final ReentrantLock bitmapLock = new ReentrantLock();
 
     private FastFile getBookDir() {
         return this._bookDir;
@@ -268,7 +276,7 @@ public class BookActivity4 extends AppCompatActivity {
     }
 
     private void showMessage(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+        Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
     }
 
     private int getPageIdx() {
@@ -291,8 +299,8 @@ public class BookActivity4 extends AppCompatActivity {
         return (new Date()).getTime();
     }
 
-    private void savePage(final int pageIdx, Bitmap pageBmp) {
-        this.getBookIO().saveBitmap(this.getBook().getPage(pageIdx), pageBmp);
+    private void savePage(final int pageIdx, Bitmap pageBmp, String vecJson) {
+        this.getBookIO().saveBitmap(this.getBook().getPage(pageIdx), pageBmp, vecJson, this.getBook());
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -301,8 +309,8 @@ public class BookActivity4 extends AppCompatActivity {
         }).start();
     }
 
-    private void savePageInMain(int pageIdx, Bitmap pageBmp) {
-        this.getBookIO().saveBitmap(this.getBook().getPage(pageIdx), pageBmp);
+    private void savePageInMain(int pageIdx, Bitmap pageBmp, String vecJson) {
+        this.getBookIO().saveBitmap(this.getBook().getPage(pageIdx), pageBmp, vecJson, this.getBook());
         this.set_book(this.getBook().assignNonEmpty(pageIdx));
     }
 
@@ -318,7 +326,7 @@ public class BookActivity4 extends AppCompatActivity {
                 if (isDirty && getCurrentMills() - lastWritten
                                 >= SAVE_INTERVAL_MILL) {
                     isDirty = false;
-                    Lock bitmapLock = BookActivity.getBitmapLock();
+                    Lock bitmapLock = BookActivity4Utils.getBitmapLock();
                     bitmapLock.lock();
                     Bitmap tempBmp = null;
                     try {
@@ -328,7 +336,7 @@ public class BookActivity4 extends AppCompatActivity {
                     } finally {
                         bitmapLock.unlock();
                     }
-                    savePage(getPageIdx(), tempBmp);
+                    savePage(getPageIdx(), tempBmp, getVecJson(canvas));
                 }
             }
         }).start();
@@ -338,26 +346,33 @@ public class BookActivity4 extends AppCompatActivity {
         try {
             if (this.isDirty) {
                 this.isDirty = false;
-                this.savePageInMain(this.getPageIdx(), this.pageBmp);
+                this.savePageInMain(this.getPageIdx(), this.pageBmp, getVecJson(canvas));
             }
         } catch (Throwable eee) {
             eee.printStackTrace();
             try {
-                Toast.makeText(this, "Save failed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "Save failed", Toast.LENGTH_SHORT).show();
             } catch (Throwable eee2) {
                 eee2.printStackTrace();
             }
         }
     }
 
-    protected void onStop() {
+    @Override
+    public void onStop() {
+        if (USE_RTASR) {
+            if (rtasrDialog != null) {
+                rtasrDialog.onClick_stop();
+                rtasrDialog = null;
+            }
+        }
         if (true) {
             this.ensureSave();
         } else {
-            this.savePageInMain(this.getPageIdx(), this.pageBmp);
+            this.savePageInMain(this.getPageIdx(), this.pageBmp, getVecJson(canvas));
         }
         super.onStop();
-        runNormalScreen(this);
+        runNormalScreen(getActivity());
     }
 
     //FIXME: remove RequiresApi
@@ -368,7 +383,7 @@ public class BookActivity4 extends AppCompatActivity {
             FileOutputStream it = null;
             File path = null;
             try {
-                path = File.createTempFile("share", ".png", this.getCacheDir());
+                path = File.createTempFile("share", ".png", getActivity().getCacheDir());
                 it = new FileOutputStream(path);
                 this.pageBmp.compress(Bitmap.CompressFormat.PNG, 100, it);
                 it.flush();
@@ -385,8 +400,8 @@ public class BookActivity4 extends AppCompatActivity {
                 }
             }
             if (path != null) {
-                Uri u = FileProvider.getUriForFile(this,
-                        this.getApplicationContext().getPackageName() + ".provider",
+                Uri u = FileProvider.getUriForFile(getActivity(),
+                        getActivity().getApplicationContext().getPackageName() + ".provider",
                         path);
                 this.shareImageUri(u);
             }
@@ -403,7 +418,7 @@ public class BookActivity4 extends AppCompatActivity {
 
     private void addNewPageAndGo(boolean needAsk) {
         if (needAsk) {
-            PaintSelectDialog dialog = new PaintSelectDialog(this);
+            PaintSelectDialog dialog = new PaintSelectDialog(getActivity());
             dialog.show();
         } else {
             addNewPageAndGo_old();
@@ -439,7 +454,7 @@ public class BookActivity4 extends AppCompatActivity {
         if (false) {
             //FIXME:重复上一张,why????
             if (this.pageBmp != null) {
-                this.savePageInMain(this.pageNum - 1, this.pageBmp);
+                this.savePageInMain(this.pageNum - 1, this.pageBmp, getVecJson(canvas));
             }
         } else {
             //FIXME:空白页？？？
@@ -447,7 +462,7 @@ public class BookActivity4 extends AppCompatActivity {
                 this.pageBmp = this.emptyBmp; //FIXME:???
             }
             if (this.pageBmp != null) {
-                this.savePageInMain(this.pageNum - 1, this.pageBmp);
+                this.savePageInMain(this.pageNum - 1, this.pageBmp, getVecJson(canvas));
                 if (BookIO.USE_META_TXT) {
                     getBookIO().saveMeta(backText, this.dirUrlPath, String.format("%04d", this.pageNum - 1) + ".meta");
                 }
@@ -483,7 +498,7 @@ public class BookActivity4 extends AppCompatActivity {
                 this.pageBmp = this.emptyBmp; //FIXME:???
             }
             if (this.pageBmp != null) {
-                this.savePageInMain(this.pageNum - 1, this.pageBmp);
+                this.savePageInMain(this.pageNum - 1, this.pageBmp, getVecJson(canvas));
             }
             onPageIdxChange();
         } else {
@@ -529,21 +544,21 @@ public class BookActivity4 extends AppCompatActivity {
     }
 
     private void gotoGridPage() {
-        Intent intent = new Intent(this, PageGridActivity.class);
+        Intent intent = new Intent(getActivity(), PageGridActivity.class);
         intent.setData(this.dirUrl);
         intent.putExtra(PageGridActivity.EXTRA_DIR_URL_PATH, this.dirUrlPath);
         this.startActivity(intent);
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        if (intent != null) {
-            this.handlePageIdxArg(intent);
-        }
-    }
+//    @Override
+//    protected void onNewIntent(Intent intent) {
+//        super.onNewIntent(intent);
+//        if (intent != null) {
+//            this.handlePageIdxArg(intent);
+//        }
+//    }
     //--------------------------
-    private void onClickBottomButton1(int id, boolean isToggle, boolean isClear, boolean isClick) {
+    private void onClickBottomButton1(View rootView, int id, boolean isToggle, boolean isClear, boolean isClick) {
         if (id == R.id.btnBold) {
             if (isToggle) {
                 setBold(!isBold);
@@ -697,11 +712,11 @@ public class BookActivity4 extends AppCompatActivity {
                 setSizeType(SIZE_TYPE_NONE);
             }
         }
-        CardView viewCard_bold = (CardView) findViewById(R.id.btnBold);
+        CardView viewCard_bold = (CardView) rootView.findViewById(R.id.btnBold);
         ImageView icon_bold = (ImageView) viewCard_bold.findViewWithTag("icon");
-        CardView viewCard_italics = (CardView) findViewById(R.id.btnItalics);
+        CardView viewCard_italics = (CardView) rootView.findViewById(R.id.btnItalics);
         ImageView icon_italics = (ImageView) viewCard_italics.findViewWithTag("icon");
-        CardView viewCard_underline = (CardView) findViewById(R.id.btnUnderline);
+        CardView viewCard_underline = (CardView) rootView.findViewById(R.id.btnUnderline);
         ImageView icon_underline = (ImageView) viewCard_underline.findViewWithTag("icon");
         if (isBold) {
             viewCard_bold.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
@@ -724,13 +739,13 @@ public class BookActivity4 extends AppCompatActivity {
             viewCard_underline.setCardBackgroundColor(0x00585858);
             icon_underline.setImageResource(R.drawable.ic_my_para_underline_013);
         }
-        CardView viewCard_alignLeft = (CardView) findViewById(R.id.btnAlignLeft);
+        CardView viewCard_alignLeft = (CardView) rootView.findViewById(R.id.btnAlignLeft);
         ImageView icon_alignLeft = (ImageView) viewCard_alignLeft.findViewWithTag("icon");
-        CardView viewCard_alignCenter = (CardView) findViewById(R.id.btnAlignCenter);
+        CardView viewCard_alignCenter = (CardView) rootView.findViewById(R.id.btnAlignCenter);
         ImageView icon_alignCenter = (ImageView) viewCard_alignCenter.findViewWithTag("icon");
-        CardView viewCard_alignRight = (CardView) findViewById(R.id.btnAlignRight);
+        CardView viewCard_alignRight = (CardView) rootView.findViewById(R.id.btnAlignRight);
         ImageView icon_alignRight = (ImageView) viewCard_alignRight.findViewWithTag("icon");
-        CardView viewCard_justify = (CardView) findViewById(R.id.btnAlignJustify);
+        CardView viewCard_justify = (CardView) rootView.findViewById(R.id.btnAlignJustify);
         ImageView icon_justify = (ImageView) viewCard_justify.findViewWithTag("icon");
         if (alignType == ALIGN_TYPE_LEFT) {
             viewCard_alignLeft.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
@@ -760,9 +775,9 @@ public class BookActivity4 extends AppCompatActivity {
             viewCard_justify.setCardBackgroundColor(0x00585858);
             icon_justify.setImageResource(R.drawable.ic_my_para_justify_018);
         }
-        CardView viewCard_bullet = (CardView) findViewById(R.id.btnBullet);
+        CardView viewCard_bullet = (CardView) rootView.findViewById(R.id.btnBullet);
         ImageView icon_bullet = (ImageView) viewCard_bullet.findViewWithTag("icon");
-        CardView viewCard_number = (CardView) findViewById(R.id.btnNumber);
+        CardView viewCard_number = (CardView) rootView.findViewById(R.id.btnNumber);
         ImageView icon_number = (ImageView) viewCard_number.findViewWithTag("icon");
         if (listType == LIST_TYPE_BULLET) {
             viewCard_bullet.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
@@ -778,11 +793,11 @@ public class BookActivity4 extends AppCompatActivity {
             viewCard_number.setCardBackgroundColor(0x00585858);
             icon_number.setImageResource(R.drawable.ic_my_para_number_020);
         }
-        CardView viewCard_hand = (CardView) findViewById(R.id.btnStyleHand);
+        CardView viewCard_hand = (CardView) rootView.findViewById(R.id.btnStyleHand);
         ImageView icon_hand = (ImageView) viewCard_hand.findViewWithTag("icon");
-        CardView viewCard_serif = (CardView) findViewById(R.id.btnSerif);
+        CardView viewCard_serif = (CardView) rootView.findViewById(R.id.btnSerif);
         ImageView icon_serif = (ImageView) viewCard_serif.findViewWithTag("icon");
-        CardView viewCard_sans = (CardView) findViewById(R.id.btnSans);
+        CardView viewCard_sans = (CardView) rootView.findViewById(R.id.btnSans);
         ImageView icon_sans = (ImageView) viewCard_sans.findViewWithTag("icon");
         if (styleType == STYLE_TYPE_HAND) {
             viewCard_hand.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
@@ -805,13 +820,13 @@ public class BookActivity4 extends AppCompatActivity {
             viewCard_sans.setCardBackgroundColor(0x00585858);
             icon_sans.setImageResource(R.drawable.ic_my_style_sans_007);
         }
-        CardView viewCard_title = (CardView) findViewById(R.id.btnTitle);
+        CardView viewCard_title = (CardView) rootView.findViewById(R.id.btnTitle);
         ImageView icon_title = (ImageView) viewCard_title.findViewWithTag("icon");
-        CardView viewCard_h1 = (CardView) findViewById(R.id.btnH1);
+        CardView viewCard_h1 = (CardView) rootView.findViewById(R.id.btnH1);
         ImageView icon_h1 = (ImageView) viewCard_h1.findViewWithTag("icon");
-        CardView viewCard_h2 = (CardView) findViewById(R.id.btnH2);
+        CardView viewCard_h2 = (CardView) rootView.findViewById(R.id.btnH2);
         ImageView icon_h2 = (ImageView) viewCard_h2.findViewWithTag("icon");
-        CardView viewCard_h3 = (CardView) findViewById(R.id.btnH3);
+        CardView viewCard_h3 = (CardView) rootView.findViewById(R.id.btnH3);
         ImageView icon_h3 = (ImageView) viewCard_h3.findViewWithTag("icon");
         if (sizeType == SIZE_TYPE_TITLE) {
             viewCard_title.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
@@ -865,10 +880,10 @@ public class BookActivity4 extends AppCompatActivity {
             R.id.colorBtn108,
             R.id.colorBtn109,
     };
-    private void onClickBottomMenu1(int id, boolean isClick) {
-        View view = findViewById(id);
+    private void onClickBottomMenu1(View rootView, int id, boolean isClick) {
+        View view = rootView.findViewById(id);
         for (int i = 0; i < iconsBottomMenu1.length; ++i) {
-            View viewIcon = this.findViewById(iconsBottomMenu1[i]);
+            View viewIcon = rootView.findViewById(iconsBottomMenu1[i]);
             if (viewIcon != null) {
                 ((CardView) viewIcon).setCardBackgroundColor(0xFFF1EDEC); //白色背景
                 //((CardView) viewIcon).setCardElevation(0.0f);
@@ -912,10 +927,10 @@ public class BookActivity4 extends AppCompatActivity {
         }
         setPenColor(color);
     }
-    private void onClickBottomMenu2(int id, boolean isClick) {
-        View view = findViewById(id);
+    private void onClickBottomMenu2(View rootView, int id, boolean isClick) {
+        View view = rootView.findViewById(id);
         for (int i = 0; i < iconsBottomMenu2.length; ++i) {
-            View viewIcon = this.findViewById(iconsBottomMenu2[i]);
+            View viewIcon = rootView.findViewById(iconsBottomMenu2[i]);
             if (viewIcon != null) {
                 ((CardView) viewIcon).setCardBackgroundColor(0xFFF1EDEC); //白色背景
                 //((CardView) viewIcon).setCardElevation(0.0f);
@@ -985,15 +1000,15 @@ public class BookActivity4 extends AppCompatActivity {
         return 0;
     }
     private int currentTabIdSubmenu1 = iconsSubmenu1[0];
-    public void onClickSubmenu1(int id, boolean isClick) {
+    public void onClickSubmenu1(View rootView, int id, boolean isClick) {
         boolean isShowBottom = false;
         if (this.currentTabIdSubmenu1 == id) {
             isShowBottom = true;
         }
         this.currentTabIdSubmenu1 = id;
-        View view = findViewById(id);
+        View view = rootView.findViewById(id);
         for (int i = 0; i < iconsSubmenu1.length; ++i) {
-            View viewIcon = this.findViewById(iconsSubmenu1[i]);
+            View viewIcon = rootView.findViewById(iconsSubmenu1[i]);
             if (viewIcon != null) {
                 ((CardView) viewIcon).setCardBackgroundColor(0x00585858);
                 //((CardView) viewIcon).setCardElevation(0.0f);
@@ -1036,11 +1051,11 @@ public class BookActivity4 extends AppCompatActivity {
 //                bottomSheetDialog1.show();
 //            }
 
-            this.findViewById(R.id.bottomDialog2).setVisibility(View.GONE);
+            rootView.findViewById(R.id.bottomDialog2).setVisibility(View.GONE);
             if (isShowBottom) {
                 //!USE_OLD_PEN_SETTING_PANEL) { //
                 if (false) { //id == R.id.left_toolkit_item6) {
-                    AlertDialog dialog = new MaterialAlertDialogBuilder(BookActivity4.this, BookListActivity.getCenteredTitleThemeOverlay())
+                    AlertDialog dialog = new MaterialAlertDialogBuilder(getActivity(), BookActivity4Utils.getCenteredTitleThemeOverlay())
                             //.setTitle(title)
                             .setView(R.layout.activity_book4_brush)
                             .setCancelable(true)
@@ -1071,14 +1086,14 @@ public class BookActivity4 extends AppCompatActivity {
                     });
                     dialog.show();
                 } else {
-                    if (this.findViewById(R.id.bottomDialog1).getVisibility() == View.VISIBLE) {
-                        this.findViewById(R.id.bottomDialog1).setVisibility(View.GONE);
+                    if (rootView.findViewById(R.id.bottomDialog1).getVisibility() == View.VISIBLE) {
+                        rootView.findViewById(R.id.bottomDialog1).setVisibility(View.GONE);
                     } else {
-                        this.findViewById(R.id.bottomDialog1).setVisibility(View.VISIBLE);
+                        rootView.findViewById(R.id.bottomDialog1).setVisibility(View.VISIBLE);
                     }
                 }
             } else {
-                this.findViewById(R.id.bottomDialog1).setVisibility(View.GONE);
+                rootView.findViewById(R.id.bottomDialog1).setVisibility(View.GONE);
             }
             //settingsBottomSheet.show(getSupportFragmentManager(), MainActivity.SettingsBottomSheet.TAG);
         }
@@ -1096,7 +1111,7 @@ public class BookActivity4 extends AppCompatActivity {
     private int left_toolkit_item5_size = 1;
     private int left_toolkit_item6_size = 1;
     public void onLongClickSubmenu1(int id, boolean isClick) {
-        BookActivity4BrushEditDialog dialog = new BookActivity4BrushEditDialog(this, id);
+        BookActivity4BrushEditDialog dialog = new BookActivity4BrushEditDialog(getActivity(), id);
         if (id == R.id.left_toolkit_item1) {
             dialog.outputColor = left_toolkit_item1_color;
             dialog.outputBrushSize = left_toolkit_item1_size;
@@ -1157,15 +1172,15 @@ public class BookActivity4 extends AppCompatActivity {
         return 0;
     }
     private int currentTabIdSubmenu2 = iconsSubmenu2[0];
-    public void onClickSubmenu2(int id, boolean isClick) {
+    public void onClickSubmenu2(View rootView, int id, boolean isClick) {
         boolean isShowBottom = false;
         if (this.currentTabIdSubmenu2 == id) {
             isShowBottom = true;
         }
         this.currentTabIdSubmenu2 = id;
-        View view = findViewById(id);
+        View view = rootView.findViewById(id);
         for (int i = 0; i < iconsSubmenu2.length; ++i) {
-            View viewIcon = this.findViewById(iconsSubmenu2[i]);
+            View viewIcon = rootView.findViewById(iconsSubmenu2[i]);
             if (viewIcon != null) {
                 ((CardView) viewIcon).setCardBackgroundColor(0x00585858);
                 //((CardView) viewIcon).setCardElevation(0.0f);
@@ -1186,21 +1201,21 @@ public class BookActivity4 extends AppCompatActivity {
         }
         if (isClick) {
             if (id == R.id.left_toolkit_item21) {
-                this.findViewById(R.id.llLeftPanel1).setVisibility(View.VISIBLE);
-                this.findViewById(R.id.llLeftPanel2).setVisibility(View.GONE);
+                rootView.findViewById(R.id.llLeftPanel1).setVisibility(View.VISIBLE);
+                rootView.findViewById(R.id.llLeftPanel2).setVisibility(View.GONE);
             } else if (id == R.id.left_toolkit_item22) {
-                this.findViewById(R.id.llLeftPanel1).setVisibility(View.GONE);
-                this.findViewById(R.id.llLeftPanel2).setVisibility(View.VISIBLE);
+                rootView.findViewById(R.id.llLeftPanel1).setVisibility(View.GONE);
+                rootView.findViewById(R.id.llLeftPanel2).setVisibility(View.VISIBLE);
             }
-            this.findViewById(R.id.bottomDialog1).setVisibility(View.GONE);
+            rootView.findViewById(R.id.bottomDialog1).setVisibility(View.GONE);
             if (isShowBottom) {
-                if (this.findViewById(R.id.bottomDialog2).getVisibility() == View.VISIBLE) {
-                    this.findViewById(R.id.bottomDialog2).setVisibility(View.GONE);
+                if (rootView.findViewById(R.id.bottomDialog2).getVisibility() == View.VISIBLE) {
+                    rootView.findViewById(R.id.bottomDialog2).setVisibility(View.GONE);
                 } else {
-                    this.findViewById(R.id.bottomDialog2).setVisibility(View.VISIBLE);
+                    rootView.findViewById(R.id.bottomDialog2).setVisibility(View.VISIBLE);
                 }
             } else {
-                this.findViewById(R.id.bottomDialog2).setVisibility(View.GONE);
+                rootView.findViewById(R.id.bottomDialog2).setVisibility(View.GONE);
             }
         }
     }
@@ -1227,11 +1242,11 @@ public class BookActivity4 extends AppCompatActivity {
         return 0;
     }
     private int currentTabIdSubmenu4 = iconsSubmenu4[0];
-    public void onClickSubmenu4(int id, boolean isClick) {
+    public void onClickSubmenu4(View rootView, int id, boolean isClick) {
         this.currentTabIdSubmenu4 = id;
-        View view = findViewById(id);
+        View view = rootView.findViewById(id);
         for (int i = 0; i < iconsSubmenu4.length; ++i) {
-            View viewIcon = this.findViewById(iconsSubmenu4[i]);
+            View viewIcon = rootView.findViewById(iconsSubmenu4[i]);
             if (viewIcon != null) {
                 ((CardView) viewIcon).setCardBackgroundColor(0x00585858);
                 //((CardView) viewIcon).setCardElevation(0.0f);
@@ -1306,11 +1321,11 @@ public class BookActivity4 extends AppCompatActivity {
         return 0;
     }
     private int currentTabIdTopBar = iconsTopBar[0];
-    public void onClickTopBar(int id, boolean isClick) {
+    public void onClickTopBar(View rootView, int id, boolean isClick) {
         this.currentTabIdTopBar = id;
-        View view = findViewById(id);
+        View view = rootView.findViewById(id);
         for (int i = 0; i < iconsTopBar.length; ++i) {
-            View viewIcon = this.findViewById(iconsTopBar[i]);
+            View viewIcon = rootView.findViewById(iconsTopBar[i]);
             if (viewIcon != null) {
                 ((CardView) viewIcon).setCardBackgroundColor(0x00000000);
                 //((CardView) viewIcon).setCardElevation(0.0f);
@@ -1339,9 +1354,10 @@ public class BookActivity4 extends AppCompatActivity {
             dtView.setVisibility(View.GONE);
             llASR.setVisibility(View.GONE);
             rl_ai.setVisibility(View.GONE);
-            findViewById(R.id.left_toolkit1).setVisibility(View.VISIBLE);
-            findViewById(R.id.left_toolkit2).setVisibility(View.GONE);
-            findViewById(R.id.left_toolkit4).setVisibility(View.GONE);
+            btnPanel2.setImageTintList(ColorStateList.valueOf(Color.BLACK));
+            rootView.findViewById(R.id.left_toolkit1).setVisibility(View.VISIBLE);
+            rootView.findViewById(R.id.left_toolkit2).setVisibility(View.GONE);
+            rootView.findViewById(R.id.left_toolkit4).setVisibility(View.GONE);
             canvas.setTool(DrawCanvas.TOOLS.paint);
         } else if (id == R.id.top_toolkit_item2) {
             //typing
@@ -1349,35 +1365,39 @@ public class BookActivity4 extends AppCompatActivity {
             dtView.setVisibility(View.GONE);
             llASR.setVisibility(View.GONE);
             rl_ai.setVisibility(View.GONE);
-            findViewById(R.id.left_toolkit1).setVisibility(View.GONE);
-            findViewById(R.id.left_toolkit2).setVisibility(View.VISIBLE);
-            findViewById(R.id.left_toolkit4).setVisibility(View.GONE);
+            btnPanel2.setImageTintList(ColorStateList.valueOf(Color.BLACK));
+            rootView.findViewById(R.id.left_toolkit1).setVisibility(View.GONE);
+            rootView.findViewById(R.id.left_toolkit2).setVisibility(View.VISIBLE);
+            rootView.findViewById(R.id.left_toolkit4).setVisibility(View.GONE);
         } else if (id == R.id.top_toolkit_item3) {
             //AI note talking
             dtViewBottom.setVisibility(View.GONE);
             dtView.setVisibility(View.GONE);
             llASR.setVisibility(View.GONE);
             rl_ai.setVisibility(View.VISIBLE);
-            findViewById(R.id.left_toolkit1).setVisibility(View.GONE);
-            findViewById(R.id.left_toolkit2).setVisibility(View.GONE);
-            findViewById(R.id.left_toolkit4).setVisibility(View.GONE);
+            llPanel.setVisibility(View.VISIBLE); //added
+            btnPanel2.setImageTintList(ColorStateList.valueOf(Color.WHITE));
+            rootView.findViewById(R.id.left_toolkit1).setVisibility(View.GONE);
+            rootView.findViewById(R.id.left_toolkit2).setVisibility(View.GONE);
+            rootView.findViewById(R.id.left_toolkit4).setVisibility(View.GONE);
         } else if (id == R.id.top_toolkit_item4) {
             //Selection
             dtViewBottom.setVisibility(View.GONE);
             dtView.setVisibility(View.GONE);
             llASR.setVisibility(View.GONE);
             rl_ai.setVisibility(View.GONE);
-            findViewById(R.id.left_toolkit1).setVisibility(View.GONE);
-            findViewById(R.id.left_toolkit2).setVisibility(View.GONE);
-            findViewById(R.id.left_toolkit4).setVisibility(View.VISIBLE);
+            btnPanel2.setImageTintList(ColorStateList.valueOf(Color.BLACK));
+            rootView.findViewById(R.id.left_toolkit1).setVisibility(View.GONE);
+            rootView.findViewById(R.id.left_toolkit2).setVisibility(View.GONE);
+            rootView.findViewById(R.id.left_toolkit4).setVisibility(View.VISIBLE);
             if (currentTabIdSubmenu4 == R.id.left_toolkit_item44) {
                 canvas.setTool(DrawCanvas.TOOLS.pan); //拖动背景
             } else {
                 canvas.setTool(DrawCanvas.TOOLS.select);
             }
         }
-        this.findViewById(R.id.bottomDialog1).setVisibility(View.GONE);
-        this.findViewById(R.id.bottomDialog2).setVisibility(View.GONE);
+        rootView.findViewById(R.id.bottomDialog1).setVisibility(View.GONE);
+        rootView.findViewById(R.id.bottomDialog2).setVisibility(View.GONE);
         if (dtView != null) {
             dtView.hideSoftInput();
         }
@@ -1390,17 +1410,31 @@ public class BookActivity4 extends AppCompatActivity {
     DrawTextView dtView;
     LinearLayout llASR;
     RelativeLayout rl_ai;
+    LinearLayout llPanel;
+    AppCompatImageView btnPanel2;
+    RelativeLayout rlAIIcon;
+
+    View g_rootView;
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.activity_book4, container, false);
+        g_rootView = rootView;
+
         newFixedThreadPool = Executors.newFixedThreadPool(6);
-        Intent intent = this.getIntent();
+        Bundle intent = this.getArguments();
         boolean isInitBackText = false;
         if (intent != null) {
-            this.dirUrl = intent.getData();
-            this.dirUrlPath = intent.getStringExtra(EXTRA_DIRURLPATH);
+            String dataStr = intent.getString(BookActivity4Utils.EXTRA_DATA);
+            if (dataStr != null) {
+                this.dirUrl = Uri.parse(dataStr);
+            } else {
+                this.dirUrl = null;
+            }
+            this.dirUrlPath = intent.getString(BookActivity4Utils.EXTRA_DIRURLPATH);
             if (false) {
-                this.backText = intent.getStringExtra(EXTRA_BACKTEXT);
+                this.backText = intent.getString(BookActivity4Utils.EXTRA_BACKTEXT);
             } else {
                 //TODO: read config
             }
@@ -1408,51 +1442,50 @@ public class BookActivity4 extends AppCompatActivity {
             isInitBackText = true;
         }
 
-        setContentView(R.layout.activity_book4);
 
         setPenColor(0xFF000000); //FIXME:初始化画笔
 
         if (this.dirUrlPath != null) {
             if (false) {
-                ((TextView) findViewById(R.id.newTitle)).setText(getBookNameNG(this.dirUrlPath));
+                ((TextView) rootView.findViewById(R.id.newTitle)).setText(getBookNameNG(this.dirUrlPath));
             }
         }
 
         if (false) { //for debugging
-            findViewById(R.id.bookTab).setVisibility(View.VISIBLE);
+            rootView.findViewById(R.id.bookTab).setVisibility(View.VISIBLE);
         }
-        findViewById(R.id.btnTitleBack).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnTitleBack).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                findViewById(R.id.buttonBack).performClick();
+                rootView.findViewById(R.id.buttonBack).performClick();
             }
         });
-        findViewById(R.id.btnMore).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnMore).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showPopupMenu(view);
+                showPopupMenu(rootView, view);
             }
         });
-        findViewById(R.id.btnTitleUndo).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnTitleUndo).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                findViewById(R.id.buttonUndo).performClick();
+                rootView.findViewById(R.id.buttonUndo).performClick();
             }
         });
-        findViewById(R.id.btnTitleRedo).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnTitleRedo).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                findViewById(R.id.buttonRedo).performClick();
+                rootView.findViewById(R.id.buttonRedo).performClick();
             }
         });
         for (int id : iconsSubmenu1) {
-            this.findViewById(id).setOnClickListener(new View.OnClickListener() {
+            rootView.findViewById(id).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    onClickSubmenu1(id, true);
+                    onClickSubmenu1(rootView, id, true);
                 }
             });
-            this.findViewById(id).setOnLongClickListener(new View.OnLongClickListener() {
+            rootView.findViewById(id).setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
                     onLongClickSubmenu1(id, true);
@@ -1461,69 +1494,69 @@ public class BookActivity4 extends AppCompatActivity {
             });
         }
         for (int id : iconsSubmenu2) {
-            this.findViewById(id).setOnClickListener(new View.OnClickListener() {
+            rootView.findViewById(id).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    onClickSubmenu2(id, true);
+                    onClickSubmenu2(rootView, id, true);
                 }
             });
         }
         for (int id : iconsSubmenu4) {
-            this.findViewById(id).setOnClickListener(new View.OnClickListener() {
+            rootView.findViewById(id).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    onClickSubmenu4(id, true);
+                    onClickSubmenu4(rootView, id, true);
                 }
             });
         }
         for (int id : iconsTopBar) {
-            this.findViewById(id).setOnClickListener(new View.OnClickListener() {
+            rootView.findViewById(id).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    onClickTopBar(id, true);
+                    onClickTopBar(rootView, id, true);
                 }
             });
         }
         for (int id : iconsBottomMenu1) {
-            this.findViewById(id).setOnClickListener(new View.OnClickListener() {
+            rootView.findViewById(id).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    onClickBottomMenu1(id, true);
+                    onClickBottomMenu1(rootView, id, true);
                 }
             });
         }
         for (int id : iconsBottomMenu2) {
-            this.findViewById(id).setOnClickListener(new View.OnClickListener() {
+            rootView.findViewById(id).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    onClickBottomMenu2(id, true);
+                    onClickBottomMenu2(rootView, id, true);
                 }
             });
         }
-        slider = (Slider) findViewById(R.id.slider);
+        slider = (Slider) rootView.findViewById(R.id.slider);
         slider.addOnChangeListener(new Slider.OnChangeListener() {
             @Override
             public void onValueChange(@NonNull Slider slider, float value, boolean fromUser) {
                 setSize(canvas, value);
             }
         });
-        findViewById(R.id.btnPanel).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnPanel).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (false) {
-                    AppCompatImageView btnPanel = (AppCompatImageView) findViewById(R.id.btnPanel);
+                    AppCompatImageView btnPanel = (AppCompatImageView) rootView.findViewById(R.id.btnPanel);
                     AnimationDrawable anim = (AnimationDrawable) btnPanel.getDrawable();
                     anim.start();
                 }
 
-                LinearLayout llPanel = (LinearLayout) findViewById(R.id.llPanel);
+                LinearLayout llPanel = (LinearLayout) rootView.findViewById(R.id.llPanel);
                 if (llPanel != null) {
                     if (llPanel.getVisibility() == View.VISIBLE) {
                         llPanel.setVisibility(View.GONE);
                     } else {
                         llPanel.setVisibility(View.VISIBLE);
                         try {
-                            ListView viewListViewBook = (ListView) findViewById(R.id.viewListViewBook);
+                            ListView viewListViewBook = (ListView) rootView.findViewById(R.id.viewListViewBook);
                             viewListViewBook.setSelection(adapter.getCount() - 1);
                         } catch (Throwable eee) {
                             eee.printStackTrace();
@@ -1532,77 +1565,77 @@ public class BookActivity4 extends AppCompatActivity {
                 }
             }
         });
-        findViewById(R.id.closeTrans).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.closeTrans).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                LinearLayout llPanel = (LinearLayout) findViewById(R.id.llPanel);
+                LinearLayout llPanel = (LinearLayout) rootView.findViewById(R.id.llPanel);
                 if (llPanel != null) {
                     llPanel.setVisibility(View.GONE);
                 }
             }
         });
-        findViewById(R.id.rlInfo).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.rlInfo).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                findViewById(R.id.llInfo).setVisibility(View.VISIBLE);
-                findViewById(R.id.llTranscript).setVisibility(View.GONE);
-                findViewById(R.id.bottomLineInfo).setVisibility(View.VISIBLE);
-                findViewById(R.id.bottomLineTranscript).setVisibility(View.INVISIBLE);
+                rootView.findViewById(R.id.llInfo).setVisibility(View.VISIBLE);
+                rootView.findViewById(R.id.llTranscript).setVisibility(View.GONE);
+                rootView.findViewById(R.id.bottomLineInfo).setVisibility(View.VISIBLE);
+                rootView.findViewById(R.id.bottomLineTranscript).setVisibility(View.INVISIBLE);
             }
         });
-        findViewById(R.id.rlTranscript).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.rlTranscript).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                findViewById(R.id.llInfo).setVisibility(View.GONE);
-                findViewById(R.id.llTranscript).setVisibility(View.VISIBLE);
-                findViewById(R.id.bottomLineInfo).setVisibility(View.INVISIBLE);
-                findViewById(R.id.bottomLineTranscript).setVisibility(View.VISIBLE);
+                rootView.findViewById(R.id.llInfo).setVisibility(View.GONE);
+                rootView.findViewById(R.id.llTranscript).setVisibility(View.VISIBLE);
+                rootView.findViewById(R.id.bottomLineInfo).setVisibility(View.INVISIBLE);
+                rootView.findViewById(R.id.bottomLineTranscript).setVisibility(View.VISIBLE);
             }
         });
-        findViewById(R.id.rlTranscript).performClick(); //FIXME:init show transcript
-        windowPreferencesManager = new WindowPreferencesManager(this);
-        bottomSheetDialog1 = new BottomSheetDialog(this);
+        rootView.findViewById(R.id.rlTranscript).performClick(); //FIXME:init show transcript
+        windowPreferencesManager = new WindowPreferencesManager(getActivity());
+        bottomSheetDialog1 = new BottomSheetDialog(getActivity());
         bottomSheetDialog1.setContentView(R.layout.cat_bottomsheet_content);
         bottomSheetDialog1.setDismissWithAnimation(true);
         windowPreferencesManager.applyEdgeToEdgePreference(bottomSheetDialog1.getWindow());
-        findViewById(R.id.btnEnterFullscreen).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnEnterFullscreen).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                findViewById(R.id.llTab).setVisibility(View.GONE);
-                findViewById(R.id.llTopBar).setVisibility(View.GONE);
+                rootView.findViewById(R.id.llTab).setVisibility(View.GONE);
+                rootView.findViewById(R.id.llTopBar).setVisibility(View.GONE);
                 //findViewById(R.id.llFullscreen).setVisibility(View.VISIBLE);
-                findViewById(R.id.llFullscreen2).setVisibility(View.VISIBLE);
-                findViewById(R.id.llFullscreen2_demo).setVisibility(View.VISIBLE);
-                findViewById(R.id.left_toolkit_global).setVisibility(View.GONE);
+                rootView.findViewById(R.id.llFullscreen2).setVisibility(View.VISIBLE);
+                rootView.findViewById(R.id.llFullscreen2_demo).setVisibility(View.VISIBLE);
+                rootView.findViewById(R.id.left_toolkit_global).setVisibility(View.GONE);
             }
         });
         //not used this exit button
-        findViewById(R.id.btnExitFullscreen).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnExitFullscreen).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                findViewById(R.id.llTab).setVisibility(View.VISIBLE);
-                findViewById(R.id.llTopBar).setVisibility(View.VISIBLE);
+                rootView.findViewById(R.id.llTab).setVisibility(View.VISIBLE);
+                rootView.findViewById(R.id.llTopBar).setVisibility(View.VISIBLE);
                 //findViewById(R.id.llFullscreen).setVisibility(View.GONE);
-                findViewById(R.id.llFullscreen2).setVisibility(View.GONE);
-                findViewById(R.id.llFullscreen2_demo).setVisibility(View.GONE);
-                findViewById(R.id.left_toolkit_global).setVisibility(View.VISIBLE);
+                rootView.findViewById(R.id.llFullscreen2).setVisibility(View.GONE);
+                rootView.findViewById(R.id.llFullscreen2_demo).setVisibility(View.GONE);
+                rootView.findViewById(R.id.left_toolkit_global).setVisibility(View.VISIBLE);
             }
         });
-        findViewById(R.id.btnFullscreenExit).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnFullscreenExit).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                findViewById(R.id.llTab).setVisibility(View.VISIBLE);
-                findViewById(R.id.llTopBar).setVisibility(View.VISIBLE);
+                rootView.findViewById(R.id.llTab).setVisibility(View.VISIBLE);
+                rootView.findViewById(R.id.llTopBar).setVisibility(View.VISIBLE);
                 //findViewById(R.id.llFullscreen).setVisibility(View.GONE);
-                findViewById(R.id.llFullscreen2).setVisibility(View.GONE);
-                findViewById(R.id.llFullscreen2_demo).setVisibility(View.GONE);
-                findViewById(R.id.left_toolkit_global).setVisibility(View.VISIBLE);
+                rootView.findViewById(R.id.llFullscreen2).setVisibility(View.GONE);
+                rootView.findViewById(R.id.llFullscreen2_demo).setVisibility(View.GONE);
+                rootView.findViewById(R.id.left_toolkit_global).setVisibility(View.VISIBLE);
             }
         });
-        findViewById(R.id.llFullscreen2_demo).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.llFullscreen2_demo).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                findViewById(R.id.llFullscreen2_demo).setVisibility(View.GONE);
+                rootView.findViewById(R.id.llFullscreen2_demo).setVisibility(View.GONE);
 
 //                if (true) {
 //                    BottomSheet2 bottomSheet = new BottomSheet2();
@@ -1615,8 +1648,8 @@ public class BookActivity4 extends AppCompatActivity {
             }
         });
         {
-            NestedScrollView arBottomSheet = this.findViewById(R.id.ar_bottom_sheet);
-            View ar_recording_check_view = findViewById(R.id.ar_recording_check_view);
+            NestedScrollView arBottomSheet = rootView.findViewById(R.id.ar_bottom_sheet);
+            View ar_recording_check_view = rootView.findViewById(R.id.ar_recording_check_view);
             BottomSheetBehavior<NestedScrollView> behavior = BottomSheetBehavior.from(arBottomSheet);
             ar_recording_check_view.setOnTouchListener(new View.OnTouchListener() {
                 @Override
@@ -1624,7 +1657,7 @@ public class BookActivity4 extends AppCompatActivity {
                     if (behavior.getState() != BottomSheetBehavior.STATE_EXPANDED) {
                         behavior.setState(BottomSheetBehavior.STATE_EXPANDED);
                         //textViewPageInfo
-                        TextView textViewPageInfoBottom = (TextView) findViewById(R.id.textViewPageInfoBottom);
+                        TextView textViewPageInfoBottom = (TextView) rootView.findViewById(R.id.textViewPageInfoBottom);
                         textViewPageInfoBottom.setText("" + (getPageIdx() + 1) + "/" + pageNum);
                     } else {
                         behavior.setState(BottomSheetBehavior.STATE_HIDDEN);//BottomSheetBehavior.STATE_COLLAPSED);
@@ -1636,26 +1669,26 @@ public class BookActivity4 extends AppCompatActivity {
                 ar_recording_check_view.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        findViewById(R.id.rl_bottom_sheet).requestLayout();
+                        rootView.findViewById(R.id.rl_bottom_sheet).requestLayout();
                         behavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-                        findViewById(R.id.rl_bottom_sheet).setVisibility(View.VISIBLE);
+                        rootView.findViewById(R.id.rl_bottom_sheet).setVisibility(View.VISIBLE);
                     }
                 }, 500);
             }
-            findViewById(R.id.addPageButton).setOnClickListener(new View.OnClickListener() {
+            rootView.findViewById(R.id.addPageButton).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     behavior.setState(BottomSheetBehavior.STATE_HIDDEN);//BottomSheetBehavior.STATE_COLLAPSED);
                     addNewPageAndGo(false);
                 }
             });
-            findViewById(R.id.cardShowPageNumInfo).setOnClickListener(new View.OnClickListener() {
+            rootView.findViewById(R.id.cardShowPageNumInfo).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     behavior.setState(BottomSheetBehavior.STATE_HIDDEN);//BottomSheetBehavior.STATE_COLLAPSED);
-                    AlertDialog dialog = new BookActivity4PageGridDialog(BookActivity4.this,
-                            BookActivity4.this.dirUrl,
-                            BookActivity4.this.dirUrlPath)
+                    AlertDialog dialog = new BookActivity4PageGridDialog(getActivity(),
+                            BookActivity4Fragment.this.dirUrl,
+                            BookActivity4Fragment.this.dirUrlPath)
                             .create();
                     dialog.show();
                 }
@@ -1667,7 +1700,7 @@ public class BookActivity4 extends AppCompatActivity {
                 public void onClick(View view) {
                     if (USE_RTASR) {
                         if (rtasrDialog == null) {
-                            rtasrDialog = new BookActivity4RTASRDialog(BookActivity4.this);
+                            rtasrDialog = new BookActivity4RTASRDialog(getActivity());
                             rtasrDialog.onClick_audio();
                         } else {
                             rtasrDialog.onClick_stop();
@@ -1675,14 +1708,14 @@ public class BookActivity4 extends AppCompatActivity {
                         }
                     } else if (USE_LISTEN) {
                         if (listenDialog == null) {
-                            listenDialog = new BookActivity4ListenDialog(BookActivity4.this, "", "", null);
+                            listenDialog = new BookActivity4ListenDialog(getActivity(), "", "", null);
                             listenDialog.onCreate();
                         } else {
                             listenDialog.onCancel();
                             listenDialog = null;
                         }
                     } else {
-                        RecordingFragment fragment = (RecordingFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_recording);
+                        RecordingFragment fragment = (RecordingFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.fragment_recording);
                         if (fragment != null && fragment.button1 != null) {
                             fragment.button1.performClick();
                             isRecording = !isRecording;
@@ -1690,27 +1723,27 @@ public class BookActivity4 extends AppCompatActivity {
                         if (adapter != null) {
                             adapter.notifyDataSetChanged();
                         }
-                        AppCompatImageView btnPanel = (AppCompatImageView) findViewById(R.id.btnPanel);
+                        AppCompatImageView btnPanel = (AppCompatImageView) rootView.findViewById(R.id.btnPanel);
                         AnimationDrawable anim = (AnimationDrawable) btnPanel.getDrawable();
                         if (isRecording) { //FIXME: use var not good
                             anim.start();
-                            findViewById(R.id.startRecord).setVisibility(View.GONE);
-                            findViewById(R.id.stopRecord).setVisibility(View.VISIBLE);
+                            rootView.findViewById(R.id.startRecord).setVisibility(View.GONE);
+                            rootView.findViewById(R.id.stopRecord).setVisibility(View.VISIBLE);
                         } else {
                             anim.stop();
-                            findViewById(R.id.startRecord).setVisibility(View.VISIBLE);
-                            findViewById(R.id.stopRecord).setVisibility(View.GONE);
+                            rootView.findViewById(R.id.startRecord).setVisibility(View.VISIBLE);
+                            rootView.findViewById(R.id.stopRecord).setVisibility(View.GONE);
                         }
-                        Toast.makeText(BookActivity4.this, "total : " + adapter.getCount(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity(), "total : " + adapter.getCount(), Toast.LENGTH_LONG).show();
                     }
                 }
             };
-            findViewById(R.id.startRecord).setOnClickListener(onClickListener);
-            findViewById(R.id.stopRecord).setOnClickListener(onClickListener);
-            ListView viewListViewBook = (ListView) this.findViewById(R.id.viewListViewBook);
+            rootView.findViewById(R.id.startRecord).setOnClickListener(onClickListener);
+            rootView.findViewById(R.id.stopRecord).setOnClickListener(onClickListener);
+            ListView viewListViewBook = (ListView) rootView.findViewById(R.id.viewListViewBook);
             String meetingId = "";
             String agendaId = "";
-            adapter = new BookReaderItemsAdapter(this, meetingId, agendaId);
+            adapter = new BookReaderItemsAdapter(getActivity(), meetingId, agendaId);
             viewListViewBook.setAdapter(adapter);
             viewListViewBook.setFastScrollEnabled(true);
             viewListViewBook.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -1724,7 +1757,7 @@ public class BookActivity4 extends AppCompatActivity {
                         if (item.getRecType() != null && item.getRecType().equals("text")) {
 
                         } else {
-                            PlayerDialog playerDialog = new PlayerDialog(BookActivity4.this, item);
+                            PlayerDialog playerDialog = new PlayerDialog(getActivity(), item);
                             playerDialog.show();
                         }
 
@@ -1734,7 +1767,7 @@ public class BookActivity4 extends AppCompatActivity {
             viewListViewBook.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                 @Override
                 public boolean onItemLongClick(AdapterView<?> av, View v, int position, long id) {
-                    android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(BookActivity4.this);
+                    android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(getActivity());
                     final RecordingItem item = (RecordingItem)adapter.getItem(position);
                     if (item.getRecType() != null
                             && item.getRecType().equals("text")) {
@@ -1769,26 +1802,26 @@ public class BookActivity4 extends AppCompatActivity {
                                         if (item != null) {
                                             switch (which) {
                                                 case 0:
-                                                    startActivity(new Intent(BookActivity4.this, DictResultActivity.class).putExtra(DictResultActivity.EXTRA_RECORDING_ID, item.getId()));
+                                                    startActivity(new Intent(getActivity(), DictResultActivity.class).putExtra(DictResultActivity.EXTRA_RECORDING_ID, item.getId()));
                                                     break;
 
                                                 case 1: {
                                                     //Toast.makeText(MainActivity.this, item.getFilePath(), Toast.LENGTH_SHORT).show();
-                                                    RecognizeDialog recogizeDialog = new RecognizeDialog(BookActivity4.this, item, RecognizeDialog.LANG_CHINESE);
+                                                    RecognizeDialog recogizeDialog = new RecognizeDialog(getActivity(), item, RecognizeDialog.LANG_CHINESE);
                                                     recogizeDialog.show();
                                                 }
                                                 break;
 
                                                 case 2: {
                                                     //Toast.makeText(MainActivity.this, item.getFilePath(), Toast.LENGTH_SHORT).show();
-                                                    RecognizeDialog recogizeDialog = new RecognizeDialog(BookActivity4.this, item, RecognizeDialog.LANG_CHINESE_GD);
+                                                    RecognizeDialog recogizeDialog = new RecognizeDialog(getActivity(), item, RecognizeDialog.LANG_CHINESE_GD);
                                                     recogizeDialog.show();
                                                 }
                                                 break;
 
                                                 case 3: {
                                                     //Toast.makeText(MainActivity.this, item.getFilePath(), Toast.LENGTH_SHORT).show();
-                                                    RecognizeDialog recogizeDialog = new RecognizeDialog(BookActivity4.this, item, RecognizeDialog.LANG_ENGLISH);
+                                                    RecognizeDialog recogizeDialog = new RecognizeDialog(getActivity(), item, RecognizeDialog.LANG_ENGLISH);
                                                     recogizeDialog.show();
                                                 }
                                                 break;
@@ -1816,138 +1849,138 @@ public class BookActivity4 extends AppCompatActivity {
         }
 
 
-        findViewById(R.id.btnFullscreenUndo).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnFullscreenUndo).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                findViewById(R.id.btnTitleUndo).performClick();
+                rootView.findViewById(R.id.btnTitleUndo).performClick();
             }
         });
-        findViewById(R.id.btnFullscreenRedo).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnFullscreenRedo).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                findViewById(R.id.btnTitleRedo).performClick();
+                rootView.findViewById(R.id.btnTitleRedo).performClick();
             }
         });
-        findViewById(R.id.btnFullscreenBack).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnFullscreenBack).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                findViewById(R.id.btnTitleBack).performClick();
+                rootView.findViewById(R.id.btnTitleBack).performClick();
             }
         });
-        findViewById(R.id.btnBold).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnBold).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickBottomButton1(R.id.btnBold, true, false, true);
+                onClickBottomButton1(rootView, R.id.btnBold, true, false, true);
             }
         });
-        findViewById(R.id.btnItalics).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnItalics).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickBottomButton1(R.id.btnItalics, true, false, true);
+                onClickBottomButton1(rootView, R.id.btnItalics, true, false, true);
             }
         });
-        findViewById(R.id.btnUnderline).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnUnderline).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickBottomButton1(R.id.btnUnderline, true, false, true);
+                onClickBottomButton1(rootView, R.id.btnUnderline, true, false, true);
             }
         });
-        findViewById(R.id.btnFormatClear).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnFormatClear).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickBottomButton1(R.id.btnFormatClear, false, true, true);
+                onClickBottomButton1(rootView, R.id.btnFormatClear, false, true, true);
             }
         });
-        findViewById(R.id.btnAlignLeft).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnAlignLeft).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickBottomButton1(R.id.btnAlignLeft, true, false, true);
+                onClickBottomButton1(rootView, R.id.btnAlignLeft, true, false, true);
             }
         });
-        findViewById(R.id.btnAlignCenter).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnAlignCenter).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickBottomButton1(R.id.btnAlignCenter, true, false, true);
+                onClickBottomButton1(rootView, R.id.btnAlignCenter, true, false, true);
             }
         });
-        findViewById(R.id.btnAlignRight).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnAlignRight).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickBottomButton1(R.id.btnAlignRight, true, false, true);
+                onClickBottomButton1(rootView, R.id.btnAlignRight, true, false, true);
             }
         });
-        findViewById(R.id.btnAlignJustify).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnAlignJustify).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickBottomButton1(R.id.btnAlignJustify, true, false, true);
+                onClickBottomButton1(rootView, R.id.btnAlignJustify, true, false, true);
             }
         });
-        findViewById(R.id.btnBullet).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnBullet).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickBottomButton1(R.id.btnBullet, true, false, true);
+                onClickBottomButton1(rootView, R.id.btnBullet, true, false, true);
             }
         });
-        findViewById(R.id.btnNumber).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnNumber).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickBottomButton1(R.id.btnNumber, true, false, false);
+                onClickBottomButton1(rootView, R.id.btnNumber, true, false, false);
             }
         });
-        findViewById(R.id.btnStyleHand).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnStyleHand).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickBottomButton1(R.id.btnStyleHand, true, false, false);
+                onClickBottomButton1(rootView, R.id.btnStyleHand, true, false, false);
             }
         });
-        findViewById(R.id.btnSerif).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnSerif).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickBottomButton1(R.id.btnSerif, true, false, true);
+                onClickBottomButton1(rootView, R.id.btnSerif, true, false, true);
             }
         });
-        findViewById(R.id.btnSans).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnSans).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickBottomButton1(R.id.btnSans, true, false, true);
+                onClickBottomButton1(rootView, R.id.btnSans, true, false, true);
             }
         });
-        findViewById(R.id.btnTitle).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnTitle).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickBottomButton1(R.id.btnTitle, true, false, true);
+                onClickBottomButton1(rootView, R.id.btnTitle, true, false, true);
             }
         });
-        findViewById(R.id.btnH1).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnH1).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickBottomButton1(R.id.btnH1, true, false, false);
+                onClickBottomButton1(rootView, R.id.btnH1, true, false, false);
             }
         });
-        findViewById(R.id.btnH2).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnH2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickBottomButton1(R.id.btnH2, true, false, true);
+                onClickBottomButton1(rootView, R.id.btnH2, true, false, true);
             }
         });
-        findViewById(R.id.btnH3).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.btnH3).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickBottomButton1(R.id.btnH3, true, false, true);
+                onClickBottomButton1(rootView, R.id.btnH3, true, false, true);
             }
         });
 
 
-        ActionBar topAppBar = getSupportActionBar();
+        ActionBar topAppBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
         if (topAppBar != null) {
             topAppBar.setIcon(R.mipmap.ic_launcher);
             topAppBar.setHomeButtonEnabled(true);
             topAppBar.setDisplayHomeAsUpEnabled(true);
-            if (!Config.USE_ACTIONBAR) {
+            if (!BookActivity4Utils.USE_ACTIONBAR) {
                 topAppBar.hide();
             }
         }
-        findViewById(R.id.buttonBack).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.buttonBack).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //FIXME:退出立即保存
@@ -1960,71 +1993,71 @@ public class BookActivity4 extends AppCompatActivity {
                     if (false) {
                         ensureSave();
                     } else {
-                        savePageInMain(getPageIdx(), pageBmp);
+                        savePageInMain(getPageIdx(), pageBmp, getVecJson(canvas));
                     }
-                    finish();
+                    BookActivity4Utils.finish(getActivity());
                 }
             }
         });
-        findViewById(R.id.buttonPen2).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.buttonPen2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onPen2();
+                onPen2(rootView);
             }
         });
-        findViewById(R.id.buttonEraser2).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.buttonEraser2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onEraser2();
+                onEraser2(rootView);
             }
         });
 
-        findViewById(R.id.buttonPenColor).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.buttonPenColor).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 onPenColor();
             }
         });
-        findViewById(R.id.buttonPaint).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.buttonPaint).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onSelectPaint();
             }
         });
-        findViewById(R.id.buttonPen).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.buttonPen).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onPen();
+                onPen(rootView);
             }
         });
-        findViewById(R.id.buttonBrush).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.buttonBrush).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onBrush();
+                onBrush(rootView);
             }
         });
-        findViewById(R.id.buttonEraser).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.buttonEraser).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onEraser();
+                onEraser(rootView);
             }
         });
 
 //        selectPenOrEraser(true);
 
-        findViewById(R.id.buttonUndo).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.buttonUndo).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 onUndo();
             }
         });
-        findViewById(R.id.buttonRedo).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.buttonRedo).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 onRedo();
             }
         });
-        findViewById(R.id.buttonGrid).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.buttonGrid).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (SAVING_ASYNC) {
@@ -2037,43 +2070,43 @@ public class BookActivity4 extends AppCompatActivity {
                 }
             }
         });
-        findViewById(R.id.buttonFirstPage).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.buttonFirstPage).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 gotoFirstPage();
             }
         });
-        findViewById(R.id.buttonPrevPage).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.buttonPrevPage).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 gotoPrevPage();
             }
         });
-        findViewById(R.id.buttonNextPage).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.buttonNextPage).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 gotoNextPage();
             }
         });
-        findViewById(R.id.buttonLastPage).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.buttonLastPage).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 gotoLastPage();
             }
         });
-        findViewById(R.id.buttonAddPage).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.buttonAddPage).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 addNewPageAndGo(true);
             }
         });
-        findViewById(R.id.buttonRemovePage).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.buttonRemovePage).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 removeCurrentPageAndGo();
             }
         });
-        findViewById(R.id.buttonShare).setOnClickListener(new View.OnClickListener() {
+        rootView.findViewById(R.id.buttonShare).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -2081,8 +2114,8 @@ public class BookActivity4 extends AppCompatActivity {
                 }
             }
         });
-        textViewPageInfo = (TextView) findViewById(R.id.textViewPageInfo);
-        onCreateAct();
+        textViewPageInfo = (TextView) rootView.findViewById(R.id.textViewPageInfo);
+        onCreateAct(rootView);
         if (BookIO.USE_META_TXT) {
             if (isInitBackText && backText != null) {
                 //如果是创建的才会走这里
@@ -2099,9 +2132,9 @@ public class BookActivity4 extends AppCompatActivity {
 
 
         //FIXME:throw new RuntimeException("not implemented");
-        canvas = (DrawCanvas) findViewById(R.id.canvas);
+        canvas = (DrawCanvas) rootView.findViewById(R.id.canvas);
         canvas.setPenType(DrawAppearance.PEN_TYPE_1);
-        dtView = (DrawTextView) findViewById(R.id.dtView);
+        dtView = (DrawTextView) rootView.findViewById(R.id.dtView);
         dtView.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -2110,9 +2143,12 @@ public class BookActivity4 extends AppCompatActivity {
                 }
             }
         }, 100);
-        llASR = (LinearLayout) findViewById(R.id.llASR);
-        rl_ai = (RelativeLayout) findViewById(R.id.rl_ai);
-        dtViewBottom = (View) findViewById(R.id.dtViewBottom);
+        llASR = (LinearLayout) rootView.findViewById(R.id.llASR);
+        rl_ai = (RelativeLayout) rootView.findViewById(R.id.rl_ai);
+        llPanel = (LinearLayout) rootView.findViewById(R.id.llPanel);
+        btnPanel2 = (AppCompatImageView) rootView.findViewById(R.id.btnPanel2);
+        rlAIIcon = (RelativeLayout) rootView.findViewById(R.id.rlAIIcon);
+        dtViewBottom = (View) rootView.findViewById(R.id.dtViewBottom);
         dtViewBottom.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -2124,7 +2160,7 @@ public class BookActivity4 extends AppCompatActivity {
                         int lastY = (int) event.getY();
                         dtViewBottom.setVisibility(View.GONE);
                         dtView.setVisibility(View.VISIBLE);
-                        dtView.init2(lastX, lastY, "", BookActivity4.this.editTextColor, new DrawTextView.CallBackListener() {
+                        dtView.init2(lastX, lastY, "", BookActivity4Fragment.this.editTextColor, new DrawTextView.CallBackListener() {
                             @Override
                             public void onUpdate(DrawPoint drawPoint) {
 
@@ -2152,20 +2188,20 @@ public class BookActivity4 extends AppCompatActivity {
                                     }
                                 }
                                 if (false) {
-                                    findViewById(R.id.top_toolkit_item1).performClick(); //返回绘画模式
+                                    rootView.findViewById(R.id.top_toolkit_item1).performClick(); //返回绘画模式
                                 } else {
                                     //保留在编辑模式
                                     //FIXME:调用点击
                                     if (true) {
-                                        findViewById(R.id.top_toolkit_item2).performClick();
+                                        rootView.findViewById(R.id.top_toolkit_item2).performClick();
                                     } else {
                                         dtViewBottom.setVisibility(View.VISIBLE);
                                         dtView.setVisibility(View.GONE);
                                         llASR.setVisibility(View.GONE);
                                         rl_ai.setVisibility(View.GONE);
-                                        findViewById(R.id.left_toolkit1).setVisibility(View.GONE);
-                                        findViewById(R.id.left_toolkit2).setVisibility(View.VISIBLE);
-                                        findViewById(R.id.left_toolkit4).setVisibility(View.GONE);
+                                        rootView.findViewById(R.id.left_toolkit1).setVisibility(View.GONE);
+                                        rootView.findViewById(R.id.left_toolkit2).setVisibility(View.VISIBLE);
+                                        rootView.findViewById(R.id.left_toolkit4).setVisibility(View.GONE);
                                     }
                                     //skip, keep in text toolkit
                                 }
@@ -2184,7 +2220,16 @@ public class BookActivity4 extends AppCompatActivity {
         });
         try {
             BookPage page = getBook().getPage(getPageIdx());
-            Bitmap initBmp = getBookIO().loadBitmapOrNull(page);
+            BitmapVector result = getBookIO().loadBitmapOrNull(page);
+            Bitmap initBmp = null;
+            if (result != null && result.strVecJson != null && result.strVecJson.length() > 0) {
+                initBmp = null;
+                if (canvas != null) {
+                    canvas.loadVecJson(result.strVecJson);
+                }
+            } else if (result != null) {
+                initBmp = result.bitmap;
+            }
             Bitmap bgBmp = getBookIO().loadBgOrNull(getBook());
             try {
                 String metaTxt = getBookIO().loadMetaPng(page.getFile());
@@ -2196,7 +2241,7 @@ public class BookActivity4 extends AppCompatActivity {
             } catch (Throwable eee) {
                 eee.printStackTrace();
             }
-            init(canvas, initBmp, bgBmp, initialPageIdx, this);
+            init(canvas, initBmp, bgBmp, initialPageIdx, getActivity());
             setBackText(canvas, backText);
         } catch (Throwable eee) {
             eee.printStackTrace();
@@ -2217,12 +2262,14 @@ public class BookActivity4 extends AppCompatActivity {
 
         //恢复画笔选择初始状态
         isPenEraserBrush = 1;
-        selectPenOrEraser(1);
+        selectPenOrEraser(rootView, 1);
         setPenEraserBrush(canvas,1);
 
-        onClickTopBar(iconsTopBar[0], false); //init
+        onClickTopBar(rootView, iconsTopBar[0], false); //init
 
-        runFullScreen(this);
+        runFullScreen(getActivity());
+
+        return rootView;
     }
 
     public static int sp2px(Context context, float spValue) {
@@ -2230,40 +2277,40 @@ public class BookActivity4 extends AppCompatActivity {
         return (int) (spValue * fontScale + 0.5f);
     }
 
-    @SuppressLint("GestureBackNavigation")
-    @Override
-    public void onBackPressed() {
-        //FIXME:
-        //FIXME:退出立即保存
-        if (SAVING_ASYNC) {
-            if (task == null) {
-                task = new SavingTask(true);
-                task.executeOnExecutor(newFixedThreadPool);
-            }
-        } else {
-            if (false) {
-                ensureSave();
-            } else {
-                savePageInMain(getPageIdx(), pageBmp);
-            }
-            super.onBackPressed();
-        }
-    }
+//    @SuppressLint("GestureBackNavigation")
+//    @Override
+//    public void onBackPressed() {
+//        //FIXME:
+//        //FIXME:退出立即保存
+//        if (SAVING_ASYNC) {
+//            if (task == null) {
+//                task = new SavingTask(true);
+//                task.executeOnExecutor(newFixedThreadPool);
+//            }
+//        } else {
+//            if (false) {
+//                ensureSave();
+//            } else {
+//                savePageInMain(getPageIdx(), pageBmp);
+//            }
+//            super.onBackPressed();
+//        }
+//    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.book, menu);
-        return true;
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        getMenuInflater().inflate(R.menu.book, menu);
+//        return true;
+//    }
 
     int isPenEraserBrush = 1; //0:Eraser;1:Pen;2:Brush //初始状态是pen
     //    boolean isEraser = false;
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.pen) {
-            onPen();
+            onPen(g_rootView);
         } else if (item.getItemId() == R.id.eraser) {
-            onEraser();
+            onEraser(g_rootView);
         } else if (item.getItemId() == R.id.undo) {
             onUndo();
         } else if (item.getItemId() == R.id.redo) {
@@ -2296,7 +2343,7 @@ public class BookActivity4 extends AppCompatActivity {
     }
     private void onPenColor() {
         if (false) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -2331,37 +2378,37 @@ public class BookActivity4 extends AppCompatActivity {
             });
             dialog.show();
         } else if (false) {
-            MaterialColorDialog dialog = new MaterialColorDialog(this);
+            MaterialColorDialog dialog = new MaterialColorDialog(getActivity());
             dialog.show();
         } else {
-            SimpleColorDialog dialog = new SimpleColorDialog(this);
+            SimpleColorDialog dialog = new SimpleColorDialog(getActivity());
             dialog.show();
         }
     }
     private void onSelectPaint() {
-        PaintSelectDialog dialog = new PaintSelectDialog(this);
+        PaintSelectDialog dialog = new PaintSelectDialog(getActivity());
         dialog.show();
     }
 
-    private void onPen2() {
+    private void onPen2(View rootView) {
         if (isPenEraserBrush != 1) {
             isPenEraserBrush = 1;
-            selectPenOrEraser(1);
+            selectPenOrEraser(rootView, 1);
             setPenEraserBrush(canvas, 1);
         }
-        if (findViewById(R.id.bookTab).getVisibility() == View.VISIBLE) { //debug mode
-            onLineThicknessButton();
+        if (rootView.findViewById(R.id.bookTab).getVisibility() == View.VISIBLE) { //debug mode
+            onLineThicknessButton(rootView);
         }
     }
-    private void onEraser2() {
+    private void onEraser2(View rootView) {
         if (isPenEraserBrush != 0) {
             isPenEraserBrush = 0;
-            selectPenOrEraser(0);
+            selectPenOrEraser(rootView, 0);
             setPenEraserBrush(canvas,0);
         }
     }
 
-    private void onPen() {
+    private void onPen(View rootView) {
 //        if (!isEraser) {
 //            isEraser = true;
 //            selectPenOrEraser(false);
@@ -2374,21 +2421,21 @@ public class BookActivity4 extends AppCompatActivity {
         if (isPenEraserBrush != 1) {
             isPenEraserBrush = 1;
             //selectPenOrEraser(true);
-            selectPenOrEraser(1);
+            selectPenOrEraser(rootView, 1);
             //canvas.penOrEraser(true);
             setPenEraserBrush(canvas, 1);
         }
     }
-    private void onBrush() {
+    private void onBrush(View rootView) {
         if (isPenEraserBrush != 2) {
             isPenEraserBrush = 2;
             //selectPenOrEraser(false);
-            selectPenOrEraser(2);
+            selectPenOrEraser(rootView,2);
             //canvas.penOrEraser(false);
             setPenEraserBrush(canvas, 2);
         }
     }
-    private void onEraser() {
+    private void onEraser(View rootView) {
 //        if (isEraser) {
 //            isEraser = false;
 //            selectPenOrEraser(true);
@@ -2401,7 +2448,7 @@ public class BookActivity4 extends AppCompatActivity {
         if (isPenEraserBrush != 0) {
             isPenEraserBrush = 0;
             //selectPenOrEraser(false);
-            selectPenOrEraser(0);
+            selectPenOrEraser(rootView, 0);
 //            canvas.penOrEraser(false);
             setPenEraserBrush(canvas,0);
         }
@@ -2419,36 +2466,36 @@ public class BookActivity4 extends AppCompatActivity {
 //            ((ImageButton)findViewById(R.id.buttonEraser)).setImageResource(R.mipmap.eraser_button);
 //        }
 //    }
-    private void selectPenOrEraser(int v) {
+    private void selectPenOrEraser(View rootView, int v) {
         if (v == 1) {
-            findViewById(R.id.buttonPen).setEnabled(false);
-            findViewById(R.id.buttonEraser).setEnabled(true);
-            findViewById(R.id.buttonBrush).setEnabled(true);
-            ((ImageButton) findViewById(R.id.buttonPen)).setImageResource(R.drawable.ic_baseline_edit_24);
-            ((ImageButton) findViewById(R.id.buttonEraser)).setImageResource(R.mipmap.eraser_button_selected);
-            ((ImageButton)findViewById(R.id.buttonBrush)).setImageResource(R.drawable.ic_baseline_brush_24_selected);
+            rootView.findViewById(R.id.buttonPen).setEnabled(false);
+            rootView.findViewById(R.id.buttonEraser).setEnabled(true);
+            rootView.findViewById(R.id.buttonBrush).setEnabled(true);
+            ((ImageButton) rootView.findViewById(R.id.buttonPen)).setImageResource(R.drawable.ic_baseline_edit_24);
+            ((ImageButton) rootView.findViewById(R.id.buttonEraser)).setImageResource(R.mipmap.eraser_button_selected);
+            ((ImageButton) rootView.findViewById(R.id.buttonBrush)).setImageResource(R.drawable.ic_baseline_brush_24_selected);
         } else if (v == 2) {
-            findViewById(R.id.buttonPen).setEnabled(true);
-            findViewById(R.id.buttonEraser).setEnabled(true);
-            findViewById(R.id.buttonBrush).setEnabled(false);
-            ((ImageButton) findViewById(R.id.buttonPen)).setImageResource(R.drawable.ic_baseline_edit_24_selected);
-            ((ImageButton) findViewById(R.id.buttonEraser)).setImageResource(R.mipmap.eraser_button_selected);
-            ((ImageButton)findViewById(R.id.buttonBrush)).setImageResource(R.drawable.ic_baseline_brush_24);
+            rootView.findViewById(R.id.buttonPen).setEnabled(true);
+            rootView.findViewById(R.id.buttonEraser).setEnabled(true);
+            rootView.findViewById(R.id.buttonBrush).setEnabled(false);
+            ((ImageButton) rootView.findViewById(R.id.buttonPen)).setImageResource(R.drawable.ic_baseline_edit_24_selected);
+            ((ImageButton) rootView.findViewById(R.id.buttonEraser)).setImageResource(R.mipmap.eraser_button_selected);
+            ((ImageButton) rootView.findViewById(R.id.buttonBrush)).setImageResource(R.drawable.ic_baseline_brush_24);
         } else if (v == 0){
-            findViewById(R.id.buttonPen).setEnabled(true);
-            findViewById(R.id.buttonEraser).setEnabled(false);
-            findViewById(R.id.buttonBrush).setEnabled(true);
-            ((ImageButton)findViewById(R.id.buttonPen)).setImageResource(R.drawable.ic_baseline_edit_24_selected);
-            ((ImageButton)findViewById(R.id.buttonEraser)).setImageResource(R.mipmap.eraser_button);
-            ((ImageButton)findViewById(R.id.buttonBrush)).setImageResource(R.drawable.ic_baseline_brush_24_selected);
+            rootView.findViewById(R.id.buttonPen).setEnabled(true);
+            rootView.findViewById(R.id.buttonEraser).setEnabled(false);
+            rootView.findViewById(R.id.buttonBrush).setEnabled(true);
+            ((ImageButton) rootView.findViewById(R.id.buttonPen)).setImageResource(R.drawable.ic_baseline_edit_24_selected);
+            ((ImageButton) rootView.findViewById(R.id.buttonEraser)).setImageResource(R.mipmap.eraser_button);
+            ((ImageButton) rootView.findViewById(R.id.buttonBrush)).setImageResource(R.drawable.ic_baseline_brush_24_selected);
         }
 
         if (v == 1) {
-            ((CardView)findViewById(R.id.buttonPen2Wrapper)).setCardBackgroundColor(0xFFCCCCCC);
-            ((CardView)findViewById(R.id.buttonEraser2Wrapper)).setCardBackgroundColor(0xFFFFFFFF);
+            ((CardView) rootView.findViewById(R.id.buttonPen2Wrapper)).setCardBackgroundColor(0xFFCCCCCC);
+            ((CardView) rootView.findViewById(R.id.buttonEraser2Wrapper)).setCardBackgroundColor(0xFFFFFFFF);
         } else {
-            ((CardView)findViewById(R.id.buttonPen2Wrapper)).setCardBackgroundColor(0xFFFFFFFF);
-            ((CardView)findViewById(R.id.buttonEraser2Wrapper)).setCardBackgroundColor(0xFFCCCCCC);
+            ((CardView) rootView.findViewById(R.id.buttonPen2Wrapper)).setCardBackgroundColor(0xFFFFFFFF);
+            ((CardView) rootView.findViewById(R.id.buttonEraser2Wrapper)).setCardBackgroundColor(0xFFCCCCCC);
         }
     }
 
@@ -2472,16 +2519,14 @@ public class BookActivity4 extends AppCompatActivity {
     }
 
 
-    private void handlePageIdxArg(Intent intent) {
-        int argPageIdx = intent.getIntExtra(PAGE_IDX, -1);
+    private void handlePageIdxArg(Bundle intent) {
+        int argPageIdx = intent.getInt(BookActivity4Utils.PAGE_IDX, -1);
         if (argPageIdx != -1) {
             this.initialPageIdx = argPageIdx;
         }
     }
 
-    public static ReentrantLock getBitmapLock() {
-        return bitmapLock;
-    }
+
 
     public void setPenColor(int color) {
 //        ImageButton buttonPenColor = (ImageButton) this.findViewById(R.id.buttonPenColor);
@@ -2490,7 +2535,7 @@ public class BookActivity4 extends AppCompatActivity {
 //        Drawable it = this.getDrawable(R.drawable.ic_baseline_color_lens_24);
 //        DrawableCompat.setTintList(it, ColorStateList.valueOf(color));
 //        buttonPenColor.setImageDrawable(it);
-        CardView cvColorSel = this.findViewById(R.id.cvColorSel);
+        CardView cvColorSel = g_rootView.findViewById(R.id.cvColorSel);
         cvColorSel.setCardBackgroundColor(0xff000000 | color);
 
         setColor(canvas, 0xff000000 | color);
@@ -2619,7 +2664,7 @@ public class BookActivity4 extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                savePageInMain(getPageIdx(), pageBmp);
+                savePageInMain(getPageIdx(), pageBmp, getVecJson(canvas));
             } catch (Throwable eee) {
                 eee.printStackTrace();
             }
@@ -2631,7 +2676,7 @@ public class BookActivity4 extends AppCompatActivity {
             cancelWaitingProgressDialog();
             task = null;
             if (this.mIsBack) {
-                finish();
+                BookActivity4Utils.finish(getActivity());
             } else {
                 gotoGridPage();
             }
@@ -2643,7 +2688,7 @@ public class BookActivity4 extends AppCompatActivity {
     private ProgressDialog mProgressDialog = null; // 对话框对象
     protected void createWaitingProgressDialog() {
         if (mProgressDialog == null || !mProgressDialog.isShowing()) {
-            mProgressDialog = new ProgressDialog(this);
+            mProgressDialog = new ProgressDialog(getActivity());
             mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             mProgressDialog.setTitle("");
             mProgressDialog.setMessage("Saving, please wait...");
@@ -2667,10 +2712,10 @@ public class BookActivity4 extends AppCompatActivity {
         mCurrentInkLineThickness=val;
         setSize(canvas, val);
     }
-    private void onLineThicknessButton()  {
+    private void onLineThicknessButton(View rootView)  {
         float val = getInkLineThickness();
-        ImageButton btn = (ImageButton)findViewById(R.id.buttonPen2);
-        LineWidthDialog.show(this, btn, val,
+        ImageButton btn = (ImageButton) rootView.findViewById(R.id.buttonPen2);
+        LineWidthDialog.show(getActivity(), btn, val,
                 new LineWidthDialog.WidthChangedListener() {
                     @Override
                     public void onWidthChanged(float value) {
@@ -2693,7 +2738,7 @@ public class BookActivity4 extends AppCompatActivity {
     }
     CanvasBoox.OnUpdateBmpListener mOnUpdateBmpListener;
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
         if (false) {
             //TODO:
@@ -2761,13 +2806,13 @@ public class BookActivity4 extends AppCompatActivity {
         return canvas != null ? canvas.toBitmap(false) : null;
     }
     private void setColor(DrawCanvas canvas, int color) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt("strokeColor", color); //"strokeColor" or "fillColor"
         editor.apply();
     }
     private void setSize(DrawCanvas canvas, float size) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("strokeSize", Float.toString(size)); //"strokeColor" or "fillColor"
         editor.apply();
@@ -2779,9 +2824,9 @@ public class BookActivity4 extends AppCompatActivity {
 
     }
 
-    private void showPopupMenu(View view) {
+    private void showPopupMenu(View rootView, View view) {
         //see LineWidthDialog
-        CopyCutMenuDialog.show(this, view, (getPageIdx() + 1), pageNum, new View.OnClickListener() {
+        CopyCutMenuDialog.show(getActivity(), view, (getPageIdx() + 1), pageNum, new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (view != null) {
@@ -2797,9 +2842,9 @@ public class BookActivity4 extends AppCompatActivity {
                                 gotoGridPage();
                             }
                         } else {
-                            AlertDialog dialog = new BookActivity4PageGridDialog(BookActivity4.this,
-                                    BookActivity4.this.dirUrl,
-                                    BookActivity4.this.dirUrlPath)
+                            AlertDialog dialog = new BookActivity4PageGridDialog(getActivity(),
+                                    BookActivity4Fragment.this.dirUrl,
+                                    BookActivity4Fragment.this.dirUrlPath)
                                     .create();
                             dialog.show();
                         }
@@ -2826,7 +2871,7 @@ public class BookActivity4 extends AppCompatActivity {
                             //isDrawBG == true, because I want to draw lined bg
                             share();
                         } else {
-                            AlertDialog dialog = new MaterialAlertDialogBuilder(BookActivity4.this, BookListActivity.getCenteredTitleThemeOverlay())
+                            AlertDialog dialog = new MaterialAlertDialogBuilder(getActivity(), BookActivity4Utils.getCenteredTitleThemeOverlay())
                                     .setTitle("Error")
                                     .setMessage("Sharing failed. Requires Android 8.0 or above.")
                                     .setCancelable(true)
@@ -2847,8 +2892,11 @@ public class BookActivity4 extends AppCompatActivity {
                             intent = Intent.createChooser(intent, "Load image file");
                             activityResultLauncherLoad.launch(intent);
                         }
+                    } else if (view.getId() == R.id.popButtonShortcut) {
+                        AlertDialog dialog = new BookActivity4TipsDialog(getActivity()).create();
+                        dialog.show();
                     } else if (view.getId() == R.id.popTextViewRenameFile) {
-                        AlertDialog dialog = new MaterialAlertDialogBuilder(BookActivity4.this, BookListActivity.getCenteredTitleThemeOverlay())
+                        AlertDialog dialog = new MaterialAlertDialogBuilder(getActivity(), BookActivity4Utils.getCenteredTitleThemeOverlay())
                                 //.setTitle(title)
                                 .setView(R.layout.activity_booklist_dialog1)
                                 .setCancelable(true)
@@ -2879,7 +2927,7 @@ public class BookActivity4 extends AppCompatActivity {
                                             isFailed = true;
                                         }
                                         if (isFailed) {
-                                            new MaterialAlertDialogBuilder(BookActivity4.this, BookListActivity.getCenteredTitleThemeOverlay())
+                                            new MaterialAlertDialogBuilder(getActivity(), BookActivity4Utils.getCenteredTitleThemeOverlay())
                                                     .setTitle("Error")
                                                     .setMessage("Rename failed : " + _bookDir.getFilePath() + ",\n" +
                                                             "please check the path starts with '" + FastFile.USE_SKETCH_PREFIX + "' prefix, " +
@@ -2887,9 +2935,9 @@ public class BookActivity4 extends AppCompatActivity {
                                                     .setPositiveButton("OK", null)
                                                     .show();
                                         } else {
-                                            onCreateAct();
+                                            onCreateAct(rootView);
                                             try {
-                                                ((TextView) findViewById(R.id.newTitle)).setText(_bookDir.getDisplayName());
+                                                ((TextView) rootView.findViewById(R.id.newTitle)).setText(_bookDir.getDisplayName());
                                             } catch (Throwable eee) {
                                                 eee.printStackTrace();
                                             }
@@ -2913,7 +2961,7 @@ public class BookActivity4 extends AppCompatActivity {
                         });
                         dialog.show();
                     } else if (view.getId() == R.id.popTextViewPageBackground) {
-                        AlertDialog dialog = new MaterialAlertDialogBuilder(BookActivity4.this, BookListActivity.getCenteredTitleThemeOverlay())
+                        AlertDialog dialog = new MaterialAlertDialogBuilder(getActivity(), BookActivity4Utils.getCenteredTitleThemeOverlay())
                                 //.setTitle(title)
                                 .setView(R.layout.activity_booklist_dialog2)
                                 .setCancelable(false)
@@ -2941,7 +2989,7 @@ public class BookActivity4 extends AppCompatActivity {
                                             setBackText(canvas, backText);
                                         }
                                         if (BookIO.USE_META_TXT) {
-                                            getBookIO().saveMeta(backText, BookActivity4.this.dirUrlPath, String.format("%04d", BookActivity4.this.pageNum - 1) + ".meta");
+                                            getBookIO().saveMeta(backText, BookActivity4Fragment.this.dirUrlPath, String.format("%04d", BookActivity4Fragment.this.pageNum - 1) + ".meta");
                                         }
                                     }
                                 })
@@ -3150,8 +3198,27 @@ public class BookActivity4 extends AppCompatActivity {
         onPageIdxChange();
     }
 
+    //FIXME: not good
+    public void deletePages(List<Page> pages) {
+        List<FastFile> fastFiles = new ArrayList<>();
+        for (Page page : pages) {
+            //page.getName() is new String(index + 1)
+            List<FastFile> pageFiles = this.getBook().getPages();
+            for (int i = 0; i < pageFiles.size(); ++i) {
+                FastFile pageFile = pageFiles.get(i);
+                if (("" + (i + 1)).equals(page.getName())) {
+                    fastFiles.add(pageFile);
+                }
+            }
+        }
+        for (FastFile fastFile : fastFiles) {
+            System.out.println("deletePages : " + fastFile.getName());
+            //this.getBook().removePage(fastFile, _bookIO);
+        }
+    }
+
     public void showNewBrushDialog() {
-        AlertDialog dialog = new MaterialAlertDialogBuilder(BookActivity4.this, BookListActivity.getCenteredTitleThemeOverlay())
+        AlertDialog dialog = new MaterialAlertDialogBuilder(getActivity(), BookActivity4Utils.getCenteredTitleThemeOverlay())
                 //.setTitle(title)
                 .setView(R.layout.activity_book4_brush_new)
                 .setCancelable(false)
@@ -3172,7 +3239,7 @@ public class BookActivity4 extends AppCompatActivity {
     }
 
     private void loadFileDemo() {
-        Drawable drawable = ContextCompat.getDrawable(BookActivity4.this, R.mipmap.ic_launcher);
+        Drawable drawable = ContextCompat.getDrawable(getActivity(), R.mipmap.ic_launcher);
         //https://blog.csdn.net/jaycee110905/article/details/38817871
         Bitmap.Config config = drawable.getOpacity() != PixelFormat.OPAQUE ?
                 Bitmap.Config.ARGB_8888 : Bitmap.Config.RGB_565;
@@ -3190,7 +3257,7 @@ public class BookActivity4 extends AppCompatActivity {
                     Uri uri = result.getData().getData();
                     System.out.println(Objects.requireNonNull(uri).getPath());
                     try {
-                        InputStream inputStream = BookActivity4.this.getContentResolver().openInputStream(uri);
+                        InputStream inputStream = getActivity().getContentResolver().openInputStream(uri);
                         Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
                         int x = canvas.getWidth() / 2;
                         int y = canvas.getHeight() / 2;
@@ -3201,7 +3268,7 @@ public class BookActivity4 extends AppCompatActivity {
                             inputStream.close();
                         }
                     } catch (Exception e) {
-                        Toast.makeText(getApplicationContext(), "An error was encountered while loading.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity().getApplicationContext(), "An error was encountered while loading.", Toast.LENGTH_LONG).show();
                         e.printStackTrace();
                     }
                 }
@@ -3210,7 +3277,7 @@ public class BookActivity4 extends AppCompatActivity {
                         @Override
                         public void run() {
                             canvas.disableCenter = false;
-                            runFullScreen(BookActivity4.this);
+                            runFullScreen(getActivity());
                         }
                     }, 200); //FIXME:????
                 }
@@ -3218,33 +3285,33 @@ public class BookActivity4 extends AppCompatActivity {
     );
 
     DrawCanvas.TOOLS lastTool = DrawCanvas.TOOLS.none;
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_SPACE) {
+//    @Override
+//    public boolean onKeyDown(int keyCode, KeyEvent event) {
+//        if (keyCode == KeyEvent.KEYCODE_SPACE) {
+////            if (this.canvas != null) {
+////                lastTool = this.canvas.tool;
+////                this.canvas.setTool(DrawCanvas.TOOLS.pan);
+////            }
+//        }
+//        return super.onKeyDown(keyCode, event);
+//    }
+
+//    @Override
+//    public boolean onKeyUp(int keyCode, KeyEvent event) {
+//        if (keyCode == KeyEvent.KEYCODE_SPACE) {
 //            if (this.canvas != null) {
-//                lastTool = this.canvas.tool;
+////                this.canvas.setTool(lastTool);
 //                this.canvas.setTool(DrawCanvas.TOOLS.pan);
 //            }
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_SPACE) {
-            if (this.canvas != null) {
-//                this.canvas.setTool(lastTool);
-                this.canvas.setTool(DrawCanvas.TOOLS.pan);
-            }
-        }
-        return super.onKeyUp(keyCode, event);
-    }
+//        }
+//        return super.onKeyUp(keyCode, event);
+//    }
 
     private long rowId = -1;
     public void tv_result_setText(String str) {
         Log.e(TAG, "tv_result_setText : " + str);
         try {
-            RecordingsDatabase mDatabase = new RecordingsDatabase(this);
+            RecordingsDatabase mDatabase = new RecordingsDatabase(getActivity());
             RecordingItem mItem = new RecordingItem();
             if (rowId == -1) {
                 rowId = mDatabase.addRecording(
@@ -3259,7 +3326,7 @@ public class BookActivity4 extends AppCompatActivity {
             mDatabase.close();
             if (adapter != null) {
                 adapter.notifyDataSetChanged();
-                ListView viewListViewBook = (ListView) this.findViewById(R.id.viewListViewBook);
+                ListView viewListViewBook = (ListView) g_rootView.findViewById(R.id.viewListViewBook);
                 viewListViewBook.setSelection(adapter.getCount() - 1);
             }
         } catch (Throwable eee) {
@@ -3280,17 +3347,28 @@ public class BookActivity4 extends AppCompatActivity {
     }
     public void btn_audio_start_setEnabled(boolean enable) {
         Log.e(TAG, "btn_audio_start_setEnabled : " + enable);
-        AppCompatImageView btnPanel = (AppCompatImageView) findViewById(R.id.btnPanel);
+        AppCompatImageView btnPanel = (AppCompatImageView) g_rootView.findViewById(R.id.btnPanel);
         AnimationDrawable anim = (AnimationDrawable) btnPanel.getDrawable();
         if (!enable) {
             anim.start();
-            findViewById(R.id.startRecord).setVisibility(View.GONE);
-            findViewById(R.id.stopRecord).setVisibility(View.VISIBLE);
+            g_rootView.findViewById(R.id.startRecord).setVisibility(View.GONE);
+            g_rootView.findViewById(R.id.stopRecord).setVisibility(View.VISIBLE);
+
+            rlAIIcon.setVisibility(View.GONE);
+            btnPanel2.setVisibility(View.VISIBLE);
+            AnimationDrawable anim2 = (AnimationDrawable) btnPanel2.getDrawable();
+            anim2.start();
         } else {
             anim.stop();
             anim.selectDrawable(0);
-            findViewById(R.id.startRecord).setVisibility(View.VISIBLE);
-            findViewById(R.id.stopRecord).setVisibility(View.GONE);
+            g_rootView.findViewById(R.id.startRecord).setVisibility(View.VISIBLE);
+            g_rootView.findViewById(R.id.stopRecord).setVisibility(View.GONE);
+
+            rlAIIcon.setVisibility(View.VISIBLE);
+            btnPanel2.setVisibility(View.GONE);
+            AnimationDrawable anim2 = (AnimationDrawable) btnPanel2.getDrawable();
+            anim2.stop();
+            anim2.selectDrawable(0);
         }
     }
 
@@ -3325,6 +3403,13 @@ public class BookActivity4 extends AppCompatActivity {
             canvas.getPaintTool().getAppearance().stroke = left_toolkit_item6_color;
             canvas.getPaintTool().getAppearance().strokeSize = left_toolkit_item6_size;
         }
+    }
+
+    public String getVecJson(DrawCanvas canvas) {
+        if (canvas != null) {
+            return canvas.getVecJson();
+        }
+        return "";
     }
 
     //FIXME:TODO:

@@ -33,8 +33,10 @@ import org.json.JSONObject;
 public class FastFile {
     public final static boolean USE_SKETCH = true; //new sketch format
     public final static String USE_SKETCH_PREFIX = "SKETCH_";
+    public final static String USE_PAGE_PREFIX  = "PAGE_";
     public final static String USE_SKETCH_CONFIG = "sketch.meta";
     public final static String USE_SKETCH_CONFIG_DISPNAME = "dispName";
+    public final static String USE_SKETCH_CONFIG_PAGEORDER = "pageOrder";
 
     private final static boolean D = true;
     private final static String TAG = "FastFile";
@@ -144,7 +146,7 @@ public class FastFile {
         return result;
     }
 
-    public void removeFile(BookIO bookIO) {
+    public void removeFile(BookIO bookIO, Book book) {
         if (BookIO.USE_CONTENT_RESOLVER) {
             //skip
         } else {
@@ -160,7 +162,7 @@ public class FastFile {
                 }
                 //FIXME:还需要遍历所有文件，移动其他文件到前面
                 if (bookIO != null) {
-                    Book book = bookIO.loadBookParentNoCreate(this);
+                    Book book2 = bookIO.loadBookParentNoCreate(this, book);
                 }
             } catch (Throwable eee) {
                 eee.printStackTrace();
@@ -405,6 +407,17 @@ public class FastFile {
             long size = file_.length();
             return new FastFile(uri, filePath, disp, lm, mimeType, size, resolver, dispMetaName);
         }
+    }
+    public static FastFile fromFile(String filePath) {
+        File file_ = new File(filePath);
+        String disp = file_.getName();
+        String dispMetaName = getDipslayMetaName(file_);
+
+        long lm = file_.lastModified();
+        String extension = MimeTypeMap.getFileExtensionFromUrl(filePath);
+        String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase());
+        long size = file_.length();
+        return new FastFile(null, filePath, disp, lm, mimeType, size, null, dispMetaName);
     }
     public static String getDipslayMetaName(File file_) {
         if (file_ == null) {

@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -21,13 +20,12 @@ import android.view.View;
 
 import java.util.concurrent.locks.Lock;
 
-import com.txkj.drawingapp.activity.BookActivity2;
-import com.txkj.drawingapp.activity.BookActivity3;
-import com.txkj.drawingapp.activity.BookActivity4;
-import com.txkj.notemobile2.BookActivity;
+import com.txkj.drawingapp.activity.BookActivity4Utils;
 import com.txkj.notemobile2.book.BookIO;
 import com.txkj.notemobile2.colorpicker.Dips;
 import com.txkj.notemobile2.colorpicker.FileMeta;
+
+import io.github.pastthepixels.freepaint.Graphics.BitmapVector;
 
 public class CanvasBoox extends View {
     public final static float PEN_WIDTH1 = 3.0f;
@@ -158,7 +156,7 @@ public class CanvasBoox extends View {
     public void undo(int count) {
         if (this.undoCount != count) {
             this.undoCount = count;
-            Lock lock = BookActivity.getBitmapLock();
+            Lock lock = BookActivity4Utils.getBitmapLock();
             lock.lock();
             try {
                 this.undoList.undo(this.bmpCanvas);
@@ -172,7 +170,7 @@ public class CanvasBoox extends View {
     public void redo(int count) {
         if (this.redoCount != count) {
             this.redoCount = count;
-            Lock lock = BookActivity.getBitmapLock();
+            Lock lock = BookActivity4Utils.getBitmapLock();
             lock.lock();
             try {
                 this.undoList.redo(this.bmpCanvas);
@@ -463,18 +461,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
         canvas.drawColor(0xFFFFFFFF);
         if (BookIO.USE_META_TXT) {
             Bitmap bmp = this.bitmap;
-            String backText = null;
-            if (act != null) {
-                if (act instanceof BookActivity) {
-                    backText = ((BookActivity)act).curPattern;
-                } else if (act instanceof BookActivity2) {
-                    backText = ((BookActivity2)act).curPattern;
-                } else if (act instanceof BookActivity3) {
-                    backText = ((BookActivity3)act).curPattern;
-                } else if (act instanceof BookActivity4) {
-                    backText = ((BookActivity4)act).curPattern;
-                }
-            }
+            String backText = BookActivity4Utils.getCurPattern(act);
             if (backText != null) {
                 if (backText.equals(FileMeta.DOTTED)) {
 /*
@@ -611,7 +598,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
     public void onPageIdx(int idx, OnLoadBitmapListener bitmapLoader) {
         if (this.pageIdx != idx) {
             this.pageIdx = idx;
-            Bitmap newbmp = bitmapLoader.onLoadBitmap(idx);
+            Bitmap newbmp = bitmapLoader.onLoadBitmap(idx).bitmap;
             if (this.bitmap != null) {
                 if (BookIO.USE_META_TXT) {
                     this.bitmap.eraseColor(0x00000000);
@@ -650,7 +637,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
     }
 
     public interface OnLoadBitmapListener {
-        Bitmap onLoadBitmap(int bmp);
+        BitmapVector onLoadBitmap(int bmp);
     }
 
     public void setPathPaintColor(int color) {

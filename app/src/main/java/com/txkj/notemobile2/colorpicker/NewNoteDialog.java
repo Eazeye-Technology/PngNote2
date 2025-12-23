@@ -2,7 +2,6 @@ package com.txkj.notemobile2.colorpicker;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.view.View;
@@ -16,7 +15,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import com.txkj.notemobile2.BookListActivity;
+import com.txkj.drawingapp.activity.BookActivity4Utils;
 import com.txkj.drawingapp.R;
 
 import java.util.ArrayList;
@@ -60,15 +59,12 @@ public class NewNoteDialog extends Dialog {
 //                    if (onNewBook != null) {
 //                        onNewBook.onNewBook(textState);
 //                    }
-                    if (context != null && context instanceof BookListActivity) {
-                        BookListActivity act = (BookListActivity) context;
-                        String backText = recentNoteAdapter.getSelectText();
-                        if (act.checkText(textState)) {
-                            NewNoteDialog.this.dismiss();
-                            act.onNewBook(textState, backText);
-                        } else {
-                            Toast.makeText(context, "Duplicate note name, case insensitive", Toast.LENGTH_SHORT).show();
-                        }
+                    String backText = recentNoteAdapter.getSelectText();
+                    if (BookActivity4Utils.checkText(context, textState)) {
+                        NewNoteDialog.this.dismiss();
+                        BookActivity4Utils.onNewBook(context, textState, backText);
+                    } else {
+                        Toast.makeText(context, "Duplicate note name, case insensitive", Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     Toast.makeText(context, "Please input new note name", Toast.LENGTH_SHORT).show();

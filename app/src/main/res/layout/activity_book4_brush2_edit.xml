@@ -10,16 +10,16 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="1dp"
+        android:padding="1px"
         android:orientation="horizontal"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginLeft="30px"
+        android:layout_marginRight="30px"
+        android:layout_marginTop="30px"
         >
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="30dp"
+            android:textSize="30px"
             android:text="Edit brush"
             android:textColor="#000000"
             android:layout_gravity="center"
@@ -36,15 +36,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardBackgroundColor="#FFFFFF"
-        app:cardCornerRadius="30dp"
+        app:cardCornerRadius="30px"
         android:layout_gravity="center|center_vertical"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         android:visibility="visible"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="30dp"
+        android:layout_marginLeft="30px"
+        android:layout_marginRight="30px"
+        android:layout_marginTop="20px"
+        android:layout_marginBottom="30px"
         >
         <RelativeLayout
             android:layout_width="match_parent"
@@ -61,15 +61,15 @@
                 >
                 <ImageView
                     android:layout_width="match_parent"
-                    android:layout_height="200dp"
+                    android:layout_height="200px"
                     android:src="@drawable/ic_my_brush_pre6_bg"
                     android:background="#00000000"
                     android:scaleType="fitXY"
                     />
                 <ImageView
                     android:id="@+id/brush_preview"
-                    android:layout_width="400dp"
-                    android:layout_height="200dp"
+                    android:layout_width="400px"
+                    android:layout_height="200px"
                     android:src="@drawable/ic_my_brush_pre6"
                     android:background="#00000000"
                     android:layout_gravity="center"
@@ -84,12 +84,12 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginLeft="30px"
+        android:layout_marginRight="30px"
+        android:layout_marginTop="5px"
         >
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="0px"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -97,7 +97,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="15dp"
+                android:textSize="15px"
                 android:text="Icon"
                 android:textStyle="bold"
                 android:textColor="#000000"
@@ -111,26 +111,26 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:cardBackgroundColor="#585858"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="0dp"
+                app:cardCornerRadius="20px"
+                app:cardElevation="0px"
                 android:layout_gravity="left|center_vertical"
-                android:layout_margin="5dp"
+                android:layout_margin="5px"
                 android:id="@+id/left_toolkit_item1"
                 >
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="0dp"
+                    android:padding="0px"
                     android:background="#00000000"
                     >
                     <androidx.appcompat.widget.AppCompatImageView
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
+                        android:layout_width="60px"
+                        android:layout_height="60px"
                         android:layout_centerVertical="true"
                         android:scaleType="fitCenter"
-                        android:paddingLeft="5dp"
-                        android:paddingRight="5dp"
-                        android:textSize="11sp"
+                        android:paddingLeft="5px"
+                        android:paddingRight="5px"
+                        android:textSize="11px"
                         android:textAllCaps="true"
                         android:background="@drawable/ic_my_pen_001_w"
                         android:text="PEN"
@@ -160,12 +160,12 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginLeft="30px"
+        android:layout_marginRight="30px"
+        android:layout_marginTop="5px"
         >
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="0px"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -173,7 +173,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="15dp"
+                android:textSize="15px"
                 android:text="Size"
                 android:textStyle="bold"
                 android:textColor="#000000"
@@ -192,20 +192,20 @@
                 android:valueFrom="1.0"
                 android:valueTo="5.0"
                 android:stepSize="1"
-                app:trackHeight="20dp"
-                app:thumbHeight="80dp"
-                app:thumbRadius="3dp"
-                app:thumbElevation="1dp"
-                app:thumbTrackGapSize="10dp"
-                app:haloRadius="1dp"
+                app:trackHeight="20px"
+                app:thumbHeight="80px"
+                app:thumbRadius="3px"
+                app:thumbElevation="1px"
+                app:thumbTrackGapSize="10px"
+                app:haloRadius="1px"
                 app:labelBehavior="withinBounds"
                 app:labelStyle="@style/Widget.App.Tooltip"
                 />
             <!--bubble-->
             <!--
-            app:thumbHeight="56dp"
-            app:trackCornerSize="16dp"
-            app:trackHeight="48dp"
+            app:thumbHeight="56px"
+            app:trackCornerSize="16px"
+            app:trackHeight="48px"
             -->
 
             <RelativeLayout
@@ -218,21 +218,21 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_my_para_size1_024"
                     android:layout_alignParentLeft="true"
-                    android:layout_margin="10dp"
+                    android:layout_margin="10px"
                     />
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_my_para_size2_025"
                     android:layout_centerHorizontal="true"
-                    android:layout_margin="10dp"
+                    android:layout_margin="10px"
                     />
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_my_para_size3_026"
                     android:layout_alignParentEnd="true"
-                    android:layout_margin="10dp"
+                    android:layout_margin="10px"
                     />
             </RelativeLayout>
         </LinearLayout>
@@ -240,7 +240,7 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:padding="1dp"
+            android:padding="1px"
             android:orientation="horizontal"
             android:visibility="gone"
             >
@@ -269,50 +269,50 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="15dp"
+        android:textSize="15px"
         android:text="Color"
         android:textStyle="bold"
         android:textColor="#000000"
         android:gravity="center|center_vertical"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
+        android:layout_marginLeft="30px"
+        android:layout_marginRight="30px"
         android:visibility="visible"
         />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
+        android:layout_marginLeft="30px"
+        android:layout_marginRight="30px"
         >
         <androidx.cardview.widget.CardView
-            android:layout_width="0dp"
+            android:layout_width="0px"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             app:cardBackgroundColor="#1C1B1B"
-            app:cardCornerRadius="10dp"
-            app:cardElevation="5dp"
+            app:cardCornerRadius="10px"
+            app:cardElevation="5px"
             android:layout_gravity="center"
-            android:layout_marginRight="10dp"
-            android:layout_margin="10dp"
+            android:layout_marginRight="10px"
+            android:layout_margin="10px"
             android:id="@+id/colorBtn001"
             >
             <!--#F1EDEC-->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
+                android:padding="10px"
                 android:orientation="vertical"
                 android:background="#00000000"
                 >
                 <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="40px"
+                    android:layout_height="40px"
                     android:layout_centerVertical="true"
                     android:scaleType="fitCenter"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp"
-                    android:textSize="11sp"
+                    android:paddingLeft="5px"
+                    android:paddingRight="5px"
+                    android:textSize="11px"
                     android:textAllCaps="true"
                     android:src="@drawable/ic_my_color_006_1"
                     android:text="PEN"
@@ -323,7 +323,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="14sp"
+                    android:textSize="14px"
                     android:text="Black"
                     android:textColor="#FFFFFF"
                     android:layout_gravity="center"
@@ -338,32 +338,32 @@
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            android:layout_width="0dp"
+            android:layout_width="0px"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             app:cardBackgroundColor="#F1EDEC"
-            app:cardCornerRadius="10dp"
-            app:cardElevation="5dp"
+            app:cardCornerRadius="10px"
+            app:cardElevation="5px"
             android:layout_gravity="center"
-            android:layout_marginRight="10dp"
-            android:layout_margin="10dp"
+            android:layout_marginRight="10px"
+            android:layout_margin="10px"
             android:id="@+id/colorBtn002"
             >
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
+                android:padding="10px"
                 android:orientation="vertical"
                 android:background="#00000000"
                 >
                 <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="40px"
+                    android:layout_height="40px"
                     android:layout_centerVertical="true"
                     android:scaleType="fitCenter"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp"
-                    android:textSize="11sp"
+                    android:paddingLeft="5px"
+                    android:paddingRight="5px"
+                    android:textSize="11px"
                     android:textAllCaps="true"
                     android:src="@drawable/ic_my_color_006_3"
                     android:text="PEN"
@@ -374,7 +374,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="14sp"
+                    android:textSize="14px"
                     android:text="Gray"
                     android:textColor="#000000"
                     android:layout_gravity="center"
@@ -389,32 +389,32 @@
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            android:layout_width="0dp"
+            android:layout_width="0px"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             app:cardBackgroundColor="#F1EDEC"
-            app:cardCornerRadius="10dp"
-            app:cardElevation="5dp"
+            app:cardCornerRadius="10px"
+            app:cardElevation="5px"
             android:layout_gravity="center"
-            android:layout_marginRight="10dp"
-            android:layout_margin="10dp"
+            android:layout_marginRight="10px"
+            android:layout_margin="10px"
             android:id="@+id/colorBtn003"
             >
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
+                android:padding="10px"
                 android:orientation="vertical"
                 android:background="#00000000"
                 >
                 <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="40px"
+                    android:layout_height="40px"
                     android:layout_centerVertical="true"
                     android:scaleType="fitCenter"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp"
-                    android:textSize="11sp"
+                    android:paddingLeft="5px"
+                    android:paddingRight="5px"
+                    android:textSize="11px"
                     android:textAllCaps="true"
                     android:src="@drawable/ic_my_color_006_9"
                     android:text="PEN"
@@ -425,7 +425,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="14sp"
+                    android:textSize="14px"
                     android:text="White"
                     android:textColor="#000000"
                     android:layout_gravity="center"
@@ -440,33 +440,33 @@
         </androidx.cardview.widget.CardView>
 
         <androidx.cardview.widget.CardView
-            android:layout_width="0dp"
+            android:layout_width="0px"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             app:cardBackgroundColor="#F1EDEC"
-            app:cardCornerRadius="10dp"
-            app:cardElevation="5dp"
+            app:cardCornerRadius="10px"
+            app:cardElevation="5px"
             android:layout_gravity="center"
-            android:layout_marginRight="10dp"
-            android:layout_margin="10dp"
+            android:layout_marginRight="10px"
+            android:layout_margin="10px"
             android:id="@+id/colorBtn004"
             android:visibility="invisible"
             >
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
+                android:padding="10px"
                 android:orientation="vertical"
                 android:background="#00000000"
                 >
                 <ImageView
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="40px"
+                    android:layout_height="40px"
                     android:layout_centerVertical="true"
                     android:scaleType="fitCenter"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp"
-                    android:textSize="11sp"
+                    android:paddingLeft="5px"
+                    android:paddingRight="5px"
+                    android:textSize="11px"
                     android:textAllCaps="true"
                     android:src="@drawable/ic_my_color_006_2"
                     android:text="PEN"
@@ -477,7 +477,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="14sp"
+                    android:textSize="14px"
                     android:text="DimGray"
                     android:textColor="#000000"
                     android:layout_gravity="center"

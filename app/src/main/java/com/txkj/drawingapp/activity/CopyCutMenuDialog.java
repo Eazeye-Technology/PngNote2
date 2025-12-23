@@ -32,6 +32,7 @@ public class CopyCutMenuDialog {
                 R.id.popTextViewPageBackground,
                 R.id.popButtonShare,
                 R.id.popButtonPan,
+                R.id.popButtonShortcut,
         };
         for (int id : ids) {
             View popButton = layout.findViewById(id); //R.id.popButtonGrid
@@ -59,7 +60,7 @@ public class CopyCutMenuDialog {
 
         //  make a popup window
         popup = new PopupWindow(layout,
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                300/*ViewGroup.LayoutParams.WRAP_CONTENT*/, ViewGroup.LayoutParams.WRAP_CONTENT);
         popup.setFocusable(true);
 
         //  now show the popup

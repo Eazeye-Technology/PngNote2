@@ -1,7 +1,9 @@
 package com.txkj.notemobile2;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.txkj.notemobile2.book.BookIO;
 import com.txkj.notemobile2.book.BookPage;
@@ -16,6 +18,17 @@ public class Book {
         this.bookDir = bookDir;
         this.pages = pages;
         this.bgImage = bgImage;
+        if (pages != null) {
+            for (int i = 0; i < pages.size(); ++i) {
+                FastFile fastFile = pages.get(i);
+                if (fastFile != null) {
+                    String name = fastFile.getName();
+                    if (name != null && name.endsWith(".png")) {
+                        pageNameMap.put(i, name.substring(0, name.length() - ".png".length()));
+                    }
+                }
+            }
+        }
     }
 
     public FastFile getBookDir() {
@@ -29,7 +42,7 @@ public class Book {
     }
 
     public Book addPage() {
-        FastFile pngFile = BookPage.createEmptyFile(this.bookDir, this.pages.size());
+        FastFile pngFile = BookPage.createEmptyFile(this.bookDir, this.pages.size(), this);
         List<FastFile> result = new ArrayList<FastFile>(this.pages);
         result.add(pngFile);
         return new Book(this.bookDir, result, this.bgImage);
@@ -39,7 +52,7 @@ public class Book {
     public void removePage(FastFile page, BookIO bookIO) {
         if (page != null) {
             this.pages.remove(page);
-            page.removeFile(bookIO);
+            page.removeFile(bookIO, this);
         }
     }
 
@@ -77,5 +90,16 @@ public class Book {
 
     public String getName() {
         return this.bookDir.getName();
+    }
+
+    //--------------------
+    //new api
+
+    private Map<Integer, String> pageNameMap = new HashMap<Integer, String>();
+    public void newPageName(int index, String name) {
+        pageNameMap.put(index, name);
+    }
+    public Map<Integer, String> getPagetNameMap() {
+        return pageNameMap;
     }
 }

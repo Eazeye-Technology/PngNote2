@@ -2,10 +2,17 @@ package com.txkj.notemobile2.book;
 
 import android.util.Log;
 
+import com.txkj.notemobile2.Book;
+
+import java.util.UUID;
+
+import io.github.pastthepixels.freepaint.Graphics.DrawCanvas;
+
 public class BookPage {
+    public final static boolean USE_UUID_PAGE_NAME = true;
+
     private final static boolean D = true;
     private final static String TAG = "BookPage";
-
 
     private FastFile file;
     private int idx;
@@ -61,12 +68,20 @@ public class BookPage {
         }
     }
 
-    public static String newPageName(int pageIdx) {
-        return String.format("%04d.png", pageIdx);
+    public static String newPageName(int pageIdx, Book book) {
+        if (USE_UUID_PAGE_NAME) {
+            String name = FastFile.USE_PAGE_PREFIX + UUID.randomUUID().toString();
+            if (book != null) {
+                book.newPageName(pageIdx, name);
+            }
+            return String.format("%s.png", name);
+        } else {
+            return String.format("%04d.png", pageIdx);
+        }
     }
 
-    public static FastFile createEmptyFile(FastFile bookDir, int idx) {
-        String fileName = newPageName(idx);
+    public static FastFile createEmptyFile(FastFile bookDir, int idx, Book book) {
+        String fileName = newPageName(idx, book);
         FastFile result = bookDir.createFile("image/png", fileName);
         if (result != null) {
             return result;

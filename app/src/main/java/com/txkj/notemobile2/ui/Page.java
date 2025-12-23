@@ -3,6 +3,8 @@ package com.txkj.notemobile2.ui;
 import android.graphics.Bitmap;
 
 public class Page {
+    public boolean checked = false;
+
     private String title;
     private Bitmap thumbnail;
     private Bitmap bgThumbnail;

@@ -23,8 +23,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.txkj.drawingapp.activity.BookActivity2;
-import com.txkj.drawingapp.activity.BookActivity3;
+import com.txkj.drawingapp.activity.BookActivity4Utils;
 import com.txkj.notemobile2.book.FastFile;
 import com.txkj.notemobile2.book.BookIO;
 import com.txkj.notemobile2.ui.CanvasBoox;
@@ -176,12 +175,11 @@ public class PageGridActivity extends AppCompatActivity {
     }
 
     public void openPage(int pageIdx) {
-        Intent it = new Intent(this, Config.getCls());
-        it.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        it.setData(this.getBookDir().getUri());
-        it.putExtra(BookActivity.EXTRA_DIRURLPATH, this.getBookDir().getFilePath());
-        it.putExtra(BookActivity.PAGE_IDX, pageIdx);
-        this.startActivity(it);
+        BookActivity4Utils.openBookUI(this,
+                this.getBookDir().getUri(),
+                this.getBookDir().getFilePath(),
+                pageIdx, null,
+                true, false);
     }
 
     private GridView gridview;
@@ -204,7 +202,7 @@ public class PageGridActivity extends AppCompatActivity {
             topAppBar.setIcon(R.mipmap.ic_launcher);
             topAppBar.setHomeButtonEnabled(true);
             topAppBar.setDisplayHomeAsUpEnabled(true);
-            if (!Config.USE_ACTIONBAR) {
+            if (!BookActivity4Utils.USE_ACTIONBAR) {
                 topAppBar.hide();
             }
         }

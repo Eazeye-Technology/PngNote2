@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -38,7 +39,12 @@ import com.txkj.notemobile2.colorpicker.FileMeta;
 import com.txkj.notemobile2.ui.CanvasBoox;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
+
+import io.github.pastthepixels.freepaint.File.VecJson;
+import io.github.pastthepixels.freepaint.Graphics.BitmapVector;
+import io.github.pastthepixels.freepaint.Graphics.DrawCanvas;
 
 public class BookIO {
     private final static boolean D = true;
@@ -61,13 +67,14 @@ public class BookIO {
         this.pageNamePat = Pattern.compile("([0-9][0-9][0-9][0-9])\\.png");
     }
 
-    private Bitmap loadBitmap(FastFile file) {
-        Bitmap result = null;
+    private BitmapVector loadBitmap(FastFile file) {
+        BitmapVector result = new BitmapVector();
         if (USE_CONTENT_RESOLVER) {
             ParcelFileDescriptor it = null;
             try {
                 it = this.resolver.openFileDescriptor(file.getUri(), "r");
-                result = BitmapFactory.decodeFileDescriptor(it.getFileDescriptor());
+                result.bitmap = BitmapFactory.decodeFileDescriptor(it.getFileDescriptor());
+                result.strVecJson = "";
             } catch (Throwable e) {
                 e.printStackTrace();
             } finally {
@@ -80,7 +87,28 @@ public class BookIO {
                 }
             }
         } else {
-            result = BitmapFactory.decodeFile(file.getFilePath());
+            result.bitmap = BitmapFactory.decodeFile(file.getFilePath());
+            try {
+                InputStream fis = new FileInputStream(new File(file.getFilePath().replace(".png", ".vecj")));
+                InputStreamReader isr = new InputStreamReader(fis, "UTF-8");
+                BufferedReader reader = new BufferedReader(isr);
+                StringBuffer vecjBuffer = new StringBuffer();
+                while (true) {
+                    String line = reader.readLine();
+                    if (line != null) {
+                        vecjBuffer.append(line);
+                        vecjBuffer.append("\n");
+                    } else {
+                        break;
+                    }
+                }
+                result.strVecJson = vecjBuffer.toString();
+                reader.close();
+                isr.close();
+                fis.close();
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+            }
         }
         return result; //FIXME: check null
     }
@@ -252,11 +280,11 @@ public class BookIO {
         return this.isEmpty(page.getFile());
     }
 
-    public Bitmap loadBitmap(BookPage page) {
+    public BitmapVector loadBitmap(BookPage page) {
         return this.loadBitmap(page.getFile());
     }
 
-    public Bitmap loadBitmapOrNull(BookPage page) {
+    public BitmapVector loadBitmapOrNull(BookPage page) {
         return this.isPageEmpty(page) ? null : this.loadBitmap(page);
     }
 
@@ -264,7 +292,7 @@ public class BookIO {
         FastFile it = book.getBgImage();
         Bitmap result = null;
         if (it != null) {
-            result = this.loadBitmap(it);
+            result = this.loadBitmap(it).bitmap; //bg vecj not used
         }
         return result;
     }
@@ -301,7 +329,7 @@ public class BookIO {
         }
     }
 
-    public void saveBitmap(BookPage page, Bitmap bitmap) {
+    public void saveBitmap(BookPage page, Bitmap bitmap, String vecJson, Book book) {
         if (USE_CONTENT_RESOLVER) {
             OutputStream it = null;
             try {
@@ -343,7 +371,56 @@ public class BookIO {
                     e.printStackTrace();
                 }
             }
+
+            OutputStream it2 = null;
+            try {
+                if (D) {
+                    Log.e(TAG, "saving " + page.getFile().getFilePath().replace(".png", ".vecj"));
+                }
+                it2 = new FileOutputStream(page.getFile().getFilePath().replace(".png", ".vecj"));
+                it2.write(vecJson.getBytes(StandardCharsets.UTF_8));
+            } catch (Throwable e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    if (it2 != null) {
+                        it2.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
+        {
+            boolean isFailed = false;
+            String folder = null;
+            if (page.getFile().getFilePath() != null) {
+                folder = new File(page.getFile().getFilePath()).getParent();
+            }
+            if (folder == null ||
+                    !new File(folder, FastFile.USE_SKETCH_CONFIG).exists() ||
+                    !new File(folder, FastFile.USE_SKETCH_CONFIG).canWrite()
+            ) {
+                isFailed = true;
+            }
+            if (!isFailed) {
+                try {
+                    File file_2 = new File(folder, FastFile.USE_SKETCH_CONFIG);
+                    String str = FastFile.loadMetaText(file_2);
+                    JSONObject item = new JSONObject(str);
+                    JSONObject pageOrderObj = new JSONObject();
+                    for (Integer key : book.getPagetNameMap().keySet()) {
+                        pageOrderObj.put(Integer.toString(key), book.getPagetNameMap().get(key));
+                    }
+                    item.put(FastFile.USE_SKETCH_CONFIG_PAGEORDER, pageOrderObj);
+                    FastFile.saveMetaText(file_2, item.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    isFailed = true;
+                }
+            }
+        }
+
 
         try {
             List<SimpleFileMeta> datas = loadRecent();
@@ -524,18 +601,88 @@ public class BookIO {
 //        }.toMap()
 
         Map<Integer, FastFile> pageMap = new HashMap<Integer, FastFile>();
-        List<FastFile> files = bookDir.listFiles();
-        if (files != null) {
-            for (FastFile file : files) {
+        Map<Integer, String> pageOrderObj = new HashMap<>();
+        if (BookPage.USE_UUID_PAGE_NAME) {
+            boolean isFailed = false;
+            String folder = bookDir.getFilePath();
+            if (folder == null ||
+                    !new File(folder, FastFile.USE_SKETCH_CONFIG).exists() ||
+                    !new File(folder, FastFile.USE_SKETCH_CONFIG).canWrite()
+            ) {
+                isFailed = true;
+            }
+            if (!isFailed) {
                 try {
-                    Matcher res = pageNamePat.matcher(file.getName());
-                    if (res.matches()) {
-                        //FIXME:java.lang.IllegalStateException: No successful match so far。
-                        int pageIdx = Integer.parseInt(res.group(1));
-                        pageMap.put(pageIdx, file);
+                    File file_2 = new File(folder, FastFile.USE_SKETCH_CONFIG);
+                    String str = FastFile.loadMetaText(file_2);
+                    JSONObject item = new JSONObject(str);
+                    JSONObject pageOrder = item.optJSONObject(FastFile.USE_SKETCH_CONFIG_PAGEORDER);
+                    if (pageOrder != null) {
+                        Iterator<String> it = pageOrder.keys();
+                        while (it.hasNext()) {
+                            String key = it.next();
+                            String value = pageOrder.optString(key);
+                            if (key != null && value != null) {
+                                try {
+                                    int keyV = Integer.parseInt(key);
+                                    pageOrderObj.put(keyV, value);
+                                    File pngFile = new File(bookDir.getFilePath(), value + ".png");
+                                    pageMap.put(keyV, FastFile.fromFile(pngFile.getAbsolutePath()));
+                                } catch (Throwable eee) {
+                                    eee.printStackTrace();
+                                }
+                            }
+                        }
                     }
-                } catch (Throwable eee) {
-                    eee.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    isFailed = true;
+                }
+            }
+        }
+        if (pageOrderObj.isEmpty()) {
+            List<FastFile> files = bookDir.listFiles();
+            if (files != null) {
+                for (FastFile file : files) {
+                    try {
+                        Matcher res = pageNamePat.matcher(file.getName());
+                        if (res.matches()) {
+                            //FIXME:java.lang.IllegalStateException: No successful match so far。
+                            int pageIdx = Integer.parseInt(res.group(1));
+                            if (BookPage.USE_UUID_PAGE_NAME) {
+                                if (res.group(1) != null && res.group(1).endsWith(".png")) {
+                                    pageOrderObj.put(pageIdx, res.group(1).substring(0, res.group(1).length() - ".png".length()));
+                                }
+                            }
+                            pageMap.put(pageIdx, file);
+                        }
+                    } catch (Throwable eee) {
+                        eee.printStackTrace();
+                    }
+                }
+            }
+            if (BookPage.USE_UUID_PAGE_NAME) {
+                boolean isFailed = false;
+                String folder = bookDir.getFilePath();
+                if (folder == null ||
+                        !new File(folder, FastFile.USE_SKETCH_CONFIG).exists() ||
+                        !new File(folder, FastFile.USE_SKETCH_CONFIG).canWrite()
+                ) {
+                    isFailed = true;
+                }
+                try {
+                    File file_2 = new File(folder, FastFile.USE_SKETCH_CONFIG);
+                    String str = FastFile.loadMetaText(file_2);
+                    JSONObject item = new JSONObject(str);
+                    JSONObject pageOrderObj_ = new JSONObject();
+                    for (Integer key : pageOrderObj.keySet()) {
+                        pageOrderObj_.put(Integer.toString(key), pageOrderObj.get(key));
+                    }
+                    item.put(FastFile.USE_SKETCH_CONFIG_PAGEORDER, pageOrderObj_);
+                    FastFile.saveMetaText(file_2, item.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    isFailed = true;
                 }
             }
         }
@@ -560,7 +707,7 @@ public class BookIO {
         List<FastFile> pages = new ArrayList<FastFile>(pagesTemp.size());
         for (Integer it : pagesTemp) {
             FastFile itemOld = pageMap.get(it);
-            FastFile item = itemOld != null ? itemOld : BookPage.createEmptyFile(bookDir, it);
+            FastFile item = itemOld != null ? itemOld : BookPage.createEmptyFile(bookDir, it, null);
             pages.add(item);
         }
         FastFile bgFile = bookDir.findFile("background.png");
@@ -568,20 +715,61 @@ public class BookIO {
     }
 
     //FIXME:不插入空白页而是移动到新文件，可能会不正确
-    public Book loadBookParentNoCreate(FastFile bookDir) {
+    public Book loadBookParentNoCreate(FastFile bookDir, Book book) {
         Map<Integer, FastFile> pageMap = new HashMap<Integer, FastFile>();
-        List<FastFile> files = bookDir.listFilesParent();
-        if (files != null) {
-            for (FastFile file : files) {
+        Map<Integer, String> pageOrderObj = new HashMap<>();
+        if (BookPage.USE_UUID_PAGE_NAME) {
+            boolean isFailed = false;
+            String folder = bookDir.getFilePath();
+            if (folder == null ||
+                    !new File(folder, FastFile.USE_SKETCH_CONFIG).exists() ||
+                    !new File(folder, FastFile.USE_SKETCH_CONFIG).canWrite()
+            ) {
+                isFailed = true;
+            }
+            if (!isFailed) {
                 try {
-                    Matcher res = pageNamePat.matcher(file.getName());
-                    if (res.matches()) {
-                        //FIXME:java.lang.IllegalStateException: No successful match so far。
-                        int pageIdx = Integer.parseInt(res.group(1));
-                        pageMap.put(pageIdx, file);
+                    File file_2 = new File(folder, FastFile.USE_SKETCH_CONFIG);
+                    String str = FastFile.loadMetaText(file_2);
+                    JSONObject item = new JSONObject(str);
+                    JSONObject pageOrder = item.optJSONObject(FastFile.USE_SKETCH_CONFIG_PAGEORDER);
+                    if (pageOrder != null) {
+                        Iterator<String> it = pageOrder.keys();
+                        while (it.hasNext()) {
+                            String key = it.next();
+                            String value = pageOrder.optString(key);
+                            if (key != null && value != null) {
+                                try {
+                                    int keyV = Integer.parseInt(key);
+                                    pageOrderObj.put(keyV, value);
+                                } catch (Throwable eee) {
+                                    eee.printStackTrace();
+                                }
+                            }
+                        }
                     }
-                } catch (Throwable eee) {
-                    eee.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    isFailed = true;
+                }
+            }
+        }
+        if (!pageOrderObj.isEmpty()) {
+            return book; //FIXME: no need to change
+        } else {
+            List<FastFile> files = bookDir.listFilesParent();
+            if (files != null) {
+                for (FastFile file : files) {
+                    try {
+                        Matcher res = pageNamePat.matcher(file.getName());
+                        if (res.matches()) {
+                            //FIXME:java.lang.IllegalStateException: No successful match so far。
+                            int pageIdx = Integer.parseInt(res.group(1));
+                            pageMap.put(pageIdx, file);
+                        }
+                    } catch (Throwable eee) {
+                        eee.printStackTrace();
+                    }
                 }
             }
         }
@@ -620,7 +808,7 @@ public class BookIO {
                         //FIXME:java.lang.IllegalStateException: No successful match so far。
                         int pageIdx = Integer.parseInt(res.group(1));
                         if (pageIdx != i) {
-                            String newName = BookPage.newPageName(i);
+                            String newName = BookPage.newPageName(i, book);
                             String oldFilePath = item.getFilePath();
                             String newFilePath = new File(
                                     new File(oldFilePath).getParent(), newName)
@@ -635,6 +823,13 @@ public class BookIO {
                                 if (!oldFilePath2.equals(oldFilePath)) {
                                     FastFile.copyFile(oldFilePath2, newFilePath2);
                                     boolean r2 = new File(oldFilePath2).delete();
+                                }
+
+                                String oldFilePath2_vecj = oldFilePath.replace(".png", ".vecj");
+                                String newFilePath2_vecj = newFilePath.replace(".png", ".vecj");
+                                if (!oldFilePath2_vecj.equals(oldFilePath)) {
+                                    FastFile.copyFile(oldFilePath2_vecj, newFilePath2_vecj);
+                                    boolean r2 = new File(oldFilePath2_vecj).delete();
                                 }
                             }
 

@@ -65,19 +65,21 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
 
         <activity
             android:name="com.txkj.notemobile2.BookListActivity"
-            android:exported="true">
-            <!--main-->
+            android:exported="true"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
+            >
+            <!--main, main-->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="com.txkj.drawingapp.activity.BookActivity4"
-            android:launchMode="singleTask"
-            android:exported="true"
-            >
-        </activity>
+<!--        <activity-->
+<!--            android:name="com.txkj.drawingapp.activity.BookActivity4Fragment"-->
+<!--            android:launchMode="singleTask"-->
+<!--            android:exported="true"-->
+<!--            >-->
+<!--        </activity>-->
         <activity
             android:name="com.txkj.drawingapp.activity.BookActivity4test2"
             android:launchMode="singleTask"
@@ -87,22 +89,6 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
         <!--android:screenOrientation="landscape"
             tools:ignore="LockedOrientationActivity"
             -->
-        <activity
-            android:name="com.txkj.drawingapp.activity.BookActivity2"
-            android:launchMode="singleTask"
-            android:exported="true"
-            >
-        </activity>
-        <!--android:screenOrientation="landscape"
-    tools:ignore="LockedOrientationActivity"
-    -->
-        <activity
-            android:name="com.txkj.notemobile2.BookActivity"
-            android:screenOrientation="portrait"
-            tools:ignore="LockedOrientationActivity"
-            android:launchMode="singleTask"
-            >
-        </activity>
         <activity
             android:name="com.txkj.notemobile2.PageGridActivity" />
         <provider
@@ -202,6 +188,12 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
         <activity
             android:name="com.example.sparkchaindemo.ai.asr.asrActivity"
             />
+
+        <activity android:name="com.example.xiaolin.draggridview.MainActivity"
+            android:exported="true"
+            >
+            <!--main-->
+        </activity>
 
     </application>
 

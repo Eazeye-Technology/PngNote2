@@ -12,17 +12,17 @@ android:background="@android:color/transparent"
 -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="250dp"
+        android:layout_height="250px"
         app:cardBackgroundColor="#FFFFFF"
-        app:cardCornerRadius="30dp"
+        app:cardCornerRadius="30px"
         android:layout_gravity="center|center_vertical"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         android:visibility="visible"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10px"
+        android:layout_marginRight="10px"
+        android:layout_marginTop="10px"
+        android:layout_marginBottom="10px"
         >
         <RelativeLayout
             android:layout_width="match_parent"
@@ -38,7 +38,7 @@ android:background="@android:color/transparent"
                 <!--android:background="#FFDDDDDD"-->
 
 
-                <!--android:layout_height="100dp"-->
+                <!--android:layout_height="100px"-->
                 <!--        <TextView-->
                 <!--            android:layout_width="match_parent"-->
                 <!--            android:layout_height="wrap_content"-->
@@ -46,8 +46,8 @@ android:background="@android:color/transparent"
                 <!--            />-->
                 <ImageView
                     android:id="@+id/bookgrid_pic_backgroud"
-                    android:layout_width="120dp"
-                    android:layout_height="120dp"
+                    android:layout_width="120px"
+                    android:layout_height="120px"
                     android:layout_gravity="center|center_vertical"
                     android:background="#00000000"
                     android:clickable="false"
@@ -60,7 +60,7 @@ android:background="@android:color/transparent"
                     android:id="@+id/bookgrid_pic"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="5px"
                     android:layout_gravity="center|center_vertical"
                     android:background="#00000000"
                     android:clickable="false"
@@ -72,18 +72,18 @@ android:background="@android:color/transparent"
             </FrameLayout>
 
             <androidx.cardview.widget.CardView
-                android:layout_width="50dp"
+                android:layout_width="50px"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 app:cardBackgroundColor="#000000"
                 android:layout_alignParentBottom="true"
-                android:layout_marginBottom="50dp"
+                android:layout_marginBottom="50px"
                 >
                 <TextView
                     android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_height="40px"
                     android:text="1"
-                    android:textSize="30dp"
+                    android:textSize="30px"
                     android:textStyle="bold"
                     android:textColor="@color/white"
                     android:background="@color/black"
@@ -91,6 +91,37 @@ android:background="@android:color/transparent"
                     android:id="@+id/bookgrid_name"
                     />
             </androidx.cardview.widget.CardView>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="68px"
+                android:background="#F4F0EF"
+                android:visibility="gone"
+                android:id="@+id/rlCheckBox"
+                >
+                <CheckBox
+                    android:layout_width="48px"
+                    android:layout_height="48px"
+                    android:layout_centerInParent="true"
+                    android:clickable="false"
+                    android:id="@+id/cbSel"
+                    />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="44px"
+                android:background="#F4F0EF"
+                android:id="@+id/rlMove"
+                >
+                <ImageView
+                    android:layout_width="24px"
+                    android:layout_height="24px"
+                    android:src="@drawable/ic_my_grid_move_001"
+                    android:background="#00000000"
+                    android:layout_centerInParent="true"
+                    />
+            </RelativeLayout>
 
         </RelativeLayout>
     </androidx.cardview.widget.CardView>

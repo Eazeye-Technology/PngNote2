@@ -3,16 +3,12 @@ package com.txkj.notemobile2.colorpicker;
 import android.app.Dialog;
 import android.content.Context;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 
-import com.txkj.drawingapp.activity.BookActivity2;
-import com.txkj.drawingapp.activity.BookActivity3;
-import com.txkj.drawingapp.activity.BookActivity4;
-import com.txkj.notemobile2.BookActivity;
 import com.txkj.drawingapp.R;
+import com.txkj.drawingapp.activity.BookActivity4Utils;
 
 public class SimpleColorDialog extends Dialog {
     private RelativeLayout cbutton1, cbutton2, cbutton3, cbutton4, cbutton5;
@@ -74,19 +70,7 @@ public class SimpleColorDialog extends Dialog {
                         buttons[i].setBackgroundColor(0x00000000);
                     }
                     SimpleColorDialog.this.dismiss();
-                    if (context != null && context instanceof BookActivity) {
-                        BookActivity act = (BookActivity) context;
-                        act.setPenColor(colors[selectIndex]);
-                    } else if (context != null && context instanceof BookActivity2) {
-                        BookActivity2 act = (BookActivity2) context;
-                        act.setPenColor(colors[selectIndex]);
-                    } else if (context != null && context instanceof BookActivity3) {
-                        BookActivity3 act = (BookActivity3) context;
-                        act.setPenColor(colors[selectIndex]);
-                    } else if (context != null && context instanceof BookActivity4) {
-                        BookActivity4 act = (BookActivity4) context;
-                        act.setPenColor(colors[selectIndex]);
-                    }
+                    BookActivity4Utils.setPenColor(context, colors[selectIndex]);
 //                    view.setBackgroundResource(R.drawable.com_facebook_button_blue);
 //                    if (base != null) {
 //                        base.setPenColor(colors[selectIndex]);

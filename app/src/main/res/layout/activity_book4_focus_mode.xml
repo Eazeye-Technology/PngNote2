@@ -11,34 +11,34 @@
         android:orientation="vertical"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="8dp"
-        android:layout_marginTop="-40dp"
+        android:layout_marginRight="8px"
+        android:layout_marginTop="-40px"
         android:id="@+id/btnFullscreenExit"
         >
         <androidx.cardview.widget.CardView
-            android:layout_width="64dp"
-            android:layout_height="80dp"
+            android:layout_width="64px"
+            android:layout_height="80px"
             app:cardBackgroundColor="#585858"
-            app:cardCornerRadius="10dp"
-            app:cardElevation="10dp"
+            app:cardCornerRadius="10px"
+            app:cardElevation="10px"
             >
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 >
                 <ImageView
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
+                    android:layout_width="25px"
+                    android:layout_height="25px"
                     android:src="@drawable/ic_my_focus_exit_001"
                     android:layout_alignParentBottom="true"
                     android:layout_centerHorizontal="true"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginBottom="10px"
                     />
             </RelativeLayout>
         </androidx.cardview.widget.CardView>
         <View
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="60px"
             />
     </LinearLayout>
 

@@ -7,8 +7,6 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -21,10 +19,8 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 
-import com.agsw.FabricView.DrawableObjects.CText;
 import com.agsw.FabricView.FabricView;
-import com.txkj.drawingapp.activity.BookActivity4;
-import com.txkj.notemobile2.book.BookIO;
+import com.txkj.drawingapp.activity.BookActivity4Utils;
 import com.txkj.notemobile2.colorpicker.Dips;
 import com.txkj.notemobile2.ui.CanvasBoox;
 
@@ -32,11 +28,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Objects;
 
 import io.github.pastthepixels.freepaint.File.SVG;
-import io.github.pastthepixels.freepaint.MainActivity;
+import io.github.pastthepixels.freepaint.File.VecJson;
 import io.github.pastthepixels.freepaint.Tools.EraserTool;
 import io.github.pastthepixels.freepaint.Tools.PaintTool;
 import io.github.pastthepixels.freepaint.Tools.PanTool;
@@ -59,9 +57,10 @@ public final class DrawCanvas extends View {
     private final PanTool panTool = new PanTool(this);
     private final SelectionTool selectionTool = new SelectionTool(this);
     private final SVG svgHelper = new SVG(this);
+    private final VecJson vecJsonHelper = new VecJson(this);
     public LinkedList<DrawPath> paths = new LinkedList<>();
     public int documentColor = Color.WHITE;
-    private int version_index = -1;
+    public/*private*/ int version_index = -1;
     public TOOLS tool = TOOLS.none;
 
     // Drawing flags
@@ -137,6 +136,13 @@ public final class DrawCanvas extends View {
     public void saveFile(Uri uri) throws IOException {
         svgHelper.createSVG();
         svgHelper.writeFile(Objects.requireNonNull(getContext().getContentResolver().openOutputStream(uri, "wt")));
+    }
+    public String getVecJson() {
+        vecJsonHelper.createJson();
+        return vecJsonHelper.writeString();
+    }
+    public void loadVecJson(String strVecJson) {
+        vecJsonHelper.parseFile(strVecJson);
     }
 
     /**
@@ -424,11 +430,7 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
         }
         float screenDensity = getResources().getDisplayMetrics().density;
         //
-        if (getContext() instanceof MainActivity) {
-            ((MainActivity) getContext()).updateInfoBar();
-        } else if (getContext() instanceof BookActivity4) {
-            ((BookActivity4) getContext()).updateInfoBar();
-        }
+        BookActivity4Utils.updateInfoBar(getContext());
         // Draws things on the screen
         canvas.save();
         // SCALES, THEN TRANSLATES (translations are independent of scales)
@@ -756,13 +758,20 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
         if (bitmapLoader != null) {
             if (this.pageIdx != idx) {
                 this.pageIdx = idx;
-                Bitmap newBmp = bitmapLoader.onLoadBitmap(idx);
-                this.initialBmp = newBmp;
 
                 // Clear path list/history
                 paths.clear();
                 versions.clear();
                 version_index = -1;
+
+                BitmapVector result = bitmapLoader.onLoadBitmap(idx);
+                Bitmap newBmp = result.bitmap;
+                if (result != null && result.strVecJson != null && result.strVecJson.length() > 0) {
+                    this.initialBmp = null;
+                    this.loadVecJson(result.strVecJson);
+                } else if (result != null) {
+                    this.initialBmp = newBmp;
+                }
 
                 this.invalidate();
             }
