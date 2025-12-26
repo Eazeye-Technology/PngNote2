@@ -42,6 +42,7 @@ import io.github.pastthepixels.freepaint.Tools.SelectionTool;
 import io.github.pastthepixels.freepaint.Tools.Tool;
 
 public final class DrawCanvas extends View {
+    private final static double INIT_SCALE = 1.0;//0.8;
     private final static boolean DEBUG_EVENT = false;
     private final static String TAG = "DrawCanvas";
 
@@ -119,7 +120,7 @@ public final class DrawCanvas extends View {
      */
     private void centerDocument() {
         // Scales the canvas so that the document width takes up 80% of the screen width
-        panTool.scaleFactor = (float) ((0.8) * (getWidth() / documentSize.x));
+        panTool.scaleFactor = (float) ((INIT_SCALE/*0.8*/) * (getWidth() / documentSize.x));
         panTool.updatePanOffset();
         panTool.offset.set(
                 ((float) (getWidth()) / 2 - documentSize.x / 2),
@@ -449,13 +450,13 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
         }
         paint.reset();
         // Draws a stroke for the page
-        if (!drawMinimal) {
-            paint.setColor(Color.GRAY);
-            paint.setStrokeWidth(5 / panTool.scaleFactor); // Always five pixels no matter scale
-            paint.setStyle(Paint.Style.STROKE);
-            canvas.drawRect(0, 0, documentSize.x, documentSize.y, paint);
-            paint.reset();
-        }
+//        if (!drawMinimal) {
+//            paint.setColor(Color.GRAY);
+//            paint.setStrokeWidth(5 / panTool.scaleFactor); // Always five pixels no matter scale
+//            paint.setStyle(Paint.Style.STROKE);
+//            canvas.drawRect(0, 0, documentSize.x, documentSize.y, paint);
+//            paint.reset();
+//        }
         drawBackground(canvas, mBackgroundMode, documentSize.x, documentSize.y);
         // Draws every path, then tool path
         for (DrawPath path : paths) {
@@ -681,7 +682,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
         currentPath.pointsTextColor = pointsTextColor;
 
 
-            if (debug) {
+        if (debug) {
             currentPath.addPoint(this.mapPoint(x, y, 1.0f));
             currentPath.addPoint(this.mapPoint(x + 100, y, 1.0f));
             currentPath.addPoint(this.mapPoint(x + 100, y + 100, 1.0f));
@@ -754,9 +755,9 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
         }
     }
     public int pageIdx;
-    public void onPageIdx(int idx, CanvasBoox.OnLoadBitmapListener bitmapLoader) {
+    public void onPageIdx(int idx, CanvasBoox.OnLoadBitmapListener bitmapLoader, boolean forceReload) {
         if (bitmapLoader != null) {
-            if (this.pageIdx != idx) {
+            if (forceReload || this.pageIdx != idx) {
                 this.pageIdx = idx;
 
                 // Clear path list/history
@@ -795,5 +796,8 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
 
     public PaintTool getPaintTool() {
         return paintTool;
+    }
+    public SelectionTool getSelectionTool() {
+        return selectionTool;
     }
 }

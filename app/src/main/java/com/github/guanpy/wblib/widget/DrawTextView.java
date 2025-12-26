@@ -260,8 +260,8 @@ public class DrawTextView extends RelativeLayout implements
  */
         LayoutParams layParamsTxt = new LayoutParams(
                 LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        layParamsTxt.leftMargin = (int) (mDrawPoint.getDrawText().getX() - dp2px(getContext(), 30)); //FIXME:
-        layParamsTxt.topMargin = (int) (mDrawPoint.getDrawText().getY() - dp2px(getContext(), 25));
+        layParamsTxt.leftMargin = (int) (mDrawPoint.getDrawText().getX() ); //- dp2px(getContext(), 30) //FIXME:
+        layParamsTxt.topMargin = (int) (mDrawPoint.getDrawText().getY() ); // - dp2px(getContext(), 25)
         mRlContent.setLayoutParams(layParamsTxt);
     }
     public static int dp2px(Context context, float dpValue) {

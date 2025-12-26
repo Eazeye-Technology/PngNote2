@@ -33,6 +33,10 @@ public class CopyCutMenuDialog {
                 R.id.popButtonShare,
                 R.id.popButtonPan,
                 R.id.popButtonShortcut,
+
+                R.id.popTextViewCopy,
+                R.id.popTextViewPaste,
+                R.id.popTextViewCut,
         };
         for (int id : ids) {
             View popButton = layout.findViewById(id); //R.id.popButtonGrid

@@ -257,4 +257,18 @@ public class SelectionTool implements Tool {
     private boolean getScaleMode() {
         return canvas.getScaleMode();
     }
+
+    public LinkedList<DrawPath> getSelectedPaths() {
+        return selectedPaths;
+    }
+
+    public void exitSelect() {
+        changedDrawPaths = false;
+        // If the touch action is outside the currently selected rectangle, we're not trying to manipulate it
+        // -- we're trying to make a new one
+        currentPath.appearance = APPEARANCE.clone();
+        mode = TOUCH_MODES.define;
+        selectedPaths.clear();
+        currentPath.clear();
+    }
 }

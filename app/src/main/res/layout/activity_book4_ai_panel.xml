@@ -31,7 +31,7 @@
                         android:layout_width="0px"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:textSize="18px"
+                        android:textSize="22px"
                         android:text="Meeting"
                         android:textStyle="bold"
                         android:textColor="#000000"
@@ -71,7 +71,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textSize="18px"
+                                android:textSize="14px"
                                 android:text="Info"
                                 android:textStyle="bold"
                                 android:textColor="#000000"
@@ -100,7 +100,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textSize="18px"
+                                android:textSize="14px"
                                 android:text="Transcript"
                                 android:textStyle="bold"
                                 android:textColor="#000000"
@@ -143,7 +143,7 @@
                                 android:layout_height="wrap_content"
                                 android:orientation="vertical"
                                 >
-                                <include layout="@layout/a_design_003_trans2"/>
+                                <include layout="@layout/activity_book4_ai_panel_tab1"/>
                             </LinearLayout>
                         </ScrollView>
                         <LinearLayout
@@ -159,9 +159,13 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:cacheColorHint="#00000000"
-                                android:divider="@drawable/speech__main_menu_list_line"
+                                android:divider="@null"
                                 android:listSelector="#00000000"
                                 />
+
+                            <!--
+                             android:divider="@drawable/speech__main_menu_list_line"
+                               -->
                         </LinearLayout>
                     </FrameLayout>
                 </LinearLayout>
@@ -169,13 +173,14 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="20px"
+                    android:layout_height="60px"
                     android:orientation="horizontal"
                     >
                     <FrameLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical|center"
+                        android:layout_marginLeft="24px"
                         >
                         <androidx.cardview.widget.CardView
                             android:layout_width="wrap_content"
@@ -194,8 +199,8 @@
                                 android:paddingLeft="20px"
                                 >
                                 <androidx.appcompat.widget.AppCompatImageView
-                                    android:layout_width="40px"
-                                    android:layout_height="40px"
+                                    android:layout_width="20px"
+                                    android:layout_height="20px"
                                     android:layout_centerVertical="true"
                                     android:scaleType="fitCenter"
                                     android:textSize="11px"
@@ -210,7 +215,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:textSize="18px"
+                                    android:textSize="14px"
                                     android:text="Stop Recording"
                                     android:textColor="#ffffff"
                                     android:textStyle="bold"
@@ -227,7 +232,7 @@
                             app:cardBackgroundColor="#F6F3F2"
                             app:cardCornerRadius="30px"
                             android:layout_gravity="center|center_vertical"
-                            android:layout_margin="5px"
+                            android:layout_marginLeft="5px"
                             android:id="@+id/startRecord"
                             android:visibility="visible"
                             >
@@ -237,8 +242,8 @@
                                 android:paddingLeft="20px"
                                 >
                                 <androidx.appcompat.widget.AppCompatImageView
-                                    android:layout_width="40px"
-                                    android:layout_height="40px"
+                                    android:layout_width="20px"
+                                    android:layout_height="20px"
                                     android:layout_centerVertical="true"
                                     android:scaleType="fitCenter"
                                     android:textSize="11px"
@@ -253,7 +258,7 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:textSize="18px"
+                                    android:textSize="14px"
                                     android:text="Start Record"
                                     android:textColor="#000000"
                                     android:textStyle="bold"
@@ -273,6 +278,7 @@
                         app:cardCornerRadius="30px"
                         android:layout_gravity="center|center_vertical"
                         android:layout_margin="5px"
+                        android:layout_marginLeft="5px"
                         >
                         <LinearLayout
                             android:layout_width="wrap_content"
@@ -280,8 +286,8 @@
                             android:paddingLeft="20px"
                             >
                             <androidx.appcompat.widget.AppCompatImageView
-                                android:layout_width="40px"
-                                android:layout_height="40px"
+                                android:layout_width="20px"
+                                android:layout_height="20px"
                                 android:layout_centerVertical="true"
                                 android:scaleType="fitCenter"
                                 android:textSize="11px"
@@ -296,7 +302,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textSize="18px"
+                                android:textSize="14px"
                                 android:text="Pause"
                                 android:textColor="#000000"
                                 android:textStyle="bold"

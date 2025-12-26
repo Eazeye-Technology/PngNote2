@@ -9,6 +9,9 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -20,7 +23,10 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
 import com.txkj.drawingapp.R;
 
+//popupwindow_pen_style.xml
 public class BookActivity4BrushEditDialog {
+    private final static int WIN_WIDTH = 544 + 24 * 2;
+
     public BookActivity4BrushEditDialog(Activity ctx, int brushId) {
         onCreateAct(ctx, brushId);
     }
@@ -31,51 +37,86 @@ public class BookActivity4BrushEditDialog {
                 //.setTitle(title)
                 .setView(R.layout.activity_book4_brush2_edit)
                 .setCancelable(true)
-                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        AlertDialog dialog = (AlertDialog) dialogInterface;
-                        Slider slider = dialog.findViewById(R.id.slider);
-                        outputBrushSize = (int)slider.getValue();
-                        outputIsSave = true;
-                        BookActivity4Utils.onLongClickSubmenu1_after(mContext,
-                                BookActivity4BrushEditDialog.this, mBrushId);
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-
-                    }
-                })
+//                .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialogInterface, int i) {
+//                      onSave(dialogInterface);
+//                    }
+//                })
+//                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialogInterface, int i) {
+//
+//                    }
+//                })
                 .create();
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialogInterface) {
-                AlertDialog dialog = (AlertDialog) dialogInterface;
-
-                ImageView ivPenIcon = (ImageView) dialog.findViewById(R.id.ivPenIcon);
-                if (mBrushId == R.id.left_toolkit_item1) {
-                    ivPenIcon.setBackgroundResource(R.drawable.ic_my_pen_001_w);
-                } else if (mBrushId == R.id.left_toolkit_item2) {
-                    ivPenIcon.setBackgroundResource(R.drawable.ic_my_pen_002_w);
-                } else if (mBrushId == R.id.left_toolkit_item3) {
-                    ivPenIcon.setBackgroundResource(R.drawable.ic_my_pen_003_w);
-                } else if (mBrushId == R.id.left_toolkit_item4) {
-                    ivPenIcon.setBackgroundResource(R.drawable.ic_my_pen_004_w);
-                } else if (mBrushId == R.id.left_toolkit_item5) {
-                    ivPenIcon.setBackgroundResource(R.drawable.ic_my_pen_005_w);
-                } else if (mBrushId == R.id.left_toolkit_item6) {
-                    ivPenIcon.setBackgroundResource(R.drawable.ic_my_pen_006_w);
-                }
-
-                setupPenSize(dialog);
-                setupTitle(dialog);
-                setupColors(dialog);
-                updatePreview(dialogInterface);
+                onShowDialog(dialog);
             }
         });
+        try {
+            Window window = dialog.getWindow();
+            if (window != null) {
+                window.setLayout(WIN_WIDTH, WindowManager.LayoutParams.WRAP_CONTENT);
+            }
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+        }
         return dialog;
+    }
+
+    private void onSave(AlertDialog dialogInterface) {
+        AlertDialog dialog = (AlertDialog) dialogInterface;
+        Slider slider = dialog.findViewById(R.id.slider);
+        outputBrushSize = (int)slider.getValue();
+        outputIsSave = true;
+        BookActivity4Utils.onLongClickSubmenu1_after(mContext,
+        BookActivity4BrushEditDialog.this, mBrushId);
+    }
+
+    public void onShowDialog(AlertDialog dialogInterface) {
+        AlertDialog dialog = (AlertDialog) dialogInterface;
+        Button btnSave = (Button) dialog.findViewById(R.id.btnSave);
+        Button btnCancel = (Button) dialog.findViewById(R.id.btnCancel);
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onSave(dialogInterface);
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+
+        ImageView ivPenIcon = (ImageView) dialog.findViewById(R.id.ivPenIcon);
+        if (mBrushId == R.id.left_toolkit_item1) {
+            ivPenIcon.setBackgroundResource(R.drawable.ic_my_pen_001_w);
+        } else if (mBrushId == R.id.left_toolkit_item2) {
+            ivPenIcon.setBackgroundResource(R.drawable.ic_my_pen_002_w);
+        } else if (mBrushId == R.id.left_toolkit_item3) {
+            ivPenIcon.setBackgroundResource(R.drawable.ic_my_pen_003_w);
+        } else if (mBrushId == R.id.left_toolkit_item4) {
+            ivPenIcon.setBackgroundResource(R.drawable.ic_my_pen_004_w);
+        } else if (mBrushId == R.id.left_toolkit_item5) {
+            ivPenIcon.setBackgroundResource(R.drawable.ic_my_pen_005_w);
+        } else if (mBrushId == R.id.left_toolkit_item6) {
+            ivPenIcon.setBackgroundResource(R.drawable.ic_my_pen_006_w);
+        }
+
+        setupPenSize(dialog);
+        setupTitle(dialog);
+        setupColors(dialog);
+        updatePreview(dialog);
     }
 
     private void onCreateAct(Activity ctx, int brushId) {
@@ -92,15 +133,15 @@ public class BookActivity4BrushEditDialog {
      * @see io.github.pastthepixels.freepaint.Graphics.DrawPath#draw
      * @see io.github.pastthepixels.freepaint.Graphics.DrawAppearance#PEN_TYPE_1
      */
-    public void updatePreview(DialogInterface dialogInterface) {
-        AlertDialog dialog = (AlertDialog) dialogInterface;
+    public void updatePreview(AlertDialog dialog/*DialogInterface dialogInterface*/) {
+        //AlertDialog dialog = (AlertDialog) dialogInterface;
 
         //408*150
         Bitmap bitmap = Bitmap.createBitmap(450, 200, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         if (mBrushId == R.id.left_toolkit_item1 ||
             mBrushId == R.id.left_toolkit_item5) {
-            PointF[] points = BookActivity4PreviewPath.path;
+            PointF[] points = BookActivity4PreviewPath.getPath();
             Paint paint = new Paint();
             for (int i = 0; i < points.length - 1; ++i) {
                 PointF p0 = points[i];
@@ -119,7 +160,7 @@ public class BookActivity4BrushEditDialog {
                 canvas.drawLine(p0.x, p0.y, p1.x, p1.y, paint);
             }
         } else {
-            PointF[] points = BookActivity4PreviewPath.path;
+            PointF[] points = BookActivity4PreviewPath.getPath();
             Path path = new Path();
             for (int i = 0; i < points.length; ++i) {
                 PointF p = points[i];

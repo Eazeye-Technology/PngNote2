@@ -13,6 +13,9 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
@@ -23,6 +26,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.txkj.drawingapp.R;
 import com.txkj.notemobile2.Book;
 import com.txkj.notemobile2.book.BookIO;
+import com.txkj.notemobile2.book.BookPage;
 import com.txkj.notemobile2.book.FastFile;
 import com.txkj.notemobile2.ui.CanvasBoox;
 import com.txkj.notemobile2.ui.Page;
@@ -35,6 +39,9 @@ import java.util.Iterator;
 import java.util.List;
 
 public class BookActivity4PageGridDialog {
+    public final static boolean NO_REOPEN_DIALOG = true;
+    private final static int WIN_HEIGHT = 800;
+
     public BookActivity4PageGridDialog(Activity ctx, Uri dirUrl_, String dirUrlPath_) {
         onCreateAct(ctx, dirUrl_, dirUrlPath_);
     }
@@ -44,16 +51,32 @@ public class BookActivity4PageGridDialog {
                 //.setTitle(title)
                 .setView(R.layout.activity_book4_dialog_jump)
                 .setCancelable(true)
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton("Close", null)
                 .create();
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialogInterface) {
                 AlertDialog dialog = (AlertDialog)dialogInterface;
-                gridview = (GridView) dialog.findViewById(R.id.bookgridview);
+                gridview = (BookActivity4DragGridView) dialog.findViewById(R.id.bookgridview);
+                gridview.setOnDrop(new Runnable() {
+                    @Override
+                    public void run() {
+                        reorderPages(dialogInterface, getPageList());
+                        if (!BookActivity4PageGridDialog.NO_REOPEN_DIALOG) {
+                            if (dialog != null && dialog.isShowing()) {
+                                dialog.dismiss();
+                            }
+                        } else {
+                            _book = null;
+                            onCreateAct(mContext, dirUrl, dirUrlPath);
+                            requestLoadPages();
+                        }
+                    }
+                });
                 gridview.setSelector(new ColorDrawable(Color.TRANSPARENT));
                 //gridview.setBackgroundColor(Color.WHITE);
                 bookGridAdapter = new BookPageGridAdapter(mContext, getPageList());
+                bookGridAdapter.pageIndex = BookActivity4Utils.getPageIndex(mContext);
                 gridview.setAdapter(bookGridAdapter);
                 gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
@@ -135,14 +158,39 @@ public class BookActivity4PageGridDialog {
                             deletePages(dialog, pages);
                             bookGridAdapter.checkMode = BookPageGridAdapter.CHECK_MODE_NONE;
                             bookGridAdapter.notifyDataSetChanged();
+                            updateButtons();
+                            if (!BookActivity4PageGridDialog.NO_REOPEN_DIALOG) {
+                                if (dialog != null && dialog.isShowing()) {
+                                    dialog.dismiss();
+                                }
+                            } else {
+                                _book = null;
+                                onCreateAct(mContext, dirUrl, dirUrlPath);
+                                requestLoadPages();
+                            }
                         }
                     }
                 });
                 updateButtons();
+                updateLayout(dialog);
                 requestLoadPages();
             }
         });
+        //WIN_HEIGHT
+//        dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT,
+//                ViewGroup.LayoutParams.MATCH_PARENT/*ViewGroup.LayoutParams.WRAP_CONTENT*/);
+        updateLayout(dialog);
         return dialog;
+    }
+    private void updateLayout(AlertDialog dialog) {
+        try {
+            Window window = dialog.getWindow();
+            if (window != null) {
+                window.setLayout(WindowManager.LayoutParams.WRAP_CONTENT, 800);
+            }
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+        }
     }
     Button btnReorder;
     Button btnSelect;
@@ -228,11 +276,16 @@ public class BookActivity4PageGridDialog {
         BookActivity4Utils.deletePages(mContext, pages);
     }
 
+    public void reorderPages(DialogInterface dialog, List<Page> pages) {
+        BookActivity4Utils.reorderPages(mContext, pages);
+    }
+
     private void requestLoadPages() {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                for (int idx = 0; idx < getBook().getPages().size(); ++idx) {
+                int size = getBook().getPages().size();
+                for (int idx = 0; idx < size; ++idx) {
                     FastFile bmpFile = getBook().getPages().get(idx);
                     Bitmap bitmap = getBookIO().loadPageThumbnail(bmpFile);
                     if (BookIO.USE_META_TXT) {
@@ -277,6 +330,12 @@ public class BookActivity4PageGridDialog {
                             }
                             _pageList.clear();
                             _pageList.addAll(result);
+                            //FIXME:added
+                            if (NO_REOPEN_DIALOG) {
+                                bookGridAdapter = new BookPageGridAdapter(mContext, getPageList());
+                                bookGridAdapter.pageIndex = BookActivity4Utils.getPageIndex(mContext);
+                                gridview.setAdapter(bookGridAdapter);
+                            }
                             bookGridAdapter.notifyDataSetChanged();
                         }
                     });
@@ -285,7 +344,7 @@ public class BookActivity4PageGridDialog {
         }).start();
     }
 
-    private GridView gridview;
+    private BookActivity4DragGridView gridview;
     private BookPageGridAdapter bookGridAdapter;
     private void onCreateAct(Activity ctx, Uri dirUrl_, String dirUrlPath_) {
         this.mContext = ctx;
@@ -328,6 +387,7 @@ public class BookActivity4PageGridDialog {
         return this._pageList;
     }
     private List<Page> _pageList;// = pageList_init();
+    //private int _pageIndex;
     private List<Page> pageList_init() {
         List<FastFile> pages = this.getBook().getPages();
         List<Page> result = new ArrayList<Page>(pages != null ? pages.size() : 10);

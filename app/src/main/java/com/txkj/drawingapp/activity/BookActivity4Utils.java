@@ -28,6 +28,11 @@ public class BookActivity4Utils {
     public static String APP_OPEN;
     public static String APP_FILE;
 
+    public static int getCenteredTitleThemeOverlay() {
+        //return com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog_Centered;
+        return R.style.MyThemeOverlayAlertDialog;
+    }
+
 //    public final static int USE_NEW_UI = 3;
 //        public static Class<?> getCls() {
 //        Class<?> cls = null;
@@ -115,6 +120,18 @@ public class BookActivity4Utils {
         return bitmapLock;
     }
 
+    public static int getPageIndex(Activity context) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            FragmentManager fragmentManager = act.getSupportFragmentManager();
+            Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+            if (currentFragment instanceof BookActivity4Fragment) {
+                return ((BookActivity4Fragment) currentFragment).getPageIdx();
+            }
+        }
+        return 0;
+    }
+
     public static void openPage(Activity context, int pageIdx) {
         if (context instanceof BookListActivity) {
             BookListActivity act = (BookListActivity) context;
@@ -133,6 +150,39 @@ public class BookActivity4Utils {
             Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
             if (currentFragment instanceof BookActivity4Fragment) {
                 ((BookActivity4Fragment) currentFragment).deletePages(pages);
+            }
+        }
+    }
+
+    public static void reorderPages(Activity context, List<Page> pages) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            FragmentManager fragmentManager = act.getSupportFragmentManager();
+            Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+            if (currentFragment instanceof BookActivity4Fragment) {
+                ((BookActivity4Fragment) currentFragment).reorderPages(pages);
+            }
+        }
+    }
+
+    public static void renameBook(Activity context, String newName) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            FragmentManager fragmentManager = act.getSupportFragmentManager();
+            Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+            if (currentFragment instanceof BookActivity4Fragment) {
+                ((BookActivity4Fragment) currentFragment).renameBook(newName);
+            }
+        }
+    }
+
+    public static void setBookBackText(Activity context, String backText_) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            FragmentManager fragmentManager = act.getSupportFragmentManager();
+            Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+            if (currentFragment instanceof BookActivity4Fragment) {
+                ((BookActivity4Fragment) currentFragment).setBookBackText(backText_);
             }
         }
     }
@@ -189,11 +239,6 @@ public class BookActivity4Utils {
                 ((BookActivity4Fragment) currentFragment).updateInfoBar();
             }
         }
-    }
-
-    public static int getCenteredTitleThemeOverlay() {
-        //return com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog_Centered;
-        return R.style.MyThemeOverlayAlertDialog;
     }
 
     public static boolean checkText(Context context, String textState) {

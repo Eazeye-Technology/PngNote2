@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.RectF;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.util.Base64;
@@ -33,18 +32,15 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.txkj.drawingapp.activity.BookActivity4Config;
 import com.txkj.notemobile2.Book;
-import com.txkj.notemobile2.colorpicker.Dips;
-import com.txkj.notemobile2.colorpicker.FileMeta;
 import com.txkj.notemobile2.ui.CanvasBoox;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import io.github.pastthepixels.freepaint.File.VecJson;
 import io.github.pastthepixels.freepaint.Graphics.BitmapVector;
-import io.github.pastthepixels.freepaint.Graphics.DrawCanvas;
 
 public class BookIO {
     private final static boolean D = true;
@@ -329,6 +325,36 @@ public class BookIO {
         }
     }
 
+    public void savePageOrder(BookPage page, Book book) {
+        boolean isFailed = false;
+        String folder = null;
+        if (page.getFile().getFilePath() != null) {
+            folder = new File(page.getFile().getFilePath()).getParent();
+        }
+        if (folder == null ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).exists() ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).canWrite()
+        ) {
+            isFailed = true;
+        }
+        if (!isFailed) {
+            try {
+                File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
+                String str = FastFile.loadMetaText(file_2);
+                JSONObject item = new JSONObject(str);
+                JSONObject pageOrderObj = new JSONObject();
+                for (Integer key : book.getPagetNameMap().keySet()) {
+                    pageOrderObj.put(Integer.toString(key), book.getPagetNameMap().get(key));
+                }
+                item.put(BookActivity4Config.USE_SKETCH_CONFIG_PAGEORDER, pageOrderObj);
+                FastFile.saveMetaText(file_2, item.toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+                isFailed = true;
+            }
+        }
+    }
+
     public void saveBitmap(BookPage page, Bitmap bitmap, String vecJson, Book book) {
         if (USE_CONTENT_RESOLVER) {
             OutputStream it = null;
@@ -392,33 +418,7 @@ public class BookIO {
             }
         }
         {
-            boolean isFailed = false;
-            String folder = null;
-            if (page.getFile().getFilePath() != null) {
-                folder = new File(page.getFile().getFilePath()).getParent();
-            }
-            if (folder == null ||
-                    !new File(folder, FastFile.USE_SKETCH_CONFIG).exists() ||
-                    !new File(folder, FastFile.USE_SKETCH_CONFIG).canWrite()
-            ) {
-                isFailed = true;
-            }
-            if (!isFailed) {
-                try {
-                    File file_2 = new File(folder, FastFile.USE_SKETCH_CONFIG);
-                    String str = FastFile.loadMetaText(file_2);
-                    JSONObject item = new JSONObject(str);
-                    JSONObject pageOrderObj = new JSONObject();
-                    for (Integer key : book.getPagetNameMap().keySet()) {
-                        pageOrderObj.put(Integer.toString(key), book.getPagetNameMap().get(key));
-                    }
-                    item.put(FastFile.USE_SKETCH_CONFIG_PAGEORDER, pageOrderObj);
-                    FastFile.saveMetaText(file_2, item.toString());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    isFailed = true;
-                }
-            }
+            savePageOrder(page, book);
         }
 
 
@@ -453,7 +453,7 @@ public class BookIO {
 
             itemFound.setPath(name); //FIXME:可能不是读目录名称
             itemFound.setName(name);
-            itemFound.setDispName(FastFile.getDipslayMetaName(folder));
+            itemFound.setDispName(FastFile.getDisplayMetaName(folder));
             itemFound.setUpdateTime("" + new Date().getTime());
 
             //https://blog.csdn.net/ocean__yang/article/details/113740043
@@ -602,21 +602,21 @@ public class BookIO {
 
         Map<Integer, FastFile> pageMap = new HashMap<Integer, FastFile>();
         Map<Integer, String> pageOrderObj = new HashMap<>();
-        if (BookPage.USE_UUID_PAGE_NAME) {
+        if (BookActivity4Config.USE_UUID_PAGE_NAME) {
             boolean isFailed = false;
             String folder = bookDir.getFilePath();
             if (folder == null ||
-                    !new File(folder, FastFile.USE_SKETCH_CONFIG).exists() ||
-                    !new File(folder, FastFile.USE_SKETCH_CONFIG).canWrite()
+                    !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).exists() ||
+                    !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).canWrite()
             ) {
                 isFailed = true;
             }
             if (!isFailed) {
                 try {
-                    File file_2 = new File(folder, FastFile.USE_SKETCH_CONFIG);
+                    File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
                     String str = FastFile.loadMetaText(file_2);
                     JSONObject item = new JSONObject(str);
-                    JSONObject pageOrder = item.optJSONObject(FastFile.USE_SKETCH_CONFIG_PAGEORDER);
+                    JSONObject pageOrder = item.optJSONObject(BookActivity4Config.USE_SKETCH_CONFIG_PAGEORDER);
                     if (pageOrder != null) {
                         Iterator<String> it = pageOrder.keys();
                         while (it.hasNext()) {
@@ -649,7 +649,7 @@ public class BookIO {
                         if (res.matches()) {
                             //FIXME:java.lang.IllegalStateException: No successful match so far。
                             int pageIdx = Integer.parseInt(res.group(1));
-                            if (BookPage.USE_UUID_PAGE_NAME) {
+                            if (BookActivity4Config.USE_UUID_PAGE_NAME) {
                                 if (res.group(1) != null && res.group(1).endsWith(".png")) {
                                     pageOrderObj.put(pageIdx, res.group(1).substring(0, res.group(1).length() - ".png".length()));
                                 }
@@ -661,24 +661,24 @@ public class BookIO {
                     }
                 }
             }
-            if (BookPage.USE_UUID_PAGE_NAME) {
+            if (BookActivity4Config.USE_UUID_PAGE_NAME) {
                 boolean isFailed = false;
                 String folder = bookDir.getFilePath();
                 if (folder == null ||
-                        !new File(folder, FastFile.USE_SKETCH_CONFIG).exists() ||
-                        !new File(folder, FastFile.USE_SKETCH_CONFIG).canWrite()
+                        !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).exists() ||
+                        !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).canWrite()
                 ) {
                     isFailed = true;
                 }
                 try {
-                    File file_2 = new File(folder, FastFile.USE_SKETCH_CONFIG);
+                    File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
                     String str = FastFile.loadMetaText(file_2);
                     JSONObject item = new JSONObject(str);
                     JSONObject pageOrderObj_ = new JSONObject();
                     for (Integer key : pageOrderObj.keySet()) {
                         pageOrderObj_.put(Integer.toString(key), pageOrderObj.get(key));
                     }
-                    item.put(FastFile.USE_SKETCH_CONFIG_PAGEORDER, pageOrderObj_);
+                    item.put(BookActivity4Config.USE_SKETCH_CONFIG_PAGEORDER, pageOrderObj_);
                     FastFile.saveMetaText(file_2, item.toString());
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -718,21 +718,21 @@ public class BookIO {
     public Book loadBookParentNoCreate(FastFile bookDir, Book book) {
         Map<Integer, FastFile> pageMap = new HashMap<Integer, FastFile>();
         Map<Integer, String> pageOrderObj = new HashMap<>();
-        if (BookPage.USE_UUID_PAGE_NAME) {
+        if (BookActivity4Config.USE_UUID_PAGE_NAME) {
             boolean isFailed = false;
             String folder = bookDir.getFilePath();
             if (folder == null ||
-                    !new File(folder, FastFile.USE_SKETCH_CONFIG).exists() ||
-                    !new File(folder, FastFile.USE_SKETCH_CONFIG).canWrite()
+                    !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).exists() ||
+                    !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).canWrite()
             ) {
                 isFailed = true;
             }
             if (!isFailed) {
                 try {
-                    File file_2 = new File(folder, FastFile.USE_SKETCH_CONFIG);
+                    File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
                     String str = FastFile.loadMetaText(file_2);
                     JSONObject item = new JSONObject(str);
-                    JSONObject pageOrder = item.optJSONObject(FastFile.USE_SKETCH_CONFIG_PAGEORDER);
+                    JSONObject pageOrder = item.optJSONObject(BookActivity4Config.USE_SKETCH_CONFIG_PAGEORDER);
                     if (pageOrder != null) {
                         Iterator<String> it = pageOrder.keys();
                         while (it.hasNext()) {

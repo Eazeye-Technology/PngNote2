@@ -5,16 +5,17 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:layout_margin="40px"
+    android:minHeight="800px"
     >
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
         android:padding="10px"
         >
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             app:cardBackgroundColor="#00585858"
             app:cardCornerRadius="0px"
             app:cardElevation="0px"
@@ -23,7 +24,7 @@
             >
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:orientation="vertical"
                 >
                 <LinearLayout
@@ -113,18 +114,17 @@ android:textColor="#FFFFFFFF"
                         </LinearLayout>
                 </LinearLayout>
 
-                <GridView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                <com.txkj.drawingapp.activity.BookActivity4DragGridView
                     android:id="@+id/bookgridview"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
                     android:background="@android:color/transparent"
                     android:gravity="center"
                     android:numColumns="2"
                     android:paddingLeft="1px"
                     android:paddingRight="1px"
-                    android:stretchMode="columnWidth"
-                    android:minHeight="200px"
-                    />
+                    android:stretchMode="columnWidth" />
                 <!--
                 android:layout_height="match_parent"
 

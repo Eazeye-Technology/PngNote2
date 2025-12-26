@@ -48,11 +48,44 @@ public class Book {
         return new Book(this.bookDir, result, this.bgImage);
     }
 
+    public void reorderPage(List<FastFile> pages_, BookIO bookIO) {
+        if (pages_ != null) {
+            this.pages.clear();
+            this.pages.addAll(pages_);
+            //rebuild pageNameMap
+            {
+                this.pageNameMap.clear();
+                for (int i = 0; i < this.pages.size(); ++i) {
+                    FastFile fastFile = this.pages.get(i);
+                    if (fastFile != null) {
+                        String name = fastFile.getName();
+                        if (name != null && name.endsWith(".png")) {
+                            this.pageNameMap.put(i, name.substring(0, name.length() - ".png".length()));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     //FIXME:???
-    public void removePage(FastFile page, BookIO bookIO) {
-        if (page != null) {
-            this.pages.remove(page);
-            page.removeFile(bookIO, this);
+    public void removePage(FastFile page_, BookIO bookIO) {
+        if (page_ != null) {
+            this.pages.remove(page_);
+            //rebuild pageNameMap
+            {
+                this.pageNameMap.clear();
+                for (int i = 0; i < this.pages.size(); ++i) {
+                    FastFile fastFile = this.pages.get(i);
+                    if (fastFile != null) {
+                        String name = fastFile.getName();
+                        if (name != null && name.endsWith(".png")) {
+                            this.pageNameMap.put(i, name.substring(0, name.length() - ".png".length()));
+                        }
+                    }
+                }
+            }
+            page_.removeBookFile(bookIO, this);
         }
     }
 

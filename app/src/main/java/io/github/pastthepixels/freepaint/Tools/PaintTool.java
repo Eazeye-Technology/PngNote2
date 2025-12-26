@@ -7,6 +7,8 @@ import android.view.MotionEvent;
 
 import androidx.preference.PreferenceManager;
 
+import com.txkj.drawingapp.activity.BookActivity4Config;
+
 import java.util.LinkedList;
 
 import io.github.pastthepixels.freepaint.Graphics.DrawAppearance;
@@ -94,6 +96,9 @@ public class PaintTool implements Tool {
         appearance.penType = canvas.getPenType();
         // Starts a new line in the path -- whether or not it is closed is taken from the preferences (defaults to false)
         currentPath = new DrawPath(null, DrawPath.POINTS_TYPE_STROKE);
+        if (BookActivity4Config.USE_NO_POINT_SIMPLIFY) {
+            //skip
+        }
         if (appearance.penType == DrawAppearance.PEN_TYPE_6) {
             currentPath.simplificationAmount = 100;
         } else {

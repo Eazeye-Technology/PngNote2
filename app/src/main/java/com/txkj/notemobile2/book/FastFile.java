@@ -25,19 +25,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import com.txkj.drawingapp.activity.BookActivity4Config;
 import com.txkj.notemobile2.Book;
-import com.txkj.notemobile2.BookListActivity;
 
 import org.json.JSONObject;
 
 public class FastFile {
-    public final static boolean USE_SKETCH = true; //new sketch format
-    public final static String USE_SKETCH_PREFIX = "SKETCH_";
-    public final static String USE_PAGE_PREFIX  = "PAGE_";
-    public final static String USE_SKETCH_CONFIG = "sketch.meta";
-    public final static String USE_SKETCH_CONFIG_DISPNAME = "dispName";
-    public final static String USE_SKETCH_CONFIG_PAGEORDER = "pageOrder";
-
     private final static boolean D = true;
     private final static String TAG = "FastFile";
 
@@ -146,7 +139,7 @@ public class FastFile {
         return result;
     }
 
-    public void removeFile(BookIO bookIO, Book book) {
+    public void removeBookFile(BookIO bookIO, Book book) {
         if (BookIO.USE_CONTENT_RESOLVER) {
             //skip
         } else {
@@ -157,15 +150,34 @@ public class FastFile {
                     boolean result = file.delete();
                 } else {
                     if (D) {
-                        Log.e(TAG, "<<<< removeFile failed! " + this.filePath);
+                        Log.e(TAG, "<<<< removeBookFile failed! " + this.filePath);
                     }
                 }
                 //FIXME:还需要遍历所有文件，移动其他文件到前面
-                if (bookIO != null) {
-                    Book book2 = bookIO.loadBookParentNoCreate(this, book);
+                if (BookActivity4Config.USE_VECJ) {
+                    //no need to reload
+                } else {
+                    if (bookIO != null) {
+                        Book book2 = bookIO.loadBookParentNoCreate(this, book);
+                    }
                 }
             } catch (Throwable eee) {
                 eee.printStackTrace();
+            }
+
+            if (this.filePath != null && this.filePath.endsWith(".png")) {
+                try {
+                    file = new File(this.filePath.replace(".png", ".vecj"));
+                    if (file.exists() && file.canWrite() && !file.isDirectory()) {
+                        boolean result = file.delete();
+                    } else {
+                        if (D) {
+                            Log.e(TAG, "<<<< removeBookFile .vecj failed! " + file.getAbsolutePath());
+                        }
+                    }
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                }
             }
         }
     }
@@ -399,7 +411,7 @@ public class FastFile {
         } else {
             File file_ = new File(filePath);
             String disp = file_.getName();
-            String dispMetaName = getDipslayMetaName(file_);
+            String dispMetaName = getDisplayMetaName(file_);
 
             long lm = file_.lastModified();
             String extension = MimeTypeMap.getFileExtensionFromUrl(filePath);
@@ -411,7 +423,7 @@ public class FastFile {
     public static FastFile fromFile(String filePath) {
         File file_ = new File(filePath);
         String disp = file_.getName();
-        String dispMetaName = getDipslayMetaName(file_);
+        String dispMetaName = getDisplayMetaName(file_);
 
         long lm = file_.lastModified();
         String extension = MimeTypeMap.getFileExtensionFromUrl(filePath);
@@ -419,20 +431,20 @@ public class FastFile {
         long size = file_.length();
         return new FastFile(null, filePath, disp, lm, mimeType, size, null, dispMetaName);
     }
-    public static String getDipslayMetaName(File file_) {
+    public static String getDisplayMetaName(File file_) {
         if (file_ == null) {
             return null;
         }
         String uuid = UUID.randomUUID().toString();
         String dispMetaName = null;
-        if (file_.getName().startsWith(USE_SKETCH_PREFIX) &&
-                file_.getName().length() == USE_SKETCH_PREFIX.length() + uuid.length()) {
+        if (file_.getName().startsWith(BookActivity4Config.USE_SKETCH_PREFIX) &&
+                file_.getName().length() == BookActivity4Config.USE_SKETCH_PREFIX.length() + uuid.length()) {
             try {
-                File file_2 = new File(file_, USE_SKETCH_CONFIG);
+                File file_2 = new File(file_, BookActivity4Config.USE_SKETCH_CONFIG);
                 if (file_2.exists() && file_2.canRead()) {
                     String metaTxt = loadMetaText(file_2);
                     JSONObject item = new JSONObject(metaTxt);
-                    dispMetaName = item.optString(USE_SKETCH_CONFIG_DISPNAME);
+                    dispMetaName = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_DISPNAME);
                 }
             } catch (Throwable eee) {
                 eee.printStackTrace();

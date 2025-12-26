@@ -68,9 +68,9 @@ public class BookReaderItemsAdapter extends BaseAdapter implements RecordingsDat
         RecordingItem item = (RecordingItem)getItem(position);
         if (item != null) {
             if (item.getRecType() != null && item.getRecType().equals("text")) {
-                holder.title.setText(item.getRecContent());
+                holder.title.setText(item.getRecContent() != null ? item.getRecContent().trim() : "");
             } else {
-                holder.title.setText(item.getName());
+                holder.title.setText(item.getName() != null ? item.getName().trim() : "");
             }
             holder.date.setText(getTime(item.getTime()));
             //lengthView.setText(getLengthString(item.getLength()));

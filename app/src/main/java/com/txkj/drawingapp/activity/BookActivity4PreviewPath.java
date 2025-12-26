@@ -3,7 +3,25 @@ package com.txkj.drawingapp.activity;
 import android.graphics.PointF;
 
 public class BookActivity4PreviewPath {
-    public final static PointF[] path = {
+    public static PointF[] getPath() {
+        if (false) {
+            return path;
+        } else {
+            if (path_2 == null) {
+                path_2 = new PointF[500];
+                float len = (float) path_2.length;
+                for (int i = 0; i < path_2.length; ++i) {
+                    path_2[i] = new PointF(
+                            (float) (49.6f + (i * (408.0f - 49.6f) / len)),
+                            (float) (117.0f + Math.sin(i / len * 2.0f * Math.PI - Math.PI) * (160.3f - 47.5f) / 2.0f)
+                    );
+                }
+            }
+            return path_2;
+        }
+    }
+    private static PointF[] path_2;
+    private final static PointF[] path = {
             new PointF(49.651398f, 117.88021f),
             new PointF(49.68056f, 116.787254f),
             new PointF(49.5675f, 115.876434f),

@@ -2,6 +2,7 @@ package com.txkj.notemobile2.book;
 
 import android.util.Log;
 
+import com.txkj.drawingapp.activity.BookActivity4Config;
 import com.txkj.notemobile2.Book;
 
 import java.util.UUID;
@@ -9,8 +10,6 @@ import java.util.UUID;
 import io.github.pastthepixels.freepaint.Graphics.DrawCanvas;
 
 public class BookPage {
-    public final static boolean USE_UUID_PAGE_NAME = true;
-
     private final static boolean D = true;
     private final static String TAG = "BookPage";
 
@@ -69,8 +68,8 @@ public class BookPage {
     }
 
     public static String newPageName(int pageIdx, Book book) {
-        if (USE_UUID_PAGE_NAME) {
-            String name = FastFile.USE_PAGE_PREFIX + UUID.randomUUID().toString();
+        if (BookActivity4Config.USE_UUID_PAGE_NAME) {
+            String name = BookActivity4Config.USE_PAGE_PREFIX + UUID.randomUUID().toString();
             if (book != null) {
                 book.newPageName(pageIdx, name);
             }

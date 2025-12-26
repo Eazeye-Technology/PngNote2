@@ -41,6 +41,7 @@ import androidx.fragment.app.Fragment;
 import com.foobnix.pdf.info.Android6Mod;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.txkj.drawingapp.R;
+import com.txkj.drawingapp.activity.BookActivity4Config;
 import com.txkj.drawingapp.activity.BookActivity4Utils;
 import com.txkj.notemobile2.book.BookIO;
 import com.txkj.notemobile2.book.FastFile;
@@ -240,23 +241,25 @@ public class BookListFragment extends Fragment {
                             try {
                                 String pattern = null;
                                 String metaTxt = getBookIO().loadMeta(oneBookDir);
-                                JSONObject item = new JSONObject(metaTxt);
-                                if (item != null) {
-                                    pattern = item.optString("pattern");
-                                }
-                                if (pattern != null) {
-                                    Bitmap emptyBmp = Bitmap.createBitmap(thumbnailBitmap.getWidth(),
-                                            thumbnailBitmap.getHeight(), Bitmap.Config.ARGB_8888);
-                                    if (BookIO.USE_META_TXT) {
-                                        emptyBmp.eraseColor(0x00000000);
-                                    } else {
-                                        emptyBmp.eraseColor(0x00000000);
+                                if (metaTxt != null && metaTxt.length() > 0) {
+                                    JSONObject item = new JSONObject(metaTxt);
+                                    if (item != null) {
+                                        pattern = item.optString("pattern");
                                     }
-                                    CanvasBoox.initBackText(pattern, emptyBmp, BookIO.loadThumbnail_size);
-                                    Canvas canvas = new Canvas(emptyBmp);
-                                    Paint paint = new Paint();
-                                    canvas.drawBitmap(thumbnailBitmap, 0, 0, paint);
-                                    thumbnailBitmap = emptyBmp;
+                                    if (pattern != null) {
+                                        Bitmap emptyBmp = Bitmap.createBitmap(thumbnailBitmap.getWidth(),
+                                                thumbnailBitmap.getHeight(), Bitmap.Config.ARGB_8888);
+                                        if (BookIO.USE_META_TXT) {
+                                            emptyBmp.eraseColor(0x00000000);
+                                        } else {
+                                            emptyBmp.eraseColor(0x00000000);
+                                        }
+                                        CanvasBoox.initBackText(pattern, emptyBmp, BookIO.loadThumbnail_size);
+                                        Canvas canvas = new Canvas(emptyBmp);
+                                        Paint paint = new Paint();
+                                        canvas.drawBitmap(thumbnailBitmap, 0, 0, paint);
+                                        thumbnailBitmap = emptyBmp;
+                                    }
                                 }
                             } catch (Throwable eee) {
                                 eee.printStackTrace();
@@ -570,13 +573,13 @@ public class BookListFragment extends Fragment {
         }
         if (rootDir != null) {
             try {
-                if (FastFile.USE_SKETCH) {
-                    String newBookName2 = FastFile.USE_SKETCH_PREFIX + UUID.randomUUID().toString();
+                if (BookActivity4Config.USE_SKETCH) {
+                    String newBookName2 = BookActivity4Config.USE_SKETCH_PREFIX + UUID.randomUUID().toString();
                     rootDir.createDirectory(newBookName2);
                     File folder = new File(rootDir.getFilePath(), newBookName2);
-                    File file_2 = new File(folder, FastFile.USE_SKETCH_CONFIG);
+                    File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
                     JSONObject item = new JSONObject();
-                    item.put(FastFile.USE_SKETCH_CONFIG_DISPNAME, newBookName);
+                    item.put(BookActivity4Config.USE_SKETCH_CONFIG_DISPNAME, newBookName);
                     FastFile.saveMetaText(file_2, item.toString());
                 } else {
                     rootDir.createDirectory(newBookName);

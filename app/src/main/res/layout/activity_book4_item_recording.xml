@@ -60,12 +60,13 @@
                 android:paddingLeft="5px"
                 android:paddingRight="5px"
                 android:paddingTop="5px"
-                android:textAppearance="?android:attr/textAppearanceMedium"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center|center_vertical"
-                android:textSize="25px"
+                android:textSize="14px"
                 />
+            <!--android:textAppearance="?android:attr/textAppearanceMedium"
+                -->
         </LinearLayout>
 
         <LinearLayout
@@ -86,8 +87,8 @@
                 android:paddingLeft="5px"
                 android:paddingRight="5px"
                 android:paddingBottom="5px"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="0px"
+                android:layout_height="0px"
                 android:textSize="25px"
                 />
         </LinearLayout>

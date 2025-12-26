@@ -68,6 +68,7 @@
                             android:layout_marginLeft="10px"
                             android:layout_marginRight="10px"
                             android:visibility="visible"
+                            android:id="@+id/popTextViewCopy"
                             />
                     </LinearLayout>
 
@@ -102,6 +103,7 @@
                             android:layout_marginLeft="10px"
                             android:layout_marginRight="10px"
                             android:visibility="visible"
+                            android:id="@+id/popTextViewPaste"
                             />
                     </LinearLayout>
 
@@ -136,6 +138,7 @@
                             android:layout_marginLeft="10px"
                             android:layout_marginRight="10px"
                             android:visibility="visible"
+                            android:id="@+id/popTextViewCut"
                             />
                     </LinearLayout>
 

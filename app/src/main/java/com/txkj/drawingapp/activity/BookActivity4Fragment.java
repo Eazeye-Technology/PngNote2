@@ -94,6 +94,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -103,6 +104,7 @@ import java.util.concurrent.locks.Lock;
 import io.github.pastthepixels.freepaint.Graphics.BitmapVector;
 import io.github.pastthepixels.freepaint.Graphics.DrawAppearance;
 import io.github.pastthepixels.freepaint.Graphics.DrawCanvas;
+import io.github.pastthepixels.freepaint.Graphics.DrawPath;
 import io.github.pastthepixels.freepaint.Graphics.Point;
 import io.github.pastthepixels.freepaint.MainActivity;
 import io.github.pastthepixels.freepaint.Tools.EraserTool;
@@ -191,7 +193,7 @@ public class BookActivity4Fragment extends Fragment {
             eee.printStackTrace();
         }
     }
-    private void onPageIdxChange() {
+    private void onPageIdxChange(boolean forceReload) {
         int idx = getPageIdx();
         if (idx < 0) {
             idx = this._pageIdx = 0;
@@ -226,10 +228,10 @@ public class BookActivity4Fragment extends Fragment {
                     isDirty = false;
                     BitmapVector result_ = new BitmapVector();
                     result_.bitmap = pageBmp;
-                    result_.strVecJson = result.strVecJson;
-                    return result;
+                    result_.strVecJson = result != null ? result.strVecJson : null;
+                    return result_;
                 }
-            });
+            }, forceReload);
             onUpdatePidxPnum();
         }
     }
@@ -279,7 +281,7 @@ public class BookActivity4Fragment extends Fragment {
         Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
     }
 
-    private int getPageIdx() {
+    public int getPageIdx() {
         return this._pageIdx;
     }
 
@@ -371,6 +373,7 @@ public class BookActivity4Fragment extends Fragment {
         } else {
             this.savePageInMain(this.getPageIdx(), this.pageBmp, getVecJson(canvas));
         }
+        saveBrushPreset();
         super.onStop();
         runNormalScreen(getActivity());
     }
@@ -461,6 +464,15 @@ public class BookActivity4Fragment extends Fragment {
             if (this.emptyBmp != null) {
                 this.pageBmp = this.emptyBmp; //FIXME:???
             }
+            //FIXME:clear versions here??? TODO:
+
+            if (canvas != null) {
+                // Clear path list/history
+                canvas.paths.clear();
+                canvas.versions.clear();
+                canvas.version_index = -1;
+            }
+
             if (this.pageBmp != null) {
                 this.savePageInMain(this.pageNum - 1, this.pageBmp, getVecJson(canvas));
                 if (BookIO.USE_META_TXT) {
@@ -469,7 +481,7 @@ public class BookActivity4Fragment extends Fragment {
             }
         }
         this._pageIdx = this.pageNum - 1;
-        onPageIdxChange();
+        onPageIdxChange(true);
     }
 
     //删除页面
@@ -500,7 +512,7 @@ public class BookActivity4Fragment extends Fragment {
             if (this.pageBmp != null) {
                 this.savePageInMain(this.pageNum - 1, this.pageBmp, getVecJson(canvas));
             }
-            onPageIdxChange();
+            onPageIdxChange(false);
         } else {
             BookPage page = this.getBook().getPage(this._pageIdx);
             gotoPrevPage();
@@ -512,19 +524,19 @@ public class BookActivity4Fragment extends Fragment {
         set_book(getBook()); //FIXME:???重新加载
         //--------------
 
-        onPageIdxChange();
+        onPageIdxChange(false);
     }
 
     private void gotoFirstPage() {
         this.ensureSave();
         this._pageIdx = 0;
-        onPageIdxChange();
+        onPageIdxChange(false);
     }
 
     private void gotoLastPage() {
         this.ensureSave();
         this._pageIdx = this.pageNum - 1;
-        onPageIdxChange();
+        onPageIdxChange(false);
     }
 
     private void gotoPrevPage() {
@@ -532,7 +544,7 @@ public class BookActivity4Fragment extends Fragment {
         int var1 = this.getPageIdx();
         if (var1 >= 1) {
             this._pageIdx = var1 - 1;
-            onPageIdxChange();
+            onPageIdxChange(false);
         }
     }
 
@@ -540,7 +552,7 @@ public class BookActivity4Fragment extends Fragment {
         this.ensureSave();
         int var1 = this.getPageIdx();
         this._pageIdx = var1 + 1;
-        onPageIdxChange();
+        onPageIdxChange(false);
     }
 
     private void gotoGridPage() {
@@ -1156,6 +1168,7 @@ public class BookActivity4Fragment extends Fragment {
                 left_toolkit_item6_size = dialog.outputBrushSize;
             }
             updateAppear(id);
+            saveBrushPreset();
         }
     }
     //--------------------------
@@ -1421,6 +1434,7 @@ public class BookActivity4Fragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.activity_book4, container, false);
         g_rootView = rootView;
+        loadBrushPreset();
 
         newFixedThreadPool = Executors.newFixedThreadPool(6);
         Bundle intent = this.getArguments();
@@ -1686,6 +1700,7 @@ public class BookActivity4Fragment extends Fragment {
                 @Override
                 public void onClick(View view) {
                     behavior.setState(BottomSheetBehavior.STATE_HIDDEN);//BottomSheetBehavior.STATE_COLLAPSED);
+                    beforePageGrid();
                     AlertDialog dialog = new BookActivity4PageGridDialog(getActivity(),
                             BookActivity4Fragment.this.dirUrl,
                             BookActivity4Fragment.this.dirUrlPath)
@@ -2755,10 +2770,10 @@ public class BookActivity4Fragment extends Fragment {
     private void setOnUndoStateListener(DrawCanvas canvas, CanvasBoox.OnUndoStateListener listener) {
         //TODO:
     }
-    private void onPageIdx(DrawCanvas canvas, int idx, CanvasBoox.OnLoadBitmapListener bitmapLoader) {
+    private void onPageIdx(DrawCanvas canvas, int idx, CanvasBoox.OnLoadBitmapListener bitmapLoader, boolean forceReload) {
         //TODO:
         if (canvas != null) {
-            canvas.onPageIdx(idx, bitmapLoader);
+            canvas.onPageIdx(idx, bitmapLoader, forceReload);
         }
     }
     private void setBackText(DrawCanvas canvas, String backText) {
@@ -2842,6 +2857,7 @@ public class BookActivity4Fragment extends Fragment {
                                 gotoGridPage();
                             }
                         } else {
+                            beforePageGrid();
                             AlertDialog dialog = new BookActivity4PageGridDialog(getActivity(),
                                     BookActivity4Fragment.this.dirUrl,
                                     BookActivity4Fragment.this.dirUrlPath)
@@ -2895,171 +2911,104 @@ public class BookActivity4Fragment extends Fragment {
                     } else if (view.getId() == R.id.popButtonShortcut) {
                         AlertDialog dialog = new BookActivity4TipsDialog(getActivity()).create();
                         dialog.show();
+                    } else if (view.getId() == R.id.popTextViewCopy) {
+                        if (canvas != null) {
+                            copyPaths.clear();
+                            LinkedList<DrawPath> selectedPaths = canvas.getSelectionTool().getSelectedPaths();
+                            for (DrawPath drawPath : selectedPaths) {
+                                copyPaths.add(drawPath.clone());
+                            }
+                            canvas.getSelectionTool().exitSelect();
+                            canvas.invalidate();
+                        }
+                    } else if (view.getId() == R.id.popTextViewPaste) {
+                        if (canvas != null) {
+                            canvas.paths.addAll(copyPaths);
+                            canvas.versions.add(canvas.cloneDrawPathList(copyPaths));
+                            canvas.version_index += 1;
+                            copyPaths.clear();
+                            canvas.invalidate();
+                        }
+                    } else if (view.getId() == R.id.popTextViewCut) {
+                        if (canvas != null) {
+                            LinkedList<DrawPath> selectedPaths = canvas.getSelectionTool().getSelectedPaths();
+                            copyPaths.clear();
+                            for (DrawPath drawPath : selectedPaths) {
+                                copyPaths.add(drawPath.clone());
+                                drawPath.clear();
+                            }
+                            canvas.getSelectionTool().exitSelect();
+                            canvas.invalidate();
+                        }
                     } else if (view.getId() == R.id.popTextViewRenameFile) {
-                        AlertDialog dialog = new MaterialAlertDialogBuilder(getActivity(), BookActivity4Utils.getCenteredTitleThemeOverlay())
-                                //.setTitle(title)
-                                .setView(R.layout.activity_booklist_dialog1)
-                                .setCancelable(true)
-                                .setPositiveButton("Done", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        TextView input = ((AlertDialog) dialog).findViewById(R.id.textState);
-                                        //Toast.makeText(BookListActivity.this, input.getText(), Toast.LENGTH_LONG).show();
-                                        boolean isFailed = false;
-                                        if (_bookDir == null || _bookDir.getName() == null ||!_bookDir.getName().startsWith(FastFile.USE_SKETCH_PREFIX)) {
-                                            isFailed = true;
-                                        }
-                                        String folder = _bookDir.getFilePath();
-                                        if (folder == null ||
-                                                !new File(folder, FastFile.USE_SKETCH_CONFIG).exists() ||
-                                                !new File(folder, FastFile.USE_SKETCH_CONFIG).canWrite()
-                                            ) {
-                                            isFailed = true;
-                                        }
-                                        try {
-                                            File file_2 = new File(folder, FastFile.USE_SKETCH_CONFIG);
-                                            String str = FastFile.loadMetaText(file_2);
-                                            JSONObject item = new JSONObject(str);
-                                            item.put(FastFile.USE_SKETCH_CONFIG_DISPNAME, input.getText().toString());
-                                            FastFile.saveMetaText(file_2, item.toString());
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                            isFailed = true;
-                                        }
-                                        if (isFailed) {
-                                            new MaterialAlertDialogBuilder(getActivity(), BookActivity4Utils.getCenteredTitleThemeOverlay())
-                                                    .setTitle("Error")
-                                                    .setMessage("Rename failed : " + _bookDir.getFilePath() + ",\n" +
-                                                            "please check the path starts with '" + FastFile.USE_SKETCH_PREFIX + "' prefix, " +
-                                                            "and make sure " + FastFile.USE_SKETCH_CONFIG + " file exists.")
-                                                    .setPositiveButton("OK", null)
-                                                    .show();
-                                        } else {
-                                            onCreateAct(rootView);
-                                            try {
-                                                ((TextView) rootView.findViewById(R.id.newTitle)).setText(_bookDir.getDisplayName());
-                                            } catch (Throwable eee) {
-                                                eee.printStackTrace();
-                                            }
-                                        }
-                                    }
-                                })
-                                .setNegativeButton("Cancel", null)
+                        AlertDialog dialog = new BookActivity4RenameDialog(getActivity(), _bookDir.getDisplayName())
                                 .create();
-                        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                            @Override
-                            public void onShow(DialogInterface dialog) {
-//                                TextView tvDialogTitle = ((AlertDialog) dialog).findViewById(R.id.tvDialogTitle);
-//                                tvDialogTitle.setText("Rename note");
-                                TextView input = ((AlertDialog) dialog).findViewById(R.id.textState);
-                                try {
-                                    input.setText(_bookDir.getDisplayName());
-                                } catch (Throwable eee) {
-                                    eee.printStackTrace();
-                                }
-                            }
-                        });
-                        dialog.show();
+                        if (dialog != null) {
+                            dialog.show();
+                        }
                     } else if (view.getId() == R.id.popTextViewPageBackground) {
-                        AlertDialog dialog = new MaterialAlertDialogBuilder(getActivity(), BookActivity4Utils.getCenteredTitleThemeOverlay())
-                                //.setTitle(title)
-                                .setView(R.layout.activity_booklist_dialog2)
-                                .setCancelable(false)
-                                .setPositiveButton("Done", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        RadioButton radioLine = ((AlertDialog) dialog).findViewById(R.id.radio1);
-                                        RadioButton radioBlank = ((AlertDialog) dialog).findViewById(R.id.radio2);
-                                        RadioButton radioGrid = ((AlertDialog) dialog).findViewById(R.id.radio3);
-                                        RadioButton radioDotted = ((AlertDialog) dialog).findViewById(R.id.radio4);
-                                        RadioButton radioInfinite = ((AlertDialog) dialog).findViewById(R.id.radio5);
-                                        String backText = null;
-                                        if (radioLine.isChecked()) {
-                                            backText = FileMeta.LINED;
-                                        } else if (radioBlank.isChecked()) {
-                                            backText = FileMeta.NONE;
-                                        } else if (radioGrid.isChecked()) {
-                                            backText = FileMeta.GRAPH;
-                                        } else if (radioDotted.isChecked()) {
-                                            backText = FileMeta.DOTTED;
-                                        } else if (radioInfinite.isChecked()) {
-                                            backText = FileMeta.NONE;
-                                        }
-                                        if (backText != null) {
-                                            setBackText(canvas, backText);
-                                        }
-                                        if (BookIO.USE_META_TXT) {
-                                            getBookIO().saveMeta(backText, BookActivity4Fragment.this.dirUrlPath, String.format("%04d", BookActivity4Fragment.this.pageNum - 1) + ".meta");
-                                        }
-                                    }
-                                })
-                                .setNegativeButton("Cancel", null)
+                        int backgroundMode = -1;
+                        if (canvas != null) {
+                            backgroundMode = canvas.getBackgroundMode();
+                        }
+                        AlertDialog dialog = new BookActivity4BackgroundDialog(getActivity(), backgroundMode)
                                 .create();
-                        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                            @Override
-                            public void onShow(DialogInterface dialogInterface) {
-                                AlertDialog dialog = (AlertDialog) dialogInterface;
-                                int[] ll_ids = {
-                                        R.id.llradio1,
-                                        R.id.llradio2,
-                                        R.id.llradio3,
-                                        R.id.llradio4,
-                                        R.id.llradio5,
-                                };
-                                int[] ids = {
-                                        R.id.radio1, //Note book
-                                        R.id.radio2, //Blank
-                                        R.id.radio3, //Grid
-                                        R.id.radio4, //Dotted
-                                        R.id.radio5, //Infinite canvas
-                                };
-                                for (int index = 0; index < ids.length; ++index) {
-                                    int ll_id = ll_ids[index];
-                                    int id = ids[index];
-                                    View ll = dialog.findViewById(ll_id);
-                                    RadioButton input = dialog.findViewById(id);
-                                    ll.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-                                            dialog.findViewById(id).performClick();
-                                        }
-                                    });
-                                    input.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-                                            for (int id2 : ids) {
-                                                if (id2 != id) {
-                                                    RadioButton input = (RadioButton)dialog.findViewById(id2);
-                                                    input.setChecked(false);
-                                                }
-                                            }
-                                            RadioButton input = (RadioButton)dialog.findViewById(id);
-                                            input.setChecked(true);
-                                        }
-                                    });
-                                }
-                                if (canvas != null) {
-                                    if (canvas.getBackgroundMode() == FabricView.BACKGROUND_STYLE_GRAPH_PAPER) {
-                                        RadioButton input = (RadioButton)dialog.findViewById(R.id.radio3);
-                                        input.setChecked(true);
-                                    } else if (canvas.getBackgroundMode() == FabricView.BACKGROUND_STYLE_NOTEBOOK_PAPER) {
-                                        RadioButton input = (RadioButton)dialog.findViewById(R.id.radio1);
-                                        input.setChecked(true);
-                                    } else if (canvas.getBackgroundMode() == FabricView.BACKGROUND_STYLE_DOT_PAPER) {
-                                        RadioButton input = (RadioButton)dialog.findViewById(R.id.radio4);
-                                        input.setChecked(true);
-                                    } else if (canvas.getBackgroundMode() == FabricView.BACKGROUND_STYLE_BLANK) {
-                                        RadioButton input = (RadioButton)dialog.findViewById(R.id.radio2);
-                                        input.setChecked(true);
-                                    }
-                                }
-                            }
-                        });
-                        dialog.show();
+                        if (dialog != null) {
+                            dialog.show();
+                        }
                     }
                 }
             }
         });
+    }
+
+    public void setBookBackText(String backText_) {
+        if (backText_ != null) {
+            setBackText(canvas, backText_);
+        }
+        if (BookIO.USE_META_TXT) {
+            getBookIO().saveMeta(backText_, BookActivity4Fragment.this.dirUrlPath, String.format("%04d", BookActivity4Fragment.this.pageNum - 1) + ".meta");
+        }
+    }
+
+    public void renameBook(String newName) {
+        boolean isFailed = false;
+        if (_bookDir == null || _bookDir.getName() == null ||!_bookDir.getName().startsWith(BookActivity4Config.USE_SKETCH_PREFIX)) {
+            isFailed = true;
+        }
+        String folder = _bookDir.getFilePath();
+        if (folder == null ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).exists() ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).canWrite()
+        ) {
+            isFailed = true;
+        }
+        try {
+            File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
+            String str = FastFile.loadMetaText(file_2);
+            JSONObject item = new JSONObject(str);
+            item.put(BookActivity4Config.USE_SKETCH_CONFIG_DISPNAME, newName);
+            FastFile.saveMetaText(file_2, item.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+            isFailed = true;
+        }
+        if (isFailed) {
+            new MaterialAlertDialogBuilder(getActivity(), BookActivity4Utils.getCenteredTitleThemeOverlay())
+                    .setTitle("Error")
+                    .setMessage("Rename failed : " + _bookDir.getFilePath() + ",\n" +
+                            "please check the path starts with '" + BookActivity4Config.USE_SKETCH_PREFIX + "' prefix, " +
+                            "and make sure " + BookActivity4Config.USE_SKETCH_CONFIG + " file exists.")
+                    .setPositiveButton("OK", null)
+                    .show();
+        } else {
+            onCreateAct(g_rootView);
+            try {
+                ((TextView) g_rootView.findViewById(R.id.newTitle)).setText(_bookDir.getDisplayName());
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+            }
+        }
     }
 
     //isDrawBG is false, unless I want to share
@@ -3195,11 +3144,13 @@ public class BookActivity4Fragment extends Fragment {
     public void openPage(int pageIdx) {
         this.ensureSave();
         this._pageIdx = pageIdx;
-        onPageIdxChange();
+        onPageIdxChange(false);
     }
 
     //FIXME: not good
     public void deletePages(List<Page> pages) {
+        BookPage page_old = _book.getPage(_pageIdx);
+
         List<FastFile> fastFiles = new ArrayList<>();
         for (Page page : pages) {
             //page.getName() is new String(index + 1)
@@ -3211,9 +3162,122 @@ public class BookActivity4Fragment extends Fragment {
                 }
             }
         }
+        int gotoPage = _pageIdx;
+        int gotoPage_2 = -1;
+        for (int i = gotoPage; i >= 0; --i) {
+            boolean isDeleted = false;
+            for (Page page : pages) {
+                if (("" + (i + 1)).equals(page.getName())) {
+                    isDeleted = true;
+                    break;
+                }
+            }
+            if (isDeleted) {
+                continue;
+            } else {
+                gotoPage_2 = i;
+                break;
+            }
+        }
+        if (gotoPage_2 >= 0) {
+            gotoPage = gotoPage_2;
+        } else {
+            int gotoPage_3 = -1;
+            List<FastFile> pageFiles = this.getBook().getPages();
+            for (int i = gotoPage + 1; i < pageFiles.size(); ++i) {
+                boolean isDeleted = false;
+                for (Page page : pages) {
+                    if (("" + (i + 1)).equals(page.getName())) {
+                        isDeleted = true;
+                        break;
+                    }
+                }
+                if (isDeleted) {
+                    continue;
+                } else {
+                    gotoPage_3 = i;
+                    break;
+                }
+            }
+            if (gotoPage_3 >= 0) {
+                gotoPage = gotoPage_2;
+            } else {
+                gotoPage = 0;
+            }
+        }
         for (FastFile fastFile : fastFiles) {
             System.out.println("deletePages : " + fastFile.getName());
-            //this.getBook().removePage(fastFile, _bookIO);
+            this.getBook().removePage(fastFile, _bookIO);
+        }
+
+
+        getBookIO().savePageOrder(page_old, _book);
+        //--------------
+        this._book = null; //if _book == null, it will be reloaded from files
+        set_book(getBook()); //FIXME:???重新加载
+        //--------------
+        //gotoFirstPage();
+        this.ensureSave();
+        this._pageIdx = gotoPage;
+        onPageIdxChange(true);
+        if (!BookActivity4PageGridDialog.NO_REOPEN_DIALOG) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    AlertDialog dialog = new BookActivity4PageGridDialog(getActivity(),
+                            BookActivity4Fragment.this.dirUrl,
+                            BookActivity4Fragment.this.dirUrlPath)
+                            .create();
+                    dialog.show();
+                }
+            });
+        }
+    }
+
+    //FIXME: not good
+    public void reorderPages(List<Page> pages) {
+        BookPage page_old = _book.getPage(_pageIdx);
+
+        List<FastFile> fastFiles = new ArrayList<>();
+        for (Page page : pages) {
+            //page.getName() is new String(index + 1)
+            List<FastFile> pageFiles = this.getBook().getPages();
+            for (int i = 0; i < pageFiles.size(); ++i) {
+                FastFile pageFile = pageFiles.get(i);
+                if (("" + (i + 1)).equals(page.getName())) {
+                    fastFiles.add(pageFile);
+                }
+            }
+        }
+
+        int gotoPage = _pageIdx;
+
+        {
+            System.out.println("reorderPages : " + fastFiles.size());
+            this.getBook().reorderPage(fastFiles, _bookIO);
+        }
+
+
+        getBookIO().savePageOrder(page_old, _book);
+        //--------------
+        this._book = null; //if _book == null, it will be reloaded from files
+        set_book(getBook()); //FIXME:???重新加载
+        //--------------
+        //gotoFirstPage();
+        this.ensureSave();
+        this._pageIdx = gotoPage;
+        onPageIdxChange(true);
+        if (!BookActivity4PageGridDialog.NO_REOPEN_DIALOG) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    AlertDialog dialog = new BookActivity4PageGridDialog(getActivity(),
+                            BookActivity4Fragment.this.dirUrl,
+                            BookActivity4Fragment.this.dirUrlPath)
+                            .create();
+                    dialog.show();
+                }
+            });
         }
     }
 
@@ -3410,6 +3474,117 @@ public class BookActivity4Fragment extends Fragment {
             return canvas.getVecJson();
         }
         return "";
+    }
+
+    private void saveBrushPreset() {
+        try {
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putInt("left_toolkit_item1_color", left_toolkit_item1_color);
+            editor.putInt("left_toolkit_item2_color", left_toolkit_item2_color);
+            editor.putInt("left_toolkit_item3_color", left_toolkit_item3_color);
+            editor.putInt("left_toolkit_item4_color", left_toolkit_item4_color);
+            editor.putInt("left_toolkit_item5_color", left_toolkit_item5_color);
+            editor.putInt("left_toolkit_item6_color", left_toolkit_item6_color);
+
+            editor.putInt("left_toolkit_item1_size", left_toolkit_item1_size);
+            editor.putInt("left_toolkit_item2_size", left_toolkit_item2_size);
+            editor.putInt("left_toolkit_item3_size", left_toolkit_item3_size);
+            editor.putInt("left_toolkit_item4_size", left_toolkit_item4_size);
+            editor.putInt("left_toolkit_item5_size", left_toolkit_item5_size);
+            editor.putInt("left_toolkit_item6_size", left_toolkit_item6_size);
+
+            editor.apply();
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+        }
+    }
+    private void loadBrushPreset() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        try {
+            this.left_toolkit_item1_color = preferences.getInt("left_toolkit_item1_color", Color.BLACK);
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+            this.left_toolkit_item1_color = Color.BLACK;
+        }
+        try {
+            this.left_toolkit_item2_color = preferences.getInt("left_toolkit_item2_color", Color.BLACK);
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+            this.left_toolkit_item2_color = Color.BLACK;
+        }
+        try {
+            this.left_toolkit_item3_color = preferences.getInt("left_toolkit_item3_color", Color.BLACK);
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+            this.left_toolkit_item3_color = Color.BLACK;
+        }
+
+        try {
+            this.left_toolkit_item4_color = preferences.getInt("left_toolkit_item4_color", Color.BLACK);
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+            this.left_toolkit_item4_color = Color.BLACK;
+        }
+        try {
+            this.left_toolkit_item5_color = preferences.getInt("left_toolkit_item5_color", Color.BLACK);
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+            this.left_toolkit_item5_color = Color.BLACK;
+        }
+        try {
+            this.left_toolkit_item6_color = preferences.getInt("left_toolkit_item6_color", Color.BLACK);
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+            this.left_toolkit_item6_color = Color.BLACK;
+        }
+
+
+        try {
+            this.left_toolkit_item1_size = preferences.getInt("left_toolkit_item1_size", 1);
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+            this.left_toolkit_item1_size = 1;
+        }
+        try {
+            this.left_toolkit_item2_size = preferences.getInt("left_toolkit_item2_size", 1);
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+            this.left_toolkit_item2_size = 1;
+        }
+        try {
+            this.left_toolkit_item3_size = preferences.getInt("left_toolkit_item3_size", 1);
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+            this.left_toolkit_item3_size = 1;
+        }
+
+
+        try {
+            this.left_toolkit_item4_size = preferences.getInt("left_toolkit_item4_size", 1);
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+            this.left_toolkit_item4_size = 1;
+        }
+        try {
+            this.left_toolkit_item5_size = preferences.getInt("left_toolkit_item5_size", 1);
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+            this.left_toolkit_item5_size = 1;
+        }
+        try {
+            this.left_toolkit_item6_size = preferences.getInt("left_toolkit_item6_size", 1);
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+            this.left_toolkit_item6_size = 1;
+        }
+    }
+    LinkedList<DrawPath> copyPaths = new LinkedList<>();
+
+    private void beforePageGrid() {
+        notifyForceSave(false);
+        this.ensureSave();
+        onPageIdxChange(true);
     }
 
     //FIXME:TODO:

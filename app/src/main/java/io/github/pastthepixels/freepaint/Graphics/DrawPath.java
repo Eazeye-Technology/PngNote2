@@ -8,12 +8,15 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
 import android.graphics.PointF;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.txkj.drawingapp.activity.BookActivity4Config;
 import com.txkj.drawingapp.activity.BookActivity4Fragment;
+import com.txkj.notemobile2.book.FastFile;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -163,29 +166,38 @@ public class DrawPath {
         points = simplify(points, simplificationAmount);
         // Generates handles for each point.
         for (int i = 0; i < points.size(); i++) {
-            Point point = points.get(i);
-            if (i == 0) {
-                Point next = points.get(i + 1);
-                point.setRightHandle(new Point(
-                        ((next.x - point.x) / 3),
-                        ((next.y - point.y) / 3)
-                ));
-            } else if (i != points.size() - 1) {
-                Point prev = points.get(i - 1);
-                Point next = points.get(i + 1);
-                // Set handles (left handle is mirrored; hermite splines!
-                Point rightHandle = new Point(
-                        ((next.x - prev.x) / 6),
-                        ((next.y - prev.y) / 6)
-                );
-                point.setRightHandle(rightHandle);
-                point.setLeftHandle(rightHandle.multiply(-1));
-                // If the angles between the current point and the next point/current and previous are acute/right, make the corner sharp.
-                double angle = Utils.angleBetweenVectors(prev.subtract(point), point.subtract(next));
-                if (Math.abs(angle) >= Math.PI/2) { // idk how this works but it does. it shouldn't be this way.
-                    point.setLeftHandle(new Point(0, 0 ));
-                    point.setRightHandle(new Point(0, 0 ));
+            try {
+                Point point = points.get(i);
+                if (i == 0) {
+                    if (i + 1 >= 0 && i + 1 < points.size()) {
+                        Point next = points.get(i + 1);
+                        point.setRightHandle(new Point(
+                                ((next.x - point.x) / 3),
+                                ((next.y - point.y) / 3)
+                        ));
+                    }
+                } else if (i != points.size() - 1) {
+                    if (i - 1 >= 0 && i - 1 < points.size() &&
+                        i + 1 >= 0 && i + 1 < points.size()) {
+                        Point prev = points.get(i - 1);
+                        Point next = points.get(i + 1);
+                        // Set handles (left handle is mirrored; hermite splines!
+                        Point rightHandle = new Point(
+                                ((next.x - prev.x) / 6),
+                                ((next.y - prev.y) / 6)
+                        );
+                        point.setRightHandle(rightHandle);
+                        point.setLeftHandle(rightHandle.multiply(-1));
+                        // If the angles between the current point and the next point/current and previous are acute/right, make the corner sharp.
+                        double angle = Utils.angleBetweenVectors(prev.subtract(point), point.subtract(next));
+                        if (Math.abs(angle) >= Math.PI / 2) { // idk how this works but it does. it shouldn't be this way.
+                            point.setLeftHandle(new Point(0, 0));
+                            point.setRightHandle(new Point(0, 0));
+                        }
+                    }
                 }
+            } catch (Throwable eee) {
+                eee.printStackTrace();
             }
         }
     }
@@ -195,6 +207,11 @@ public class DrawPath {
      * Adapted from the pseudocde from https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm
      */
     private ArrayList<Point> simplify(ArrayList<Point> points, double epsilon) {
+        if (BookActivity4Config.USE_NO_POINT_SIMPLIFY) {
+            if (epsilon == 0) {
+                return points;
+            }
+        }
         double max_distance = 0;
         int index = 0;
         for (int i = 2; i < points.size() - 1; i++) {
@@ -388,10 +405,20 @@ public class DrawPath {
                         paint.setColor(this.pointsTextColor);
                     }
 
-                    float textWidth = paint.measureText(pointsText);
-                    float x = pointsTextX;
-                    float y = pointsTextY - paint.ascent() - ((paint.descent() - paint.ascent()) / 2);
-                    canvas.drawText(pointsText, x, y, paint);
+                    if (false) {
+                        float textWidth = paint.measureText(pointsText);
+                        float x = pointsTextX;
+                        float y = pointsTextY - paint.ascent() - ((paint.descent() - paint.ascent()) / 2);
+                        canvas.drawText(pointsText, x, y, paint);
+                    } else {
+                        //https://blog.csdn.net/wangjiang_qianmo/article/details/73180042
+                        Rect bounds = new Rect();
+                        paint.getTextBounds(pointsText, 0, pointsText.length(), bounds);
+                        Paint.FontMetrics fontMetrics = paint.getFontMetrics();
+                        canvas.drawText(pointsText, pointsTextX,
+                                pointsTextY + (fontMetrics.bottom - fontMetrics.top + fontMetrics.leading),
+                                paint);
+                    }
                 }
             } else if (pointsType == POINTS_TYPE_IMAGE) {
                 //canvas.drawPath(toDraw, paint);
@@ -542,6 +569,9 @@ public class DrawPath {
             point.add(by);
         }
         if (pointsType == POINTS_TYPE_IMAGE) {
+            pointsTextX += by.x;
+            pointsTextY += by.y;
+        } else if (pointsType == POINTS_TYPE_TEXT) {
             pointsTextX += by.x;
             pointsTextY += by.y;
         }

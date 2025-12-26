@@ -19,10 +19,14 @@
             android:id="@+id/rl_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="15dip"
+            android:layout_marginRight="15dip"
             android:background="@drawable/draw_text_border"
             android:gravity="center_vertical"
-            >
-            <!--编辑框外框黑线-->
+            android:paddingTop="25dip"
+            android:paddingBottom="25dip"
+            android:paddingLeft="30dip"
+            android:paddingRight="30dip" >
 
             <EditText
                 android:id="@+id/et_text_edit"
@@ -32,9 +36,8 @@
                 android:minWidth="20dip"
                 android:textSize="24sp"
                 android:singleLine="true"
-                android:visibility="visible"
+                android:visibility="gone"
                 android:enabled="false"
-                android:text="input"
                 />
 
             <TextView
@@ -56,9 +59,7 @@
             android:layout_height="30dip"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
-            android:background="@drawable/draw_text_delete"
-            android:visibility="gone"
-            />
+            android:background="@drawable/draw_text_delete" />
 
         <Button
             android:id="@+id/bt_text_edit"
@@ -67,9 +68,7 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="-30dip"
             android:layout_toRightOf="@+id/rl_text"
-            android:background="@drawable/draw_text_edit"
-            android:visibility="gone"
-            />
+            android:background="@drawable/draw_text_edit" />
     </RelativeLayout>
 
 </RelativeLayout>

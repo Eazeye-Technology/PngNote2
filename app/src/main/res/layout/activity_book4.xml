@@ -802,7 +802,7 @@
 
                 <LinearLayout
                     android:id="@+id/llPanel"
-                    android:layout_width="600px"
+                    android:layout_width="400px"
                     android:layout_height="match_parent"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentBottom="true"
