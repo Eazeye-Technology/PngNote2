@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.txkj.contentbrowser.NoteFragment2;
 import com.txkj.drawingapp.R;
 import com.txkj.notemobile2.BookListActivity;
 import com.txkj.notemobile2.BookListFragment;
@@ -28,6 +29,18 @@ public class BookActivity4Utils {
     public static String APP_OPEN;
     public static String APP_FILE;
 
+    public static boolean isTopNoteFragment2(Activity context) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            FragmentManager fragmentManager = act.getSupportFragmentManager();
+            Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+            if (currentFragment instanceof NoteFragment2) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static int getCenteredTitleThemeOverlay() {
         //return com.google.android.material.R.style.ThemeOverlay_Material3_MaterialAlertDialog_Centered;
         return R.style.MyThemeOverlayAlertDialog;
@@ -41,12 +54,20 @@ public class BookActivity4Utils {
 //        }
 //        return cls;
 //    }
-    public static void finish(Activity context) {
+    public static void finish(Activity context, boolean isRefreshList) {
         if (USE_FRAGMENT) {
             if (context instanceof BookListActivity) {
                 BookListActivity act = (BookListActivity) context;
                 FragmentManager fragmentManager = act.getSupportFragmentManager();
                 fragmentManager.popBackStack();
+                if (isRefreshList) {
+                    if (act.noteFragment2 != null) {
+                        act.noteFragment2.refresh();
+                    }
+                }
+                if (act.isIntentNew || act.isIntentOpen) {
+                    act.finish();
+                }
             }
         } else {
             context.finish();
@@ -66,7 +87,12 @@ public class BookActivity4Utils {
                         R.anim.slide_in_right,
                         R.anim.slide_out_left_exit
                 );
-                BookActivity4Fragment fragment = new BookActivity4Fragment();
+                Fragment fragment;
+                if (true) {
+                    fragment = new BookActivity4Fragment();
+                } else {
+                    fragment = new BookActivity4FragmentMin();
+                }
                 Bundle arguments = new Bundle();
                 if (data != null) {
                     arguments.putString(EXTRA_DATA, data.toString());
@@ -150,6 +176,17 @@ public class BookActivity4Utils {
             Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
             if (currentFragment instanceof BookActivity4Fragment) {
                 ((BookActivity4Fragment) currentFragment).deletePages(pages);
+            }
+        }
+    }
+
+    public static void copyPages(Activity context, List<Page> pages) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            FragmentManager fragmentManager = act.getSupportFragmentManager();
+            Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+            if (currentFragment instanceof BookActivity4Fragment) {
+                ((BookActivity4Fragment) currentFragment).copyPages(pages);
             }
         }
     }

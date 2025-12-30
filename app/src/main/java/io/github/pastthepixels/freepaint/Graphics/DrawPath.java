@@ -28,6 +28,9 @@ import io.github.pastthepixels.freepaint.Utils;
 
 
 public class DrawPath {
+    public final static boolean USE_TEMP_PAINT = false; //don't set true //copy from edittext
+    private final static float OFFSET_Y = 3.0f; //why? I don't know
+
     // watch about adding new variables because you have to add them to the clone function at the bottom!
 
     /**
@@ -54,6 +57,8 @@ public class DrawPath {
     public boolean isUnderline = false;
     public int styleType = BookActivity4Fragment.STYLE_TYPE_NONE;
     public int pointsTextColor = 0;
+    public float pointsTextSize = 28;
+    public Paint tempPaint = null;
     //---------------------
 
     /**
@@ -368,57 +373,73 @@ public class DrawPath {
                     Log.e("path", "};");
                 }
             } else if (pointsType == POINTS_TYPE_TEXT) {
-                //canvas.drawPath(toDraw, paint);
-                paint.reset();
-                paint.setTextSize(28);
-                paint.setColor(Color.BLACK);
-                paint.setStyle(Paint.Style.FILL); //FIXME:draw text don't use stroke style
-                paint.setAntiAlias(true);
                 if (false) {
-                    //text is left bottom align
-                    canvas.drawText(pointsText, pointsTextX, pointsTextY, paint);
-                } else {
-                    //text is left top align
-                    int style = Typeface.NORMAL;
-                    if (this.isBold) {
-                        style |= Typeface.BOLD;
-                    }
-                    if (this.isItalics) {
-                        style |= Typeface.ITALIC;
-                    }
-                    Typeface family = Typeface.DEFAULT;
-                    if (this.styleType == BookActivity4Fragment.STYLE_TYPE_NONE) {
-
-                    } else if (this.styleType == BookActivity4Fragment.STYLE_TYPE_HAND) {
-
-                    } else if (this.styleType == BookActivity4Fragment.STYLE_TYPE_SERIF) {
-                        family = Typeface.SERIF;
-                    } else if (this.styleType == BookActivity4Fragment.STYLE_TYPE_SANS) {
-                        family = Typeface.SANS_SERIF;
-                    }
-                    Typeface font = Typeface.create(family, style);
-                    paint.setTypeface(font);
-                    if (this.isUnderline) {
-                        paint.setUnderlineText(true);
-                    }
-                    if (this.pointsTextColor != 0) {
-                        paint.setColor(this.pointsTextColor);
-                    }
-
+                    //canvas.drawPath(toDraw, paint);
+                    paint.reset();
+                    paint.setTextSize(28);
+                    paint.setColor(Color.BLACK);
+                    paint.setStyle(Paint.Style.FILL); //FIXME:draw text don't use stroke style
+                    paint.setAntiAlias(true);
                     if (false) {
-                        float textWidth = paint.measureText(pointsText);
-                        float x = pointsTextX;
-                        float y = pointsTextY - paint.ascent() - ((paint.descent() - paint.ascent()) / 2);
-                        canvas.drawText(pointsText, x, y, paint);
+                        //text is left bottom align
+                        canvas.drawText(pointsText, pointsTextX, pointsTextY, paint);
                     } else {
-                        //https://blog.csdn.net/wangjiang_qianmo/article/details/73180042
-                        Rect bounds = new Rect();
-                        paint.getTextBounds(pointsText, 0, pointsText.length(), bounds);
-                        Paint.FontMetrics fontMetrics = paint.getFontMetrics();
-                        canvas.drawText(pointsText, pointsTextX,
-                                pointsTextY + (fontMetrics.bottom - fontMetrics.top + fontMetrics.leading),
-                                paint);
+                        //text is left top align
+                        int style = Typeface.NORMAL;
+                        if (this.isBold) {
+                            style |= Typeface.BOLD;
+                        }
+                        if (this.isItalics) {
+                            style |= Typeface.ITALIC;
+                        }
+                        Typeface family = Typeface.DEFAULT;
+                        if (this.styleType == BookActivity4Fragment.STYLE_TYPE_NONE) {
+
+                        } else if (this.styleType == BookActivity4Fragment.STYLE_TYPE_HAND) {
+
+                        } else if (this.styleType == BookActivity4Fragment.STYLE_TYPE_SERIF) {
+                            family = Typeface.SERIF;
+                        } else if (this.styleType == BookActivity4Fragment.STYLE_TYPE_SANS) {
+                            family = Typeface.SANS_SERIF;
+                        }
+                        Typeface font = Typeface.create(family, style);
+                        paint.setTypeface(font);
+                        if (this.isUnderline) {
+                            paint.setUnderlineText(true);
+                        }
+                        if (this.pointsTextColor != 0) {
+                            paint.setColor(this.pointsTextColor);
+                        }
+                        if (this.pointsTextSize != 0) {
+                            paint.setTextSize(this.pointsTextSize);
+                        }
+
+                        if (false) {
+                            float textWidth = paint.measureText(pointsText);
+                            float x = pointsTextX;
+                            float y = pointsTextY - paint.ascent() - ((paint.descent() - paint.ascent()) / 2);
+                            canvas.drawText(pointsText, x, y, paint);
+                        } else {
+                            //https://blog.csdn.net/wangjiang_qianmo/article/details/73180042
+                            Rect bounds = new Rect();
+                            paint.getTextBounds(pointsText, 0, pointsText.length(), bounds);
+                            Paint.FontMetrics fontMetrics = paint.getFontMetrics();
+                            canvas.drawText(pointsText, pointsTextX,
+                                    pointsTextY + (fontMetrics.bottom - fontMetrics.top + fontMetrics.leading),
+                                    paint);
+                        }
                     }
+                } else {
+                    Paint p = null;
+                    if (USE_TEMP_PAINT && this.tempPaint != null) {
+                        p = this.tempPaint;
+                    } else {
+                        DrawCanvas.getTextPaint(paint, this.isBold, this.isItalics,
+                                this.styleType, this.isUnderline,
+                                this.pointsTextColor, this.pointsTextSize);
+                        p = paint;
+                    }
+                    DrawCanvas.drawTextSizes(canvas, pointsText, pointsTextX, pointsTextY + OFFSET_Y, p);
                 }
             } else if (pointsType == POINTS_TYPE_IMAGE) {
                 //canvas.drawPath(toDraw, paint);

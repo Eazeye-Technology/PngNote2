@@ -30,6 +30,8 @@ import com.txkj.notemobile2.Book;
 
 import org.json.JSONObject;
 
+import gm.com.dosya.utils.FileTransactions;
+
 public class FastFile {
     private final static boolean D = true;
     private final static String TAG = "FastFile";
@@ -137,6 +139,34 @@ public class FastFile {
             }
         }
         return result;
+    }
+
+    public String copyBookFile(BookIO bookIO, Book book) {
+        if (BookIO.USE_CONTENT_RESOLVER) {
+            //skip
+        } else {
+            File file = null;
+            try {
+                file = new File(this.filePath);
+                if (file.exists() && file.canWrite() && !file.isDirectory()) {
+                    String name = BookActivity4Config.USE_PAGE_PREFIX + UUID.randomUUID().toString();
+                    File srcFile = new File(file.getParent(), file.getName().replace(".png", "") + ".png");
+                    File dstFile = new File(file.getParent(), name + ".png");
+                    FileTransactions.copyFile(srcFile, dstFile);
+                    File srcFile2 = new File(file.getParent(), file.getName().replace(".png", "") + ".vecj");
+                    File dstFile2 = new File(file.getParent(), name + ".vecj");
+                    FileTransactions.copyFile(srcFile2, dstFile2);
+                    return dstFile.getAbsolutePath();
+                } else {
+                    if (D) {
+                        Log.e(TAG, "<<<< copyBookFile failed! " + this.filePath);
+                    }
+                }
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+            }
+        }
+        return "";
     }
 
     public void removeBookFile(BookIO bookIO, Book book) {

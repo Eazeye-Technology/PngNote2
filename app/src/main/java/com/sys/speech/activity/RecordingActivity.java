@@ -40,8 +40,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.sys.speech.db.DictationsDatabase;
-import com.sys.speech.db.RecordingsDatabase;
-import com.sys.speech.db.RecordingsDatabase.OnDatabaseChangedListener;
+import com.sys.speech.db.SDRecordingsDatabase;
+import com.sys.speech.db.SDRecordingsDatabase.OnDatabaseChangedListener;
 import com.sys.speech.dialog.ListenDialog;
 import com.sys.speech.dialog.PlayerDialog;
 import com.sys.speech.dialog.RecognizeDialog;
@@ -97,7 +97,7 @@ public class RecordingActivity extends Activity implements OnItemClickListener, 
 		private LayoutInflater mInflater;
 
 		private Context mContext;
-		private RecordingsDatabase mDatabase;
+		private SDRecordingsDatabase mDatabase;
 		private static final SimpleDateFormat mDateAddedFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 		private static final SimpleDateFormat mDateFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());		
 		
@@ -107,7 +107,7 @@ public class RecordingActivity extends Activity implements OnItemClickListener, 
 		public ReaderItemsAdapter(Context context, String meetingId, String agendaId) {
 			this.mInflater = LayoutInflater.from(context);
 			mContext = context;
-			mDatabase = new RecordingsDatabase(context);
+			mDatabase = new SDRecordingsDatabase(context, null);
 			mDatabase.setOnDatabaseChangedListener(this);
 			mMeetingId = meetingId;
 			mAgendaId = agendaId;

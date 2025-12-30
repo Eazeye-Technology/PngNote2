@@ -32,19 +32,19 @@ public class KeyboardsMod {
 //        }
 //    }
 //
-//    public static void close(View currentFocus) {
-//        if (currentFocus == null) {
-//            return;
-//        }
-//        InputMethodManager inputManager = (InputMethodManager) currentFocus.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-//        // inputManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
-//        inputManager.hideSoftInputFromWindow(currentFocus.getWindowToken(), 0);
-//
-//        //invalidateEink(currentFocus.getContext());
-//
-//    }
-//
-//
+    public static void close(View currentFocus) {
+        if (currentFocus == null) {
+            return;
+        }
+        InputMethodManager inputManager = (InputMethodManager) currentFocus.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        // inputManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+        inputManager.hideSoftInputFromWindow(currentFocus.getWindowToken(), 0);
+
+        //invalidateEink(currentFocus.getContext());
+
+    }
+
+
 //    public static void invalidateEink(View parent) {
 //        try {
 //

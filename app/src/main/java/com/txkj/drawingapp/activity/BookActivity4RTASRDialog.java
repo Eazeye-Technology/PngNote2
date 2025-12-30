@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+//https://console.xfyun.cn/services/rta
 /*************************
  * 实时语音转写Demo
  * create by wxw

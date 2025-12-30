@@ -13,7 +13,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import com.sys.speech.activity.RecordingActivity;
-import com.sys.speech.db.RecordingsDatabase;
+import com.sys.speech.db.SDRecordingsDatabase;
 import com.sys.speech.util.RecordingMode;
 import com.sys.speech.util.WavConverter;
 import com.txkj.drawingapp.R;
@@ -88,7 +88,7 @@ public class RecordingService extends Service {
 
 	private final IBinder mBinder = new ServiceBinder();
 
-	private RecordingsDatabase mDatabase;
+	private SDRecordingsDatabase mDatabase;
 
 	private RecordingMode mRecordingMode = RecordingMode.IDLE;
 
@@ -132,7 +132,7 @@ public class RecordingService extends Service {
 
 	@SuppressLint("UnspecifiedRegisterReceiverFlag")
     public void onCreate() {
-		mDatabase = new RecordingsDatabase(getApplicationContext());
+		mDatabase = new SDRecordingsDatabase(getApplicationContext(), null);
 		sendBroadcast(new Intent("com.mohammadag.soundrecorder.SERVICE_STARTED"));
 		
 		IntentFilter iF = new IntentFilter();
@@ -202,8 +202,12 @@ public class RecordingService extends Service {
 
 		startTimer();
 
-		startForeground(1, createNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE);
-	}
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(1, createNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE);
+        } else {
+            startForeground(1, createNotification());
+        }
+    }
 
 	public boolean isRecording() {
 		return mIsRecording;

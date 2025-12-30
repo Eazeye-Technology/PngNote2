@@ -128,7 +128,7 @@ public class FabricView extends View {
     private Integer mOldInteractionMode = null;
 
     // background color of the library
-    private int mBackgroundColor = Color.WHITE;
+    private int mBackgroundColor = Color.GRAY;//Color.WHITE;
     // default style for the library
     private Paint.Style mStyle = Paint.Style.STROKE;
 

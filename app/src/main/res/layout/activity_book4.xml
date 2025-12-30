@@ -26,12 +26,18 @@
             android:visibility="gone"
             />
 
-        <com.github.guanpy.wblib.widget.DrawTextView
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/dtView"
-            android:visibility="gone"
-            />
+            android:id="@+id/frameLayoutDTView"
+            >
+<!--            <com.github.guanpy.wblib.widget.DrawTextView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                android:id="@+id/dtView"-->
+<!--                android:visibility="gone"-->
+<!--                />-->
+        </FrameLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -718,12 +724,12 @@
                     android:layout_height="match_parent"
                     android:visibility="gone">
 
-                    <fragment
-                        android:id="@+id/fragment_recording"
-                        android:name="com.sys.speech.activity.RecordingFragment"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_marginTop="200px" />
+<!--                    <fragment-->
+<!--                        android:id="@+id/fragment_recording"-->
+<!--                        android:name="com.sys.speech.activity.RecordingFragment"-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="match_parent"-->
+<!--                        android:layout_marginTop="200px" />-->
                 </RelativeLayout>
 
                 <LinearLayout
@@ -879,8 +885,10 @@
                                 />
                             <FrameLayout
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content">
-                                <include layout="@layout/activity_book4_bottom1"/>
+                                android:layout_height="wrap_content"
+                                android:id="@+id/frameLayoutBottom1"
+                                >
+<!--                                <include layout="@layout/activity_book4_bottom1"/>-->
                             </FrameLayout>
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
@@ -944,8 +952,10 @@
                                 />
                             <FrameLayout
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content">
-                                <include layout="@layout/activity_book4_bottom2"/>
+                                android:layout_height="wrap_content"
+                                android:id="@+id/frameLayoutBottom2"
+                                >
+<!--                                <include layout="@layout/activity_book4_bottom2"/>-->
                             </FrameLayout>
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>

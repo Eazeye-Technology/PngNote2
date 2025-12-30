@@ -23,7 +23,7 @@ import com.iflytek.cloud.SpeechError;
 import com.iflytek.cloud.SpeechRecognizer;
 import com.iflytek.cloud.ui.RecognizerDialog;
 import com.iflytek.cloud.ui.RecognizerDialogListener;
-import com.sys.speech.db.RecordingsDatabase;
+import com.sys.speech.db.SDRecordingsDatabase;
 import com.sys.speech.util.JsonParser;
 import com.txkj.drawingapp.R;
 
@@ -44,12 +44,14 @@ public class BookActivity4ListenDialog {
 	public static final String LANG_ENGLISH = "en_us";
 	
 	private Activity mAct;
+    private String mDirPath;
 //	private TextView mTextViewContent;
 	private String mMeetingId, mAgendaId;
 	private BaseAdapter mAdapter;
 	
-	public BookActivity4ListenDialog(Activity context, String meetingId, String agendaId, BaseAdapter adapter) {
+	public BookActivity4ListenDialog(Activity context, String meetingId, String agendaId, BaseAdapter adapter, String dirPath) {
 		this.mAct = context;
+        this.mDirPath = dirPath;
 		
 		mMeetingId = meetingId;
 		mAgendaId = agendaId;
@@ -129,7 +131,7 @@ public class BookActivity4ListenDialog {
 //	@Override
 	public void onCancel(/*DialogInterface arg0*/) {
 //		this.dismiss();
-		RecordingsDatabase mDatabase = new RecordingsDatabase(this.mAct);
+		SDRecordingsDatabase mDatabase = new SDRecordingsDatabase(this.mAct, this.mDirPath);
 		mDatabase.addRecording("",
 				"", 0, this.mMeetingId, this.mAgendaId, "text", 
 				this.mResultText != null ? this.mResultText.trim() : "");

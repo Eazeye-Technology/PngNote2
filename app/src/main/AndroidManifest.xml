@@ -107,7 +107,10 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
         <activity
             android:name="com.helluva.telephone_pictionary_android.SketchActivity"
             android:label="Sketch the description"
-            android:windowSoftInputMode="stateHidden">
+            android:windowSoftInputMode="stateHidden"
+            android:exported="true"
+            >
+            <!--main, SketchActivity, FabricView-->
 <!--            <intent-filter>-->
 <!--                <action android:name="android.intent.action.MAIN" />-->
 <!--                <category android:name="android.intent.category.LAUNCHER" />-->

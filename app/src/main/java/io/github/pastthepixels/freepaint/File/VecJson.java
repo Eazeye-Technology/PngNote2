@@ -109,6 +109,7 @@ public class VecJson {
                     objPath.put( "isUnderline", path.isUnderline);
                     objPath.put( "styleType", path.styleType);
                     objPath.put( "pointsTextColor", colorToHex8(path.pointsTextColor));
+                    objPath.put( "pointsTextSize", path.pointsTextSize);
 
                     if (path.appearance.fill != -1) {
                         objPath.put("fill", colorToHex8(path.appearance.fill));
@@ -213,6 +214,7 @@ public class VecJson {
                 path.isUnderline = element.optBoolean("isUnderline");
                 path.styleType = element.optInt("styleType");
                 path.pointsTextColor = hex8ToColor(element.optString("pointsTextColor"));
+                path.pointsTextSize = (float)element.optDouble("pointsTextSize", 28);
 
                 // Fill/stroke
                 if (element.has("fill")) {

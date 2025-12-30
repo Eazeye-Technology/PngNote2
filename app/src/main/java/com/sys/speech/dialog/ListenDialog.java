@@ -20,7 +20,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.sys.speech.db.RecordingsDatabase;
+import com.sys.speech.db.SDRecordingsDatabase;
 import com.sys.speech.util.JsonParser;
 import com.iflytek.cloud.ErrorCode;
 import com.iflytek.cloud.InitListener;
@@ -127,7 +127,7 @@ public class ListenDialog extends Dialog implements Dialog.OnCancelListener {
 	@Override
 	public void onCancel(DialogInterface arg0) {
 		this.dismiss();
-		RecordingsDatabase mDatabase = new RecordingsDatabase(this.getContext());
+		SDRecordingsDatabase mDatabase = new SDRecordingsDatabase(this.getContext(), null);
 		mDatabase.addRecording("",
 				"", 0, this.mMeetingId, this.mAgendaId, "text", 
 				this.mResultText != null ? this.mResultText.trim() : "");

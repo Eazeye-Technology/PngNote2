@@ -19,6 +19,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.foobnix.pdf.info.Android6Mod;
+import com.txkj.contentbrowser.NoteFragment2;
 import com.txkj.drawingapp.R;
 import com.txkj.drawingapp.activity.BookActivity4Utils;
 
@@ -26,10 +27,14 @@ public class BookListActivity extends AppCompatActivity {
     private final static boolean D = true;
     private final static String TAG = "BookListActivity";
 
-    private BookListFragment bookListFragment;
+    public BookListFragment bookListFragment;
+    public NoteFragment2 noteFragment2;
 
     private FragmentManager fragmentManager = null;
     private FragmentTransaction fragmentTransaction = null;
+
+    public boolean isIntentNew = false;
+    public boolean isIntentOpen = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,6 +59,11 @@ public class BookListActivity extends AppCompatActivity {
                 Log.e(TAG, "APP_OPEN:" + BookActivity4Utils.APP_OPEN);
                 Log.e(TAG, "APP_FILE:" + BookActivity4Utils.APP_FILE);
             }
+            if (BookActivity4Utils.APP_OPEN != null && BookActivity4Utils.APP_OPEN.equals("NEW")) {
+                isIntentNew = true;
+            } else if (BookActivity4Utils.APP_FILE != null && !BookActivity4Utils.APP_FILE.equals("")) {
+                isIntentOpen = true;
+            }
         }
         int stateStarted = 0;
         if (savedInstanceState != null) {
@@ -67,10 +77,15 @@ public class BookListActivity extends AppCompatActivity {
 
 
         bookListFragment = new BookListFragment();
+        noteFragment2 = new NoteFragment2();
 
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.content_layout, bookListFragment);
+        if (false) {
+            fragmentTransaction.replace(R.id.content_layout, bookListFragment);
+        } else {
+            fragmentTransaction.replace(R.id.content_layout, noteFragment2);
+        }
         fragmentTransaction.commit();
     }
 

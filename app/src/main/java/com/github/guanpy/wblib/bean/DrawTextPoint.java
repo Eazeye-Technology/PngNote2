@@ -7,6 +7,13 @@ package com.github.guanpy.wblib.bean;
  * @author gpy
  */
 public class DrawTextPoint {
+    private float mTextSize;
+    public float getTextSize() {
+        return this.mTextSize;
+    }
+    public void setTextSize(float textSize) {
+        this.mTextSize = textSize;
+    }
 
     /**
      * 唯一性标识

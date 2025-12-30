@@ -29,25 +29,35 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@color/transparent"
-                android:minWidth="20dip"
-                android:textSize="24sp"
-                android:singleLine="true"
+                android:minWidth="100px"
+                android:textSize="28px"
+                android:singleLine="false"
                 android:visibility="visible"
                 android:enabled="false"
                 android:text="input"
+                android:minLines="2"
+                android:gravity="left|top"
                 />
+            <!--
+            android:minWidth="20dip"
+            android:textSize="24sp"
+            -->
 
             <TextView
                 android:id="@+id/tv_text_edit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@color/transparent"
-                android:minWidth="20dip"
-                android:textSize="24sp"
+                android:minWidth="100px"
+                android:textSize="28px"
                 android:singleLine="true"
                 android:clickable="true"
                 android:visibility="visible"
                 />
+            <!--
+            android:minWidth="20dip"
+            android:textSize="24sp"
+            -->
         </RelativeLayout>
 
         <Button

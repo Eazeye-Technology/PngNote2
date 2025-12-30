@@ -89,6 +89,29 @@ public class Book {
         }
     }
 
+    public void copyPage(FastFile page_, BookIO bookIO) {
+        if (page_ != null) {
+            String newPagePath = page_.copyBookFile(bookIO, this);
+            if (newPagePath != null && newPagePath.length() > 0) {
+                FastFile page_2 = FastFile.fromFile(newPagePath);
+                this.pages.add(page_2);
+            }
+            //rebuild pageNameMap
+            {
+                this.pageNameMap.clear();
+                for (int i = 0; i < this.pages.size(); ++i) {
+                    FastFile fastFile = this.pages.get(i);
+                    if (fastFile != null) {
+                        String name = fastFile.getName();
+                        if (name != null && name.endsWith(".png")) {
+                            this.pageNameMap.put(i, name.substring(0, name.length() - ".png".length()));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public BookPage getPage(int idx) {
         return new BookPage(this.pages.get(idx), idx);
     }

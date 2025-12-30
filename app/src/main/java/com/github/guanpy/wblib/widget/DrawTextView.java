@@ -24,7 +24,6 @@ import com.txkj.drawingapp.R;
 
 public class DrawTextView extends RelativeLayout implements
         View.OnClickListener {
-
     /**
      * 显示状态
      */
@@ -100,12 +99,13 @@ public class DrawTextView extends RelativeLayout implements
         switchView(TEXT_EDIT/*mDrawPoint.getDrawText().getStatus()*/);
     }
 
-    public void init2(int x, int y, String text, int textColor, CallBackListener callBackListener) {
+    public void init2(float x, float y, String text, int textColor, float textSize, CallBackListener callBackListener) {
         this.mCallBackListener = callBackListener;
         mDrawPoint.getDrawText().setX(x);
         mDrawPoint.getDrawText().setY(y);
         mDrawPoint.getDrawText().setStr(text);
         mDrawPoint.getDrawText().setColor(textColor);
+        mDrawPoint.getDrawText().setTextSize(textSize);
         //don't call initUI();
         if (null != mDrawPoint) {
             setText(mDrawPoint.getDrawText().getStr());
@@ -231,6 +231,8 @@ public class DrawTextView extends RelativeLayout implements
         } else {
             mEtTextEdit.setTextColor(mDrawPoint.getDrawText().getColor());
             mTvTextEdit.setTextColor(mDrawPoint.getDrawText().getColor());
+            mEtTextEdit.setTextSize(mDrawPoint.getDrawText().getTextSize());
+            mTvTextEdit.setTextSize(mDrawPoint.getDrawText().getTextSize());
         }
 //        if (mDrawPoint.getDrawText().getIsUnderline()) {
 //            mTvTextEdit.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);

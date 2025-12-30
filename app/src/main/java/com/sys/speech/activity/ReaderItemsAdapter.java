@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.sys.speech.db.RecordingsDatabase;
+import com.sys.speech.db.SDRecordingsDatabase;
 import com.sys.speech.pojo.RecordingItem;
 import com.txkj.drawingapp.R;
 
@@ -15,21 +15,21 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class ReaderItemsAdapter extends BaseAdapter implements RecordingsDatabase.OnDatabaseChangedListener {
+public class ReaderItemsAdapter extends BaseAdapter implements SDRecordingsDatabase.OnDatabaseChangedListener {
     private LayoutInflater mInflater;
 
     private Context mContext;
-    private RecordingsDatabase mDatabase;
+    private SDRecordingsDatabase mDatabase;
     private static final SimpleDateFormat mDateAddedFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
     private static final SimpleDateFormat mDateFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());
 
     private String mMeetingId;
     private String mAgendaId;
 
-    public ReaderItemsAdapter(Context context, String meetingId, String agendaId) {
+    public ReaderItemsAdapter(Context context, String meetingId, String agendaId, String dirPath) {
         this.mInflater = LayoutInflater.from(context);
         mContext = context;
-        mDatabase = new RecordingsDatabase(context);
+        mDatabase = new SDRecordingsDatabase(context, dirPath);
         mDatabase.setOnDatabaseChangedListener(this);
         mMeetingId = meetingId;
         mAgendaId = agendaId;

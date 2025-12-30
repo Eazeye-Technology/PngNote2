@@ -140,7 +140,25 @@ public class BookActivity4PageGridDialog {
                     public void onClick(View view) {
                         if (bookGridAdapter != null &&
                                 bookGridAdapter.checkMode == BookPageGridAdapter.CHECK_MODE_CHECK) {
-
+                            List<Page> pages = new ArrayList<>();
+                            for (Page page : _pageList) {
+                                if (page != null && page.checked) {
+                                    pages.add(page);
+                                }
+                            }
+                            copyPages(dialog, pages);
+                            bookGridAdapter.checkMode = BookPageGridAdapter.CHECK_MODE_NONE;
+                            bookGridAdapter.notifyDataSetChanged();
+                            updateButtons();
+                            if (!BookActivity4PageGridDialog.NO_REOPEN_DIALOG) {
+                                if (dialog != null && dialog.isShowing()) {
+                                    dialog.dismiss();
+                                }
+                            } else {
+                                _book = null;
+                                onCreateAct(mContext, dirUrl, dirUrlPath);
+                                requestLoadPages();
+                            }
                         }
                     }
                 });
@@ -278,6 +296,10 @@ public class BookActivity4PageGridDialog {
 
     public void reorderPages(DialogInterface dialog, List<Page> pages) {
         BookActivity4Utils.reorderPages(mContext, pages);
+    }
+
+    public void copyPages(DialogInterface dialog, List<Page> pages) {
+        BookActivity4Utils.copyPages(mContext, pages);
     }
 
     private void requestLoadPages() {

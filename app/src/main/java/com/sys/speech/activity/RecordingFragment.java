@@ -122,7 +122,7 @@ public class RecordingFragment extends Fragment implements OnItemClickListener, 
 		
 		}
 		
-		adapter = new ReaderItemsAdapter(getActivity(), this.meetingId, this.agendaId);
+		adapter = new ReaderItemsAdapter(getActivity(), this.meetingId, this.agendaId, null);
 		viewListView.setAdapter(adapter);
 		viewListView.setFastScrollEnabled(true);
 		viewListView.setOnItemClickListener(this);

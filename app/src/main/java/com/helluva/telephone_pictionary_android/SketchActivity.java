@@ -112,7 +112,7 @@ public class SketchActivity extends AppCompatActivity {
                     Paint paint = new Paint();
                     paint.setColor(0xFFFF0000);
                     paint.setTextSize(18 * 5);
-                    myFabricView.drawText("hello", 100, 100, paint);
+                    myFabricView.drawText("hello world\nworld", 0, 0, paint);
                 }
             });
             findViewById(R.id.image_btn).setOnClickListener(new View.OnClickListener() {

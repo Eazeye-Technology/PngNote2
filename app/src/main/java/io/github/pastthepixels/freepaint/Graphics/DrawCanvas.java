@@ -7,10 +7,14 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.SizeF;
 import android.util.TypedValue;
 import android.view.InputDevice;
 import android.view.MotionEvent;
@@ -20,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 
 import com.agsw.FabricView.FabricView;
+import com.txkj.drawingapp.activity.BookActivity4Fragment;
 import com.txkj.drawingapp.activity.BookActivity4Utils;
 import com.txkj.notemobile2.colorpicker.Dips;
 import com.txkj.notemobile2.ui.CanvasBoox;
@@ -237,7 +242,13 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
                     boolean isStylusScreen = (((event.getSource() & InputDevice.SOURCE_STYLUS) == InputDevice.SOURCE_STYLUS) &&
                             event.getPointerCount() > 0 &&
                             event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER);
-                    if (!isStylus || isStylusScreen) {
+                    boolean isTouchScreen = (((event.getSource() & InputDevice.SOURCE_TOUCHSCREEN) == InputDevice.SOURCE_TOUCHSCREEN) &&
+                            event.getPointerCount() > 0 &&
+                            event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER);
+                    if (isEmulator()) {
+                        //skip
+                    }
+                    if ((!isStylus || isStylusScreen) && !isTouchScreen) { //FIXME:
                         curTool = TOOLS.pan;
                         isPan = true;
                     }
@@ -651,17 +662,10 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
     public void setScaleMode(boolean scaleMode) {
         this.scaleMode = scaleMode;
     }
-    public void drawText(String text, int x, int y, Paint p, boolean isBold,
+    public void drawText(String text, float x, float y, Paint p_, boolean isBold,
         boolean isItalics,
         boolean isUnderline,
-        int styleType, int pointsTextColor) {
-        if (p == null) {
-            int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 20, getContext().getResources().getDisplayMetrics());
-            p = new Paint();
-            p.setTextSize(px);
-            p.setColor(Color.BLACK);
-        }
-        final boolean debug = true;
+        int styleType, int pointsTextColor, float pointsTextSize) {
         DrawAppearance appearance = new DrawAppearance(Color.BLACK, -1);
         appearance.loadFromSettings(getContext());
         appearance.penType = DrawAppearance.PEN_TYPE_4; //getPenType();
@@ -680,28 +684,127 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
         currentPath.isUnderline = isUnderline;
         currentPath.styleType = styleType;
         currentPath.pointsTextColor = pointsTextColor;
+        currentPath.pointsTextSize = pointsTextSize;
+        if (DrawPath.USE_TEMP_PAINT) {
+            currentPath.tempPaint = new Paint(p_);
+        }
 
-
-        if (debug) {
-            currentPath.addPoint(this.mapPoint(x, y, 1.0f));
-            currentPath.addPoint(this.mapPoint(x + 100, y, 1.0f));
-            currentPath.addPoint(this.mapPoint(x + 100, y + 100, 1.0f));
-            currentPath.addPoint(this.mapPoint(x, y + 100, 1.0f));
-            currentPath.addPoint(this.mapPoint(x, y, 1.0f));
-            if (false) {
-                currentPath.finalise(); //don't use finalise
+        {
+            Paint p = new Paint(); //FIXME:TODO:remove new
+            if (p_ != null) {
+                p = p_;
+            } else {
+                getTextPaint(p, isBold, isItalics, styleType, isUnderline, pointsTextColor, pointsTextSize);
             }
+            SizeF size = calculateTextSizes(text, p);
+            float w = size.getWidth();
+            float h = size.getHeight();
+            currentPath.addPoint(this.mapPoint(x, y, 1.0f));
+            currentPath.addPoint(this.mapPoint(x + w, y, 1.0f));
+            currentPath.addPoint(this.mapPoint(x + w, y + h, 1.0f));
+            currentPath.addPoint(this.mapPoint(x, y + h, 1.0f));
+            currentPath.addPoint(this.mapPoint(x, y, 1.0f));
             currentPath.cachePath();
-            this.paths.add(currentPath);
-        } else {
-//            currentPath.addPoint(this.mapPoint(x, y));
-//            currentPath.cachePath();
             this.paths.add(currentPath);
         }
         if (true) { //FIXME:???
             invalidate();
         }
     }
+
+    private final static String SPLIT_REGXP = "\r\n|\n|\r";
+    private static SizeF calculateTextSizes(String text, Paint p) {
+        if (text == null) {
+            text = "";
+        }
+        String[] lines = text.split(SPLIT_REGXP);
+        float tX2 = 0;
+        float tY2 = 0;
+        for (String line : lines) {
+            tX2 = Math.max(getFontlength(p, line), tX2);
+            tY2 += getFontHeight(p);
+        }
+        return new SizeF(tX2, tY2);
+    }
+    public static void drawTextSizes(Canvas temp, String text, float xcoords, float ycoords, Paint p) {
+        if (text == null) {
+            text = "";
+        }
+        float tW = getFontlength(p, text);
+        float tH = getFontHeight(p);
+        float tX = xcoords;
+        float tY = ycoords + getFontLeading(p);
+        String[] lines = text.split(SPLIT_REGXP);
+        float tY2 = tY;
+        for (String line : lines) {
+            temp.drawText(line, tX, tY2, p);
+            tY2 += getFontHeight(p);
+        }
+    }
+    //package com.immomo.momo.android.util;
+    //public class PhotoUtils {
+    //andli0626/Android_App_MoMo
+    private static float getFontlength(Paint paint, String str) {
+        return paint.measureText(str);
+    }
+    private static float getFontHeight(Paint paint) {
+        Paint.FontMetrics fm = paint.getFontMetrics();
+        return fm.descent - fm.ascent;
+    }
+    private static float getFontLeading(Paint paint) {
+        Paint.FontMetrics fm = paint.getFontMetrics();
+        return fm.leading - fm.ascent;
+    }
+    //FIXME:TODO: this method need to sync with DrawPath.draw()
+    public static void getTextPaint(Paint paint,
+                                     boolean isBold,
+                                     boolean isItalics,
+                                     int styleType,
+                                     boolean isUnderline,
+                                     int pointsTextColor,
+                                     float pointsTextSize
+    ) {
+        if (paint == null) {
+            return;
+        }
+        paint.reset();
+        //paint.setFlags(Paint.FAKE_BOLD_TEXT_FLAG | Paint.ANTI_ALIAS_FLAG);
+        paint.setTextSize(28);
+        paint.setColor(Color.BLACK);
+        paint.setStyle(Paint.Style.FILL); //FIXME:draw text don't use stroke style
+        paint.setAntiAlias(true);
+        //text is left top align
+        int style = Typeface.NORMAL;
+        if (isBold) {
+            style |= Typeface.BOLD;
+        }
+        if (isItalics) {
+            style |= Typeface.ITALIC;
+        }
+        Typeface family = Typeface.DEFAULT;
+        if (styleType == BookActivity4Fragment.STYLE_TYPE_NONE) {
+
+        } else if (styleType == BookActivity4Fragment.STYLE_TYPE_HAND) {
+
+        } else if (styleType == BookActivity4Fragment.STYLE_TYPE_SERIF) {
+            family = Typeface.SERIF;
+        } else if (styleType == BookActivity4Fragment.STYLE_TYPE_SANS) {
+            family = Typeface.SANS_SERIF;
+        }
+        Typeface font = Typeface.create(family, style);
+        paint.setTypeface(font);
+        if (isUnderline) {
+            paint.setUnderlineText(true);
+        }
+        if (pointsTextColor != 0) {
+            paint.setColor(pointsTextColor);
+        }
+        if (pointsTextSize != 0) {
+            paint.setTextSize(pointsTextSize);
+        }
+    }
+
+
 
     //if x, y are from mapPoint, then needMap = false
     public void drawImage(int x, int y, int width, int height, Bitmap pic, boolean needMap) {
