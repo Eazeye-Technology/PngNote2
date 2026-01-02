@@ -462,8 +462,8 @@ public class BookIO {
                     try {
                         String pattern = null;
                         String metaTxt = loadMetaPng(page.getFile());
-                        JSONObject item = new JSONObject(metaTxt);
-                        if (item != null) {
+                        if (metaTxt != null && !metaTxt.isEmpty()) {
+                            JSONObject item = new JSONObject(metaTxt);
                             pattern = item.optString("pattern");
                         }
                         if (pattern != null) {
@@ -537,7 +537,9 @@ public class BookIO {
                 obj.put("updateTime", meta.getUpdateTime());
                 obj.put("dispName", meta.getDispName());
                 arr.put(obj);
-                Log.e(TAG, "<<< adding node: " + meta.getName());
+                if (false) {
+                    Log.e(TAG, "<<< adding node: " + meta.getName());
+                }
             }
             saveRecent(arr.toString());
         } catch (Throwable eee) {
@@ -582,7 +584,9 @@ public class BookIO {
                 obj.put("updateTime", meta.getUpdateTime());
                 obj.put("dispName", meta.getDispName());
                 arr.put(obj);
-                Log.e(TAG, "<<< adding node: " + meta.getName());
+                if (false) {
+                    Log.e(TAG, "<<< adding node: " + meta.getName());
+                }
             }
             saveRecent(arr.toString());
         } catch (Throwable eee) {
@@ -924,7 +928,9 @@ public class BookIO {
                 eee.printStackTrace();
             }
         }
-        Log.e(TAG, "recentFiles: " + recentFiles);
+        if (false) {
+            Log.e(TAG, "recentFiles: " + recentFiles);
+        }
 
         List<SimpleFileMeta> recentNoteList2 = new ArrayList<SimpleFileMeta>();
         try {

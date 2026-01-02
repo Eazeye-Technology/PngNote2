@@ -200,6 +200,16 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
             <!--main-->
         </activity>
 
+        <activity
+            android:name="com.outsbook.examplejava.MainActivity"
+            android:exported="true"
+            android:label="Canvas Editor"
+            >
+            <!--android:name="com.outsbook.examplekotlin.MainActivity"
+            -->
+            <!--main-->
+        </activity>
+
     </application>
 
 </manifest>

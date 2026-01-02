@@ -36,6 +36,10 @@ public class BookReaderItemsAdapter extends BaseAdapter implements SDRecordingsD
         mAgendaId = agendaId;
     }
 
+    public SDRecordingsDatabase getDB() {
+        return this.mDatabase;
+    }
+
     @Override
     public int getCount() {
         if (mDatabase != null) {
@@ -76,14 +80,14 @@ public class BookReaderItemsAdapter extends BaseAdapter implements SDRecordingsD
             }
             holder.date.setText(getTime(item.getTime()));
             //lengthView.setText(getLengthString(item.getLength()));
-//            if (holder.title.getText().toString().length() > 0) {
-//                holder.llTop.setVisibility(View.VISIBLE);
-//            } else {
-//                holder.llTop.setVisibility(View.GONE);
-//            }
+            if (holder.title.getText().toString().length() > 0) {
+                holder.llTop.setVisibility(View.VISIBLE);
+            } else {
+                holder.llTop.setVisibility(View.GONE);
+            }
         } else {
             holder.title.setText("");
-//            holder.llTop.setVisibility(View.GONE);
+            holder.llTop.setVisibility(View.GONE);
         }
         return convertView;
     }

@@ -22,6 +22,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import io.github.pastthepixels.freepaint.MainActivity;
 
 public class BookActivity4Utils {
+    public final static boolean SHOW_TRANSCRIPT_FIRST = false; //should be false
+
     public final static boolean USE_ACTIONBAR = false;
     public final static boolean USE_FRAGMENT = true;
 
@@ -54,6 +56,22 @@ public class BookActivity4Utils {
 //        }
 //        return cls;
 //    }
+public static boolean onBackPressed(Activity context) {
+    if (context instanceof BookListActivity) {
+        BookListActivity act = (BookListActivity) context;
+        FragmentManager fragmentManager = act.getSupportFragmentManager();
+        Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+        if (currentFragment instanceof BookActivity4Fragment) {
+            ((BookActivity4Fragment) currentFragment).onBackPressed();
+            return true;
+        } else {
+            act.finish();
+            return true;
+        }
+    }
+    return false;
+}
+
     public static void finish(Activity context, boolean isRefreshList) {
         if (USE_FRAGMENT) {
             if (context instanceof BookListActivity) {
@@ -202,6 +220,17 @@ public class BookActivity4Utils {
         }
     }
 
+    public static void editMeetingSummary(Activity context, String newName) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            FragmentManager fragmentManager = act.getSupportFragmentManager();
+            Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+            if (currentFragment instanceof BookActivity4Fragment) {
+                ((BookActivity4Fragment) currentFragment).editMeetingSummary(newName);
+            }
+        }
+    }
+
     public static void renameBook(Activity context, String newName) {
         if (context instanceof BookListActivity) {
             BookListActivity act = (BookListActivity) context;
@@ -316,13 +345,13 @@ public class BookActivity4Utils {
         }
     }
 
-    public static void tv_result_setText(Context context, String str) {
+    public static void tv_result_setText(Context context, String str, String subStr, boolean isEnd, boolean isAppend) {
         if (context instanceof BookListActivity) {
             BookListActivity act = (BookListActivity) context;
             FragmentManager fragmentManager = act.getSupportFragmentManager();
             Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
             if (currentFragment instanceof BookActivity4Fragment) {
-                ((BookActivity4Fragment) currentFragment).tv_result_setText(str);
+                ((BookActivity4Fragment) currentFragment).tv_result_setText(str, subStr, isEnd, isAppend);
             }
         }
     }

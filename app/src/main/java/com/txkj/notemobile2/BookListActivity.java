@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -15,12 +16,14 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.foobnix.pdf.info.Android6Mod;
 import com.txkj.contentbrowser.NoteFragment2;
 import com.txkj.drawingapp.R;
+import com.txkj.drawingapp.activity.BookActivity4Fragment;
 import com.txkj.drawingapp.activity.BookActivity4Utils;
 
 public class BookListActivity extends AppCompatActivity {
@@ -170,5 +173,24 @@ Android6.onRequestPermissionsResult(this, i, strArr, iArr);
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(STATE_STARTED, 1);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        FragmentManager fragmentManager = this.getSupportFragmentManager();
+        Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+        if (currentFragment instanceof BookActivity4Fragment) {
+            if (((BookActivity4Fragment) currentFragment).onKeyDown(keyCode, event)) {
+                return true;
+            }
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (!BookActivity4Utils.onBackPressed(this)) {
+            super.onBackPressed();
+        }
     }
 }

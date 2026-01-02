@@ -41,6 +41,7 @@
                 android:layout_marginLeft="10px"
                 android:layout_marginRight="10px"
                 android:visibility="visible"
+                android:id="@+id/tvEditSummary"
                 />
         </LinearLayout>
 
@@ -59,8 +60,10 @@
                 android:layout_gravity="center"
                 android:gravity="left"
                 android:visibility="visible"
-                android:text="In today's meeting, we discussed upcoming project deadlines and assigned task to team members to ensure timely completion. We also reviewed the budget allocations and steateaized on optimizing"
+                android:id="@+id/tvMeetingSummary"
                 />
+            <!--android:text="In today's meeting, we discussed upcoming project deadlines and assigned task to team members to ensure timely completion. We also reviewed the budget allocations and steateaized on optimizing"
+                -->
         </LinearLayout>
 
         <LinearLayout

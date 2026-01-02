@@ -52,8 +52,40 @@ public class BookActivity4RTASRDialog implements AudioRecorderManager.AudioDataC
     public void toend_tv_transResult() {}
     public void toend_tv_result() {}
     public void tv_audioPath_setText(String str) {}
-    public void tv_result_setText(String str) {
-        BookActivity4Utils.tv_result_setText(mAct, str);
+    long lastUpdate = 0;
+    public final static boolean SHOW_DEBUG_TIME = false;
+    public void tv_result_setText(String str, String subStr, boolean isEnd) {
+        if (System.currentTimeMillis() - lastUpdate > 1000L * 2L) { //5 second auto wrap
+            //idle, send new line
+            String oldStr = asrFinalResult;
+            asrFinalResult = "";
+            if (false) {
+                Log.e(TAG, "5sec: str == " + str + ", asrFinalResult == " + asrFinalResult + ", subStr == " + subStr);
+                //keep prefix . or prefix ?
+                BookActivity4Utils.tv_result_setText(mAct, asrFinalResult, asrFinalResult, true, false);
+                BookActivity4Utils.tv_result_setText(mAct, subStr, subStr, false, false);
+                asrFinalResult = "" + subStr;
+            } else {
+                Log.e(TAG, "5sec: str == " + str + ", asrFinalResult == " + asrFinalResult + ", subStr == " + subStr);
+                //remove prefix . or prefix ?
+                if (oldStr.startsWith(".") || oldStr.startsWith("?") || oldStr.startsWith(",")) {
+                    BookActivity4Utils.tv_result_setText(mAct, oldStr.substring(0, 1), oldStr.substring(0, 1), true, true);
+                    BookActivity4Utils.tv_result_setText(mAct, "", "", true, false);
+                    asrFinalResult = "" + oldStr.substring(1);
+                    BookActivity4Utils.tv_result_setText(mAct, asrFinalResult, asrFinalResult, false, false);
+                } else {
+//                    BookActivity4Utils.tv_result_setText(mAct, oldStr, oldStr, true);
+//                    //BookActivity4Utils.tv_result_setText(mAct, asrFinalResult, asrFinalResult, true);
+//                    asrFinalResult = "";
+                    BookActivity4Utils.tv_result_setText(mAct, asrFinalResult, asrFinalResult, true, false);
+                    BookActivity4Utils.tv_result_setText(mAct, subStr, subStr, false, false);
+                    asrFinalResult = "" + subStr;
+                }
+            }
+        } else {
+            BookActivity4Utils.tv_result_setText(mAct, str, subStr, isEnd, false);
+        }
+        lastUpdate = System.currentTimeMillis();
     }
     public void tv_transResult_setText(String str) {}
     public void btn_audio_start_setText(String str) {}
@@ -75,7 +107,11 @@ public class BookActivity4RTASRDialog implements AudioRecorderManager.AudioDataC
     }
     //don't use this
     public void onClick_file() {
-        tv_result_setText("" + PREFIX01 + "\n");
+        if (false) {
+            tv_result_setText("" + PREFIX01 + "\n", "" + PREFIX01 + "\n", true);
+        } else {
+            tv_result_setText("", "", true);
+        }
         tv_transResult_setText("" + PREFIX02 + "\n");
         asrFinalResult = "" + PREFIX01 + "\n";
         transFinalResult = "" + PREFIX02 + "\n";
@@ -89,7 +125,11 @@ public class BookActivity4RTASRDialog implements AudioRecorderManager.AudioDataC
     public void onClick_audio() {
         setLanguage(false); //choose CN
 
-        tv_result_setText("" + PREFIX01 + "\n");
+        if (false) {
+            tv_result_setText("" + PREFIX01 + "\n", "" + PREFIX01 + "\n", true);
+        } else {
+            tv_result_setText("", "", true);
+        }
         tv_transResult_setText("" + PREFIX02 + "\n");
         asrFinalResult = "" + PREFIX01 + "\n";
         transFinalResult = "" + PREFIX02 + "\n";
@@ -210,16 +250,16 @@ public class BookActivity4RTASRDialog implements AudioRecorderManager.AudioDataC
                 public void run() {
                     if(status == 1){//子句流式结果
                         String asrText = asrFinalResult + data;
-                        tv_result_setText(asrText);
+                        tv_result_setText(asrText, data, false);
                         toend_tv_result();
                     } else if (status == 2) {//子句plain结果
                         asrFinalResult = asrFinalResult + data;
                         //FIXME:added
                         String asrText = asrFinalResult;
-                        tv_result_setText(asrText);
+                        tv_result_setText(asrText, data, false);
                         toend_tv_result();
                     } else if(status == 3) {//end结果
-                        tv_result_setText(asrFinalResult);
+                        tv_result_setText(asrFinalResult, "", false);
                         toend_tv_result();
                         if (isrun){
                             if ("AUDIO".equals(startMode)){
@@ -332,7 +372,11 @@ public class BookActivity4RTASRDialog implements AudioRecorderManager.AudioDataC
         mAct.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                tv_result_setText(asrFinalResult);
+                if (false) {
+                    tv_result_setText(asrFinalResult, asrFinalResult, true);
+                } else {
+                    tv_result_setText(asrFinalResult, "", true);
+                }
                 tv_transResult_setText(transFinalResult);
                 tv_audioPath_setText("识别音频路径:" + audioPath);
                 btn_audio_start_setEnabled(false);
@@ -420,14 +464,18 @@ public class BookActivity4RTASRDialog implements AudioRecorderManager.AudioDataC
             mRTASR.targetLang("en");//翻译语种 cn:中文,en:英文。其他语种参考集成文档
         }else{
             mRTASR.lang("en");//转写语种 cn:中文,en:英文。其他语种参考集成文档
-            mRTASR.targetLang("cn");//翻译语种 cn:中文,en:英文。其他语种参考集成文档
+            mRTASR.targetLang("en");//""cn");//翻译语种 cn:中文,en:英文。其他语种参考集成文档
         }
         asrFinalResult = "" + PREFIX01 + "\n";
         transFinalResult = "" + PREFIX02 + "\n";
         mAct.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                tv_result_setText(asrFinalResult);
+                if (false) {
+                    tv_result_setText(asrFinalResult, asrFinalResult, true);
+                } else {
+                    tv_result_setText(asrFinalResult, "", true);
+                }
                 tv_transResult_setText(transFinalResult);
                 tv_audioPath_setText("识别音频路径:" + audioPath);
                 btn_audio_start_setText("录音中\n");
@@ -477,7 +525,8 @@ public class BookActivity4RTASRDialog implements AudioRecorderManager.AudioDataC
                 .apiSecret(mAct.getResources().getString(R.string.apiSecret))//应用申请的appid三元组
 //                .uid("")
 //                .logPath("/sdcard/iflytek/AEELog.txt")
-                .logLevel(LogLvl.VERBOSE.getValue());
+                //.logLevel(LogLvl.VERBOSE.getValue());
+                .logLevel(LogLvl.ERROR.getValue());
 
         int ret = SparkChain.getInst().init(mAct.getApplicationContext(),sparkChainConfig);
         String result;

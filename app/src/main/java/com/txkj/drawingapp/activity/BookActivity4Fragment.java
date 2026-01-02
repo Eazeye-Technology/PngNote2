@@ -20,9 +20,11 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.text.TextPaint;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -387,6 +389,10 @@ public class BookActivity4Fragment extends Fragment {
             this.savePageInMain(this.getPageIdx(), this.pageBmp, getVecJson(canvas));
         }
         saveBrushPreset();
+        SDRecordingsDatabase mDatabase = this.adapter.getDB(); //new SDRecordingsDatabase(getActivity(), _bookDir.getFilePath());
+        if (mDatabase != null) {
+            mDatabase.saveAll();
+        }
         super.onStop();
         runNormalScreen(getActivity());
     }
@@ -1113,11 +1119,11 @@ public class BookActivity4Fragment extends Fragment {
 
         setPenColor(0xFF000000); //FIXME:初始化画笔
 
-        if (this.dirUrlPath != null) {
-            if (false) {
-                ((TextView) rootView.findViewById(R.id.newTitle)).setText(getBookNameNG(this.dirUrlPath));
-            }
-        }
+//        if (this.dirUrlPath != null) {
+//            if (false) {
+//                ((TextView) rootView.findViewById(R.id.newTitle)).setText(getBookNameNG(this.dirUrlPath));
+//            }
+//        }
         onCreateAct(rootView);
         if (BookIO.USE_META_TXT) {
             if (isInitBackText && backText != null) {
@@ -1247,7 +1253,9 @@ public class BookActivity4Fragment extends Fragment {
                 rootView.findViewById(R.id.bottomLineTranscript).setVisibility(View.VISIBLE);
             }
         });
-        rootView.findViewById(R.id.rlTranscript).performClick(); //FIXME:init show transcript
+        if (BookActivity4Utils.SHOW_TRANSCRIPT_FIRST) {
+            rootView.findViewById(R.id.rlTranscript).performClick(); //FIXME:init show transcript
+        }
         if (USE_BOTTOM_SHEET) {
             windowPreferencesManager = new WindowPreferencesManager(getActivity());
             bottomSheetDialog1 = new BottomSheetDialog(getActivity());
@@ -1354,18 +1362,52 @@ public class BookActivity4Fragment extends Fragment {
         }
     }
 
+    private Runnable refreshRunnable;
+    Handler handler = new Handler();
+    private void startHandlerTask() {
+        refreshRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (adapter != null) {
+                    adapter.notifyDataSetChanged();
+                }
+                if (rtasrDialog != null) {
+                    handler.postDelayed(this, 2000);
+                }
+            }
+        };
+        handler.postDelayed(refreshRunnable, 2000);
+    }
+
     private void init001(View rootView) {
         {
             View.OnClickListener onClickListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if (USE_RTASR) {
-                        if (rtasrDialog == null) {
-                            rtasrDialog = new BookActivity4RTASRDialog(getActivity());
-                            rtasrDialog.onClick_audio();
+                        if (false) {
+                            if (rtasrDialog == null) {
+                                rtasrDialog = new BookActivity4RTASRDialog(getActivity());
+                                rtasrDialog.onClick_audio();
+                                //startHandlerTask();
+                            } else {
+                                rtasrDialog.onClick_stop();
+                                rtasrDialog = null;
+                            }
                         } else {
-                            rtasrDialog.onClick_stop();
-                            rtasrDialog = null;
+                            if (g_rootView.findViewById(R.id.startRecord).getVisibility() == View.VISIBLE) {
+                                //isRecording
+                                if (rtasrDialog == null) {
+                                    rtasrDialog = new BookActivity4RTASRDialog(getActivity());
+                                    rtasrDialog.onClick_audio();
+                                    //startHandlerTask();
+                                }
+                            } else {
+                                if (rtasrDialog != null) {
+                                    rtasrDialog.onClick_stop();
+                                    rtasrDialog = null;
+                                }
+                            }
                         }
                     } else if (USE_LISTEN) {
                         if (listenDialog == null) {
@@ -1544,20 +1586,7 @@ public class BookActivity4Fragment extends Fragment {
         rootView.findViewById(R.id.buttonBack).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //FIXME:退出立即保存
-                if (SAVING_ASYNC) {
-                    if (task == null) {
-                        task = new SavingTask(true);
-                        task.executeOnExecutor(newFixedThreadPool);
-                    }
-                } else {
-                    if (false) {
-                        ensureSave();
-                    } else {
-                        savePageInMain(getPageIdx(), pageBmp, getVecJson(canvas));
-                    }
-                    BookActivity4Utils.finish(getActivity(), true);
-                }
+                onBackPressed();
             }
         });
         rootView.findViewById(R.id.buttonPen2).setOnClickListener(new View.OnClickListener() {
@@ -1792,8 +1821,8 @@ public class BookActivity4Fragment extends Fragment {
             Bitmap bgBmp = getBookIO().loadBgOrNull(getBook());
             try {
                 String metaTxt = getBookIO().loadMetaPng(page.getFile());
-                JSONObject item = new JSONObject(metaTxt);
-                if (item != null) {
+                if (metaTxt != null && metaTxt.length() > 0) {
+                    JSONObject item = new JSONObject(metaTxt);
                     curPattern = item.optString("pattern");
                     backText = curPattern;
                 }
@@ -1823,6 +1852,19 @@ public class BookActivity4Fragment extends Fragment {
         isPenEraserBrush = 1;
         selectPenOrEraser(rootView, 1);
         setPenEraserBrush(canvas,1);
+
+        TextView tvMeetingSummary = rootView.findViewById(R.id.tvMeetingSummary);
+        tvMeetingSummary.setText(getMeetingSummary());
+        rootView.findViewById(R.id.tvEditSummary).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog dialog = new BookActivity4MeetingSummaryDialog(getActivity(), getMeetingSummary())
+                        .create();
+                if (dialog != null) {
+                    dialog.show();
+                }
+            }
+        });
     }
 
     public static int sp2px(Context context, float spValue) {
@@ -2549,6 +2591,69 @@ public class BookActivity4Fragment extends Fragment {
         }
     }
 
+    public void editMeetingSummary(String newSummary) {
+        boolean isFailed = false;
+        if (_bookDir == null || _bookDir.getName() == null ||!_bookDir.getName().startsWith(BookActivity4Config.USE_SKETCH_PREFIX)) {
+            isFailed = true;
+        }
+        String folder = _bookDir.getFilePath();
+        if (folder == null ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).exists() ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).canWrite()
+        ) {
+            isFailed = true;
+        }
+        try {
+            File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
+            String str = FastFile.loadMetaText(file_2);
+            JSONObject item = new JSONObject(str);
+            item.put(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_SUMMARY, newSummary);
+            FastFile.saveMetaText(file_2, item.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+            isFailed = true;
+        }
+        if (isFailed) {
+            new MaterialAlertDialogBuilder(getActivity(), BookActivity4Utils.getCenteredTitleThemeOverlay())
+                    .setTitle("Error")
+                    .setMessage("Edit meeting summary failed")
+                    .setPositiveButton("OK", null)
+                    .show();
+        } else {
+            onCreateAct(g_rootView);
+            try {
+                ((TextView) g_rootView.findViewById(R.id.tvMeetingSummary)).setText(getMeetingSummary());
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+            }
+        }
+    }
+
+    public String getMeetingSummary() {
+        String newSummary = "";
+        boolean isFailed = false;
+        if (_bookDir == null || _bookDir.getName() == null ||!_bookDir.getName().startsWith(BookActivity4Config.USE_SKETCH_PREFIX)) {
+            isFailed = true;
+        }
+        String folder = _bookDir.getFilePath();
+        if (folder == null ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).exists() ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).canWrite()
+        ) {
+            isFailed = true;
+        }
+        try {
+            File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
+            String str = FastFile.loadMetaText(file_2);
+            JSONObject item = new JSONObject(str);
+            newSummary = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_SUMMARY, "");
+        } catch (JSONException e) {
+            e.printStackTrace();
+            isFailed = true;
+        }
+        return newSummary;
+    }
+
     //isDrawBG is false, unless I want to share
     private void notifyForceSave(boolean isDrawBG) {
         //FIXME:this.isDirty should be always true
@@ -2942,46 +3047,50 @@ public class BookActivity4Fragment extends Fragment {
             }
     );
 
-    DrawCanvas.TOOLS lastTool = DrawCanvas.TOOLS.none;
+//    DrawCanvas.TOOLS lastTool = DrawCanvas.TOOLS.none;
 //    @Override
-//    public boolean onKeyDown(int keyCode, KeyEvent event) {
-//        if (keyCode == KeyEvent.KEYCODE_SPACE) {
-////            if (this.canvas != null) {
-////                lastTool = this.canvas.tool;
-////                this.canvas.setTool(DrawCanvas.TOOLS.pan);
-////            }
-//        }
-//        return super.onKeyDown(keyCode, event);
-//    }
-
-//    @Override
-//    public boolean onKeyUp(int keyCode, KeyEvent event) {
-//        if (keyCode == KeyEvent.KEYCODE_SPACE) {
-//            if (this.canvas != null) {
-////                this.canvas.setTool(lastTool);
-//                this.canvas.setTool(DrawCanvas.TOOLS.pan);
-//            }
-//        }
-//        return super.onKeyUp(keyCode, event);
-//    }
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_SPACE) {
+            boolean isTextMode = false;
+            if (g_rootView != null &&
+                    g_rootView.findViewById(R.id.left_toolkit2) != null &&
+                    g_rootView.findViewById(R.id.left_toolkit2).getVisibility() == View.VISIBLE) {
+                isTextMode = true;
+            }
+            if (!isTextMode && this.canvas != null) {
+//                lastTool = this.canvas.tool;
+                this.canvas.setTool(DrawCanvas.TOOLS.pan);
+            }
+            return true;
+        }
+        return false;
+    }
 
     private long rowId = -1;
-    public void tv_result_setText(String str) {
+    public void tv_result_setText(String str, String subStr, boolean isEnd, boolean isAppend) {
         Log.e(TAG, "tv_result_setText : " + str);
+        if (str != null && str.equals("")) {
+            rowId = -1;
+            //return;
+        }
         try {
-            SDRecordingsDatabase mDatabase = new SDRecordingsDatabase(getActivity(), _bookDir.getFilePath());
-            RecordingItem mItem = new RecordingItem();
-            if (rowId == -1) {
-                rowId = mDatabase.addRecording(
-                        "rtasr-" + System.currentTimeMillis(),
-                        "",
-                        0,
-                        "", "",
-                        "text", str);
-            } else {
-                mDatabase.updateItemContent(rowId, str);
+            SDRecordingsDatabase mDatabase = this.adapter.getDB(); //new SDRecordingsDatabase(getActivity(), _bookDir.getFilePath());
+            if (mDatabase != null) {
+                if (rowId > -1) {
+                    mDatabase.updateItemContent(rowId, str, isAppend);
+                } else {
+                    rowId = mDatabase.addRecording(
+                            "rtasr-" + System.currentTimeMillis(),
+                            "",
+                            0,
+                            "", "",
+                            "text", str);
+                }
+                if (isEnd) {
+                    rowId = -1;
+                }
             }
-            mDatabase.close();
+            //mDatabase.close();
             if (adapter != null) {
                 adapter.notifyDataSetChanged();
                 ListView viewListViewBook = (ListView) g_rootView.findViewById(R.id.viewListViewBook);
@@ -3003,11 +3112,13 @@ public class BookActivity4Fragment extends Fragment {
 //        }
 //        Toast.makeText(BookActivity4.this, "total : " + adapter.getCount(), Toast.LENGTH_LONG).show();
     }
+    private boolean isTranscriptRecording = false;
     public void btn_audio_start_setEnabled(boolean enable) {
         Log.e(TAG, "btn_audio_start_setEnabled : " + enable);
         AppCompatImageView btnPanel = (AppCompatImageView) g_rootView.findViewById(R.id.btnPanel);
         AnimationDrawable anim = (AnimationDrawable) btnPanel.getDrawable();
         if (!enable) {
+            isTranscriptRecording = true;
             anim.start();
             g_rootView.findViewById(R.id.startRecord).setVisibility(View.GONE);
             g_rootView.findViewById(R.id.stopRecord).setVisibility(View.VISIBLE);
@@ -3017,6 +3128,7 @@ public class BookActivity4Fragment extends Fragment {
             AnimationDrawable anim2 = (AnimationDrawable) btnPanel2.getDrawable();
             anim2.start();
         } else {
+            isTranscriptRecording = false;
             anim.stop();
             anim.selectDrawable(0);
             g_rootView.findViewById(R.id.startRecord).setVisibility(View.VISIBLE);
@@ -3179,6 +3291,23 @@ public class BookActivity4Fragment extends Fragment {
         notifyForceSave(false);
         this.ensureSave();
         onPageIdxChange(true);
+    }
+
+    public void onBackPressed() {
+        //FIXME:退出立即保存
+        if (SAVING_ASYNC) {
+            if (task == null) {
+                task = new SavingTask(true);
+                task.executeOnExecutor(newFixedThreadPool);
+            }
+        } else {
+            if (false) {
+                ensureSave();
+            } else {
+                savePageInMain(getPageIdx(), pageBmp, getVecJson(canvas));
+            }
+            BookActivity4Utils.finish(getActivity(), true);
+        }
     }
 
     //FIXME:TODO:

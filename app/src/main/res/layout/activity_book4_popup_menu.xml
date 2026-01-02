@@ -479,6 +479,7 @@
                         android:layout_height="wrap_content"
                         android:padding="1px"
                         android:orientation="horizontal"
+                        android:visibility="gone"
                         >
                         <ImageView
                             android:layout_width="0px"
