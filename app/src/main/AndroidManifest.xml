@@ -210,6 +210,12 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
             <!--main-->
         </activity>
 
+<!--        <activity-->
+<!--            android:name="com.onyx.android.onyxandroidscribble.MainActivity"-->
+<!--            android:exported="true">-->
+<!--            &lt;!&ndash;main&ndash;&gt;-->
+<!--        </activity>-->
+
     </application>
 
 </manifest>

@@ -1,6 +1,7 @@
 package io.github.pastthepixels.freepaint.Graphics;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -8,14 +9,13 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SizeF;
-import android.util.TypedValue;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.view.View;
@@ -33,9 +33,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Objects;
 
 import io.github.pastthepixels.freepaint.File.SVG;
@@ -101,6 +99,11 @@ public final class DrawCanvas extends View {
      */
     public DrawCanvas(Context context) {
         this(context, null, 0);
+    }
+
+    public Activity mAct = null;
+    public void initAct(Activity act) {
+        this.mAct = act;
     }
 
     /**
@@ -412,6 +415,14 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
         );
     }
 
+    public Point mapPointScreen(float x, float y, float pressure) {
+        return new Point(
+                (x + panTool.offset.x + panTool.panOffset.x) * panTool.scaleFactor,
+                (y + panTool.offset.y + panTool.panOffset.y) * panTool.scaleFactor,
+                pressure
+        );
+    }
+
     /**
      * Gets the pan tool's scale factor.
      *
@@ -472,22 +483,115 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
         // Draws every path, then tool path
         for (DrawPath path : paths) {
             paint.reset();
-            path.draw(canvas, paint, screenDensity, getScaleFactor());
+            path.draw(canvas, paint, screenDensity, getScaleFactor(), drawMinimal);
         }
-        if (!drawMinimal && getTool() != null && getTool().getToolPaths() != null) {
-            if (EraserTool.USE_SIMPLE_IMPL) {
-                //skip, 不显示上方的全局灰色遮罩层
-            } else {
-                if (getTool() instanceof EraserTool) {
-                    paint.setARGB(150, 0, 0, 0);
-                    paint.setStyle(Paint.Style.FILL);
-                    canvas.drawPaint(paint);
+
+        boolean menuHidden = false;
+        DrawPath selectedPath = null;
+        if (!getSelectionTool().getSelectedPaths().isEmpty()) {
+            selectedPath = getSelectionTool().getSelectedPaths().get(0);
+        }
+//        if (getSelectionTool().getSelectedPaths().size() == 1 &&
+//                selectedPath != null && selectedPath.pointsType == DrawPath.POINTS_TYPE_STROKE) {
+//            menuHidden = true;
+//        }
+
+        if (true) {
+//            Matrix selectedMatrix = new Matrix();
+//            if (selectedPath != null) {
+//                selectedMatrix.set(selectedPath.getMatrix());
+//            }
+            canvas.save();
+            //Matrix matrix = new Matrix();
+            //int w = path.pointsBitmap != null ? path.pointsBitmap.getWidth() : 0;
+            //int h = path.pointsBitmap != null ? path.pointsBitmap.getHeight() : 0;
+            //matrix.postScale(path.scaleX, path.scaleY,  0, 0);
+//            canvas.concat(selectedMatrix);
+
+            if (!drawMinimal && getTool() != null && getTool().getToolPaths() != null) {
+                if (EraserTool.USE_SIMPLE_IMPL) {
+                    //skip, 不显示上方的全局灰色遮罩层
+                } else {
+                    if (getTool() instanceof EraserTool) {
+                        paint.setARGB(150, 0, 0, 0);
+                        paint.setStyle(Paint.Style.FILL);
+                        canvas.drawPaint(paint);
+                    }
+                }
+                for (DrawPath path : getTool().getToolPaths()) {
+                    paint.reset();
+                    path.draw(canvas, paint, screenDensity, getScaleFactor(), drawMinimal);
+
+                    //draw menu on four corners
+                    if (!menuHidden && getTool() instanceof SelectionTool) {
+                        float radius = getSelectionTool().iconRadius;
+                        if (getSelectionTool().mode != SelectionTool.TOUCH_MODES.define) {
+                            for (int i = 0; i < path.points.size(); ++i) {
+                                Point pt = path.points.get(i);
+                                Drawable drawable = null;
+                                if (i == SelectionTool.deleteIcon_index) {
+                                    drawable = getSelectionTool().deleteIcon;
+                                } else if (i == SelectionTool.doneIcon_index) {
+                                    drawable = getSelectionTool().doneIcon;
+                                } else if (i == SelectionTool.zoomIcon_index) {
+                                    //FIXME:暂时不允许多个对象缩放, 只允许单个文本和图片缩放
+                                    if (getSelectionTool().getSelectedPaths().size() == 1) {
+                                        DrawPath path0 = getSelectionTool().getSelectedPaths().get(0);
+                                        if (path0 != null &&
+                                                (path0.pointsType == DrawPath.POINTS_TYPE_IMAGE ||
+                                                        path0.pointsType == DrawPath.POINTS_TYPE_TEXT)) {
+                                            drawable = getSelectionTool().zoomIcon;
+                                        }
+                                    }
+                                } else if (i == SelectionTool.editIcon_index) {
+                                    //FIXME:暂时不允许多个对象编辑, 只允许单个文本编辑
+                                    if (getSelectionTool().getSelectedPaths().size() == 1) {
+                                        DrawPath path0 = getSelectionTool().getSelectedPaths().get(0);
+                                        if (path0 != null &&
+                                                (path0.pointsType == DrawPath.POINTS_TYPE_TEXT)) {
+                                            drawable = getSelectionTool().editIcon;
+                                        }
+                                    }
+                                }
+
+
+
+                                {
+                                    if (true) {
+                                        Paint iconPaint = new Paint();
+                                        iconPaint.setAntiAlias(true);
+                                        iconPaint.setColor(0xFF000000);
+                                        iconPaint.setAlpha(100);//50);
+                                        canvas.drawCircle(pt.x, pt.y, radius, iconPaint);
+                                    }
+                                    if (drawable != null) {
+                                        Rect bounds = new Rect(
+                                                (int) pt.x - (int) radius / 3 * 2,
+                                                (int) pt.y - (int) radius / 3 * 2,
+                                                (int) pt.x + (int) radius / 3 * 2,
+                                                (int) pt.y + (int) radius / 3 * 2);
+                                        drawable.setBounds(bounds);
+                                        drawable.draw(canvas);
+                                        if (false) {
+                                            Paint p = new Paint();
+                                            p.setStyle(Paint.Style.STROKE);
+                                            p.setColor(0xFF0000FF);
+                                            canvas.drawRect(0, 0, 300, 400, p);
+                                        }
+                                    }
+                                }
+
+
+
+
+
+                            }
+                        }
+                    }
                 }
             }
-            for (DrawPath path : getTool().getToolPaths()) {
-                paint.reset();
-                path.draw(canvas, paint, screenDensity, getScaleFactor());
-            }
+
+            canvas.restore();
         }
 
         canvas.restore();
@@ -713,7 +817,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
     }
 
     private final static String SPLIT_REGXP = "\r\n|\n|\r";
-    private static SizeF calculateTextSizes(String text, Paint p) {
+    public static SizeF calculateTextSizes(String text, Paint p) {
         if (text == null) {
             text = "";
         }
@@ -807,14 +911,14 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
 
 
     //if x, y are from mapPoint, then needMap = false
-    public void drawImage(int x, int y, int width, int height, Bitmap pic, boolean needMap) {
+    public DrawPath drawImage(int x, int y, int width, int height, Bitmap pic, boolean needMap) {
         //final boolean debug = true;
         //boolean needMap = false;
         DrawAppearance appearance = new DrawAppearance(Color.BLACK, -1);
         appearance.loadFromSettings(getContext());
         appearance.penType = DrawAppearance.PEN_TYPE_4; //getPenType();
         // Starts a new line in the path -- whether or not it is closed is taken from the preferences (defaults to false)
-        DrawPath currentPath = new DrawPath(null, DrawPath.POINTS_TYPE_TEXT);
+        DrawPath currentPath = new DrawPath(null, DrawPath.POINTS_TYPE_IMAGE);
         currentPath.isClosed = PreferenceManager.getDefaultSharedPreferences(getContext()).getBoolean("drawFilledShapes", false);
         currentPath.appearance = appearance.clone();
 
@@ -856,6 +960,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
         if (true) { //FIXME:???
             invalidate();
         }
+        return currentPath;
     }
     public int pageIdx;
     public void onPageIdx(int idx, CanvasBoox.OnLoadBitmapListener bitmapLoader, boolean forceReload) {

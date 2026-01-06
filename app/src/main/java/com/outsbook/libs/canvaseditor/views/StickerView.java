@@ -1,4 +1,4 @@
-package com.outsbook.libs.canvaseditor.stickers;
+package com.outsbook.libs.canvaseditor.views;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -7,83 +7,89 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PointF;
 import android.graphics.RectF;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
+
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
-import com.outsbook.libs.canvaseditor.constants.ActionMode;
-import com.outsbook.libs.canvaseditor.constants.ConstantSticker;
-import com.outsbook.libs.canvaseditor.enums.DrawType;
-import com.outsbook.libs.canvaseditor.events.DeleteIconEvent;
-import com.outsbook.libs.canvaseditor.events.DoneIconEvent;
-import com.outsbook.libs.canvaseditor.events.FlipIconEvent;
-import com.outsbook.libs.canvaseditor.events.ZoomIconEvent;
-import com.outsbook.libs.canvaseditor.listeners.StickerIconListener;
-import com.outsbook.libs.canvaseditor.listeners.StickerViewListener;
+
 import com.outsbook.libs.canvaseditor.models.DrawObject;
-import com.outsbook.libs.canvaseditor.models.PathAndPaint;
+import com.outsbook.libs.canvaseditor.models.Sticker;
+import com.outsbook.libs.canvaseditor.models.StickerIcon;
 import com.txkj.drawingapp.R;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import kotlin.Metadata;
-import kotlin.jvm.internal.Intrinsics;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public final class StickerView extends FrameLayout {
-    @NotNull
-    private final StickerViewListener stickerViewListener;
-    @Nullable
+public class StickerView extends FrameLayout {
+    public interface StickerViewListener {
+        void onRemove();
+        void onDone(DrawObject var1);
+        void onZoomAndRotate();
+        void onFlip();
+        void onClickStickerOutside(float var1, float var2);
+        void onTouchEvent(MotionEvent var1);
+    }
+    private StickerViewListener stickerViewListener;
     private Sticker currentSticker;
+
+    public static int NONE = 0;
+    public static int DRAG = 1;
+    public static int ZOOM_WITH_TWO_FINGER = 2;
+    public static int ICON = 3;
+    public static int CLICK = 4;
     private int currentMode;
+
     private boolean isTouchInsideSticker;
-    @NotNull
-    private final RectF stickerRect;
-    @NotNull
-    private final List<StickerIcon> icons;
-    @NotNull
-    private final float[] bitmapPoints;
-    @NotNull
-    private final float[] bounds;
-    @NotNull
-    private final float[] point;
-    @NotNull
-    private final PointF currentCenterPoint;
-    @NotNull
-    private final float[] tmp;
-    @NotNull
+    private RectF stickerRect;
+    private List<StickerIcon> icons;
+    private float[] bitmapPoints;
+    private float[] bounds;
+    private float[] point;
+    private PointF currentCenterPoint;
+    private float[] tmp;
     private PointF midPoint;
-    @NotNull
-    private final Matrix sizeMatrix;
-    @NotNull
-    private final Matrix downMatrix;
-    @NotNull
-    private final Matrix moveMatrix;
+    private Matrix sizeMatrix;
+    private Matrix downMatrix;
+    private Matrix moveMatrix;
     private float downX;
     private float downY;
     private float oldDistance;
     private float oldRotation;
-    @NotNull
-    private final Paint borderPaint;
-    @NotNull
-    private final Paint iconPaint;
-    private final int touchSlop;
-    @Nullable
+    private Paint borderPaint;
+    private Paint iconPaint;
+    private int touchSlop;
     private StickerIcon currentIcon;
 
-    public StickerView(@NotNull Context context, @NotNull StickerViewListener stickerViewListener) {
-        //Intrinsics.checkNotNullParameter(context, "context");
-        //Intrinsics.checkNotNullParameter(stickerViewListener, "stickerViewListener");
+    public StickerView(@NonNull Context context) {
         super(context);
-        this.stickerViewListener = stickerViewListener;
-        this.currentMode = ActionMode.Companion.getNONE();
+        initView();
+    }
+
+    public StickerView(@NonNull Context context, @androidx.annotation.Nullable AttributeSet attrs) {
+        super(context, attrs);
+        initView();
+    }
+
+    public StickerView(@NonNull Context context, @androidx.annotation.Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        initView();
+    }
+
+    public StickerView(@NonNull Context context, @androidx.annotation.Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+        initView();
+    }
+
+    public void initView() {
+        this.currentMode = NONE;
         this.stickerRect = new RectF();
-        this.icons = (List)(new ArrayList(4));
+        this.icons = new ArrayList<>();
         this.bitmapPoints = new float[8];
         this.bounds = new float[8];
         this.point = new float[2];
@@ -93,40 +99,83 @@ public final class StickerView extends FrameLayout {
         this.sizeMatrix = new Matrix();
         this.downMatrix = new Matrix();
         this.moveMatrix = new Matrix();
-        Paint var3 = new Paint();
-        int var5 = 0;
-        var3.setAntiAlias(true);
-        var3.setColor(-16777216);
-        var3.setAlpha(50);
-        this.borderPaint = var3;
-        var3 = new Paint();
-        var5 = 0;
-        var3.setAntiAlias(true);
-        var3.setColor(-16777216);
-        var3.setAlpha(128);
-        this.iconPaint = var3;
-        this.touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+
+        this.iconPaint = new Paint();
+        this.iconPaint.setAntiAlias(true);
+        this.iconPaint.setColor(0xFF000000);
+        this.iconPaint.setAlpha(50);
+
+        this.borderPaint = new Paint();
+        this.borderPaint.setAntiAlias(true);
+        this.borderPaint.setColor(0xFF000000);
+        this.borderPaint.setAlpha(128);
+
+        this.touchSlop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
         this.configDefaultIcons();
     }
 
-    @Nullable
+    public void init(StickerViewListener stickerViewListener) {
+        this.stickerViewListener = stickerViewListener;
+    }
+
     public Sticker getCurrentSticker() {
         return this.currentSticker;
     }
 
-    public void setCurrentSticker(@Nullable Sticker var1) {
+    public void setCurrentSticker(Sticker var1) {
         this.currentSticker = var1;
     }
 
     private void configDefaultIcons() {
-        StickerIcon deleteIcon = new StickerIcon(ContextCompat.getDrawable(this.getContext(), R.drawable.ic_close_white_20dp), 0);
-        deleteIcon.setIconListener(new DeleteIconEvent());
-        StickerIcon doneIcon = new StickerIcon(ContextCompat.getDrawable(this.getContext(), R.drawable.ic_done_white_20dp), 1);
-        doneIcon.setIconListener(new DoneIconEvent());
-        StickerIcon zoomIcon = new StickerIcon(ContextCompat.getDrawable(this.getContext(), R.drawable.ic_rotate_scale_white_17dp), 3);
-        zoomIcon.setIconListener(new ZoomIconEvent());
-        StickerIcon flipIcon = new StickerIcon(ContextCompat.getDrawable(this.getContext(), R.drawable.ic_flip_white_20dp), 2);
-        flipIcon.setIconListener(new FlipIconEvent());
+        StickerIcon deleteIcon = new StickerIcon(ContextCompat.getDrawable(this.getContext(), R.drawable.ic_close_white_20dp), StickerIcon.LEFT_TOP);
+        deleteIcon.setIconListener(new StickerIcon.StickerIconListener() {
+            public void onActionDown(StickerView stickerView, MotionEvent event) {
+            }
+
+            public void onActionMove(StickerView stickerView, MotionEvent event) {
+            }
+
+            public void onActionUp(StickerView stickerView, MotionEvent event) {
+                stickerView.remove();
+            }
+        });
+        StickerIcon doneIcon = new StickerIcon(ContextCompat.getDrawable(this.getContext(), R.drawable.ic_done_white_20dp), StickerIcon.RIGHT_TOP);
+        doneIcon.setIconListener(new StickerIcon.StickerIconListener() {
+            public void onActionDown(StickerView stickerView, MotionEvent event) {
+
+            }
+
+            public void onActionMove(StickerView stickerView, MotionEvent event) {
+            }
+
+            public void onActionUp(StickerView stickerView, MotionEvent event) {
+                stickerView.done();
+            }
+        });
+        StickerIcon zoomIcon = new StickerIcon(ContextCompat.getDrawable(this.getContext(), R.drawable.ic_rotate_scale_white_17dp), StickerIcon.RIGHT_BOTTOM);
+        zoomIcon.setIconListener(new StickerIcon.StickerIconListener() {
+            public void onActionDown(StickerView stickerView, MotionEvent event) {
+            }
+
+            public void onActionMove(StickerView stickerView, MotionEvent event) {
+                stickerView.zoomAndRotate(event);
+            }
+
+            public void onActionUp(StickerView stickerView, MotionEvent event) {
+            }
+        });
+        StickerIcon flipIcon = new StickerIcon(ContextCompat.getDrawable(this.getContext(), R.drawable.ic_flip_white_20dp), StickerIcon.LEFT_BOTTOM);
+        flipIcon.setIconListener(new StickerIcon.StickerIconListener() {
+            public void onActionDown(StickerView stickerView, MotionEvent event) {
+            }
+
+            public void onActionMove(StickerView stickerView, MotionEvent event) {
+            }
+
+            public void onActionUp(StickerView stickerView, MotionEvent event) {
+                stickerView.flip();
+            }
+        });
         this.icons.clear();
         this.icons.add(deleteIcon);
         this.icons.add(doneIcon);
@@ -149,17 +198,16 @@ public final class StickerView extends FrameLayout {
             this.stickerRect.right = (float)right;
             this.stickerRect.bottom = (float)bottom;
         }
-
     }
 
-    protected void dispatchDraw(@NotNull Canvas canvas) {
-        Intrinsics.checkNotNullParameter(canvas, "canvas");
+    @Override
+    protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
         this.drawStickers(canvas);
     }
 
-    public boolean onInterceptTouchEvent(@NotNull MotionEvent ev) {
-        Intrinsics.checkNotNullParameter(ev, "ev");
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
         if (ev.getAction() != 0) {
             return super.onInterceptTouchEvent(ev);
         } else {
@@ -169,44 +217,45 @@ public final class StickerView extends FrameLayout {
         }
     }
 
-    @SuppressLint({"ClickableViewAccessibility"})
-    public boolean onTouchEvent(@NotNull MotionEvent event) {
-        Intrinsics.checkNotNullParameter(event, "event");
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
         this.stickerViewListener.onTouchEvent(event);
         switch (event.getActionMasked()) {
-            case 0:
+            case MotionEvent.ACTION_DOWN:
                 if (!this.onTouchDown(event)) {
                     return false;
                 }
                 break;
 
-            case 1:
+            case MotionEvent.ACTION_UP:
                 this.onTouchUp(event);
                 break;
 
-            case 2:
+            case MotionEvent.ACTION_MOVE:
                 this.handleCurrentMode(event);
                 this.invalidate();
                 break;
 
-            case 5:
+            case MotionEvent.ACTION_POINTER_DOWN:
                 this.oldDistance = this.calculateDistance(event);
                 this.oldRotation = this.calculateRotation(event);
                 this.midPoint = this.calculateMidPoint(event);
                 if (this.currentSticker != null) {
-                    Intrinsics.checkNotNull(this.currentSticker);
-                    if (this.isInStickerArea(this.currentSticker, event.getX(1), event.getY(1)) && this.findCurrentIconTouched() == null) {
-                        this.currentMode = ActionMode.Companion.getZOOM_WITH_TWO_FINGER();
+                    if (this.isInStickerArea(this.currentSticker,
+                            event.getX(1),
+                            event.getY(1)) &&
+                            this.findCurrentIconTouched() == null) {
+                        this.currentMode = ZOOM_WITH_TWO_FINGER;
                     }
                 }
                 break;
 
-            case 6:
-                this.currentMode = ActionMode.Companion.getNONE();
+            case MotionEvent.ACTION_POINTER_UP:
+                this.currentMode = NONE;
                 break;
 
-            case 3:
-            case 4:
+            case MotionEvent.ACTION_CANCEL:
+            case MotionEvent.ACTION_OUTSIDE:
             default:
                 break;
         }
@@ -241,19 +290,19 @@ public final class StickerView extends FrameLayout {
             for (int i = 0; i < this.icons.size(); ++i) {
                 StickerIcon icon = this.icons.get(i);
                 switch (icon.getPosition()) {
-                    case 0:
+                    case StickerIcon.LEFT_TOP:
                         this.configIconMatrix(icon, x1, y1, rotation);
                         break;
 
-                    case 1:
+                    case StickerIcon.RIGHT_TOP:
                         this.configIconMatrix(icon, x2, y2, rotation);
                         break;
 
-                    case 2:
+                    case StickerIcon.LEFT_BOTTOM:
                         this.configIconMatrix(icon, x3, y3, rotation);
                         break;
 
-                    case 3:
+                    case StickerIcon.RIGHT_BOTTOM:
                         this.configIconMatrix(icon, x4, y4, rotation);
                         break;
                 }
@@ -264,7 +313,7 @@ public final class StickerView extends FrameLayout {
 
     }
 
-    private final void getStickerPoints(Sticker sticker, float[] dst) {
+    private void getStickerPoints(Sticker sticker, float[] dst) {
         if (sticker == null) {
             Arrays.fill(dst, 0.0F);
         } else {
@@ -273,28 +322,28 @@ public final class StickerView extends FrameLayout {
         }
     }
 
-    private final float calculateDistance(MotionEvent event) {
+    private float calculateDistance(MotionEvent event) {
         return event != null && event.getPointerCount() >= 2 ? this.calculateDistance(event.getX(0), event.getY(0), event.getX(1), event.getY(1)) : 0.0F;
     }
 
-    private final float calculateDistance(float x1, float y1, float x2, float y2) {
+    private float calculateDistance(float x1, float y1, float x2, float y2) {
         double x = (double)x1 - (double)x2;
         double y = (double)y1 - (double)y2;
         return (float)Math.sqrt(x * x + y * y);
     }
 
-    private final float calculateRotation(MotionEvent event) {
+    private float calculateRotation(MotionEvent event) {
         return event != null && event.getPointerCount() >= 2 ? this.calculateRotation(event.getX(0), event.getY(0), event.getX(1), event.getY(1)) : 0.0F;
     }
 
-    private final float calculateRotation(float x1, float y1, float x2, float y2) {
+    private float calculateRotation(float x1, float y1, float x2, float y2) {
         double x = (double)x1 - (double)x2;
         double y = (double)y1 - (double)y2;
         double radians = Math.atan2(y, x);
         return (float)Math.toDegrees(radians);
     }
 
-    private final void configIconMatrix(StickerIcon icon, float x, float y, float rotation) {
+    private void configIconMatrix(StickerIcon icon, float x, float y, float rotation) {
         icon.setX(x);
         icon.setY(y);
         icon.getMatrix().reset();
@@ -332,7 +381,7 @@ public final class StickerView extends FrameLayout {
     }
 
     private boolean onTouchDown(MotionEvent event) {
-        this.currentMode = ActionMode.Companion.getDRAG();
+        this.currentMode = DRAG;
         this.downX = event.getX();
         this.downY = event.getY();
         this.midPoint = this.calculateMidPoint();
@@ -340,21 +389,13 @@ public final class StickerView extends FrameLayout {
         this.oldRotation = this.calculateRotation(this.midPoint.x, this.midPoint.y, this.downX, this.downY);
         this.currentIcon = this.findCurrentIconTouched();
         if (this.currentIcon != null) {
-            this.currentMode = ActionMode.Companion.getICON();
-            StickerIcon var10000 = this.currentIcon;
-            Intrinsics.checkNotNull(var10000);
-            var10000.onActionDown(this, event);
+            this.currentMode = ICON;
+            this.currentIcon.onActionDown(this, event);
         }
 
         if (this.currentSticker != null) {
-            Sticker var10001 = this.currentSticker;
-            Intrinsics.checkNotNull(var10001);
-            this.isTouchInsideSticker = var10001.contains(this.downX, this.downY);
-            Matrix var2 = this.downMatrix;
-            Sticker.Companion var3 = Sticker.Companion;
-            Sticker var10002 = this.currentSticker;
-            Intrinsics.checkNotNull(var10002);
-            var2.set(var3.getMatrix(var10002));
+            this.isTouchInsideSticker = this.currentSticker.contains(this.downX, this.downY);
+            this.downMatrix.set(this.currentSticker.getMatrix());
         }
 
         if (this.currentIcon == null && !this.isTouchInsideSticker) {
@@ -366,56 +407,44 @@ public final class StickerView extends FrameLayout {
         }
     }
 
-    private final void handleCurrentMode(MotionEvent event) {
-        int var2 = this.currentMode;
-        if (var2 != ActionMode.Companion.getNONE() && var2 != ActionMode.Companion.getCLICK()) {
-            if (var2 == ActionMode.Companion.getDRAG()) {
+    private void handleCurrentMode(MotionEvent event) {
+        if (this.currentMode != NONE && this.currentMode != CLICK) {
+            if (this.currentMode == DRAG) {
                 if (this.currentSticker != null && this.isTouchInsideSticker) {
                     this.moveMatrix.set(this.downMatrix);
                     this.moveMatrix.postTranslate(event.getX() - this.downX, event.getY() - this.downY);
-                    Sticker var10000 = this.currentSticker;
-                    Intrinsics.checkNotNull(var10000);
-                    var10000.setMatrix(this.moveMatrix);
+                    this.currentSticker.setMatrix(this.moveMatrix);
                 }
-            } else if (var2 == ActionMode.Companion.getZOOM_WITH_TWO_FINGER()) {
+            } else if (this.currentMode == ZOOM_WITH_TWO_FINGER) {
                 if (this.currentSticker != null && this.isTouchInsideSticker) {
                     float newDistance = this.calculateDistance(event);
                     float newRotation = this.calculateRotation(event);
                     this.moveMatrix.set(this.downMatrix);
                     this.moveMatrix.postScale(newDistance / this.oldDistance, newDistance / this.oldDistance, this.midPoint.x, this.midPoint.y);
                     this.moveMatrix.postRotate(newRotation - this.oldRotation, this.midPoint.x, this.midPoint.y);
-                    Sticker var5 = this.currentSticker;
-                    Intrinsics.checkNotNull(var5);
-                    var5.setMatrix(this.moveMatrix);
+                    this.currentSticker.setMatrix(this.moveMatrix);
                 }
-            } else if (var2 == ActionMode.Companion.getICON() && this.currentSticker != null && this.currentIcon != null) {
-                StickerIcon var6 = this.currentIcon;
-                Intrinsics.checkNotNull(var6);
-                var6.onActionMove(this, event);
+            } else if (this.currentMode == ICON && this.currentSticker != null && this.currentIcon != null) {
+                this.currentIcon.onActionMove(this, event);
             }
         }
 
     }
 
-    private final void onTouchUp(MotionEvent event) {
-        if (this.currentMode == ActionMode.Companion.getICON() && this.currentIcon != null && this.currentSticker != null) {
-            StickerIcon var10000 = this.currentIcon;
-            Intrinsics.checkNotNull(var10000);
-            var10000.onActionUp(this, event);
+    private void onTouchUp(MotionEvent event) {
+        if (this.currentMode == ICON && this.currentIcon != null && this.currentSticker != null) {
+            this.currentIcon.onActionUp(this, event);
         }
-
-        if (this.currentMode == ActionMode.Companion.getDRAG() && Math.abs(event.getX() - this.downX) < (float)this.touchSlop && Math.abs(event.getY() - this.downY) < (float)this.touchSlop && this.currentSticker != null) {
+        if (this.currentMode == DRAG && Math.abs(event.getX() - this.downX) < (float)this.touchSlop && Math.abs(event.getY() - this.downY) < (float)this.touchSlop && this.currentSticker != null) {
             if (!this.isTouchInsideSticker) {
                 this.stickerViewListener.onClickStickerOutside(event.getX(), event.getY());
             }
-
-            this.currentMode = ActionMode.Companion.getCLICK();
+            this.currentMode = CLICK;
         }
-
-        this.currentMode = ActionMode.Companion.getNONE();
+        this.currentMode = NONE;
     }
 
-    private final PointF calculateMidPoint(MotionEvent event) {
+    private PointF calculateMidPoint(MotionEvent event) {
         if (event != null && event.getPointerCount() >= 2) {
             float x = (event.getX(0) + event.getX(1)) / (float)2;
             float y = (event.getY(0) + event.getY(1)) / (float)2;
@@ -427,33 +456,29 @@ public final class StickerView extends FrameLayout {
         }
     }
 
-    private final PointF calculateMidPoint() {
+    private PointF calculateMidPoint() {
         if (this.currentSticker == null) {
             this.midPoint.set(0.0F, 0.0F);
             return this.midPoint;
         } else {
-            Sticker var10000 = this.currentSticker;
-            if (var10000 != null) {
-                var10000.getMappedCenterPoint(this.midPoint, this.point, this.tmp);
+            if (this.currentSticker != null) {
+                this.currentSticker.getMappedCenterPoint(this.midPoint, this.point, this.tmp);
             }
-
             return this.midPoint;
         }
     }
 
-    private final boolean isInStickerArea(Sticker sticker, float downX, float downY) {
+    private boolean isInStickerArea(Sticker sticker, float downX, float downY) {
         this.tmp[0] = downX;
         this.tmp[1] = downY;
         return sticker.contains(this.tmp);
     }
 
-    @NotNull
-    public final StickerView addSticker(@NotNull Sticker sticker) {
-        Intrinsics.checkNotNullParameter(sticker, "sticker");
-        return this.addSticker(sticker, ConstantSticker.Companion.getCENTER());
+    public StickerView addSticker(Sticker sticker) {
+        return this.addSticker(sticker, CENTER);
     }
 
-    private final StickerView addSticker(Sticker sticker, int position) {
+    private StickerView addSticker(Sticker sticker, int position) {
         if (ViewCompat.isLaidOut((View)this)) {
             this.addStickerImmediately(sticker, position);
         } else {
@@ -479,34 +504,37 @@ public final class StickerView extends FrameLayout {
         this.invalidate();
     }
 
-    private final void setStickerPosition(Sticker sticker, int position) {
+    public static int CENTER = 1;
+    public static int TOP = 2;
+    public static int LEFT = 4;
+    public static int RIGHT = 8;
+    public static int BOTTOM = 16;
+    private void setStickerPosition(Sticker sticker, int position) {
         float width = (float)this.getWidth();
         float height = (float)this.getHeight();
         float offsetX = width - (float)sticker.getWidth();
         float offsetY = height - (float)sticker.getHeight();
-        if ((position & ConstantSticker.Companion.getTOP()) > 0) {
+        if ((position & TOP) > 0) {
             offsetY /= 4.0F;
-        } else if ((position & ConstantSticker.Companion.getBOTTOM()) > 0) {
+        } else if ((position & BOTTOM) > 0) {
             offsetY *= 0.75F;
         } else {
             offsetY /= 2.0F;
         }
-
-        if ((position & ConstantSticker.Companion.getLEFT()) > 0) {
+        if ((position & LEFT) > 0) {
             offsetX /= 4.0F;
-        } else if ((position & ConstantSticker.Companion.getRIGHT()) > 0) {
+        } else if ((position & RIGHT) > 0) {
             offsetX *= 0.75F;
         } else {
             offsetX /= 2.0F;
         }
-
         sticker.getMatrix().postTranslate(offsetX, offsetY);
     }
 
-    private final void removeSticker(Sticker sticker) {
+    private void removeSticker(Sticker sticker) {
         if (sticker != null) {
             this.currentSticker = null;
-            this.setVisibility(8);
+            this.setVisibility(View.GONE);
             this.stickerViewListener.onRemove();
         }
     }
@@ -514,26 +542,29 @@ public final class StickerView extends FrameLayout {
     private void doneSticker(Sticker sticker) {
         if (sticker != null) {
             this.currentSticker = null;
-            this.setVisibility(8);
-            DrawObject obj = new DrawObject(null, sticker, DrawType.STICKER);
+            this.setVisibility(View.GONE);
+            DrawObject obj = new DrawObject(null, sticker, DrawObject.DrawType.STICKER);
             this.stickerViewListener.onDone(obj);
         }
     }
 
+    //FIXME:scale
+    final static boolean NO_ROTATE = true;
     private void zoomAndRotateSticker(Sticker sticker, MotionEvent event) {
         if (sticker != null) {
             float newDistance = this.calculateDistance(this.midPoint.x, this.midPoint.y, event.getX(), event.getY());
             float newRotation = this.calculateRotation(this.midPoint.x, this.midPoint.y, event.getX(), event.getY());
             this.moveMatrix.set(this.downMatrix);
             this.moveMatrix.postScale(newDistance / this.oldDistance, newDistance / this.oldDistance, this.midPoint.x, this.midPoint.y);
-            this.moveMatrix.postRotate(newRotation - this.oldRotation, this.midPoint.x, this.midPoint.y);
-            Intrinsics.checkNotNull(this.currentSticker);
+            if (!NO_ROTATE) {
+                this.moveMatrix.postRotate(newRotation - this.oldRotation, this.midPoint.x, this.midPoint.y);
+            }
             this.currentSticker.setMatrix(this.moveMatrix);
             this.stickerViewListener.onZoomAndRotate();
         }
     }
 
-    private final void flipSticker(Sticker sticker) {
+    private void flipSticker(Sticker sticker) {
         if (sticker != null) {
             sticker.getCenterPoint(this.midPoint);
             sticker.getMatrix().preScale(-1.0F, 1.0F, this.midPoint.x, this.midPoint.y);
@@ -543,24 +574,19 @@ public final class StickerView extends FrameLayout {
         }
     }
 
-    public final void remove() {
+    public void remove() {
         this.removeSticker(this.currentSticker);
     }
 
-    public final void done() {
+    public void done() {
         this.doneSticker(this.currentSticker);
     }
 
-    public final void zoomAndRotate(@NotNull MotionEvent event) {
-        Intrinsics.checkNotNullParameter(event, "event");
+    public void zoomAndRotate(MotionEvent event) {
         this.zoomAndRotateSticker(this.currentSticker, event);
     }
 
-    public final void flip() {
+    public void flip() {
         this.flipSticker(this.currentSticker);
     }
-
-//    private static final void addSticker$lambda$3(StickerView this$0, Sticker $sticker, int $position) {
-//        this$0.addStickerImmediately($sticker, $position);
-//    }
 }

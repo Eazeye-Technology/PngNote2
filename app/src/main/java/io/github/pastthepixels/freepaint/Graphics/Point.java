@@ -7,6 +7,8 @@ import android.graphics.PointF;
 import androidx.annotation.NonNull;
 
 public class Point extends PointF {
+    public float tempX = 0, tempY = 0;
+
     /**
      * Color for drawing -- currently used to signify when a path stops (red) and continues (green)
      * Works best with Paint.setBlendMode(BlendMode.EXCLUSION);

@@ -105,6 +105,7 @@ import io.github.pastthepixels.freepaint.Graphics.DrawPath;
 import io.github.pastthepixels.freepaint.Graphics.Point;
 import io.github.pastthepixels.freepaint.MainActivity;
 import io.github.pastthepixels.freepaint.Tools.EraserTool;
+import io.github.pastthepixels.freepaint.Tools.SelectionTool;
 import io.material.catalog.windowpreferences.WindowPreferencesManager;
 
 //FIXME:onBackPressed, onCreateOptionsMenu, onDestroy, onKeyDown, onKeyUp
@@ -1710,6 +1711,7 @@ public class BookActivity4Fragment extends Fragment {
     private void init002(View rootView) {
         //FIXME:throw new RuntimeException("not implemented");
         canvas = (DrawCanvas) rootView.findViewById(R.id.canvas);
+        canvas.initAct(getActivity());
         canvas.setPenType(DrawAppearance.PEN_TYPE_1);
 //        dtView = (DrawTextView) rootView.findViewById(R.id.dtView);
 //        dtView.postDelayed(new Runnable() {
@@ -1803,6 +1805,86 @@ public class BookActivity4Fragment extends Fragment {
                 return true; //阻止冒泡，阻止绘画
             }
         });
+    }
+
+    public void editText(DrawPath path) {
+        Point point = canvas.mapPointScreen(
+                path.pointsTextX,
+                path.pointsTextY,
+                1.0f);
+        float lastX = point.x;
+        float lastY = point.y;
+
+        dtViewBottom.setVisibility(View.GONE);
+        getDtView(true).setVisibility(View.VISIBLE);
+        setBoldItalicsStyle();
+        setAlignType(alignType);
+        setSizeType(sizeType);
+        setEditTextColor(editTextColor);
+        getDtView(true).init2(lastX, lastY, path.pointsText, path.pointsTextColor,
+                (float)(path.pointsTextSize * canvas.getScaleFactor() *
+                        path.pointsScaleY), //FIXME: scaleY
+                new DrawTextView.CallBackListener() {
+                    @Override
+                    public void onUpdate(DrawPoint drawPoint) {
+
+                    }
+
+                    @Override
+                    public void onSave(DrawPoint drawPoint) {
+                        if (getDtView(false) != null) {
+                            getDtView(false).setVisibility(View.GONE);
+                        }
+                        if (drawPoint != null && drawPoint.getDrawText() != null) {
+                            if (true) {
+                                //Paint paint = new Paint();
+                                TextPaint paint = getDtView(true).mEtTextEdit.getPaint();
+//                                        paint.setColor(0xFFFF0000);
+//                                        paint.setTextSize(sp2px(BookActivity4.this, 24));
+                                if (false) {
+                                    drawText(canvas,
+                                            drawPoint.getDrawText().getStr(),
+                                            drawPoint.getDrawText().getX(),
+                                            drawPoint.getDrawText().getY(),
+                                            paint,
+                                            path.isBold, path.isItalics, path.isUnderline, path.styleType,
+                                            path.pointsTextColor,
+                                            path.pointsTextSize// * canvas.getScaleFactor())
+                                    );
+                                } else {
+                                    //FIXME:编辑保存
+                                    path.pointsText = drawPoint.getDrawText().getStr();
+                                    path.tempHidden = false; //show again
+                                    canvas.invalidate();
+                                }
+                            } else {
+                                drawText(canvas, "hello", 100, 100, null,
+                                        false, false, false, 0,
+                                        0xFFFF0000, 18 * 5);
+                            }
+                        }
+                        if (false) {
+                            g_rootView.findViewById(R.id.top_toolkit_item1).performClick(); //返回绘画模式
+                        } else {
+                            //保留在编辑模式
+                            //FIXME:调用点击
+                            if (true) {
+                                if (false) {
+                                    g_rootView.findViewById(R.id.top_toolkit_item2).performClick();
+                                }
+                            } else {
+                                dtViewBottom.setVisibility(View.VISIBLE);
+                                getDtView(true).setVisibility(View.GONE);
+                                llASR.setVisibility(View.GONE);
+                                rl_ai.setVisibility(View.GONE);
+                                g_rootView.findViewById(R.id.left_toolkit1).setVisibility(View.GONE);
+                                g_rootView.findViewById(R.id.left_toolkit2).setVisibility(View.VISIBLE);
+                                g_rootView.findViewById(R.id.left_toolkit4).setVisibility(View.GONE);
+                            }
+                            //skip, keep in text toolkit
+                        }
+                    }
+                });
     }
 
     private void init003(View rootView) {
@@ -2392,10 +2474,11 @@ public class BookActivity4Fragment extends Fragment {
                 styleType, pointsTextColor, pointsTextSize);
         }
     }
-    private void drawImage(DrawCanvas canvas, int x, int y, int width, int height, Bitmap pic, boolean needMap) {
+    private DrawPath drawImage(DrawCanvas canvas, int x, int y, int width, int height, Bitmap pic, boolean needMap) {
         if (canvas != null) {
-            canvas.drawImage(x, y, width, height, pic, needMap);
+            return canvas.drawImage(x, y, width, height, pic, needMap);
         }
+        return null;
     }
     private Bitmap getCanvasBitmap(DrawCanvas canvas) {
         return canvas != null ? canvas.toBitmap(false) : null;
@@ -2547,7 +2630,19 @@ public class BookActivity4Fragment extends Fragment {
             setBackText(canvas, backText_);
         }
         if (BookIO.USE_META_TXT) {
-            getBookIO().saveMeta(backText_, BookActivity4Fragment.this.dirUrlPath, String.format("%04d", BookActivity4Fragment.this.pageNum - 1) + ".meta");
+            if (false) {
+                getBookIO().saveMeta(backText_, BookActivity4Fragment.this.dirUrlPath,
+                        String.format("%04d", BookActivity4Fragment.this.pageNum - 1) + ".meta");
+            } else {
+                try {
+                    List<FastFile> pages = this.getBook().getPages();
+                    FastFile file = pages.get(this._pageIdx);
+                    getBookIO().saveMeta(backText_, BookActivity4Fragment.this.dirUrlPath,
+                            new File(file.getFilePath()).getName().replace(".png", ".meta"));
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                }
+            }
         }
     }
 
@@ -3026,9 +3121,34 @@ public class BookActivity4Fragment extends Fragment {
                         int y = canvas.getHeight() / 2;
                         //Point p = new Point(x, y, 1.0f);
                         Point p = canvas.mapPoint(x, y, 1.0f);
-                        drawImage(canvas, (int)p.x, (int)p.y, bitmap.getWidth(), bitmap.getHeight(), bitmap, false);
+                        DrawPath pathImage = drawImage(canvas, (int)p.x, (int)p.y, bitmap.getWidth(), bitmap.getHeight(), bitmap, false);
                         if (inputStream != null) {
                             inputStream.close();
+                        }
+                        if (pathImage != null) {
+                            this.canvas.setTool(DrawCanvas.TOOLS.select);
+                            this.canvas.getSelectionTool().mode = SelectionTool.TOUCH_MODES.none;
+
+                            this.canvas.getSelectionTool().getSelectedPaths().clear();
+                            this.canvas.getSelectionTool().getSelectedPaths().add(pathImage);
+
+                            this.canvas.getSelectionTool().currentPath.clear();
+                            float w = 100;
+                            float h = 100;
+                            if (pathImage.pointsBitmap != null) {
+                                w = pathImage.pointsBitmap.getWidth();
+                                h = pathImage.pointsBitmap.getHeight();
+                            }
+                            Point boundsTop = new Point(pathImage.pointsTextX - w / 2, pathImage.pointsTextY - h / 2);
+                            Point boundsBottom = new Point(boundsTop.x + w, boundsTop.y + h);
+                            this.canvas.getSelectionTool().currentPath.addPoint(boundsTop);
+                            this.canvas.getSelectionTool().currentPath.addPoint(new Point(boundsBottom.x, boundsTop.y));
+                            this.canvas.getSelectionTool().currentPath.addPoint(boundsBottom);
+                            this.canvas.getSelectionTool().currentPath.addPoint(new Point(boundsTop.x, boundsBottom.y));
+                            this.canvas.getSelectionTool().currentPath.appearance =
+                                    this.canvas.getSelectionTool().APPEARANCE_SELECTED;
+
+                            this.canvas.invalidate();
                         }
                     } catch (Exception e) {
                         Toast.makeText(getActivity().getApplicationContext(), "An error was encountered while loading.", Toast.LENGTH_LONG).show();
@@ -3309,9 +3429,4 @@ public class BookActivity4Fragment extends Fragment {
             BookActivity4Utils.finish(getActivity(), true);
         }
     }
-
-    //FIXME:TODO:
-    //@SuppressLint("GestureBackNavigation")
-    //    @Override
-    //    public void onBackPressed() {
 }

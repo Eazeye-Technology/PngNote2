@@ -6,11 +6,25 @@
     android:layout_height="match_parent"
     >
 <!--tools:context=".MainActivity"-->
-    <com.outsbook.libs.canvaseditor.CanvasEditorView
-        android:id="@+id/canvasEditor"
+<!--    <com.outsbook.libs.canvaseditor.CanvasEditorView-->
+<!--        android:id="@+id/canvasEditor"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:layout_above="@+id/viewBottom"/>-->
+    <com.outsbook.libs.canvaseditor.views.PaintView
+        android:id="@+id/paintView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/viewBottom"/>
+        android:layout_above="@+id/viewBottom"
+        android:background="@color/white"
+        />
+    <com.outsbook.libs.canvaseditor.views.StickerView
+        android:id="@+id/stickerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/viewBottom"
+        android:visibility="gone"
+        />
 
     <ImageButton
         android:id="@+id/buttonUndo"

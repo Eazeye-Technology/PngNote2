@@ -448,59 +448,70 @@ public class BookActivity4RTASRDialog implements AudioRecorderManager.AudioDataC
 
 
     private void runRtasr_Audio(ASRMode mode){
-        if(isrun)
-            return;
-        count ++;
-        isrun = true;
-        if(mRTASR == null){
-            mRTASR = new RTASR(RTASRAPIKEY);//创建RTASR实例
-            mRTASR.registerCallbacks(mRtAsrCallbacks);//注册监听回调
-        }
-
-        mRTASR.transType("normal");//普通翻译
-        mRTASR.transStrategy(2);//策略2：返回中间过程中的结果。其他策略参考集成文档
-        if(mode == ASRMode.CN){
-            mRTASR.lang("cn");//转写语种 cn:中文,en:英文。其他语种参考集成文档
-            mRTASR.targetLang("en");//翻译语种 cn:中文,en:英文。其他语种参考集成文档
-        }else{
-            mRTASR.lang("en");//转写语种 cn:中文,en:英文。其他语种参考集成文档
-            mRTASR.targetLang("en");//""cn");//翻译语种 cn:中文,en:英文。其他语种参考集成文档
-        }
-        asrFinalResult = "" + PREFIX01 + "\n";
-        transFinalResult = "" + PREFIX02 + "\n";
-        mAct.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (false) {
-                    tv_result_setText(asrFinalResult, asrFinalResult, true);
-                } else {
-                    tv_result_setText(asrFinalResult, "", true);
-                }
-                tv_transResult_setText(transFinalResult);
-                tv_audioPath_setText("识别音频路径:" + audioPath);
-                btn_audio_start_setText("录音中\n");
-                btn_audio_start_setEnabled(false);
-                btn_file_start_setEnabled(false);
+        try {
+            if (isrun)
+                return;
+            count++;
+            isrun = true;
+            if (mRTASR == null) {
+                mRTASR = new RTASR(RTASRAPIKEY);//创建RTASR实例
+                mRTASR.registerCallbacks(mRtAsrCallbacks);//注册监听回调
             }
-        });
-        startMode = "AUDIO";
-        int ret = mRTASR.start(count+"");
-        Log.d(TAG, "mRTASR.start ret:" + ret+"-count:"+count);
-        if (ret != 0){
+
+            mRTASR.transType("normal");//普通翻译
+            mRTASR.transStrategy(2);//策略2：返回中间过程中的结果。其他策略参考集成文档
+//            if (mode == ASRMode.CN) {
+//                mRTASR.lang("cn");//转写语种 cn:中文,en:英文。其他语种参考集成文档
+//                mRTASR.targetLang("en");//翻译语种 cn:中文,en:英文。其他语种参考集成文档
+//            } else {
+                mRTASR.lang("en");//转写语种 cn:中文,en:英文。其他语种参考集成文档
+            //
+            //FIXME: don't set targetLange, otherwise RTASR error code = 10110
+            //see https://www.bookstack.cn/read/xfyun-rest_api/f1aca998ccd8f33a.md
+            //see also https://www.xfyun.cn/doc/asr/rtasr/API.html
+            //invalid authorization|illegal signa
+            //need enable .logLevel(LogLvl.VERBOSE.getValue());
+            //
+//                mRTASR.targetLang("en");//""cn");//翻译语种 cn:中文,en:英文。其他语种参考集成文档
+//            }
+            asrFinalResult = "" + PREFIX01 + "\n";
+            transFinalResult = "" + PREFIX02 + "\n";
             mAct.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    isrun = false;
-                    tv_audioPath_setText("转写启动出错，错误码:"+ret);
+                    if (false) {
+                        tv_result_setText(asrFinalResult, asrFinalResult, true);
+                    } else {
+                        tv_result_setText(asrFinalResult, "", true);
+                    }
+                    tv_transResult_setText(transFinalResult);
+                    tv_audioPath_setText("识别音频路径:" + audioPath);
+                    btn_audio_start_setText("录音中\n");
+                    btn_audio_start_setEnabled(false);
+                    btn_file_start_setEnabled(false);
                 }
             });
-        } else {
-            isWrite.set(true);
-            if (audioRecorderManager == null) {
-                audioRecorderManager = AudioRecorderManager.getInstance();
+            startMode = "AUDIO";
+            int ret = mRTASR.start(count + "");
+            Log.d(TAG, "mRTASR.start ret:" + ret + "-count:" + count);
+            if (ret != 0) {
+                mAct.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        isrun = false;
+                        tv_audioPath_setText("转写启动出错，错误码:" + ret);
+                    }
+                });
+            } else {
+                isWrite.set(true);
+                if (audioRecorderManager == null) {
+                    audioRecorderManager = AudioRecorderManager.getInstance();
+                }
+                audioRecorderManager.startRecord();
+                audioRecorderManager.registerCallBack(this);
             }
-            audioRecorderManager.startRecord();
-            audioRecorderManager.registerCallBack(this);
+        } catch (Throwable eee) {
+            eee.printStackTrace();
         }
     }
 

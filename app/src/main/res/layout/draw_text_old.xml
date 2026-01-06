@@ -5,18 +5,18 @@
     android:background="@color/transparent" >
 
     <View
-        android:id="@+id/v_outside"
+        android:id="@+id/v_outside_old"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/transparent" />
 
     <RelativeLayout
-        android:id="@+id/rl_content"
+        android:id="@+id/rl_content_old"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" >
 
         <RelativeLayout
-            android:id="@+id/rl_text"
+            android:id="@+id/rl_text_old"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="15dip"
@@ -29,7 +29,7 @@
             android:paddingRight="30dip" >
 
             <EditText
-                android:id="@+id/et_text_edit"
+                android:id="@+id/et_text_edit_old"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@color/transparent"
@@ -41,7 +41,7 @@
                 />
 
             <TextView
-                android:id="@+id/tv_text_edit"
+                android:id="@+id/tv_text_edit_old"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@color/transparent"
@@ -54,7 +54,7 @@
         </RelativeLayout>
 
         <Button
-            android:id="@+id/bt_text_delete"
+            android:id="@+id/bt_text_delete_old"
             android:layout_width="30dip"
             android:layout_height="30dip"
             android:layout_alignParentLeft="true"
@@ -62,7 +62,7 @@
             android:background="@drawable/draw_text_delete" />
 
         <Button
-            android:id="@+id/bt_text_edit"
+            android:id="@+id/bt_text_edit_old"
             android:layout_width="30dip"
             android:layout_height="30dip"
             android:layout_centerVertical="true"

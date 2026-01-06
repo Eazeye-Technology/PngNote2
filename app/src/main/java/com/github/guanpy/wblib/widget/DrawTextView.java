@@ -50,11 +50,11 @@ public class DrawTextView extends RelativeLayout implements
     /** */
     public/*private*/ EditText mEtTextEdit;
     /** */
-    private TextView mTvTextEdit;
+//    private TextView mTvTextEdit;
     /** */
-    private Button mBtTextDelete;
+//    private Button mBtTextDelete;
     /** */
-    private Button mBtTextEdit;
+//    private Button mBtTextEdit;
 
     private Context mContext;
 
@@ -131,9 +131,9 @@ public class DrawTextView extends RelativeLayout implements
         mRlText = (RelativeLayout) findViewById(R.id.rl_text);
         mEtTextEdit = (EditText) findViewById(R.id.et_text_edit);
         mEtTextEdit.setEnabled(true);
-        mTvTextEdit = (TextView) findViewById(R.id.tv_text_edit);
-        mBtTextDelete = (Button) findViewById(R.id.bt_text_delete);
-        mBtTextEdit = (Button) findViewById(R.id.bt_text_edit);
+//        mTvTextEdit = (TextView) findViewById(R.id.tv_text_edit);
+//        mBtTextDelete = (Button) findViewById(R.id.bt_text_delete);
+//        mBtTextEdit = (Button) findViewById(R.id.bt_text_edit);
         if (null != mDrawPoint) {
             setText(mDrawPoint.getDrawText().getStr());
             //FIXME:
@@ -153,64 +153,64 @@ public class DrawTextView extends RelativeLayout implements
         mVOutside.setOnClickListener(this);
         mRlText.setOnClickListener(this);
         mEtTextEdit.setOnClickListener(this);
-        mBtTextDelete.setOnClickListener(this);
-        mBtTextEdit.setOnClickListener(this);
-        mTvTextEdit.setOnClickListener(this);
-        mTvTextEdit.setOnTouchListener(new OnTouchListener() {
-            int lastX, lastY;
-
-            @Override
-            public boolean onTouch(View view, MotionEvent event) {
-                if (true) { //if (mDrawPoint.getDrawText().getStatus() == TEXT_DETAIL&& OperationUtils.getInstance().DISABLE) {
-                    int ea = event.getAction();
-                    switch (ea) {
-                        case MotionEvent.ACTION_DOWN:
-                            // 获取触摸事件触摸位置的原始X坐标
-                            lastX = (int) event.getRawX();
-                            lastY = (int) event.getRawY();
-                            break;
-                        case MotionEvent.ACTION_MOVE:
-                            int dx = (int) event.getRawX() - lastX;
-                            int dy = (int) event.getRawY() - lastY;
-
-                            int left = mRlContent.getLeft() + dx;
-                            int top = mRlContent.getTop() + dy;
-                            int right = mRlContent.getRight() + dx;
-                            int bottom = mRlContent.getBottom() + dy;
-                            if (left < 0) {
-                                left = 0;
-                                right = left + mRlContent.getWidth();
-                            }
-                            if (right > getWidth()) {
-                                right = getWidth();
-                                left = right - mRlContent.getWidth();
-                            }
-                            if (top < 0) {
-                                top = 0;
-                                bottom = top + mRlContent.getHeight();
-                            }
-                            if (bottom > getHeight()) {
-                                bottom = getHeight();
-                                top = bottom - mRlContent.getHeight();
-                            }
-//                            mDrawPoint.getDrawText().setX(left); //FIXME:
-//                            mDrawPoint.getDrawText().setY(top);
-                            Log.e("移动", "-" + left + "," + top);
-                            mRlContent.layout(left, top, right, bottom);
-                            lastX = (int) event.getRawX();
-                            lastY = (int) event.getRawY();
-                            break;
-                        case MotionEvent.ACTION_UP:
-                            if (null != mCallBackListener) {
-                                mCallBackListener.onUpdate(mDrawPoint);
-                            }
-                            break;
-                    }
-                }
-
-                return false;
-            }
-        });
+//        mBtTextDelete.setOnClickListener(this);
+//        mBtTextEdit.setOnClickListener(this);
+//        mTvTextEdit.setOnClickListener(this);
+//        mTvTextEdit.setOnTouchListener(new OnTouchListener() {
+//            int lastX, lastY;
+//
+//            @Override
+//            public boolean onTouch(View view, MotionEvent event) {
+//                if (true) { //if (mDrawPoint.getDrawText().getStatus() == TEXT_DETAIL&& OperationUtils.getInstance().DISABLE) {
+//                    int ea = event.getAction();
+//                    switch (ea) {
+//                        case MotionEvent.ACTION_DOWN:
+//                            // 获取触摸事件触摸位置的原始X坐标
+//                            lastX = (int) event.getRawX();
+//                            lastY = (int) event.getRawY();
+//                            break;
+//                        case MotionEvent.ACTION_MOVE:
+//                            int dx = (int) event.getRawX() - lastX;
+//                            int dy = (int) event.getRawY() - lastY;
+//
+//                            int left = mRlContent.getLeft() + dx;
+//                            int top = mRlContent.getTop() + dy;
+//                            int right = mRlContent.getRight() + dx;
+//                            int bottom = mRlContent.getBottom() + dy;
+//                            if (left < 0) {
+//                                left = 0;
+//                                right = left + mRlContent.getWidth();
+//                            }
+//                            if (right > getWidth()) {
+//                                right = getWidth();
+//                                left = right - mRlContent.getWidth();
+//                            }
+//                            if (top < 0) {
+//                                top = 0;
+//                                bottom = top + mRlContent.getHeight();
+//                            }
+//                            if (bottom > getHeight()) {
+//                                bottom = getHeight();
+//                                top = bottom - mRlContent.getHeight();
+//                            }
+////                            mDrawPoint.getDrawText().setX(left); //FIXME:
+////                            mDrawPoint.getDrawText().setY(top);
+//                            Log.e("移动", "-" + left + "," + top);
+//                            mRlContent.layout(left, top, right, bottom);
+//                            lastX = (int) event.getRawX();
+//                            lastY = (int) event.getRawY();
+//                            break;
+//                        case MotionEvent.ACTION_UP:
+//                            if (null != mCallBackListener) {
+//                                mCallBackListener.onUpdate(mDrawPoint);
+//                            }
+//                            break;
+//                    }
+//                }
+//
+//                return false;
+//            }
+//        });
     }
 
 
@@ -218,21 +218,21 @@ public class DrawTextView extends RelativeLayout implements
         if (false) {
             if (!TextUtils.isEmpty(strText)) {
                 mEtTextEdit.setText(strText);
-                mTvTextEdit.setText(strText);
+//                mTvTextEdit.setText(strText);
             }
         } else {
             if (strText == null) strText = "";
             mEtTextEdit.setText(strText);
-            mTvTextEdit.setText(strText);
+//            mTvTextEdit.setText(strText);
         }
         if (false) {
             mEtTextEdit.setTextColor(0xFFFF0000/*mDrawPoint.getDrawText().getColor()*/);
-            mTvTextEdit.setTextColor(0xFFFF0000/*mDrawPoint.getDrawText().getColor()*/);
+//            mTvTextEdit.setTextColor(0xFFFF0000/*mDrawPoint.getDrawText().getColor()*/);
         } else {
             mEtTextEdit.setTextColor(mDrawPoint.getDrawText().getColor());
-            mTvTextEdit.setTextColor(mDrawPoint.getDrawText().getColor());
+//            mTvTextEdit.setTextColor(mDrawPoint.getDrawText().getColor());
             mEtTextEdit.setTextSize(mDrawPoint.getDrawText().getTextSize());
-            mTvTextEdit.setTextSize(mDrawPoint.getDrawText().getTextSize());
+//            mTvTextEdit.setTextSize(mDrawPoint.getDrawText().getTextSize());
         }
 //        if (mDrawPoint.getDrawText().getIsUnderline()) {
 //            mTvTextEdit.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
@@ -273,42 +273,42 @@ public class DrawTextView extends RelativeLayout implements
 
     public void switchView(int currentStatus) {
         switch (currentStatus) {
-            case TEXT_VIEW:
-                mVOutside.setVisibility(View.GONE);
-                mEtTextEdit.setVisibility(View.GONE);
-                mTvTextEdit.setVisibility(View.VISIBLE);
-                mRlText.setBackgroundResource(R.color.transparent);
-                mBtTextEdit.setVisibility(View.GONE);
-                mBtTextDelete.setVisibility(View.GONE);
-                break;
+//            case TEXT_VIEW:
+//                mVOutside.setVisibility(View.GONE);
+//                mEtTextEdit.setVisibility(View.GONE);
+//                mTvTextEdit.setVisibility(View.VISIBLE);
+//                mRlText.setBackgroundResource(R.color.transparent);
+//                mBtTextEdit.setVisibility(View.GONE);
+//                mBtTextDelete.setVisibility(View.GONE);
+//                break;
             case TEXT_EDIT:
                 //mVOutside.setBackgroundResource(R.color.white);
                 mVOutside.setBackgroundResource(R.color.transparent); //FIXME:
                 mVOutside.setVisibility(View.VISIBLE);
                 mEtTextEdit.setVisibility(View.VISIBLE);
-                mTvTextEdit.setVisibility(View.GONE);
+//                mTvTextEdit.setVisibility(View.GONE);
                 mRlText.setBackgroundResource(R.drawable.draw_text_border);
-                mBtTextEdit.setVisibility(View.GONE);
+//                mBtTextEdit.setVisibility(View.GONE);
                 mEtTextEdit.setSelection(mEtTextEdit.getText().length());
-                mBtTextDelete.setVisibility(View.GONE);
+//                mBtTextDelete.setVisibility(View.GONE);
                 //EventBus.getDefault().post(Events.WHITE_BOARD_TEXT_EDIT);
                 //FIXME:
                 showSoftKeyBoard(mEtTextEdit);
                 break;
-            case TEXT_DETAIL:
-                mVOutside.setBackgroundResource(R.color.transparent);
-                mVOutside.setVisibility(View.VISIBLE);
-                mEtTextEdit.setVisibility(View.GONE);
-                mTvTextEdit.setVisibility(View.VISIBLE);
-                mRlText.setBackgroundResource(R.drawable.draw_text_border);
-                mBtTextEdit.setVisibility(View.VISIBLE);
-                mBtTextDelete.setVisibility(View.VISIBLE);
-                break;
-            case TEXT_DELETE:
-
-                break;
-            default:
-                break;
+//            case TEXT_DETAIL:
+//                mVOutside.setBackgroundResource(R.color.transparent);
+//                mVOutside.setVisibility(View.VISIBLE);
+//                mEtTextEdit.setVisibility(View.GONE);
+//                mTvTextEdit.setVisibility(View.VISIBLE);
+//                mRlText.setBackgroundResource(R.drawable.draw_text_border);
+//                mBtTextEdit.setVisibility(View.VISIBLE);
+//                mBtTextDelete.setVisibility(View.VISIBLE);
+//                break;
+//            case TEXT_DELETE:
+//
+//                break;
+//            default:
+//                break;
         }
         Log.d("gpy","文字宽："+mRlText.getHeight());
 //        if (mDrawPoint.getDrawText().getStatus() != currentStatus) {
@@ -349,18 +349,18 @@ public class DrawTextView extends RelativeLayout implements
                 }
                 mCallBackListener.onSave(mDrawPoint);
             }
-        } else if (vId == R.id.tv_text_edit) {
-            if (true) { //if (OperationUtils.getInstance().DISABLE) {
-                switchView(TEXT_DETAIL);
-            }
-        } else if (vId == R.id.bt_text_delete) {
-            if (true) { //if (OperationUtils.getInstance().DISABLE) {
-                switchView(TEXT_DELETE);
-            }
-        } else if (vId == R.id.bt_text_edit) {
-            if (true) { //if (OperationUtils.getInstance().DISABLE) {
-                switchView(TEXT_EDIT);
-            }
+//        } else if (vId == R.id.tv_text_edit) {
+//            if (true) { //if (OperationUtils.getInstance().DISABLE) {
+//                switchView(TEXT_DETAIL);
+//            }
+//        } else if (vId == R.id.bt_text_delete) {
+//            if (true) { //if (OperationUtils.getInstance().DISABLE) {
+//                switchView(TEXT_DELETE);
+//            }
+//        } else if (vId == R.id.bt_text_edit) {
+//            if (true) { //if (OperationUtils.getInstance().DISABLE) {
+//                switchView(TEXT_EDIT);
+//            }
         }
     }
 

@@ -2,7 +2,6 @@ package io.github.pastthepixels.freepaint.File;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Build;
 import android.util.Base64;
 
@@ -20,7 +19,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-import io.github.pastthepixels.freepaint.Graphics.DrawAppearance;
 import io.github.pastthepixels.freepaint.Graphics.DrawCanvas;
 import io.github.pastthepixels.freepaint.Graphics.DrawPath;
 import io.github.pastthepixels.freepaint.Graphics.Point;
@@ -110,6 +108,13 @@ public class VecJson {
                     objPath.put( "styleType", path.styleType);
                     objPath.put( "pointsTextColor", colorToHex8(path.pointsTextColor));
                     objPath.put( "pointsTextSize", path.pointsTextSize);
+//                    float[] matrix = new float[9];
+//                    path.getMatrix().getValues(matrix);
+//                    for (int i = 0; i < 9; ++i) {
+//                        objPath.put("matrix" + i, matrix[i]);
+//                    }
+                    objPath.put( "pointsScaleX", path.pointsScaleX);
+                    objPath.put( "pointsScaleY", path.pointsScaleY);
 
                     if (path.appearance.fill != -1) {
                         objPath.put("fill", colorToHex8(path.appearance.fill));
@@ -215,6 +220,22 @@ public class VecJson {
                 path.styleType = element.optInt("styleType");
                 path.pointsTextColor = hex8ToColor(element.optString("pointsTextColor"));
                 path.pointsTextSize = (float)element.optDouble("pointsTextSize", 28);
+
+//                float[] matrix = new float[9];
+//                boolean full_zero = true;
+//                for (int i_ = 0; i_ < 9; ++i_) {
+//                    matrix[i_] = (float)element.optDouble("matrix" + i_, 0);
+//                    if (matrix[i_] != 0) {
+//                        full_zero = false;
+//                    }
+//                }
+//                if (!full_zero) {
+//                    path.getMatrix().setValues(matrix);
+//                } else {
+//                    //path.getMatrix().set(new Matrix());
+//                }
+                path.pointsScaleX = (float)element.optDouble("pointsScaleX", 1.0);
+                path.pointsScaleY = (float)element.optDouble("pointsScaleY", 1.0);
 
                 // Fill/stroke
                 if (element.has("fill")) {

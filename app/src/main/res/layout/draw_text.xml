@@ -43,43 +43,43 @@
             android:textSize="24sp"
             -->
 
-            <TextView
-                android:id="@+id/tv_text_edit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@color/transparent"
-                android:minWidth="100px"
-                android:textSize="28px"
-                android:singleLine="true"
-                android:clickable="true"
-                android:visibility="visible"
-                />
+<!--            <TextView-->
+<!--                android:id="@+id/tv_text_edit"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:background="@color/transparent"-->
+<!--                android:minWidth="100px"-->
+<!--                android:textSize="28px"-->
+<!--                android:singleLine="true"-->
+<!--                android:clickable="true"-->
+<!--                android:visibility="visible"-->
+<!--                />-->
             <!--
             android:minWidth="20dip"
             android:textSize="24sp"
             -->
         </RelativeLayout>
 
-        <Button
-            android:id="@+id/bt_text_delete"
-            android:layout_width="30dip"
-            android:layout_height="30dip"
-            android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:background="@drawable/draw_text_delete"
-            android:visibility="gone"
-            />
+<!--        <Button-->
+<!--            android:id="@+id/bt_text_delete"-->
+<!--            android:layout_width="30dip"-->
+<!--            android:layout_height="30dip"-->
+<!--            android:layout_alignParentLeft="true"-->
+<!--            android:layout_centerVertical="true"-->
+<!--            android:background="@drawable/draw_text_delete"-->
+<!--            android:visibility="gone"-->
+<!--            />-->
 
-        <Button
-            android:id="@+id/bt_text_edit"
-            android:layout_width="30dip"
-            android:layout_height="30dip"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="-30dip"
-            android:layout_toRightOf="@+id/rl_text"
-            android:background="@drawable/draw_text_edit"
-            android:visibility="gone"
-            />
+<!--        <Button-->
+<!--            android:id="@+id/bt_text_edit"-->
+<!--            android:layout_width="30dip"-->
+<!--            android:layout_height="30dip"-->
+<!--            android:layout_centerVertical="true"-->
+<!--            android:layout_marginLeft="-30dip"-->
+<!--            android:layout_toRightOf="@+id/rl_text"-->
+<!--            android:background="@drawable/draw_text_edit"-->
+<!--            android:visibility="gone"-->
+<!--            />-->
     </RelativeLayout>
 
 </RelativeLayout>

@@ -1,64 +1,75 @@
-package com.outsbook.libs.canvaseditor.paints;
+package com.outsbook.libs.canvaseditor.views;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.Bitmap.Config;
 import android.graphics.Paint.Cap;
 import android.graphics.Paint.Join;
 import android.graphics.Paint.Style;
+import android.graphics.Path;
+import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
+import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
-import com.outsbook.libs.canvaseditor.enums.DrawType;
-import com.outsbook.libs.canvaseditor.listeners.PaintViewListener;
+
 import com.outsbook.libs.canvaseditor.models.DrawObject;
 import com.outsbook.libs.canvaseditor.models.PathAndPaint;
-import com.outsbook.libs.canvaseditor.stickers.Sticker;
+import com.outsbook.libs.canvaseditor.models.Sticker;
 import com.txkj.drawingapp.R;
 
-import kotlin.Metadata;
-import kotlin.jvm.internal.Intrinsics;
-import org.jetbrains.annotations.NotNull;
-
 //no tools mode, just draw with a pen
-public final class PaintView extends FrameLayout {
-    @NotNull
-    private final PaintViewListener paintViewListener;
-    private final int drawColor;
-    @NotNull
+public class PaintView extends FrameLayout {
+    public interface PaintViewListener {
+        void onTouchUp(DrawObject var1);
+        void onClick(float var1, float var2);
+        void onTouchEvent(MotionEvent var1);
+    }
+    private PaintViewListener paintViewListener;
+
+    private int drawColor;
     private Path path;
     private float motionTouchEventX;
     private float motionTouchEventY;
     private float currentX;
     private float currentY;
     private boolean isDrawPath;
-    private final int touchTolerance;
+    private int touchTolerance;
     private Canvas extraCanvas;
     public Bitmap extraBitmap;
-    @NotNull
-    private final Paint paint;
-    @NotNull
-    private final GestureDetector gestureDetector;
+    private Paint paint;
+    private GestureDetector gestureDetector;
 
-    public PaintView(@NotNull Context context, @NotNull PaintViewListener paintViewListener) {
-        //Intrinsics.checkNotNullParameter(context, "context");
-        //Intrinsics.checkNotNullParameter(paintViewListener, "paintViewListener");
+    public PaintView(@NonNull Context context) {
         super(context);
+        initView();
+    }
 
-        this.paintViewListener = paintViewListener;
-        this.drawColor = ResourcesCompat.getColor(this.getResources(), 17170444, (Resources.Theme)null);
+    public PaintView(@NonNull Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+        initView();
+    }
+
+    public PaintView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        initView();
+    }
+
+    public PaintView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+        initView();
+    }
+
+    private void initView() {
+        this.drawColor = ResourcesCompat.getColor(this.getResources(), R.color.black, null);
         this.path = new Path();
-        this.touchTolerance = ViewConfiguration.get(context).getScaledTouchSlop();
+        this.touchTolerance = ViewConfiguration.get(getContext()).getScaledTouchSlop();
 
         this.paint = new Paint();
         this.paint.setColor(this.drawColor);
@@ -69,41 +80,37 @@ public final class PaintView extends FrameLayout {
         this.paint.setStrokeCap(Cap.ROUND);
         this.paint.setStrokeWidth(10.0F);
 
-        this.gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+        this.gestureDetector = new GestureDetector(getContext(), new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onSingleTapConfirmed(@NonNull MotionEvent event) {
-                Intrinsics.checkNotNullParameter(event, "event");
-                PaintView.this.paintViewListener.onClick(event.getX(), event.getY());
+                paintViewListener.onClick(event.getX(), event.getY());
                 return super.onSingleTapConfirmed(event);
             }
         });
     }
 
-    @NotNull
+    public void init(PaintViewListener paintViewListener) {
+        this.paintViewListener = paintViewListener;
+    }
+
     public Bitmap getExtraBitmap() {
-        if (this.extraBitmap != null) {
-            return this.extraBitmap;
-        } else {
-            Intrinsics.throwUninitializedPropertyAccessException("extraBitmap");
-            return null;
-        }
+        return this.extraBitmap;
     }
 
-    public void setExtraBitmap(@NotNull Bitmap var1) {
-        Intrinsics.checkNotNullParameter(var1, "<set-?>");
-        this.extraBitmap = var1;
+    public void setExtraBitmap(Bitmap extraBitmap) {
+        this.extraBitmap = extraBitmap;
     }
 
-    @NotNull
     public Paint getPaint() {
         return this.paint;
     }
 
     public void initCanvas() {
-        this.extraBitmap = Bitmap.createBitmap(this.getWidth(), this.getHeight(), Config.ARGB_8888);
-        Intrinsics.checkNotNullExpressionValue(this.extraBitmap, "createBitmap(...)");
+        int w = this.getWidth();
+        int h = this.getHeight();
+        this.extraBitmap = Bitmap.createBitmap(w, h, Config.ARGB_8888);
         this.extraCanvas = new Canvas(this.extraBitmap);
-        this.extraCanvas.drawColor(ContextCompat.getColor(this.getContext(), R.color.white));
+        //this.extraCanvas.drawColor(0xFF00FF00);
         this.invalidate();
     }
 
@@ -112,36 +119,24 @@ public final class PaintView extends FrameLayout {
         this.initCanvas();
     }
 
-    protected void onDraw(@NotNull Canvas canvas) {
-        Intrinsics.checkNotNullParameter(canvas, "canvas");
+    @Override
+    protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.drawBitmap(this.getExtraBitmap(), 0.0F, 0.0F, null);
     }
 
-    public void drawPath(@NotNull PathAndPaint pathAndPaint) {
-        Intrinsics.checkNotNullParameter(pathAndPaint, "pathAndPaint");
-        if (this.extraCanvas == null) {
-            Intrinsics.throwUninitializedPropertyAccessException("extraCanvas");
-            this.extraCanvas = null;
-        }
+    public void drawPath(PathAndPaint pathAndPaint) {
         this.extraCanvas.drawPath(pathAndPaint.getPath(), pathAndPaint.getPaint());
         this.invalidate();
     }
 
-    public void drawSticker(@NotNull Sticker sticker) {
-        Intrinsics.checkNotNullParameter(sticker, "sticker");
-        if (this.extraCanvas == null) {
-            Intrinsics.throwUninitializedPropertyAccessException("extraCanvas");
-            this.extraCanvas = null;
-        }
+    public void drawSticker(Sticker sticker) {
         sticker.draw(this.extraCanvas);
         this.invalidate();
     }
 
-    //@SuppressLint({"ClickableViewAccessibility"})
     @Override
-    public boolean onTouchEvent(@NotNull MotionEvent event) {
-        Intrinsics.checkNotNullParameter(event, "event");
+    public boolean onTouchEvent(MotionEvent event) {
         this.paintViewListener.onTouchEvent(event);
         this.motionTouchEventX = event.getX();
         this.motionTouchEventY = event.getY();
@@ -175,10 +170,6 @@ public final class PaintView extends FrameLayout {
             this.path.quadTo(this.currentX, this.currentY, (this.motionTouchEventX + this.currentX) / (float)2, (this.motionTouchEventY + this.currentY) / (float)2);
             this.currentX = this.motionTouchEventX;
             this.currentY = this.motionTouchEventY;
-            if (this.extraCanvas == null) {
-                Intrinsics.throwUninitializedPropertyAccessException("extraCanvas");
-                this.extraCanvas = null;
-            }
             this.extraCanvas.drawPath(this.path, this.paint);
             this.isDrawPath = true;
         }
@@ -189,7 +180,7 @@ public final class PaintView extends FrameLayout {
         if (this.isDrawPath) {
             //clone this.path and put to DrawObject
             PathAndPaint pap = new PathAndPaint(new Path(this.path), new Paint(this.paint));
-            DrawObject obj = new DrawObject(pap, null, DrawType.PATH);
+            DrawObject obj = new DrawObject(pap, null, DrawObject.DrawType.PATH);
             this.paintViewListener.onTouchUp(obj);
         }
         this.invalidate();

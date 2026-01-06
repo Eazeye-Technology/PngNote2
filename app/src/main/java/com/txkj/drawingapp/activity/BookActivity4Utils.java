@@ -19,6 +19,7 @@ import com.txkj.notemobile2.ui.Page;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
+import io.github.pastthepixels.freepaint.Graphics.DrawPath;
 import io.github.pastthepixels.freepaint.MainActivity;
 
 public class BookActivity4Utils {
@@ -30,6 +31,17 @@ public class BookActivity4Utils {
     //FIXME: not good
     public static String APP_OPEN;
     public static String APP_FILE;
+
+    public static void editText(Activity context, DrawPath path) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            FragmentManager fragmentManager = act.getSupportFragmentManager();
+            Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+            if (currentFragment instanceof BookActivity4Fragment) {
+                ((BookActivity4Fragment) currentFragment).editText(path);
+            }
+        }
+    }
 
     public static boolean isTopNoteFragment2(Activity context) {
         if (context instanceof BookListActivity) {

@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
@@ -11,12 +12,12 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.util.Log;
+import android.util.SizeF;
 
 import androidx.annotation.NonNull;
 
 import com.txkj.drawingapp.activity.BookActivity4Config;
 import com.txkj.drawingapp.activity.BookActivity4Fragment;
-import com.txkj.notemobile2.book.FastFile;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -59,6 +60,52 @@ public class DrawPath {
     public int pointsTextColor = 0;
     public float pointsTextSize = 28;
     public Paint tempPaint = null;
+    public float tempX = 0, tempY = 0;
+//    public Matrix tempMatrix = new Matrix();
+
+    public float tempScaleX = 1.0F;
+    public float tempScaleY = 1.0F;
+    public float tempMidX = 0.0F;
+    public float tempMidY = 0.0F;
+    public boolean tempHidden = false;
+
+//    private Matrix matrix = new Matrix();
+//    public Matrix getMatrix() {
+//        return matrix;
+//    }
+
+    public float pointsScaleX = 1.0F, pointsScaleY = 1.0F;
+    public void setScaleBegin() {
+//        this.tempMatrix.set(matrix);
+        this.tempScaleX = pointsScaleX;
+        this.tempScaleY = pointsScaleY;
+    }
+    public void setScale(/*Matrix matrix, */float scaleX_, float scaleY_, float midX_, float midY_) {
+        //this.matrix.set(matrix);
+        this.pointsScaleX = this.tempScaleX * scaleX_;
+        this.pointsScaleY = this.tempScaleY * scaleY_;
+        this.tempMidX = midX_;
+        this.tempMidY = midY_;
+//        Matrix nMatrix = new Matrix(this.tempMatrix);
+//        nMatrix.postScale(scaleX, scaleY);
+//        this.matrix.set(nMatrix);
+    }
+//    public void getMappedCenterPoint(PointF dst, float[] mappedPoints, float[] src) {
+//        this.getCenterPoint(dst);
+//        src[0] = dst.x;
+//        src[1] = dst.y;
+//        this.getMappedPoints(mappedPoints, src);
+//        dst.set(mappedPoints[0], mappedPoints[1]);
+//    }
+//    public void getCenterPoint(PointF dst) {
+//        int width = pointsBitmap.getWidth();
+//        int height = pointsBitmap.getHeight();
+//        dst.set((float)width * 1.0F / (float)2, (float)height * 1.0F / (float)2);
+//    }
+//    public void getMappedPoints(float[] dst, float[] src) {
+//        this.matrix.mapPoints(dst, src);
+//    }
+    //FIXME:FIXME:if add new property, see also public DrawPath clone() {
     //---------------------
 
     /**
@@ -103,6 +150,7 @@ public class DrawPath {
     public void clear() {
         points.clear();
         this.path = null;
+        this.pointsBitmap = null;
     }
 
     /**
@@ -183,7 +231,7 @@ public class DrawPath {
                     }
                 } else if (i != points.size() - 1) {
                     if (i - 1 >= 0 && i - 1 < points.size() &&
-                        i + 1 >= 0 && i + 1 < points.size()) {
+                            i + 1 >= 0 && i + 1 < points.size()) {
                         Point prev = points.get(i - 1);
                         Point next = points.get(i + 1);
                         // Set handles (left handle is mirrored; hermite splines!
@@ -255,7 +303,7 @@ public class DrawPath {
      * @param scaleFactor Necessary so we can draw the dots for points to always be the same size
      */
     //onDraw(Canvas)
-    public void draw(Canvas canvas, Paint paint, float screenDensity, float scaleFactor) {
+    public void draw(Canvas canvas, Paint paint, float screenDensity, float scaleFactor, boolean drawMinimal) {
         Path toDraw = getPath();
         if (toDraw == null) {
             toDraw = generatePath();
@@ -373,74 +421,92 @@ public class DrawPath {
                     Log.e("path", "};");
                 }
             } else if (pointsType == POINTS_TYPE_TEXT) {
-                if (false) {
-                    //canvas.drawPath(toDraw, paint);
-                    paint.reset();
-                    paint.setTextSize(28);
-                    paint.setColor(Color.BLACK);
-                    paint.setStyle(Paint.Style.FILL); //FIXME:draw text don't use stroke style
-                    paint.setAntiAlias(true);
-                    if (false) {
-                        //text is left bottom align
-                        canvas.drawText(pointsText, pointsTextX, pointsTextY, paint);
-                    } else {
-                        //text is left top align
-                        int style = Typeface.NORMAL;
-                        if (this.isBold) {
-                            style |= Typeface.BOLD;
-                        }
-                        if (this.isItalics) {
-                            style |= Typeface.ITALIC;
-                        }
-                        Typeface family = Typeface.DEFAULT;
-                        if (this.styleType == BookActivity4Fragment.STYLE_TYPE_NONE) {
-
-                        } else if (this.styleType == BookActivity4Fragment.STYLE_TYPE_HAND) {
-
-                        } else if (this.styleType == BookActivity4Fragment.STYLE_TYPE_SERIF) {
-                            family = Typeface.SERIF;
-                        } else if (this.styleType == BookActivity4Fragment.STYLE_TYPE_SANS) {
-                            family = Typeface.SANS_SERIF;
-                        }
-                        Typeface font = Typeface.create(family, style);
-                        paint.setTypeface(font);
-                        if (this.isUnderline) {
-                            paint.setUnderlineText(true);
-                        }
-                        if (this.pointsTextColor != 0) {
-                            paint.setColor(this.pointsTextColor);
-                        }
-                        if (this.pointsTextSize != 0) {
-                            paint.setTextSize(this.pointsTextSize);
-                        }
-
-                        if (false) {
-                            float textWidth = paint.measureText(pointsText);
-                            float x = pointsTextX;
-                            float y = pointsTextY - paint.ascent() - ((paint.descent() - paint.ascent()) / 2);
-                            canvas.drawText(pointsText, x, y, paint);
-                        } else {
-                            //https://blog.csdn.net/wangjiang_qianmo/article/details/73180042
-                            Rect bounds = new Rect();
-                            paint.getTextBounds(pointsText, 0, pointsText.length(), bounds);
-                            Paint.FontMetrics fontMetrics = paint.getFontMetrics();
-                            canvas.drawText(pointsText, pointsTextX,
-                                    pointsTextY + (fontMetrics.bottom - fontMetrics.top + fontMetrics.leading),
-                                    paint);
-                        }
-                    }
-                } else {
+//                if (false) {
+//                    //canvas.drawPath(toDraw, paint);
+//                    paint.reset();
+//                    paint.setTextSize(28);
+//                    paint.setColor(Color.BLACK);
+//                    paint.setStyle(Paint.Style.FILL); //FIXME:draw text don't use stroke style
+//                    paint.setAntiAlias(true);
+//                    if (false) {
+//                        //text is left bottom align
+//                        canvas.drawText(pointsText, pointsTextX, pointsTextY, paint);
+//                    } else {
+//                        //text is left top align
+//                        int style = Typeface.NORMAL;
+//                        if (this.isBold) {
+//                            style |= Typeface.BOLD;
+//                        }
+//                        if (this.isItalics) {
+//                            style |= Typeface.ITALIC;
+//                        }
+//                        Typeface family = Typeface.DEFAULT;
+//                        if (this.styleType == BookActivity4Fragment.STYLE_TYPE_NONE) {
+//
+//                        } else if (this.styleType == BookActivity4Fragment.STYLE_TYPE_HAND) {
+//
+//                        } else if (this.styleType == BookActivity4Fragment.STYLE_TYPE_SERIF) {
+//                            family = Typeface.SERIF;
+//                        } else if (this.styleType == BookActivity4Fragment.STYLE_TYPE_SANS) {
+//                            family = Typeface.SANS_SERIF;
+//                        }
+//                        Typeface font = Typeface.create(family, style);
+//                        paint.setTypeface(font);
+//                        if (this.isUnderline) {
+//                            paint.setUnderlineText(true);
+//                        }
+//                        if (this.pointsTextColor != 0) {
+//                            paint.setColor(this.pointsTextColor);
+//                        }
+//                        if (this.pointsTextSize != 0) {
+//                            paint.setTextSize(this.pointsTextSize);
+//                        }
+//
+//                        if (false) {
+//                            float textWidth = paint.measureText(pointsText);
+//                            float x = pointsTextX;
+//                            float y = pointsTextY - paint.ascent() - ((paint.descent() - paint.ascent()) / 2);
+//                            canvas.drawText(pointsText, x, y, paint);
+//                        } else {
+//                            //https://blog.csdn.net/wangjiang_qianmo/article/details/73180042
+//                            Rect bounds = new Rect();
+//                            paint.getTextBounds(pointsText, 0, pointsText.length(), bounds);
+//                            Paint.FontMetrics fontMetrics = paint.getFontMetrics();
+//                            canvas.drawText(pointsText, pointsTextX,
+//                                    pointsTextY + (fontMetrics.bottom - fontMetrics.top + fontMetrics.leading),
+//                                    paint);
+//                        }
+//                    }
+//                } else {
                     Paint p = null;
-                    if (USE_TEMP_PAINT && this.tempPaint != null) {
-                        p = this.tempPaint;
-                    } else {
+//                    if (USE_TEMP_PAINT && this.tempPaint != null) {
+//                        p = this.tempPaint;
+//                    } else {
                         DrawCanvas.getTextPaint(paint, this.isBold, this.isItalics,
                                 this.styleType, this.isUnderline,
                                 this.pointsTextColor, this.pointsTextSize);
                         p = paint;
+//                    }
+                    SizeF size = DrawCanvas.calculateTextSizes(pointsText, p);
+                    float w = size.getWidth();
+                    float h = size.getHeight();
+                    canvas.save();
+                    Matrix matrix = new Matrix();
+                    matrix.setScale(this.pointsScaleX,
+                            this.pointsScaleY,
+                            this.pointsTextX,// + w / 2.0F * pointsScaleX,
+                            this.pointsTextY);// + h / 2.0F * pointsScaleX);
+                    canvas.concat(matrix); //canvas.concat(this.getMatrix());
+                    if (this.tempHidden && !drawMinimal) {
+                        //temp hide when edit text
+                    } else {
+                        DrawCanvas.drawTextSizes(canvas, pointsText,
+                                pointsTextX,// - w / 2.0F,
+                                pointsTextY + OFFSET_Y, // - h / 2.0F,
+                                p);
                     }
-                    DrawCanvas.drawTextSizes(canvas, pointsText, pointsTextX, pointsTextY + OFFSET_Y, p);
-                }
+                    canvas.restore();
+//                }
             } else if (pointsType == POINTS_TYPE_IMAGE) {
                 //canvas.drawPath(toDraw, paint);
                 paint.reset();
@@ -448,12 +514,19 @@ public class DrawPath {
                 paint.setAntiAlias(true);
                 //text is left bottom align
                 if (pointsBitmap != null) {
-                    canvas.drawBitmap(pointsBitmap, pointsTextX - pointsBitmap.getWidth() / 2, pointsTextY - pointsBitmap.getHeight() / 2, paint);
-                    boolean debug = false;
-                    if (debug) {
-                        paint.setColor(0xCCFF0000); //debug area, red region
-                        canvas.drawPath(toDraw, paint);
+                    canvas.save();
+                    Matrix matrix = new Matrix();
+                    matrix.setScale(this.pointsScaleX, this.pointsScaleY, this.pointsTextX, this.pointsTextY);
+                    canvas.concat(matrix); //canvas.concat(this.getMatrix());
+                    {
+                        canvas.drawBitmap(pointsBitmap, pointsTextX - pointsBitmap.getWidth() / 2, pointsTextY - pointsBitmap.getHeight() / 2, paint);
+                        boolean debug = false;
+                        if (debug) {
+                            paint.setColor(0xCCFF0000); //debug area, red region
+                            canvas.drawPath(toDraw, paint);
+                        }
                     }
+                    canvas.restore();
                 }
             }
         } else {
@@ -494,7 +567,7 @@ public class DrawPath {
      * @param path The path to erase.
      */
     public void erase(DrawPath path) {
-        // If there's no path to erase we can't do an erasing operation 💀
+        // If there's no path to erase we can't do an erasing operation �
         if (getPath() == null) {
             return;
         }
@@ -506,8 +579,17 @@ public class DrawPath {
             eraseFromStroke(path);
         }
     }
+    public void erasePath() {
+        this.clear();
+        this.cachePath();
+        if (pointsType == DrawPath.POINTS_TYPE_IMAGE) {
+            this.pointsBitmap = null;
+        } else if (pointsType == DrawPath.POINTS_TYPE_TEXT) {
+            this.pointsText = null;
+        }
+    }
     public void eraseSimple(DrawPath path_) {
-        // If there's no path to erase we can't do an erasing operation 💀
+        // If there's no path to erase we can't do an erasing operation �
         if (getPath() == null) {
             return;
         }
@@ -598,6 +680,43 @@ public class DrawPath {
         }
     }
 
+    public void translateBegin() {
+        for (Point point : points) {
+            point.tempX = point.x;
+            point.tempY = point.y;
+        }
+        tempX = pointsTextX;
+        tempY = pointsTextY;
+//        tempMatrix.set(matrix);
+    }
+
+    public void translateSave(Point by) {
+        if (pointsType == POINTS_TYPE_IMAGE) {
+            pointsTextX = tempX + by.x;// / tempScaleX;
+            pointsTextY = tempY + by.y;// / tempScaleY;
+//            matrix.set(tempMatrix);
+//            matrix.postTranslate(by.x, by.y);
+            for (Point point : points) {
+                point.x = point.tempX + by.x;// / tempScaleX;
+                point.y = point.tempY + by.y;// / tempScaleY;
+            }
+        } else if (pointsType == POINTS_TYPE_TEXT) {
+            pointsTextX = tempX + by.x;// / tempScaleX;
+            pointsTextY = tempY + by.y;// / tempScaleY;
+//            matrix.set(tempMatrix);
+//            matrix.postTranslate(by.x, by.y);
+            for (Point point : points) {
+                point.x = point.tempX + by.x;// / tempScaleX;
+                point.y = point.tempY + by.y;// / tempScaleY;
+            }
+        } else if (pointsType == POINTS_TYPE_STROKE) {
+            for (Point point : points) {
+                point.x = point.tempX + by.x;// / tempScaleX;
+                point.y = point.tempY + by.y;// / tempScaleY;
+            }
+        }
+    }
+
     public ArrayList<Point> points_beforeScale = new ArrayList<>();
     public void beginScale() {
         points_beforeScale.clear();
@@ -658,6 +777,33 @@ public class DrawPath {
             cloned.points.add(point.clone());
         }
         cloned.cachePath();
+
+        //---------------------
+        //added
+        cloned.pointsText = pointsText;
+        cloned.pointsBitmap = pointsBitmap;
+        cloned.pointsTextX = pointsTextX;
+        cloned.pointsTextY = pointsTextY;
+        cloned.pointsType = pointsType;
+        cloned.isBold = isBold;
+        cloned.isItalics = isItalics;
+        cloned.isUnderline = isUnderline;
+        cloned.styleType = styleType;
+        cloned.pointsTextColor = pointsTextColor;
+        cloned.pointsTextSize = pointsTextSize;
+        cloned.tempPaint = tempPaint;
+        cloned.tempX = tempX;
+        cloned.tempY = tempY;
+
+        cloned.tempScaleX = tempScaleX;
+        cloned.tempScaleY = tempScaleY;
+        cloned.tempMidX = tempMidX;
+        cloned.tempMidY = tempMidY;
+
+//        cloned.matrix.set(matrix);
+        cloned.pointsScaleX = pointsScaleX;
+        cloned.pointsScaleY = pointsScaleY;
+
         return cloned;
     }
 
