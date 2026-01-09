@@ -68,6 +68,7 @@ public class EraserTool implements Tool {
             case MotionEvent.ACTION_DOWN:
                 // Starts a new line in the path
                 currentPath.clear();
+                currentPath.addPoint(canvas.mapPoint(event.getX(), event.getY(), event.getPressure()));
                 break;
 
             case MotionEvent.ACTION_MOVE:
@@ -79,8 +80,8 @@ public class EraserTool implements Tool {
                 break;
 
             case MotionEvent.ACTION_UP:
-                currentPath.finalise();
                 eraseCurrentPath();
+                currentPath.finalise();
                 break;
 
             default:

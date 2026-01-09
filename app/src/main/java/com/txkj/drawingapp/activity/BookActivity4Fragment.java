@@ -13,6 +13,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
+import android.graphics.PointF;
+import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
@@ -24,6 +26,7 @@ import android.os.Handler;
 import android.os.Parcelable;
 import android.text.TextPaint;
 import android.util.Log;
+import android.util.SizeF;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -985,6 +988,11 @@ public class BookActivity4Fragment extends Fragment {
             canvas.setTool(DrawCanvas.TOOLS.paint);
         } else if (id == R.id.top_toolkit_item2) {
             //typing
+            if (canvas != null) {
+                canvas.getSelectionTool().exitSelect();
+                canvas.invalidate();
+            }
+
             dtViewBottom.setVisibility(View.VISIBLE);
             if (getDtView(false) != null) {
                 getDtView(false).setVisibility(View.GONE);
@@ -1017,6 +1025,8 @@ public class BookActivity4Fragment extends Fragment {
             if (getDtView(false) != null) {
                 getDtView(false).setVisibility(View.GONE);
             }
+            //default is select, not erase
+            onClickSubmenu4(rootView, R.id.left_toolkit_item42, true);
             llASR.setVisibility(View.GONE);
             rl_ai.setVisibility(View.GONE);
             btnPanel2.setImageTintList(ColorStateList.valueOf(Color.BLACK));
@@ -1193,6 +1203,8 @@ public class BookActivity4Fragment extends Fragment {
                 }
             });
         }
+        //FIXME:selection tool default item 2
+        onClickSubmenu4(rootView, R.id.left_toolkit_item42, false);
         for (int id : iconsTopBar) {
             rootView.findViewById(id).setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -1734,66 +1746,119 @@ public class BookActivity4Fragment extends Fragment {
                 int ea = event.getAction();
                 switch (ea) {
                     case MotionEvent.ACTION_DOWN:
-                        // 获取触摸事件触摸位置的原始X坐标
-                        float lastX = event.getX();
-                        float lastY = event.getY();
-                        dtViewBottom.setVisibility(View.GONE);
-                        getDtView(true).setVisibility(View.VISIBLE);
-                        setBoldItalicsStyle();
-                        setAlignType(alignType);
-                        setSizeType(sizeType);
-                        setEditTextColor(editTextColor);
-                        getDtView(true).init2(lastX, lastY, "", BookActivity4Fragment.this.editTextColor,
-                                (float)(BookActivity4Fragment.this.editTextSize * canvas.getScaleFactor()),
-                                new DrawTextView.CallBackListener() {
-                                    @Override
-                                    public void onUpdate(DrawPoint drawPoint) {
+                        DrawPath selectedText = null;
+                        float tempW = 0;
+                        float tempH = 0;
+                        Point originalPoint = canvas.mapPoint(event.getX(), event.getY(), event.getPressure());
+                        for (DrawPath path : canvas.paths) {
+                            if (path != null && path.pointsType == DrawPath.POINTS_TYPE_TEXT) {
+                                if (path.pointsText != null) {
+                                    Paint p = new Paint();
+                                    DrawCanvas.getTextPaint(p,
+                                            isBold,
+                                            isItalics,
+                                            styleType,
+                                            isUnderline,
+                                            path.pointsTextColor,
+                                            path.pointsTextSize);
+                                    SizeF size = DrawCanvas.calculateTextSizes(path.pointsText, p);
+                                    tempW = size.getWidth();
+                                    tempH = size.getHeight();
 
+                                    //for calculating midpoint
+                                    float tempPointXMin = path.pointsTextX;
+                                    float tempPointXMax = path.pointsTextX + path.pointsScaleX * tempW;
+                                    float tempPointYMin = path.pointsTextY;
+                                    float tempPointYMax = path.pointsTextY + path.pointsScaleX * tempH;
+                                    RectF rectF = new RectF(tempPointXMin, tempPointYMin, tempPointXMax, tempPointYMax);
+                                    if (rectF.contains(originalPoint.x, originalPoint.y)) {
+                                        selectedText = path;
+                                        break;
                                     }
+                                }
+                            }
+                        }
+                        if (selectedText != null) {
+                            dtViewBottom.setVisibility(View.GONE);
+                            canvas.setTool(DrawCanvas.TOOLS.select);
+                            onClickTopBar(rootView, iconsTopBar[3], false); //init
 
-                                    @Override
-                                    public void onSave(DrawPoint drawPoint) {
-                                        if (drawPoint != null && drawPoint.getDrawText() != null) {
-                                            if (true) {
-                                                //Paint paint = new Paint();
-                                                TextPaint paint = getDtView(true).mEtTextEdit.getPaint();
-//                                        paint.setColor(0xFFFF0000);
-//                                        paint.setTextSize(sp2px(BookActivity4.this, 24));
-                                                drawText(canvas,
-                                                        drawPoint.getDrawText().getStr(),
-                                                        drawPoint.getDrawText().getX(),
-                                                        drawPoint.getDrawText().getY(),
-                                                        paint,
-                                                        isBold, isItalics, isUnderline, styleType,
-                                                        editTextColor,
-                                                        editTextSize// * canvas.getScaleFactor())
-                                                );
+                            canvas.getSelectionTool().exitSelect();
+                            canvas.getSelectionTool().getSelectedPaths().add(selectedText);
+                            Point boundsTop = new Point(selectedText.pointsTextX, selectedText.pointsTextY);
+                            Point boundsBottom = new Point(boundsTop.x + selectedText.pointsScaleX * tempW, boundsTop.y + selectedText.pointsScaleY * tempH);
+                            canvas.getSelectionTool().currentPath.addPoint(boundsTop);
+                            canvas.getSelectionTool().currentPath.addPoint(new Point(boundsBottom.x, boundsTop.y));
+                            canvas.getSelectionTool().currentPath.addPoint(boundsBottom);
+                            canvas.getSelectionTool().currentPath.addPoint(new Point(boundsTop.x, boundsBottom.y));
+                            canvas.getSelectionTool().currentPath.appearance =
+                                    canvas.getSelectionTool().APPEARANCE_SELECTED;
+                            canvas.invalidate();
+                            //enter re-edit mode
+                        } else {
+                            //enter first edit mode
+
+                            // 获取触摸事件触摸位置的原始X坐标
+                            float lastX = event.getX();
+                            float lastY = event.getY();
+                            dtViewBottom.setVisibility(View.GONE);
+                            getDtView(true).setVisibility(View.VISIBLE);
+                            setBoldItalicsStyle();
+                            setAlignType(alignType);
+                            setSizeType(sizeType);
+                            setEditTextColor(editTextColor);
+                            getDtView(true).init2(lastX, lastY, "", BookActivity4Fragment.this.editTextColor,
+                                    (float) (BookActivity4Fragment.this.editTextSize * canvas.getScaleFactor()),
+                                    new DrawTextView.CallBackListener() {
+                                        @Override
+                                        public void onUpdate(DrawPoint drawPoint) {
+
+                                        }
+
+                                        @Override
+                                        public void onSave(DrawPoint drawPoint) {
+                                            if (drawPoint != null && drawPoint.getDrawText() != null) {
+                                                if (true) {
+                                                    //Paint paint = new Paint();
+                                                    TextPaint paint = getDtView(true).mEtTextEdit.getPaint();
+                                                    //                                        paint.setColor(0xFFFF0000);
+                                                    //                                        paint.setTextSize(sp2px(BookActivity4.this, 24));
+                                                    drawText(canvas,
+                                                            drawPoint.getDrawText().getStr(),
+                                                            drawPoint.getDrawText().getX(),
+                                                            drawPoint.getDrawText().getY(),
+                                                            paint,
+                                                            isBold, isItalics, isUnderline, styleType,
+                                                            editTextColor,
+                                                            editTextSize// * canvas.getScaleFactor())
+                                                    );
+                                                } else {
+                                                    drawText(canvas, "hello", 100, 100, null,
+                                                            false, false, false, 0,
+                                                            0xFFFF0000, 18 * 5);
+                                                }
+                                            }
+                                            if (false) {
+                                                rootView.findViewById(R.id.top_toolkit_item1).performClick(); //返回绘画模式
                                             } else {
-                                                drawText(canvas, "hello", 100, 100, null,
-                                                        false, false, false, 0,
-                                                        0xFFFF0000, 18 * 5);
+                                                //保留在编辑模式
+                                                //FIXME:调用点击
+                                                if (true) {
+                                                    rootView.findViewById(R.id.top_toolkit_item2).performClick();
+                                                } else {
+                                                    dtViewBottom.setVisibility(View.VISIBLE);
+                                                    getDtView(true).setVisibility(View.GONE);
+                                                    llASR.setVisibility(View.GONE);
+                                                    rl_ai.setVisibility(View.GONE);
+                                                    rootView.findViewById(R.id.left_toolkit1).setVisibility(View.GONE);
+                                                    rootView.findViewById(R.id.left_toolkit2).setVisibility(View.VISIBLE);
+                                                    rootView.findViewById(R.id.left_toolkit4).setVisibility(View.GONE);
+                                                }
+                                                //skip, keep in text toolkit
                                             }
                                         }
-                                        if (false) {
-                                            rootView.findViewById(R.id.top_toolkit_item1).performClick(); //返回绘画模式
-                                        } else {
-                                            //保留在编辑模式
-                                            //FIXME:调用点击
-                                            if (true) {
-                                                rootView.findViewById(R.id.top_toolkit_item2).performClick();
-                                            } else {
-                                                dtViewBottom.setVisibility(View.VISIBLE);
-                                                getDtView(true).setVisibility(View.GONE);
-                                                llASR.setVisibility(View.GONE);
-                                                rl_ai.setVisibility(View.GONE);
-                                                rootView.findViewById(R.id.left_toolkit1).setVisibility(View.GONE);
-                                                rootView.findViewById(R.id.left_toolkit2).setVisibility(View.VISIBLE);
-                                                rootView.findViewById(R.id.left_toolkit4).setVisibility(View.GONE);
-                                            }
-                                            //skip, keep in text toolkit
-                                        }
-                                    }
-                                });
+                                    });
+                        }
                         break;
 
                     case MotionEvent.ACTION_MOVE:

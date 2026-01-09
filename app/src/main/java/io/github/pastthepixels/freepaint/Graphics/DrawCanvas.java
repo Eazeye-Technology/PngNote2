@@ -16,9 +16,11 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SizeF;
+import android.view.GestureDetector;
 import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
@@ -85,6 +87,9 @@ public final class DrawCanvas extends View {
                 Float.parseFloat(prefs.getString("documentWidth", "816")),
                 Float.parseFloat(prefs.getString("documentHeight", "1056"))
         );
+
+        gestureDetector = new GestureDetector(getContext(), gestureListener);
+        //gestureDetector.setIsLongpressEnabled(false);
     }
 
     /**
@@ -184,6 +189,22 @@ public final class DrawCanvas extends View {
     boolean isPan = false;
     int lastSource = 0;
 
+
+    private GestureDetector gestureDetector;
+    private GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
+        @Override
+        public boolean onDoubleTap(@NonNull MotionEvent e) {
+            Toast.makeText(getContext(), "onDoubleTap", Toast.LENGTH_LONG).show();
+            return super.onDoubleTap(e);
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(@NonNull MotionEvent e) {
+            Toast.makeText(getContext(), "onSingleTapConfirmed", Toast.LENGTH_LONG).show();
+            return super.onSingleTapConfirmed(e);
+        }
+    };
+
     /**
      * Adds touch points when the user touches the screen.
      *
@@ -275,6 +296,110 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
             }
             postInvalidate(); // Indicate view should be redrawn
             return true; // Indicate we've consumed the touch
+        }
+    }
+
+    //@SuppressLint("ClickableViewAccessibility")
+    //@Override
+    public boolean onTouchEvent_test(MotionEvent event) {
+        if (DEBUG_EVENT) {
+            Log.e(TAG, "event.getActionMasked() == " + event.getActionMasked());
+            Log.e(TAG, "event.getPointerCount() == " + event.getPointerCount());
+            Log.e(TAG, "event.getDeviceId() == " + event.getDeviceId());
+            Log.e(TAG, "event.getSource() == " + event.getSource());
+            Log.e(TAG, "InputDevice.SOURCE_STYLUS == " + ((event.getSource() & InputDevice.SOURCE_STYLUS) == InputDevice.SOURCE_STYLUS) +
+                    ", event.getPressure() == " + event.getPressure() +
+                    ", event.getToolType() == " + event.getToolType(0));
+
+                /*
+touch:
+event.getDeviceId() == 4
+event.getSource() == 4098
+InputDevice.SOURCE_STYLUS == false, event.getPressure() == 1.0
+stylus:
+event.getDeviceId() == 4
+event.getSource() == 20482
+InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.06642247
+stylus eraser:
+event.getDeviceId() == 4
+event.getSource() == 20482
+InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
+
+
+    public static final int TOOL_TYPE_ERASER = 4;
+    public static final int TOOL_TYPE_FINGER = 1;
+    public static final int TOOL_TYPE_MOUSE = 3;
+    public static final int TOOL_TYPE_STYLUS = 2;
+    public static final int TOOL_TYPE_UNKNOWN = 0;
+                 */
+        }
+
+        if (false) {
+            gestureDetector.onTouchEvent(event);
+            return true;
+        } else if (true) {
+            // Runs chosenTool.onTouchEvent if it exists, otherwise don't update the screen.
+            TOOLS curTool = this.tool; //temporary, don't modify current Tool
+            if (tool == TOOLS.paint || tool == TOOLS.pan) {
+                if (isEmulator()) {
+                    //skip
+                } else {
+                    boolean lastSourceChanged = false;
+                    if (event != null && event.getSource() != lastSource) {
+                        lastSource = event.getSource();
+                        lastSourceChanged = true;
+                    }
+                    if (isPan) {
+                        curTool = TOOLS.pan;
+                        if (lastSourceChanged || (event != null && event.getAction() == MotionEvent.ACTION_UP)) {
+                            boolean result = Objects.requireNonNull(getTool_(curTool)).onTouchEvent(event);
+                            isPan = false;
+                            curTool = this.tool;
+                            return result;
+                        } else {
+                            return Objects.requireNonNull(getTool_(curTool)).onTouchEvent(event);
+                        }
+                    } else if (event != null && event.getAction() == MotionEvent.ACTION_DOWN) {
+                        //don't check SOURCE_TOUCHSCREEN, because SOURCE_STYLUS contains SOURCE_TOUCHSCREEN
+                        boolean isStylus = ((event.getSource() & InputDevice.SOURCE_STYLUS) == InputDevice.SOURCE_STYLUS);
+                        boolean isStylusScreen = (((event.getSource() & InputDevice.SOURCE_STYLUS) == InputDevice.SOURCE_STYLUS) &&
+                                event.getPointerCount() > 0 &&
+                                event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER);
+                        boolean isTouchScreen = (((event.getSource() & InputDevice.SOURCE_TOUCHSCREEN) == InputDevice.SOURCE_TOUCHSCREEN) &&
+                                event.getPointerCount() > 0 &&
+                                event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER);
+                        if (isEmulator()) {
+                            //skip
+                        }
+                        int pointerCount = event.getPointerCount();
+                        if ((!isStylus || isStylusScreen) && !isTouchScreen) { //FIXME:
+                            curTool = TOOLS.pan;
+                            isPan = true;
+                            return Objects.requireNonNull(getTool_(curTool)).onTouchEvent(event);
+                        }
+                    }
+                }
+            }
+
+            if (tool == TOOLS.none || !Objects.requireNonNull(getTool_(curTool)).onTouchEvent(event)) {
+                return false;
+            } else {
+                if (getTool().allowVersionBackup() && event.getAction() == MotionEvent.ACTION_UP) {
+                    // Remove any edits after the current.
+                    while (versions.size() > version_index + 1) {
+                        versions.remove(versions.size() - 1);
+                    }
+                    versions.add(cloneDrawPathList(paths)); // adds to the end ∴ newest changes are at the end of the list
+                    System.out.println(versions + " " + versions.size());
+                    if (versions.size() < MAX_VERSIONS - 1) version_index += 1;
+                    if (versions.size() > MAX_VERSIONS)
+                        versions.remove(0); // delete the oldest change if the list has grown too much
+                }
+                postInvalidate(); // Indicate view should be redrawn
+                return true; // Indicate we've consumed the touch
+            }
+        } else {
+            return super.onTouchEvent(event);
         }
     }
 
@@ -526,7 +651,7 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
                     if (!menuHidden && getTool() instanceof SelectionTool) {
                         float radius = getSelectionTool().iconRadius;
                         if (getSelectionTool().mode != SelectionTool.TOUCH_MODES.define) {
-                            for (int i = 0; i < path.points.size(); ++i) {
+                            for (int i = 0; i < path.points.size() && i < 4; ++i) {
                                 Point pt = path.points.get(i);
                                 Drawable drawable = null;
                                 if (i == SelectionTool.deleteIcon_index) {
@@ -538,9 +663,29 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
                                     if (getSelectionTool().getSelectedPaths().size() == 1) {
                                         DrawPath path0 = getSelectionTool().getSelectedPaths().get(0);
                                         if (path0 != null &&
-                                                (path0.pointsType == DrawPath.POINTS_TYPE_IMAGE ||
+                                                (path0.pointsType == DrawPath.POINTS_TYPE_STROKE ||
+                                                        path0.pointsType == DrawPath.POINTS_TYPE_IMAGE ||
                                                         path0.pointsType == DrawPath.POINTS_TYPE_TEXT)) {
                                             drawable = getSelectionTool().zoomIcon;
+                                        }
+                                    } else {
+                                        if (getSelectionTool().getSelectedPaths().size() > 1) {
+                                            boolean allStroke = true;
+                                            if (DrawPath.ALLOW_MULTI_SCALE) {
+                                                //skip
+                                            } else {
+                                                for (DrawPath itemPath : getSelectionTool().getSelectedPaths()) {
+                                                    if (itemPath == null ||
+                                                            itemPath.pointsType != DrawPath.POINTS_TYPE_STROKE) {
+                                                        allStroke = false;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            if (allStroke) {
+                                                //if all are strokes, they can be zoomed
+                                                drawable = getSelectionTool().zoomIcon;
+                                            }
                                         }
                                     }
                                 } else if (i == SelectionTool.editIcon_index) {

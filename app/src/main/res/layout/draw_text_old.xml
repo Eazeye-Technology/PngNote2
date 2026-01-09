@@ -67,7 +67,7 @@
             android:layout_height="30dip"
             android:layout_centerVertical="true"
             android:layout_marginLeft="-30dip"
-            android:layout_toRightOf="@+id/rl_text"
+            android:layout_toRightOf="@+id/rl_text_old"
             android:background="@drawable/draw_text_edit" />
     </RelativeLayout>
 

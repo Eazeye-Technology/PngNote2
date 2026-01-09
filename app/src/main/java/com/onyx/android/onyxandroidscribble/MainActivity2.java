@@ -1,11 +1,7 @@
 package com.onyx.android.onyxandroidscribble;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -24,29 +20,32 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.RadioButton;
 
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.onyx.android.sdk.api.device.epd.EpdController;
+import com.onyx.android.sdk.data.note.TouchPoint;
 import com.onyx.android.sdk.pen.NeoFountainPen;
 import com.onyx.android.sdk.pen.RawInputCallback;
+import com.onyx.android.sdk.pen.TouchHelper;
 import com.onyx.android.sdk.pen.data.TouchPointList;
 import com.onyx.android.sdk.rx.RxManager;
-import com.onyx.android.sdk.pen.TouchHelper;
-import com.onyx.android.sdk.data.note.TouchPoint;
 import com.onyx.android.sdk.utils.NumberUtils;
-import com.onyx.android.sdk.api.device.epd.EpdController;
 import com.onyx.android.sdk.utils.ResManager;
 import com.txkj.drawingapp.R;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+//show black if failed
+//show white if success
+public class MainActivity2 extends AppCompatActivity {
     private final static boolean USE_TOUCH_AS_STYLUS = true;
 
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = MainActivity2.class.getSimpleName();
     /**
      * skip point count
      */
-    private static final int INTERVAL = 1;//10;
+    private static final int INTERVAL = 10;
 
 //    private ActivityPenStylusTouchHelperDemoBinding binding;
     private SurfaceView binding_surfaceview;
@@ -54,10 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private Button binding_buttonEraser, binding_buttonPen;
     private CheckBox binding_cbRender;
 
-    private GlobalDeviceReceiver deviceReceiver = new GlobalDeviceReceiver();
     private RxManager rxManager; //FIXME:???
-
-    private TouchHelper touchHelper;
 
     private Paint paint = new Paint();
     private TouchPoint startPoint;
@@ -71,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_scribble_demo);
+        setContentView(R.layout.activity_main);
 
         {
             //FIXME:added
@@ -80,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         //binding = DataBindingUtil.setContentView(this, R.layout.activity_pen_stylus_touch_helper_demo);
-        deviceReceiver.enable(this, true);
         //binding.setActivityPenStylusTouchHelper(this);
         binding_surfaceview = (SurfaceView) this.findViewById(R.id.surfaceview);
         //================
@@ -88,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
         //https://stackoverflow.com/questions/21311573/surfaceview-shows-black-screen-android
         binding_surfaceview.setBackgroundColor(0x00000000);
         //https://stackoverflow.com/questions/3818284/android-surfaceholder-unlockcanvasandpost-does-not-cause-redraw
-        binding_surfaceview.setZOrderOnTop(true);
+        binding_surfaceview.setZOrderOnTop(false);
         //================
         binding_rbBrush = (RadioButton) this.findViewById(R.id.rb_brush);
         binding_rbBrush.setOnClickListener(new View.OnClickListener() {
@@ -133,24 +128,20 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        touchHelper.setRawDrawingEnabled(true);
         super.onResume();
     }
 
     @Override
     protected void onPause() {
-        touchHelper.setRawDrawingEnabled(false);
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
-        touchHelper.closeRawDrawing();
         if (bitmap != null) {
             bitmap.recycle();
             bitmap = null;
         }
-        deviceReceiver.enable(this, false);
         super.onDestroy();
     }
 
@@ -172,15 +163,9 @@ public class MainActivity extends AppCompatActivity {
         paint.setStrokeWidth(STROKE_WIDTH);
     }
 
+    TouchPointList g_touchPointList = new TouchPointList();
     @SuppressLint("ClickableViewAccessibility")
     private void initSurfaceView() {
-        touchHelper = TouchHelper.create(binding_surfaceview, callback);
-        //FIXME:added
-        {
-            //FIXME:if no this, setRawDrawingEnabled(true) when onResume() will failed
-            touchHelper.openRawDrawing();
-        }
-
         binding_surfaceview.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int
@@ -197,30 +182,49 @@ public class MainActivity extends AppCompatActivity {
 
                 Rect limit = new Rect();
                 binding_surfaceview.getLocalVisibleRect(limit);
-                touchHelper.setStrokeWidth(STROKE_WIDTH)
-                        .setLimitRect(limit, exclude)
-                        .openRawDrawing();
-                touchHelper.setStrokeStyle(TouchHelper.STROKE_STYLE_FOUNTAIN);//TouchHelper.STROKE_STYLE_BRUSH);
                 binding_rbBrush.setChecked(true);
                 binding_surfaceview.addOnLayoutChangeListener(this);
             }
         });
 
-        if (!USE_TOUCH_AS_STYLUS) { //FIXME:added
-            binding_surfaceview.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    Log.d(TAG, "surfaceView.setOnTouchListener - onTouch::action - " + event.getAction());
-                    if (!USE_TOUCH_AS_STYLUS) {
+        binding_surfaceview.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Log.d(TAG, "surfaceView.setOnTouchListener - onTouch::action - " + event.getAction());
+
+                TouchPoint touchPoint = new TouchPoint();
+                touchPoint.x = event.getX();
+                touchPoint.y = event.getY();
+                //touchPoint.pressure = event.getPressure();
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                    case MotionEvent.ACTION_MOVE:
+                        countRec++;
+                        countRec = countRec % INTERVAL;
+                        Log.d(TAG, "countRec = " + countRec);
+                        //FIXME:added, no need, see below onRawDrawingTouchPointListReceived()
+                        if (true) {
+                            if (countRec == INTERVAL - 1) {
+                                g_touchPointList.add(touchPoint);
+                                drawScribbleToBitmap(g_touchPointList.getPoints());
+                                renderToScreen(binding_surfaceview, bitmap);
+                            }
+                        }
                         return true;
-                    } else {
-                        return false;
-                    }
+
+                    case MotionEvent.ACTION_UP:
+                        countRec++;
+                        countRec = countRec % INTERVAL;
+                        Log.d(TAG, "countRec = " + countRec);
+                        g_touchPointList.add(touchPoint);
+                        drawScribbleToBitmap(g_touchPointList.getPoints());
+                        renderToScreen(binding_surfaceview, bitmap);
+                        g_touchPointList.clear();
+                        return true;
                 }
-            });
-        } else {
-            //see AppTouchRender::bindHostView::setOnTouchListener, don't overlay it
-        }
+                return false;
+            }
+        });
 
         final SurfaceHolder.Callback surfaceCallback = new SurfaceHolder.Callback() {
             @Override
@@ -241,51 +245,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initReceiver() {
-        deviceReceiver.setSystemNotificationPanelChangeListener(new GlobalDeviceReceiver.SystemNotificationPanelChangeListener() {
-            @Override
-            public void onNotificationPanelChanged(boolean open) {
-                touchHelper.setRawDrawingEnabled(!open);
-                renderToScreen(binding_surfaceview, bitmap);
-            }
-        }).setSystemScreenOnListener(new GlobalDeviceReceiver.SystemScreenOnListener() {
-            @Override
-            public void onScreenOn() {
-                renderToScreen(binding_surfaceview, bitmap);
-            }
-        });
+
     }
 
     public void onPenClick() {
-        touchHelper.setRawDrawingEnabled(true);
         onRenderEnableClick();
     }
 
     public void onEraserClick() {
-        touchHelper.setRawDrawingEnabled(false);
         if (bitmap != null) {
             bitmap.recycle();
             bitmap = null;
         }
         cleanSurfaceView();
-
-        if (false) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("hello")
-                    .setMessage("hello")
-                    .setCancelable(false)
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.dismiss(); 
-                        }
-                    });
-            AlertDialog dialog = builder.create();
-            dialog.show();
-        }
-
     }
 
     public void onRenderEnableClick() {
-        touchHelper.setRawDrawingRenderEnabled(binding_cbRender.isChecked());
         if (bitmap != null) {
             bitmap.recycle();
             bitmap = null;
@@ -299,12 +274,10 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, radioButton.toString());
         if (radioButton.getId() == R.id.rb_brush) {
             if (checked) {
-                touchHelper.setStrokeStyle(TouchHelper.STROKE_STYLE_FOUNTAIN);//.STROKE_STYLE_BRUSH);
                 Log.d(TAG, "STROKE_STYLE_BRUSH");
             }
         } if (radioButton.getId() == R.id.rb_pencil) {
             if (checked) {
-                touchHelper.setStrokeStyle(TouchHelper.STROKE_STYLE_PENCIL);
                 Log.d(TAG, "STROKE_STYLE_PENCIL");
             }
         }
@@ -341,7 +314,7 @@ public class MainActivity extends AppCompatActivity {
         if (canvas == null) {
             return false;
         }
-        canvas.drawColor(Color.WHITE); //RED
+        canvas.drawColor(Color.WHITE);
         binding_surfaceview.getHolder().unlockCanvasAndPost(canvas);
         return true;
     }
@@ -368,8 +341,6 @@ public class MainActivity extends AppCompatActivity {
         binding_surfaceview.getHolder().unlockCanvasAndPost(canvas);
     }
 
-    private boolean SEE_MOVE = true;
-    TouchPointList g_touchPointList = new TouchPointList();
     private RawInputCallback callback = new RawInputCallback() {
 
         @Override
@@ -399,25 +370,21 @@ public class MainActivity extends AppCompatActivity {
             countRec = countRec % INTERVAL;
             Log.d(TAG, "countRec = " + countRec);
             //FIXME:added, no need, see below onRawDrawingTouchPointListReceived()
-            if (SEE_MOVE) {
-                if (countRec == INTERVAL - 1) {
-                    g_touchPointList.add(touchPoint);
-                    drawScribbleToBitmap(g_touchPointList.getPoints());
-                    renderToScreen(binding_surfaceview, bitmap);
-                }
+            if (false) {
+                TouchPointList touchPointList = new TouchPointList();
+                touchPointList.add(touchPoint);
+                drawScribbleToBitmap(touchPointList.getPoints());
+
+                renderToScreen(binding_surfaceview, bitmap);
             }
         }
 
         @Override
         public void onRawDrawingTouchPointListReceived(TouchPointList touchPointList) {
             Log.d(TAG, "onRawDrawingTouchPointListReceived");
+            drawScribbleToBitmap(touchPointList.getPoints());
             //FIXME:added
-            if (SEE_MOVE) {
-                drawScribbleToBitmap(g_touchPointList.getPoints());
-                renderToScreen(binding_surfaceview, bitmap);
-                g_touchPointList.clear();
-            } else {
-                drawScribbleToBitmap(touchPointList.getPoints());
+            if (true) {
                 renderToScreen(binding_surfaceview, bitmap);
                 //drawBitmapToSurface();
             }
@@ -459,7 +426,7 @@ public class MainActivity extends AppCompatActivity {
             NeoFountainPen.drawStroke(canvas, paint, list, NumberUtils.FLOAT_ONE, STROKE_WIDTH, maxPressure, false);
         }
 
-        if (binding_rbPencil.isChecked() && list.size() > 0) {
+        if (binding_rbPencil.isChecked()) {
             Path path = new Path();
             PointF prePoint = new PointF(list.get(0).x, list.get(0).y);
             path.moveTo(prePoint.x, prePoint.y);
@@ -492,10 +459,8 @@ public class MainActivity extends AppCompatActivity {
         lockCanvas.drawBitmap(bitmap, 0f, 0f, paint);
         binding_surfaceview.getHolder().unlockCanvasAndPost(lockCanvas);
         // refresh ui
-        touchHelper.setRawDrawingEnabled(false);
-        touchHelper.setRawDrawingEnabled(true);
         if (!binding_cbRender.isChecked()) {
-            touchHelper.setRawDrawingRenderEnabled(false);
+
         }
     }
 }

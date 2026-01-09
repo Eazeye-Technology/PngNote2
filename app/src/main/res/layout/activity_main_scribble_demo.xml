@@ -3,6 +3,7 @@
     android:id="@+id/activity_scribble_demo"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_margin="10dp"
     >
 
     <LinearLayout
@@ -72,7 +73,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/layout_function2"
-        android:background="#FFFFFFFF"
+        android:background="#00000000"
         />
 
 </RelativeLayout>

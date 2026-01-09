@@ -1,8 +1,10 @@
 package io.github.pastthepixels.freepaint.Tools;
 
 import android.graphics.PointF;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -75,7 +77,25 @@ public class PanTool implements Tool {
                 return true;
             }
         });
+
+        gestureDetector = new GestureDetector(canvas.getContext(), gestureListener);
+        gestureDetector.setIsLongpressEnabled(false);
     }
+
+    private GestureDetector gestureDetector;
+    private GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
+        @Override
+        public boolean onDoubleTap(@NonNull MotionEvent e) {
+            Toast.makeText(canvas.getContext(), "onDoubleTap", Toast.LENGTH_LONG).show();
+            return super.onDoubleTap(e);
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(@NonNull MotionEvent e) {
+            Toast.makeText(canvas.getContext(), "onSingleTapConfirmed", Toast.LENGTH_LONG).show();
+            return super.onSingleTapConfirmed(e);
+        }
+    };
 
     /**
      * Updates <code>panOffset</code> so that the canvas is moved to create the effect of
@@ -131,6 +151,12 @@ public class PanTool implements Tool {
                     break;
             }
         }
+        return true;
+    }
+
+    //@Override
+    public boolean onTouchEvent_test(MotionEvent event) {
+        gestureDetector.onTouchEvent(event);
         return true;
     }
 

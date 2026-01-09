@@ -1,6 +1,7 @@
 package io.github.pastthepixels.freepaint.Tools;
 
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
@@ -8,17 +9,12 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
 import android.graphics.drawable.Drawable;
-import android.text.TextPaint;
 import android.util.SizeF;
 import android.view.MotionEvent;
-import android.view.View;
 
 import androidx.core.content.ContextCompat;
 
-import com.github.guanpy.wblib.bean.DrawPoint;
-import com.github.guanpy.wblib.widget.DrawTextView;
 import com.txkj.drawingapp.R;
-import com.txkj.drawingapp.activity.BookActivity4Fragment;
 import com.txkj.drawingapp.activity.BookActivity4Utils;
 
 import java.util.ArrayList;
@@ -149,18 +145,74 @@ public class SelectionTool implements Tool {
                         if (selectedPaths.size() == 1) {
                             DrawPath path = selectedPaths.get(0);
                             if (path != null &&
-                                    (path.pointsType == DrawPath.POINTS_TYPE_IMAGE ||
+                                    (path.pointsType == DrawPath.POINTS_TYPE_STROKE || //allow stroke scale
+                                            path.pointsType == DrawPath.POINTS_TYPE_IMAGE ||
                                             path.pointsType == DrawPath.POINTS_TYPE_TEXT)) {
                                 isIconDrag = true;
                                 path.setScaleBegin();
 //                                this.downMatrix.set(path.getMatrix());
-                                this.midPoint.set(path.pointsTextX, path.pointsTextY);
+                                if (path.pointsType == DrawPath.POINTS_TYPE_STROKE) {
+                                    //path.pointsType == DrawPath.POINTS_TYPE_STROKE, need to calculate
+                                    this.midPoint.set(
+                                            //see path.setScaleBegin();
+                                            (path.tempPointXMin + path.tempPointXMax) / 2.0F,
+                                            (path.tempPointYMin + path.tempPointYMax) / 2.0F);
+                                } else {
+                                    //DrawPath.POINTS_TYPE_IMAGE is center point, so must scale with center point
+                                    //DrawPath.POINTS_TYPE_TEXT is left top, so must scale with left top point
+                                    this.midPoint.set(path.pointsTextX, path.pointsTextY);
+                                }
                             } else {
 //                                this.downMatrix.set(new Matrix());
                                 this.midPoint.set(0.0F, 0.0F);
                             }
                             this.oldDistance = this.calculateDistance(this.midPoint.x, this.midPoint.y,
                                     originalPoint.x, originalPoint.y);
+                        } else if (selectedPaths.size() > 1) {
+                            //only all strokes can scale
+                            boolean allStroke = true;
+                            if (DrawPath.ALLOW_MULTI_SCALE) {
+                                //skip
+                            } else {
+                                for (DrawPath itemPath : selectedPaths) {
+                                    if (itemPath == null ||
+                                            itemPath.pointsType != DrawPath.POINTS_TYPE_STROKE) {
+                                        allStroke = false;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (allStroke) {
+                                float tempPointXMin = 0;
+                                float tempPointXMax = 0;
+                                float tempPointYMin = 0;
+                                float tempPointYMax = 0;
+                                for (int i = 0; i < selectedPaths.size(); ++i) {
+                                    DrawPath itemPath = selectedPaths.get(i);
+                                    if (itemPath != null) {
+                                        itemPath.setScaleBegin();
+                                        if (i == 0) {
+                                            tempPointXMin = itemPath.tempPointXMin;
+                                            tempPointXMax = itemPath.tempPointXMax;
+                                            tempPointYMin = itemPath.tempPointYMin;
+                                            tempPointYMax = itemPath.tempPointYMax;
+                                        } else {
+                                            tempPointXMin = Math.min(tempPointXMin, itemPath.tempPointXMin);
+                                            tempPointXMax = Math.max(tempPointXMax, itemPath.tempPointXMax);
+                                            tempPointYMin = Math.min(tempPointYMin, itemPath.tempPointYMin);
+                                            tempPointYMax = Math.max(tempPointYMax, itemPath.tempPointYMax);
+                                        }
+                                    }
+                                }
+                                this.midPoint.set(
+                                        //see path.setScaleBegin();
+                                        (tempPointXMin + tempPointXMax) / 2.0F,
+                                        (tempPointYMin + tempPointYMax) / 2.0F);
+                                isIconDrag = true;
+                                isIconDragMulti = true;
+                                this.oldDistance = this.calculateDistance(this.midPoint.x, this.midPoint.y,
+                                        originalPoint.x, originalPoint.y);
+                            }
                         }
                         break;
                     } else if (icon == editIcon_index) {
@@ -227,10 +279,14 @@ public class SelectionTool implements Tool {
             case MotionEvent.ACTION_MOVE:
                 Point touchPoint = canvas.mapPoint(event.getX(), event.getY(), event.getPressure());
                 if (isIconDrag) {
+                    //drag icon to scale
                     zoomAndRotateSticker(touchPoint.x, touchPoint.y);
-                    rebuildImageSelctFrame();
+                    rebuildStrokeSelectFrame();
+                    rebuildMultiStrokesSelectFrame(touchPoint.x, touchPoint.y);
+                    rebuildImageSelectFrame();
                     rebuildTextSelectFrame();
                 } else {
+                    //drag empty to select
                     if (mode == TOUCH_MODES.define) {
                         // If we're trying to define a new selection, redraw the current path with the bounds
                         currentPath.clear();
@@ -239,6 +295,7 @@ public class SelectionTool implements Tool {
                         currentPath.addPoint(touchPoint);
                         currentPath.addPoint(new Point(originalPoint.x, touchPoint.y));
                     }
+                    //drag object to move
                     if (mode == TOUCH_MODES.move && previousPoint != null) { //FIXME:???
                         if (getScaleMode()) {
                             if (scalePoint != null) {
@@ -261,7 +318,7 @@ public class SelectionTool implements Tool {
                                 if (false) {
                                     currentPath.translateSave(touchPoint.clone().applySubtract(originalPoint));
                                 } else {
-                                    rebuildImageSelctFrame();
+                                    rebuildImageSelectFrame();
                                     rebuildTextSelectFrame();
                                     if (true) {
                                         DrawPath pathText = null;
@@ -289,6 +346,7 @@ public class SelectionTool implements Tool {
 
             case MotionEvent.ACTION_UP:
                 isIconDrag = false;
+                isIconDragMulti = false;
                 if (mode == TOUCH_MODES.define) {
                     // If we're releasing our finger from selecting a bunch of paths, we need to
                     // do math to actually select those paths.
@@ -322,7 +380,161 @@ public class SelectionTool implements Tool {
         BookActivity4Utils.editText(this.canvas.mAct, path);
     }
 
-    private void rebuildImageSelctFrame() {
+    private void rebuildStrokeSelectFrame() {
+        float w = 0;
+        float h = 0;
+        DrawPath pathStroke = null;
+        if (selectedPaths.size() == 1) {
+            pathStroke = selectedPaths.get(0);
+        }
+        if (pathStroke != null && pathStroke.pointsType == DrawPath.POINTS_TYPE_STROKE) {
+            Matrix matrix = new Matrix();
+            matrix.setScale(
+                    pathStroke.tempScaleX, //see setScaleBegin()
+                    pathStroke.tempScaleY,
+                    (pathStroke.tempPointXMin + pathStroke.tempPointXMax) / 2,
+                    (pathStroke.tempPointYMin + pathStroke.tempPointYMax) / 2);
+            Point boundsTop_old = new Point(
+                    pathStroke.tempPointXMin,
+                    pathStroke.tempPointYMin);
+            Point boundsBottom_old = new Point(
+                    pathStroke.tempPointXMax,
+                    pathStroke.tempPointYMax);
+            float[] dst = new float[2];
+            matrix.mapPoints(dst, new float[]{boundsTop_old.x, boundsTop_old.y});
+            Point boundsTop = new Point(dst[0], dst[1]);
+            matrix.mapPoints(dst, new float[]{boundsBottom_old.x, boundsBottom_old.y});
+            Point boundsBottom = new Point(dst[0], dst[1]);
+            this.currentPath.clear();
+            this.currentPath.addPoint(boundsTop);
+            this.currentPath.addPoint(new Point(boundsBottom.x, boundsTop.y));
+            this.currentPath.addPoint(boundsBottom);
+            this.currentPath.addPoint(new Point(boundsTop.x, boundsBottom.y));
+            this.currentPath.appearance =
+                    this.canvas.getSelectionTool().APPEARANCE_SELECTED;
+        }
+    }
+    private void rebuildMultiStrokesSelectFrame(float x, float y) {
+        if (selectedPaths.size() > 1) {
+            boolean allStroke = true;
+            if (DrawPath.ALLOW_MULTI_SCALE) {
+                //skip
+            } else {
+                for (DrawPath itemPath : selectedPaths) {
+                    if (itemPath == null ||
+                            itemPath.pointsType != DrawPath.POINTS_TYPE_STROKE) {
+                        allStroke = false;
+                        break;
+                    }
+                }
+            }
+            if (allStroke/* && this.oldDistance != 0*/) {
+//                float newDistance = this.calculateDistance(this.midPoint.x, this.midPoint.y, x, y);
+//                float tempScaleX = newDistance / this.oldDistance;
+//                float tempScaleY = newDistance / this.oldDistance;
+
+                float tempPointXMin = 0;
+                float tempPointXMax = 0;
+                float tempPointYMin = 0;
+                float tempPointYMax = 0;
+                boolean isInit = false;
+                for (int i = 0; i < selectedPaths.size(); ++i) {
+                    DrawPath itemPath = selectedPaths.get(i);
+                    if (itemPath != null) {
+                        if (DrawPath.ALLOW_MULTI_SCALE) {
+                            if (itemPath.pointsType == DrawPath.POINTS_TYPE_IMAGE) {
+                                float w = itemPath.pointsBitmap != null ? itemPath.pointsBitmap.getWidth() : 0;
+                                float h = itemPath.pointsBitmap != null ? itemPath.pointsBitmap.getHeight() : 0;
+                                if (!isInit) {
+                                    tempPointXMin = itemPath.pointsTextX - itemPath.pointsScaleX * w / 2.0F;
+                                    tempPointXMax = itemPath.pointsTextX + itemPath.pointsScaleX * w / 2.0F;
+                                    tempPointYMin = itemPath.pointsTextY - itemPath.pointsScaleX * h / 2.0F;
+                                    tempPointYMax = itemPath.pointsTextY + itemPath.pointsScaleX * h / 2.0F;
+                                    isInit = true;
+                                } else {
+                                    tempPointXMin = Math.min(tempPointXMin, itemPath.pointsTextX - itemPath.pointsScaleX * w / 2.0F);
+                                    tempPointXMax = Math.max(tempPointXMax, itemPath.pointsTextX + itemPath.pointsScaleX * w / 2.0F);
+                                    tempPointYMin = Math.min(tempPointYMin, itemPath.pointsTextY - itemPath.pointsScaleX * h / 2.0F);
+                                    tempPointYMax = Math.max(tempPointYMax, itemPath.pointsTextY + itemPath.pointsScaleX * h / 2.0F);
+                                }
+                            } else if (itemPath.pointsType == DrawPath.POINTS_TYPE_TEXT) {
+                                float w = 0;
+                                float h = 0;
+                                if (itemPath.pointsText != null) {
+                                    Paint p = new Paint();
+                                    DrawCanvas.getTextPaint(p,
+                                            itemPath.isBold,
+                                            itemPath.isItalics,
+                                            itemPath.styleType,
+                                            itemPath.isUnderline,
+                                            itemPath.pointsTextColor,
+                                            itemPath.pointsTextSize);
+                                    SizeF size = DrawCanvas.calculateTextSizes(itemPath.pointsText, p);
+                                    w = size.getWidth();
+                                    h = size.getHeight();
+                                }
+                                if (!isInit) {
+                                    tempPointXMin = itemPath.pointsTextX;
+                                    tempPointXMax = itemPath.pointsTextX + itemPath.pointsScaleX * w ;
+                                    tempPointYMin = itemPath.pointsTextY;
+                                    tempPointYMax = itemPath.pointsTextY + itemPath.pointsScaleX * h;
+                                    isInit = true;
+                                } else {
+                                    tempPointXMin = Math.min(tempPointXMin, itemPath.pointsTextX);
+                                    tempPointXMax = Math.max(tempPointXMax, itemPath.pointsTextX + itemPath.pointsScaleX * w);
+                                    tempPointYMin = Math.min(tempPointYMin, itemPath.pointsTextY);
+                                    tempPointYMax = Math.max(tempPointYMax, itemPath.pointsTextY + itemPath.pointsScaleX * h);
+                                }
+                            }
+                        }
+                        if (itemPath.pointsType == DrawPath.POINTS_TYPE_STROKE) {
+                            for (Point pt : itemPath.points) {
+                                if (pt != null) {
+                                    if (!isInit) {
+                                        tempPointXMin = pt.x;
+                                        tempPointXMax = pt.x;
+                                        tempPointYMin = pt.y;
+                                        tempPointYMax = pt.y;
+                                        isInit = true;
+                                    } else {
+                                        tempPointXMin = Math.min(tempPointXMin, pt.x);
+                                        tempPointXMax = Math.max(tempPointXMax, pt.x);
+                                        tempPointYMin = Math.min(tempPointYMin, pt.y);
+                                        tempPointYMax = Math.max(tempPointYMax, pt.y);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                Matrix matrix = new Matrix();
+//                matrix.setScale(
+//                        tempScaleX, //see setScaleBegin()
+//                        tempScaleY,
+//                        (tempPointXMin + tempPointXMax) / 2,
+//                        (tempPointYMin + tempPointYMax) / 2);
+                Point boundsTop_old = new Point(
+                        tempPointXMin,
+                        tempPointYMin);
+                Point boundsBottom_old = new Point(
+                        tempPointXMax,
+                        tempPointYMax);
+                float[] dst = new float[2];
+                matrix.mapPoints(dst, new float[]{boundsTop_old.x, boundsTop_old.y});
+                Point boundsTop = new Point(dst[0], dst[1]);
+                matrix.mapPoints(dst, new float[]{boundsBottom_old.x, boundsBottom_old.y});
+                Point boundsBottom = new Point(dst[0], dst[1]);
+                this.currentPath.clear();
+                this.currentPath.addPoint(boundsTop);
+                this.currentPath.addPoint(new Point(boundsBottom.x, boundsTop.y));
+                this.currentPath.addPoint(boundsBottom);
+                this.currentPath.addPoint(new Point(boundsTop.x, boundsBottom.y));
+                this.currentPath.appearance =
+                        this.canvas.getSelectionTool().APPEARANCE_SELECTED;
+            }
+        }
+    }
+    private void rebuildImageSelectFrame() {
         float w = 0;
         float h = 0;
         DrawPath pathImage = null;
@@ -392,6 +604,7 @@ public class SelectionTool implements Tool {
 
     //FIXME:scale
     public boolean isIconDrag = false;
+    public boolean isIconDragMulti = false;
     final static boolean NO_ROTATE = true;
 //    private Matrix moveMatrix = new Matrix();
     private float oldDistance = 0;
@@ -411,9 +624,18 @@ public class SelectionTool implements Tool {
             //    this.moveMatrix.postRotate(newRotation - this.oldRotation, this.midPoint.x, this.midPoint.y);
             //}
             if (!selectedPaths.isEmpty()) {
-                DrawPath path = selectedPaths.get(0);
-                if (path != null) {
-                    path.setScale(/*this.moveMatrix, */scaleX, scaleY, midX, midY);
+                if (isIconDragMulti) {
+                    //only multi strokes
+                    for (DrawPath path : selectedPaths) {
+                        if (path != null) {
+                            path.setScale(/*this.moveMatrix, */scaleX, scaleY, midX, midY);
+                        }
+                    }
+                } else {
+                    DrawPath path = selectedPaths.get(0);
+                    if (path != null) {
+                        path.setScale(/*this.moveMatrix, */scaleX, scaleY, midX, midY);
+                    }
                 }
             }
         }

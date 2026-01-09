@@ -29,6 +29,8 @@ import io.github.pastthepixels.freepaint.Utils;
 
 
 public class DrawPath {
+    public final static boolean ALLOW_MULTI_SCALE = true; //don't stop scaling with mixing image and text
+
     public final static boolean USE_TEMP_PAINT = false; //don't set true //copy from edittext
     private final static float OFFSET_Y = 3.0f; //why? I don't know
 
@@ -68,6 +70,7 @@ public class DrawPath {
     public float tempMidX = 0.0F;
     public float tempMidY = 0.0F;
     public boolean tempHidden = false;
+    ArrayList<Point> tempPoints = new ArrayList<>();
 
 //    private Matrix matrix = new Matrix();
 //    public Matrix getMatrix() {
@@ -77,18 +80,142 @@ public class DrawPath {
     public float pointsScaleX = 1.0F, pointsScaleY = 1.0F;
     public void setScaleBegin() {
 //        this.tempMatrix.set(matrix);
-        this.tempScaleX = pointsScaleX;
-        this.tempScaleY = pointsScaleY;
+        if (pointsType == POINTS_TYPE_STROKE) {
+            //stoke's scaleXY are not used
+            //tempScaleXY used for rebuildStrokeSelectFrame
+            this.tempScaleX = 1.0F;
+            this.tempScaleY = 1.0F;
+            tempPoints.clear();
+            if (points != null) {
+                if (points.size() > 0 && points.get(0) != null) {
+                    tempPointXMin = points.get(0).x;
+                    tempPointXMax = points.get(0).x;
+                    tempPointYMin = points.get(0).y;
+                    tempPointYMax = points.get(0).y;
+                } else {
+                    tempPointXMin = 0;
+                    tempPointXMax = 0;
+                    tempPointYMin = 0;
+                    tempPointYMax = 0;
+                }
+                for (Point pt : points) {
+                    if (pt != null) {
+                        if (pt.x < tempPointXMin) {
+                            tempPointXMin = pt.x;
+                        }
+                        if (pt.x > tempPointXMax) {
+                            tempPointXMax = pt.x;
+                        }
+                        if (pt.y < tempPointYMin) {
+                            tempPointYMin = pt.y;
+                        }
+                        if (pt.y > tempPointYMax) {
+                            tempPointYMax = pt.y;
+                        }
+                        tempPoints.add(new Point(pt.x, pt.y));
+                    }
+                }
+            }
+        } else {
+            if (ALLOW_MULTI_SCALE) {
+                //mark
+            }
+            this.tempScaleX = pointsScaleX;
+            this.tempScaleY = pointsScaleY;
+            this.tempX = pointsTextX;
+            this.tempY = pointsTextY;
+
+            //use for calculate mid point
+            if (pointsType == DrawPath.POINTS_TYPE_IMAGE) {
+                float w = pointsBitmap != null ? pointsBitmap.getWidth() : 0;
+                float h = pointsBitmap != null ? pointsBitmap.getHeight() : 0;
+                //for calculating midpoint
+                this.tempPointXMin = pointsTextX - pointsScaleX * w / 2.0F;
+                this.tempPointXMax = pointsTextX + pointsScaleX * w / 2.0F;
+                this.tempPointYMin = pointsTextY - pointsScaleX * h / 2.0F;
+                this.tempPointYMax = pointsTextY + pointsScaleX * h / 2.0F;
+            } else if (pointsType == DrawPath.POINTS_TYPE_TEXT) {
+                float w = 0;
+                float h = 0;
+                if (pointsText != null) {
+                    Paint p = new Paint();
+                    DrawCanvas.getTextPaint(p,
+                            isBold,
+                            isItalics,
+                            styleType,
+                            isUnderline,
+                            pointsTextColor,
+                            pointsTextSize);
+                    SizeF size = DrawCanvas.calculateTextSizes(pointsText, p);
+                    w = size.getWidth();
+                    h = size.getHeight();
+                }
+                //for calculating midpoint
+                this.tempPointXMin = pointsTextX;
+                this.tempPointXMax = pointsTextX + pointsScaleX * w;
+                this.tempPointYMin = pointsTextY;
+                this.tempPointYMax = pointsTextY + pointsScaleX * h;
+            }
+        }
     }
+    public float tempPointXMin = 0;
+    public float tempPointXMax = 0;
+    public float tempPointYMin = 0;
+    public float tempPointYMax = 0;
+    //FIXME:midX_, midY_ not used
     public void setScale(/*Matrix matrix, */float scaleX_, float scaleY_, float midX_, float midY_) {
-        //this.matrix.set(matrix);
-        this.pointsScaleX = this.tempScaleX * scaleX_;
-        this.pointsScaleY = this.tempScaleY * scaleY_;
-        this.tempMidX = midX_;
-        this.tempMidY = midY_;
+        if (pointsType == POINTS_TYPE_STROKE) {
+            this.pointsScaleX = 1.0F;
+            this.pointsScaleY = 1.0F; //don't use scaleXY, modify points directly
+            this.tempScaleX = scaleX_; //tempScaleXY is not used, so used for rebuildStrokeSelectFrame()
+            this.tempScaleY = scaleY_;
+            Matrix matrix = new Matrix();
+            matrix.setScale(
+                    scaleX_,
+                    scaleY_,
+                    midX_, //(tempPointXMin + tempPointXMax) / 2,
+                    midY_ //(tempPointYMin + tempPointYMax) / 2
+            );
+            if (tempPoints != null) {
+                for (int i = 0; i < tempPoints.size(); ++i) {
+                    Point tempPoint = tempPoints.get(i);
+                    if (i >= 0 && i < points.size()) {
+                        Point point = points.get(i);
+                        if (tempPoint != null && point != null) {
+                            float[] dstPoint = new float[2];
+                            matrix.mapPoints(dstPoint, new float[]{tempPoint.x, tempPoint.y});
+                            point.x = dstPoint[0];
+                            point.y = dstPoint[1];
+                        }
+                    }
+                }
+            }
+            this.tempMidX = midX_;
+            this.tempMidY = midY_;
+            cachePath();
+        } else {
+            //this.matrix.set(matrix);
+            this.pointsScaleX = this.tempScaleX * scaleX_;
+            this.pointsScaleY = this.tempScaleY * scaleY_;
+            this.tempMidX = midX_;
+            this.tempMidY = midY_;
 //        Matrix nMatrix = new Matrix(this.tempMatrix);
 //        nMatrix.postScale(scaleX, scaleY);
 //        this.matrix.set(nMatrix);
+            if (ALLOW_MULTI_SCALE) {
+                Matrix matrix = new Matrix();
+                matrix.setScale(
+                        scaleX_,
+                        scaleY_,
+                        midX_, //(tempPointXMin + tempPointXMax) / 2,
+                        midY_ //(tempPointYMin + tempPointYMax) / 2
+                );
+                float[] dstPoint = new float[2];
+                matrix.mapPoints(dstPoint, new float[]{this.tempX, this.tempY}); //see setScaleBegin()
+                pointsTextX = dstPoint[0];
+                pointsTextY = dstPoint[1];
+            }
+        }
     }
 //    public void getMappedCenterPoint(PointF dst, float[] mappedPoints, float[] src) {
 //        this.getCenterPoint(dst);
@@ -151,6 +278,7 @@ public class DrawPath {
         points.clear();
         this.path = null;
         this.pointsBitmap = null;
+        this.pointsText = null;
     }
 
     /**
@@ -604,10 +732,52 @@ public class DrawPath {
             }
         } else {
             //改成判断已有笔划是否包含划过的地方
-            for (Point point : path_.points) {
-                if (this.contains(point)) {
-                    isContain = true;
-                    break;
+            if (path_.pointsType == DrawPath.POINTS_TYPE_STROKE) {
+                for (Point point : path_.points) {
+                    if (this.contains(point)) {
+                        isContain = true;
+                        break;
+                    }
+                }
+            } else if (path_.pointsType == DrawPath.POINTS_TYPE_IMAGE) {
+                if (pointsBitmap != null) {
+                    float w = pointsBitmap != null ? pointsBitmap.getWidth() : 0;
+                    float h = pointsBitmap != null ? pointsBitmap.getHeight() : 0;
+                    //for calculating midpoint
+                    float tempPointXMin = pointsTextX - pointsScaleX * w / 2.0F;
+                    float tempPointXMax = pointsTextX + pointsScaleX * w / 2.0F;
+                    float tempPointYMin = pointsTextY - pointsScaleX * h / 2.0F;
+                    float tempPointYMax = pointsTextY + pointsScaleX * h / 2.0F;
+                    if (this.containsRect(
+                            new Point(tempPointXMin, tempPointYMin),
+                            new Point(tempPointXMax, tempPointYMax))) {
+                        isContain = true;
+                    }
+                }
+            } else if (path_.pointsType == DrawPath.POINTS_TYPE_TEXT) {
+                float w = 0;
+                float h = 0;
+                if (pointsText != null) {
+                    Paint p = new Paint();
+                    DrawCanvas.getTextPaint(p,
+                            isBold,
+                            isItalics,
+                            styleType,
+                            isUnderline,
+                            pointsTextColor,
+                            pointsTextSize);
+                    SizeF size = DrawCanvas.calculateTextSizes(pointsText, p);
+                    w = size.getWidth();
+                    h = size.getHeight();
+                    float tempPointXMin = pointsTextX;
+                    float tempPointXMax = pointsTextX + pointsScaleX * w;
+                    float tempPointYMin = pointsTextY;
+                    float tempPointYMax = pointsTextY + pointsScaleX * h;
+                    if (this.containsRect(
+                            new Point(tempPointXMin, tempPointYMin),
+                            new Point(tempPointXMax, tempPointYMax))) {
+                        isContain = true;
+                    }
                 }
             }
         }
@@ -755,6 +925,13 @@ public class DrawPath {
     public boolean containsSimple(Point point) {
         Path pointPath = new Path();
         pointPath.addCircle(point.x, point.y, 5, Path.Direction.CW);
+        pointPath.op(getPathOrGenerate(), Path.Op.DIFFERENCE);
+        return pointPath.isEmpty();
+    }
+
+    public boolean containsRect(Point point1, Point point2) {
+        Path pointPath = new Path();
+        pointPath.addRect(point1.x, point1.y, point2.x, point2.y, Path.Direction.CW);
         pointPath.op(getPathOrGenerate(), Path.Op.DIFFERENCE);
         return pointPath.isEmpty();
     }
