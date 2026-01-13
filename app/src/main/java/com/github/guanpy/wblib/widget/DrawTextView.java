@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Paint;
+import android.os.Build;
+import android.text.Html;
 import android.text.Spannable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -21,6 +23,8 @@ import android.widget.TextView;
 import com.github.guanpy.wblib.bean.DrawPoint;
 import com.github.guanpy.wblib.bean.DrawTextPoint;
 import com.txkj.drawingapp.R;
+
+import io.github.pastthepixels.freepaint.Graphics.DrawPath;
 
 public class DrawTextView extends RelativeLayout implements
         View.OnClickListener {
@@ -99,16 +103,17 @@ public class DrawTextView extends RelativeLayout implements
         switchView(TEXT_EDIT/*mDrawPoint.getDrawText().getStatus()*/);
     }
 
-    public void init2(float x, float y, String text, int textColor, float textSize, CallBackListener callBackListener) {
+    public void init2(float x, float y, String text, int useHtml, int textColor, float textSize, CallBackListener callBackListener) {
         this.mCallBackListener = callBackListener;
         mDrawPoint.getDrawText().setX(x);
         mDrawPoint.getDrawText().setY(y);
-        mDrawPoint.getDrawText().setStr(text);
+        mDrawPoint.getDrawText().setStr(text, useHtml == DrawPath.POINTS_TEXT_TYPE_RICH);
         mDrawPoint.getDrawText().setColor(textColor);
         mDrawPoint.getDrawText().setTextSize(textSize);
         //don't call initUI();
         if (null != mDrawPoint) {
-            setText(mDrawPoint.getDrawText().getStr());
+            setText(mDrawPoint.getDrawText().getStr(mDrawPoint.getDrawText().getUseHtml()),
+                    mDrawPoint.getDrawText().getUseHtml());
             //FIXME:
             //setText("");
         }
@@ -135,7 +140,8 @@ public class DrawTextView extends RelativeLayout implements
 //        mBtTextDelete = (Button) findViewById(R.id.bt_text_delete);
 //        mBtTextEdit = (Button) findViewById(R.id.bt_text_edit);
         if (null != mDrawPoint) {
-            setText(mDrawPoint.getDrawText().getStr());
+            setText(mDrawPoint.getDrawText().getStr(mDrawPoint.getDrawText().getUseHtml()),
+                    mDrawPoint.getDrawText().getUseHtml());
             //FIXME:
             //setText("");
         }
@@ -214,7 +220,7 @@ public class DrawTextView extends RelativeLayout implements
     }
 
 
-    private void setText(String strText) {
+    private void setText(String strText, boolean isHtml) {
         if (false) {
             if (!TextUtils.isEmpty(strText)) {
                 mEtTextEdit.setText(strText);
@@ -222,27 +228,38 @@ public class DrawTextView extends RelativeLayout implements
             }
         } else {
             if (strText == null) strText = "";
-            mEtTextEdit.setText(strText);
+            if (isHtml) { //if (DrawPath.POINTS_TEXT_TYPE_RICH)
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                    mEtTextEdit.setText(Html.fromHtml(strText, Html.FROM_HTML_MODE_LEGACY));
+                } else {
+                    mEtTextEdit.setText(Html.fromHtml(strText));
+                }
+            } else {
+                mEtTextEdit.setText(strText);
+            }
 //            mTvTextEdit.setText(strText);
         }
-        if (false) {
-            mEtTextEdit.setTextColor(0xFFFF0000/*mDrawPoint.getDrawText().getColor()*/);
-//            mTvTextEdit.setTextColor(0xFFFF0000/*mDrawPoint.getDrawText().getColor()*/);
+        if (isHtml) {
+            //skip
         } else {
-            mEtTextEdit.setTextColor(mDrawPoint.getDrawText().getColor());
-//            mTvTextEdit.setTextColor(mDrawPoint.getDrawText().getColor());
-            mEtTextEdit.setTextSize(mDrawPoint.getDrawText().getTextSize());
-//            mTvTextEdit.setTextSize(mDrawPoint.getDrawText().getTextSize());
+            if (false) {
+                mEtTextEdit.setTextColor(0xFFFF0000/*mDrawPoint.getDrawText().getColor()*/);
+                //            mTvTextEdit.setTextColor(0xFFFF0000/*mDrawPoint.getDrawText().getColor()*/);
+            } else {
+                mEtTextEdit.setTextColor(mDrawPoint.getDrawText().getColor());
+                //            mTvTextEdit.setTextColor(mDrawPoint.getDrawText().getColor());
+                mEtTextEdit.setTextSize(mDrawPoint.getDrawText().getTextSize());
+                //            mTvTextEdit.setTextSize(mDrawPoint.getDrawText().getTextSize());
+            }
+            //        if (mDrawPoint.getDrawText().getIsUnderline()) {
+            //            mTvTextEdit.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
+            //            mEtTextEdit.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
+            //        }
+            //        if (mDrawPoint.getDrawText().getIsBold()) {
+            //            mTvTextEdit.getPaint().setFakeBoldText(true);
+            //            mEtTextEdit.getPaint().setFakeBoldText(true);
+            //        }
         }
-//        if (mDrawPoint.getDrawText().getIsUnderline()) {
-//            mTvTextEdit.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
-//            mEtTextEdit.getPaint().setFlags(Paint.UNDERLINE_TEXT_FLAG);
-//        }
-//        if (mDrawPoint.getDrawText().getIsBold()) {
-//            mTvTextEdit.getPaint().setFakeBoldText(true);
-//            mEtTextEdit.getPaint().setFakeBoldText(true);
-//        }
-
     }
 
     private void setLayoutParams() {
@@ -345,7 +362,8 @@ public class DrawTextView extends RelativeLayout implements
             hideSoftInput();
             if (null != mCallBackListener) {
                 if (mDrawPoint != null && mDrawPoint.getDrawText() != null) {
-                    mDrawPoint.getDrawText().setStr(mEtTextEdit.getText().toString());
+                    String htmlString = Html.toHtml(mEtTextEdit.getText(), Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE);//Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL);
+                    mDrawPoint.getDrawText().setStr(mEtTextEdit.getText().toString(), htmlString);
                 }
                 mCallBackListener.onSave(mDrawPoint);
             }

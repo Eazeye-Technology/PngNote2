@@ -1,5 +1,7 @@
 package com.github.guanpy.wblib.bean;
 
+import com.txkj.drawingapp.activity.BookActivity4Utils;
+
 /**
  * 绘画存储-文字
  * Created 2015-7-13 10:36:1
@@ -30,6 +32,7 @@ public class DrawTextPoint {
     /**
      * 文字
      */
+    private boolean mUseHtml = false;
     private String mStr;
     /**
      * 是否有下划线
@@ -131,8 +134,11 @@ public class DrawTextPoint {
      * @return 文字
      * @author gpy
      */
-    public String getStr() {
+    public String getStr(boolean isHtml) {
         return mStr;
+    }
+    public boolean getUseHtml() {
+        return mUseHtml;
     }
 
     /**
@@ -142,8 +148,20 @@ public class DrawTextPoint {
      * @param str 文字
      * @author gpy
      */
-    public void setStr(String str) {
+    public void setStr(String str, String htmlString) {
+        if (BookActivity4Utils.USE_HTML_EDIT) {
+            //mark
+        }
+        if (mUseHtml) {
+            this.mStr = htmlString;
+        } else {
+            this.mStr = str;
+        }
+    }
+
+    public void setStr(String str, boolean isHtml) {
         this.mStr = str;
+        this.mUseHtml = isHtml;
     }
 
     /**

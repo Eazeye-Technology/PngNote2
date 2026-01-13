@@ -4,16 +4,24 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
+import android.text.Html;
+import android.text.Layout;
+import android.text.Spanned;
+import android.text.StaticLayout;
+import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SizeF;
 import android.view.GestureDetector;
@@ -26,9 +34,10 @@ import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 
 import com.agsw.FabricView.FabricView;
+import com.txkj.contentbrowser.NoteFragment2;
 import com.txkj.drawingapp.activity.BookActivity4Fragment;
 import com.txkj.drawingapp.activity.BookActivity4Utils;
-import com.txkj.notemobile2.colorpicker.Dips;
+import com.txkj.notemobile2.colorpicker.FileMeta;
 import com.txkj.notemobile2.ui.CanvasBoox;
 
 import org.jetbrains.annotations.Nullable;
@@ -82,11 +91,31 @@ public final class DrawCanvas extends View {
         setFocusable(true);
         setFocusableInTouchMode(true);
         // Initialises documentSize with the size in the last used document
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-        documentSize.set(
-                Float.parseFloat(prefs.getString("documentWidth", "816")),
-                Float.parseFloat(prefs.getString("documentHeight", "1056"))
-        );
+        if (false) {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+            documentSize.set(
+                    Float.parseFloat(prefs.getString("documentWidth", "816")),
+                    Float.parseFloat(prefs.getString("documentHeight", "1056"))
+            );
+        } else {
+            //use screen width height
+            DisplayMetrics DM = new DisplayMetrics();
+            int w = 816;
+            int h = 1056;
+            if (context instanceof Activity) {
+                ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(DM);
+                if (DM.heightPixels > 0 && DM.widthPixels > 0) {
+                    if (DM.heightPixels > DM.widthPixels) {
+                        w = DM.widthPixels;
+                        h = DM.heightPixels;
+                    } else {
+                        w = DM.heightPixels;
+                        h = DM.widthPixels;
+                    }
+                }
+            }
+            documentSize.set(w, h);
+        }
 
         gestureDetector = new GestureDetector(getContext(), gestureListener);
         //gestureDetector.setIsLongpressEnabled(false);
@@ -596,6 +625,10 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
             canvas.drawRect(0, 0, documentSize.x, documentSize.y, paint);
         }
         paint.reset();
+        if (true) {
+            //FIXME:added
+            canvas.clipRect(0, 0, documentSize.x, documentSize.y); //don't show outer
+        }
         // Draws a stroke for the page
 //        if (!drawMinimal) {
 //            paint.setColor(Color.GRAY);
@@ -747,34 +780,47 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
     //------------
     public Bitmap initialBmp = null;
     public int penEraserBrush = 1; //0==eraser, 1==pen, 2==brush
-    public void setBackgroundMode(int mBackgroundMode) {
+    public void setBackgroundMode(String mBackgroundMode) {
         this.mBackgroundMode = mBackgroundMode;
         invalidate();
     }
-    public int getBackgroundMode() {
+    public String getBackgroundMode() {
         return mBackgroundMode;
     }
-    private int mBackgroundMode = FabricView.BACKGROUND_STYLE_BLANK;
+    private String mBackgroundMode = FileMeta.NONE;//FabricView.BACKGROUND_STYLE_BLANK;
     private Paint.Style mStyle = Paint.Style.STROKE;
     private float mSize = 5f;
-    public void drawBackground(Canvas canvas, int backgroundMode, float w, float h) {
+    public void drawBackground(Canvas canvas, String backgroundMode, float w, float h) {
         if (!drawMinimal || drawMinimalBG) {
-            if (backgroundMode != FabricView.BACKGROUND_STYLE_BLANK) {
+            //FileMeta.NONE == FabricView.BACKGROUND_STYLE_BLANK
+            //FileMeta.LINED == FabricView.BACKGROUND_STYLE_NOTEBOOK_PAPER
+            //FileMeta.DOTTED == FabricView.BACKGROUND_STYLE_DOT_PAPER
+            //FileMeta.GRAPH == FabricView.BACKGROUND_STYLE_GRAPH_PAPER
+            if (backgroundMode != null &&
+                    !backgroundMode.equals(FileMeta.NONE)) {
                 Paint linePaint = new Paint();
                 linePaint.setColor(Color.argb(50, 0, 0, 0));
                 linePaint.setStyle(mStyle);
                 linePaint.setStrokeJoin(Paint.Join.ROUND);
                 linePaint.setStrokeWidth(mSize - 2f);
                 switch (backgroundMode) {
-                    case FabricView.BACKGROUND_STYLE_GRAPH_PAPER:
+                    case FileMeta.GRAPH:
                         drawGraphPaperBackground(canvas, linePaint, w, h);
                         break;
 
-                    case FabricView.BACKGROUND_STYLE_NOTEBOOK_PAPER:
+                    case FileMeta.LINED:
                         drawNotebookPaperBackground(canvas, linePaint, w, h);
                         break;
 
-                    case FabricView.BACKGROUND_STYLE_DOT_PAPER:
+                    case FileMeta.LINED_LONG_DASH:
+                        drawNotebookPaperBackgroundLongDash(canvas, linePaint, w, h);
+                        break;
+
+                    case FileMeta.LINED_SHORT_DASH:
+                        drawNotebookPaperBackgroundShortDash(canvas, linePaint, w, h);
+                        break;
+
+                    case FileMeta.DOTTED:
                         drawDotPaperBackground(canvas, linePaint, w, h);
                         break;
 
@@ -792,6 +838,12 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
         }
     }
 
+    private final static int LINE_HEIGHT = 20;//Dips.dpToPx(25)
+    private final static int DOT_HEIGHT = 1;//Dips.dpToPx(2)
+    private final static int LINE_COLOR = 0xFFEBE7E7;
+    public static int dpToPx__(final int dp) {
+        return (int) (dp * Resources.getSystem().getDisplayMetrics().density);
+    }
 
     /**
      * Draws a graph paper background on the view
@@ -817,18 +869,19 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
                  */
         //Canvas canvas = new Canvas(bmp);
         //Paint paint = new Paint();
-        paint.setColor(0xFFCCCCCC);
+        paint.setColor(LINE_COLOR);//0xFFCCCCCC);
         paint.setStrokeWidth(1);
         paint.setAntiAlias(true);
+        paint.setPathEffect(new DashPathEffect(new float[]{5, 5}, 0));
         //1 because no line at the top
-        for (int i = 1; i < h / Dips.dpToPx(25)/* + 1*/; i++) {
-            canvas.drawLine(0, i * Dips.dpToPx(25),
-                    w, i * Dips.dpToPx(25), paint);
+        for (int i = 1; i < h / LINE_HEIGHT/* + 1*/; i++) {
+            canvas.drawLine(0, i * LINE_HEIGHT,
+                    w, i * LINE_HEIGHT, paint);
         }
         // 1 because no line at the beginning
-        for (int i = 1; i < w / Dips.dpToPx(25)/* + 1*/; i++) {
-            canvas.drawLine(i * Dips.dpToPx(25), 0,
-                    i * Dips.dpToPx(25), h, paint);
+        for (int i = 1; i < w / LINE_HEIGHT/* + 1*/; i++) {
+            canvas.drawLine(i * LINE_HEIGHT, 0,
+                    i * LINE_HEIGHT, h, paint);
         }
     }
 
@@ -850,13 +903,13 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
 }*/
         //Canvas canvas = new Canvas(bmp);
 //        Paint paint = new Paint();
-        paint.setColor(0xFFCCCCCC);
+        paint.setColor(LINE_COLOR);//0xFFCCCCCC);
         paint.setAntiAlias(true);
         paint.setStyle(Paint.Style.FILL);
-        for (int i = 1; i < h / Dips.dpToPx(25)/* + 1*/; i++) {
+        for (int i = 1; i < h / LINE_HEIGHT/* + 1*/; i++) {
             // 1 because no line at the beginning
-            for (int j = 1; j < w / Dips.dpToPx(25)/* + 1*/; j++) {
-                canvas.drawCircle(j * Dips.dpToPx(25), i * Dips.dpToPx(25), Dips.dpToPx(2), paint); //Dips.dpToPx(2)
+            for (int j = 1; j < w / LINE_HEIGHT/* + 1*/; j++) {
+                canvas.drawCircle(j * LINE_HEIGHT, i * LINE_HEIGHT, DOT_HEIGHT, paint); //Dips.dpToPx(2)
             }
         }
     }
@@ -880,13 +933,61 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
  */
         //Canvas canvas = new Canvas(bmp);
         //Paint paint = new Paint();
-        paint.setColor(0xFFCCCCCC);
+        paint.setColor(LINE_COLOR);//0xFFCCCCCC);
         paint.setStrokeWidth(1);
         paint.setAntiAlias(true);
         // 1 because no line at the top
-        for (int i = 1; i < h / Dips.dpToPx(25); i++) {
-            canvas.drawLine(0, i * Dips.dpToPx(25),
-                    w, i * Dips.dpToPx(25), paint);
+        for (int i = 1; i < h / LINE_HEIGHT; i++) {
+            canvas.drawLine(0, i * LINE_HEIGHT,
+                    w, i * LINE_HEIGHT, paint);
+        }
+    }
+
+    private void drawNotebookPaperBackgroundLongDash(Canvas canvas, Paint paint, float w, float h) {
+/*
+    final paint = Paint()
+      ..color = Colors.grey[500].withOpacity(.3)
+      ..strokeWidth = 1;
+    // 1 because no line at the top
+    for (int i = 1; i < size.height / 24; i++) {
+      canvas.drawLine(Offset(0, i * 24.toDouble()),
+          Offset(size.width, i * 24.toDouble()), paint);
+    }
+ */
+        //Canvas canvas = new Canvas(bmp);
+        //Paint paint = new Paint();
+        paint.setColor(LINE_COLOR);//0xFFCCCCCC);
+        paint.setStrokeWidth(1);
+        paint.setAntiAlias(true);
+        paint.setPathEffect(new DashPathEffect(new float[]{20, 20}, 0));
+        // 1 because no line at the top
+        for (int i = 1; i < h / LINE_HEIGHT; i++) {
+            canvas.drawLine(0, i * LINE_HEIGHT,
+                    w, i * LINE_HEIGHT, paint);
+        }
+    }
+
+    private void drawNotebookPaperBackgroundShortDash(Canvas canvas, Paint paint, float w, float h) {
+/*
+    final paint = Paint()
+      ..color = Colors.grey[500].withOpacity(.3)
+      ..strokeWidth = 1;
+    // 1 because no line at the top
+    for (int i = 1; i < size.height / 24; i++) {
+      canvas.drawLine(Offset(0, i * 24.toDouble()),
+          Offset(size.width, i * 24.toDouble()), paint);
+    }
+ */
+        //Canvas canvas = new Canvas(bmp);
+        //Paint paint = new Paint();
+        paint.setColor(LINE_COLOR);//0xFFCCCCCC);
+        paint.setStrokeWidth(1);
+        paint.setAntiAlias(true);
+        paint.setPathEffect(new DashPathEffect(new float[]{5, 5}, 0));
+        // 1 because no line at the top
+        for (int i = 1; i < h / LINE_HEIGHT; i++) {
+            canvas.drawLine(0, i * LINE_HEIGHT,
+                    w, i * LINE_HEIGHT, paint);
         }
     }
 
@@ -911,7 +1012,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
     public void setScaleMode(boolean scaleMode) {
         this.scaleMode = scaleMode;
     }
-    public void drawText(String text, float x, float y, Paint p_, boolean isBold,
+    public void drawText(String text, int textType, float x, float y, Paint p_, boolean isBold,
         boolean isItalics,
         boolean isUnderline,
         int styleType, int pointsTextColor, float pointsTextSize) {
@@ -928,6 +1029,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
         currentPath.pointsTextX = mapP.x;
         currentPath.pointsTextY = mapP.y;
         currentPath.pointsText = text;
+        currentPath.pointsTextType = textType;
         currentPath.isBold = isBold;
         currentPath.isItalics = isItalics;
         currentPath.isUnderline = isUnderline;
@@ -945,7 +1047,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
             } else {
                 getTextPaint(p, isBold, isItalics, styleType, isUnderline, pointsTextColor, pointsTextSize);
             }
-            SizeF size = calculateTextSizes(text, p);
+            SizeF size = calculateTextSizes(text, p, textType);
             float w = size.getWidth();
             float h = size.getHeight();
             currentPath.addPoint(this.mapPoint(x, y, 1.0f));
@@ -962,32 +1064,122 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
     }
 
     private final static String SPLIT_REGXP = "\r\n|\n|\r";
-    public static SizeF calculateTextSizes(String text, Paint p) {
+    public static SizeF calculateTextSizes(String text, Paint p, int textType) {
         if (text == null) {
             text = "";
         }
-        String[] lines = text.split(SPLIT_REGXP);
-        float tX2 = 0;
-        float tY2 = 0;
-        for (String line : lines) {
-            tX2 = Math.max(getFontlength(p, line), tX2);
-            tY2 += getFontHeight(p);
+        if (BookActivity4Utils.USE_STATIC_LAYOUT) {
+            if (text == null) {
+                text = "";
+            }
+            Spanned textViewText = null;
+            if (textType == DrawPath.POINTS_TEXT_TYPE_RICH) {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                    textViewText = (Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY));
+                } else {
+                    textViewText = (Html.fromHtml(text));
+                }
+            }
+            TextPaint textPaint = new TextPaint(p);
+            float lineSpacingExtra = 0F;
+            float lineSpacingMultiplier = 1.0F;
+            int availableWidthPixels = BookActivity4Utils.STATIC_LAYOUT_WIDTH;
+            CharSequence text_ = text;
+            if (textType == DrawPath.POINTS_TEXT_TYPE_RICH && textViewText != null) {
+                text_ = textViewText;
+            }
+            StaticLayout staticLayout =
+                    Build.VERSION.SDK_INT >= 23 ?
+                            StaticLayout.Builder.obtain(text_, 0, text_.length(), textPaint, availableWidthPixels)
+                                    .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+                                    .setLineSpacing(lineSpacingExtra, lineSpacingMultiplier)
+                                    .setIncludePad(true)
+                                    .build() :
+                            new StaticLayout(text_,
+                                    textPaint,
+                                    availableWidthPixels,
+                                    Layout.Alignment.ALIGN_NORMAL,
+                                    lineSpacingMultiplier,
+                                    lineSpacingExtra,
+                                    true);
+            float maxLineWidth = 0;
+            for (int i = 0; i < staticLayout.getLineCount(); i++) {
+                float lineWidth = staticLayout.getLineWidth(i);
+                if (lineWidth > maxLineWidth) {
+                    maxLineWidth = lineWidth;
+                }
+            }
+            return new SizeF(maxLineWidth, staticLayout.getHeight());
+        } else {
+            if (text == null) {
+                text = "";
+            }
+            String[] lines = text.split(SPLIT_REGXP);
+            float tX2 = 0;
+            float tY2 = 0;
+            for (String line : lines) {
+                tX2 = Math.max(getFontlength(p, line), tX2);
+                tY2 += getFontHeight(p);
+            }
+            return new SizeF(tX2, tY2);
         }
-        return new SizeF(tX2, tY2);
     }
-    public static void drawTextSizes(Canvas temp, String text, float xcoords, float ycoords, Paint p) {
+    public static void drawTextSizes(Canvas temp, String text, float xcoords, float ycoords, Paint p, int textType) {
         if (text == null) {
             text = "";
         }
-        float tW = getFontlength(p, text);
-        float tH = getFontHeight(p);
-        float tX = xcoords;
-        float tY = ycoords + getFontLeading(p);
-        String[] lines = text.split(SPLIT_REGXP);
-        float tY2 = tY;
-        for (String line : lines) {
-            temp.drawText(line, tX, tY2, p);
-            tY2 += getFontHeight(p);
+        if (!(textType == DrawPath.POINTS_TEXT_TYPE_RICH)) {
+            if (text == null) {
+                text = "";
+            }
+            float tW = getFontlength(p, text);
+            float tH = getFontHeight(p);
+            float tX = xcoords;
+            float tY = ycoords + getFontLeading(p);
+            String[] lines = text.split(SPLIT_REGXP);
+            float tY2 = tY;
+            for (String line : lines) {
+                temp.drawText(line, tX, tY2, p);
+                tY2 += getFontHeight(p);
+            }
+        } else {
+            if (text == null) {
+                text = "";
+            }
+            Log.e(TAG, "drawText == " + text);
+            //BookActivity4Utils.USE_HTML_EDIT
+            Spanned textViewText = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                textViewText = (Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY));
+            } else {
+                textViewText = (Html.fromHtml(text));
+            }
+            TextPaint textPaint = new TextPaint(p);
+            float lineSpacingExtra = 0F;
+            float lineSpacingMultiplier = 1.0F;
+            int availableWidthPixels = BookActivity4Utils.STATIC_LAYOUT_WIDTH;
+            StaticLayout staticLayout =
+                    Build.VERSION.SDK_INT >= 23 ?
+                            StaticLayout.Builder.obtain(textViewText, 0, textViewText.length(), textPaint, availableWidthPixels)
+                                    .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+                                    .setLineSpacing(lineSpacingExtra, lineSpacingMultiplier)
+                                    .setIncludePad(false) //true)
+                                    .build() :
+                            new StaticLayout(textViewText,
+                                    textPaint,
+                                    availableWidthPixels,
+                                    Layout.Alignment.ALIGN_NORMAL,
+                                    lineSpacingMultiplier,
+                                    lineSpacingExtra,
+                                    false);//true);
+            if (false) {
+                temp.drawText(textViewText, 0, textViewText.length(), xcoords, ycoords, p);
+            } else {
+                temp.save();
+                temp.translate(xcoords, ycoords);
+                staticLayout.draw(temp); //Text(temp);
+                temp.restore();
+            }
         }
     }
     //package com.immomo.momo.android.util;

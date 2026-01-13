@@ -97,24 +97,25 @@ public class VecJson {
                     objPath.put("path", points);
                 }
                 {
-                    objPath.put( "pointsText", path.pointsText);
+                    objPath.put("pointsTextType", path.pointsTextType);
+                    objPath.put("pointsText", path.pointsText);
                     objPath.put("pointsBitmap", bitmapToBase64(path.pointsBitmap));
-                    objPath.put( "pointsTextX", path.pointsTextX);
-                    objPath.put( "pointsTextY", path.pointsTextY);
-                    objPath.put( "pointsType", path.pointsType);
-                    objPath.put( "isBold", path.isBold);
-                    objPath.put( "isItalics", path.isItalics);
-                    objPath.put( "isUnderline", path.isUnderline);
-                    objPath.put( "styleType", path.styleType);
-                    objPath.put( "pointsTextColor", colorToHex8(path.pointsTextColor));
-                    objPath.put( "pointsTextSize", path.pointsTextSize);
+                    objPath.put("pointsTextX", path.pointsTextX);
+                    objPath.put("pointsTextY", path.pointsTextY);
+                    objPath.put("pointsType", path.pointsType);
+                    objPath.put("isBold", path.isBold);
+                    objPath.put("isItalics", path.isItalics);
+                    objPath.put("isUnderline", path.isUnderline);
+                    objPath.put("styleType", path.styleType);
+                    objPath.put("pointsTextColor", colorToHex8(path.pointsTextColor));
+                    objPath.put("pointsTextSize", path.pointsTextSize);
 //                    float[] matrix = new float[9];
 //                    path.getMatrix().getValues(matrix);
 //                    for (int i = 0; i < 9; ++i) {
 //                        objPath.put("matrix" + i, matrix[i]);
 //                    }
-                    objPath.put( "pointsScaleX", path.pointsScaleX);
-                    objPath.put( "pointsScaleY", path.pointsScaleY);
+                    objPath.put("pointsScaleX", path.pointsScaleX);
+                    objPath.put("pointsScaleY", path.pointsScaleY);
 
                     if (path.appearance.fill != -1) {
                         objPath.put("fill", colorToHex8(path.appearance.fill));
@@ -209,6 +210,7 @@ public class VecJson {
                     path.points.add(p);
                 }
 
+                path.pointsTextType = element.optInt("pointsTextType", 0);
                 path.pointsText = element.optString("pointsText");
                 path.pointsBitmap = base64ToBitmap(element.optString("pointsBitmap"));
                 path.pointsTextX = (float) element.optDouble("pointsTextX");

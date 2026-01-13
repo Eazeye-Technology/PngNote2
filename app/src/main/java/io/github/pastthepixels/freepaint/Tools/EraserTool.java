@@ -82,6 +82,9 @@ public class EraserTool implements Tool {
             case MotionEvent.ACTION_UP:
                 eraseCurrentPath();
                 currentPath.finalise();
+                if (canvas != null) {
+                    canvas.invalidate();
+                }
                 break;
 
             default:

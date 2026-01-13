@@ -23,6 +23,9 @@ import io.github.pastthepixels.freepaint.Graphics.DrawPath;
 import io.github.pastthepixels.freepaint.MainActivity;
 
 public class BookActivity4Utils {
+    public final static boolean USE_STATIC_LAYOUT = true;
+    public final static int STATIC_LAYOUT_WIDTH = 3000;
+    public final static boolean USE_HTML_EDIT = true;
     public final static boolean SHOW_TRANSCRIPT_FIRST = false; //should be false
 
     public final static boolean USE_ACTIONBAR = false;
@@ -186,6 +189,47 @@ public static boolean onBackPressed(Activity context) {
             }
         }
         return 0;
+    }
+
+    public static void toggleFocusMode(Activity context) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            FragmentManager fragmentManager = act.getSupportFragmentManager();
+            Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+            if (currentFragment instanceof BookActivity4Fragment) {
+                ((BookActivity4Fragment) currentFragment).toggleFocusMode();
+            }
+        }
+    }
+    public static void nextPage(Activity context) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            FragmentManager fragmentManager = act.getSupportFragmentManager();
+            Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+            if (currentFragment instanceof BookActivity4Fragment) {
+                ((BookActivity4Fragment) currentFragment).nextPage();
+            }
+        }
+    }
+    public static void previousPage(Activity context) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            FragmentManager fragmentManager = act.getSupportFragmentManager();
+            Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+            if (currentFragment instanceof BookActivity4Fragment) {
+                ((BookActivity4Fragment) currentFragment).previousPage();
+            }
+        }
+    }
+    public static void flipUp(Activity context) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            FragmentManager fragmentManager = act.getSupportFragmentManager();
+            Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+            if (currentFragment instanceof BookActivity4Fragment) {
+                ((BookActivity4Fragment) currentFragment).flipUp();
+            }
+        }
     }
 
     public static void openPage(Activity context, int pageIdx) {

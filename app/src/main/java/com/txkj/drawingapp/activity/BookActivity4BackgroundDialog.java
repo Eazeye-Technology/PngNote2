@@ -21,9 +21,9 @@ public class BookActivity4BackgroundDialog {
     private final static int WIN_WIDTH = 670 + 24 * 2;//312;
 
     private Activity mContext;
-    private int mBackgroundMode = -1;
+    private String mBackgroundMode = null;//-1;
 
-    public BookActivity4BackgroundDialog(Activity ctx, int backgroundMode) {
+    public BookActivity4BackgroundDialog(Activity ctx, String backgroundMode) {
         this.mContext = ctx;
         this.mBackgroundMode = backgroundMode;
     }
@@ -107,17 +107,23 @@ public class BookActivity4BackgroundDialog {
                         }
                     });
                 }
-                {
-                    if (mBackgroundMode == FabricView.BACKGROUND_STYLE_GRAPH_PAPER) {
+                if (mBackgroundMode != null) {
+                    if (mBackgroundMode.equals(FileMeta.GRAPH)) {// == FabricView.BACKGROUND_STYLE_GRAPH_PAPER) {
                         RadioButton input = (RadioButton)dialog.findViewById(R.id.radio6);
                         input.setChecked(true);
-                    } else if (mBackgroundMode == FabricView.BACKGROUND_STYLE_NOTEBOOK_PAPER) {
+                    } else if (mBackgroundMode.equals(FileMeta.LINED)) {// == FabricView.BACKGROUND_STYLE_NOTEBOOK_PAPER) {
                         RadioButton input = (RadioButton)dialog.findViewById(R.id.radio2);
                         input.setChecked(true);
-                    } else if (mBackgroundMode == FabricView.BACKGROUND_STYLE_DOT_PAPER) {
+                    } else if (mBackgroundMode.equals(FileMeta.LINED_LONG_DASH)) {// == FabricView.BACKGROUND_STYLE_NOTEBOOK_PAPER) {
+                        RadioButton input = (RadioButton)dialog.findViewById(R.id.radio3);
+                        input.setChecked(true);
+                    } else if (mBackgroundMode.equals(FileMeta.LINED_SHORT_DASH)) {// == FabricView.BACKGROUND_STYLE_NOTEBOOK_PAPER) {
+                        RadioButton input = (RadioButton)dialog.findViewById(R.id.radio4);
+                        input.setChecked(true);
+                    } else if (mBackgroundMode.equals(FileMeta.DOTTED)) {// == FabricView.BACKGROUND_STYLE_DOT_PAPER) {
                         RadioButton input = (RadioButton)dialog.findViewById(R.id.radio5);
                         input.setChecked(true);
-                    } else if (mBackgroundMode == FabricView.BACKGROUND_STYLE_BLANK) {
+                    } else if (mBackgroundMode.equals(FileMeta.NONE)) {// == FabricView.BACKGROUND_STYLE_BLANK) {
                         RadioButton input = (RadioButton)dialog.findViewById(R.id.radio1);
                         input.setChecked(true);
                     }
@@ -153,9 +159,9 @@ public class BookActivity4BackgroundDialog {
         } else if (radio2.isChecked()) {
             backText_ = FileMeta.LINED;
         } else if (radio3.isChecked()) {
-            backText_ = FileMeta.LINED; //FIXME:
+            backText_ = FileMeta.LINED_LONG_DASH; //FIXME:
         } else if (radio4.isChecked()) {
-            backText_ = FileMeta.LINED; //FIXME:
+            backText_ = FileMeta.LINED_SHORT_DASH; //FIXME:
         } else if (radio5.isChecked()) {
             backText_ = FileMeta.DOTTED;
         } else if (radio6.isChecked()) {

@@ -7,6 +7,9 @@ import android.view.ScaleGestureDetector;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.txkj.drawingapp.activity.BookActivity4Utils;
 
 import java.util.LinkedList;
 
@@ -86,14 +89,35 @@ public class PanTool implements Tool {
     private GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
         @Override
         public boolean onDoubleTap(@NonNull MotionEvent e) {
-            Toast.makeText(canvas.getContext(), "onDoubleTap", Toast.LENGTH_LONG).show();
-            return super.onDoubleTap(e);
+            //Toast.makeText(canvas.getContext(), "onDoubleTap", Toast.LENGTH_LONG).show();
+            BookActivity4Utils.toggleFocusMode(canvas.mAct);
+            return true;//super.onDoubleTap(e);
         }
 
         @Override
         public boolean onSingleTapConfirmed(@NonNull MotionEvent e) {
-            Toast.makeText(canvas.getContext(), "onSingleTapConfirmed", Toast.LENGTH_LONG).show();
+            //Toast.makeText(canvas.getContext(), "onSingleTapConfirmed", Toast.LENGTH_LONG).show();
             return super.onSingleTapConfirmed(e);
+        }
+
+        private static final int VERTICAL_MIN_DISTANCE = 50;
+        private static final int MIN_VELOCITY = 10;
+        @Override
+        public boolean onFling(@Nullable MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
+            if (e1.getY() - e2.getY() > VERTICAL_MIN_DISTANCE && Math.abs(velocityY) > MIN_VELOCITY) {
+                //flip up
+                BookActivity4Utils.flipUp(canvas.mAct);
+                return true;
+            } else if (e1.getX() - e2.getX() > VERTICAL_MIN_DISTANCE && Math.abs(velocityX) > MIN_VELOCITY) {
+                //flip left
+                BookActivity4Utils.nextPage(canvas.mAct);
+                return true;
+            } else if (e2.getX() - e1.getX() > VERTICAL_MIN_DISTANCE && Math.abs(velocityX) > MIN_VELOCITY) {
+                //flip right
+                BookActivity4Utils.previousPage(canvas.mAct);
+                return true;
+            }
+            return super.onFling(e1, e2, velocityX, velocityY);
         }
     };
 

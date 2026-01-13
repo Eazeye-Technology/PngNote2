@@ -11,6 +11,7 @@ import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 import android.util.SizeF;
 import android.view.MotionEvent;
+import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
 
@@ -469,7 +470,7 @@ public class SelectionTool implements Tool {
                                             itemPath.isUnderline,
                                             itemPath.pointsTextColor,
                                             itemPath.pointsTextSize);
-                                    SizeF size = DrawCanvas.calculateTextSizes(itemPath.pointsText, p);
+                                    SizeF size = DrawCanvas.calculateTextSizes(itemPath.pointsText, p, itemPath.pointsTextType);
                                     w = size.getWidth();
                                     h = size.getHeight();
                                 }
@@ -581,7 +582,7 @@ public class SelectionTool implements Tool {
                         pathText.isUnderline,
                         pathText.pointsTextColor,
                         pathText.pointsTextSize);
-                SizeF size = DrawCanvas.calculateTextSizes(pathText.pointsText, p);
+                SizeF size = DrawCanvas.calculateTextSizes(pathText.pointsText, p, pathText.pointsTextType);
                 w = size.getWidth();
                 h = size.getHeight();
             }
@@ -680,6 +681,18 @@ public class SelectionTool implements Tool {
      * so it now represents the bounds of the selection.
      */
     public void selectPaths() {
+        boolean isSingleSelect = false;
+        if (currentPath.points != null && currentPath.points.size() >= 2) {
+            float x1 = currentPath.points.get(0).x;
+            float x2 = currentPath.points.get(1).x;
+            if (x2 - x1 < 2) {
+                if (canvas.mAct != null) {
+                    //Toast.makeText(canvas.mAct, "single select", Toast.LENGTH_LONG).show();
+                }
+                isSingleSelect = true;
+            }
+        }
+
         Point startPoint = canvas.mapPoint(0, 0, 1.0f);
         Point endPoint = canvas.mapPoint(canvas.getWidth(), canvas.getHeight(), 1.0f);
         Region clip = new Region(Math.round(startPoint.x), Math.round(startPoint.y), Math.round(endPoint.x), Math.round(endPoint.y));
@@ -694,7 +707,8 @@ public class SelectionTool implements Tool {
         currentPathRegion.setPath(currentPath.generatePath(), clip);
 
         // Bounding box math! (If a path collides with the current path, add it to the selection.)
-        for (DrawPath path : canvas.paths) {
+        for (int k = canvas.paths.size() - 1; k >= 0; --k) {
+            DrawPath path = canvas.paths.get(k);
             //----------------------
             //Removed objects are hidden
             if (path.pointsType == DrawPath.POINTS_TYPE_IMAGE && path.pointsBitmap == null) {
@@ -742,7 +756,7 @@ public class SelectionTool implements Tool {
                             pathText.isUnderline,
                             pathText.pointsTextColor,
                             pathText.pointsTextSize);
-                    SizeF size = DrawCanvas.calculateTextSizes(pathText.pointsText, p);
+                    SizeF size = DrawCanvas.calculateTextSizes(pathText.pointsText, p, pathText.pointsTextType);
                     width = size.getWidth();
                     height = size.getHeight();
                     points.add(new Point(path.pointsTextX - width * 0 * path.pointsScaleX, path.pointsTextY - height * 0 * path.pointsScaleY));
@@ -808,7 +822,6 @@ public class SelectionTool implements Tool {
                     if (boundsBottom == null) {
                         boundsBottom = new Point(bounds.right, bounds.bottom);
                     }
-
                     if (bounds.top < boundsTop.y) {
                         boundsTop.y = bounds.top;
                     }
@@ -820,6 +833,10 @@ public class SelectionTool implements Tool {
                     }
                     if (bounds.right > boundsBottom.x) {
                         boundsBottom.x = bounds.right;
+                    }
+
+                    if (isSingleSelect) {
+                        break;
                     }
                 }
             }

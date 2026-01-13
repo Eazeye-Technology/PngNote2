@@ -14,6 +14,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.PointF;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
@@ -24,7 +25,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.text.Editable;
+import android.text.Html;
+import android.text.Spanned;
 import android.text.TextPaint;
+import android.text.style.StyleSpan;
+import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.util.SizeF;
 import android.view.KeyEvent;
@@ -33,8 +39,10 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -110,6 +118,7 @@ import io.github.pastthepixels.freepaint.MainActivity;
 import io.github.pastthepixels.freepaint.Tools.EraserTool;
 import io.github.pastthepixels.freepaint.Tools.SelectionTool;
 import io.material.catalog.windowpreferences.WindowPreferencesManager;
+import okhttp3.internal.Util;
 
 //FIXME:onBackPressed, onCreateOptionsMenu, onDestroy, onKeyDown, onKeyUp
 
@@ -927,6 +936,7 @@ public class BookActivity4Fragment extends Fragment {
     }
 
     //--------------------------
+    LinearLayout llRichTextTool;
     private final static int iconsTopBar[] = {
             R.id.top_toolkit_item1,
             R.id.top_toolkit_item2,
@@ -1373,7 +1383,94 @@ public class BookActivity4Fragment extends Fragment {
                 }
             });
         }
+
+        llRichTextTool = (LinearLayout) rootView.findViewById(R.id.llRichTextTool);
+//        View decorView = getActivity().getWindow().getDecorView();
+//        decorView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+//            @Override
+//            public void onGlobalLayout() {
+//                Rect r = new Rect();
+//                //r will be populated with the coordinates of your view that area still visible.
+//                decorView.getWindowVisibleDisplayFrame(r);
+//                int heightDiff = decorView.getRootView().getHeight() - (r.bottom - r.top);
+//                if (heightDiff > 100) { // if more than 100 pixels, it's probably a keyboard...
+//                    // Keyboard is shown
+//                } else {
+//                    // Keyboard is hidden
+//                }
+//            }
+//        });
+        //https://www.cnblogs.com/conglingkaishi/p/9502241.html
+        //https://github.com/gzu-liyujiang/SpanTextBuilder
+        //https://github.com/nalancer08/Android-Utils
+        rootView.findViewById(R.id.action_bold).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EditText editText = getDtView(true).mEtTextEdit;
+                Editable text = editText.getText();
+                int start = editText.getSelectionStart();
+                int end = editText.getSelectionEnd();
+                StyleSpan[] old = text.getSpans(start, end, StyleSpan.class);
+                if (old != null && old.length > 0) {
+                    for (StyleSpan del : old) {
+                        if (del.getStyle() == Typeface.BOLD) {
+                            text.removeSpan(del);
+                        }
+                    }
+                    //editText.setText(text);
+                } else {
+                    text.setSpan(new StyleSpan(Typeface.BOLD), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    //editText.setText(text);
+                }
+                //Log.d("RichText", "onSetSelectedBold: " + Html.toHtml(text));
+            }
+        });
+        rootView.findViewById(R.id.action_italic).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EditText editText = getDtView(true).mEtTextEdit;
+                Editable text = editText.getText();
+                int start = editText.getSelectionStart();
+                int end = editText.getSelectionEnd();
+                StyleSpan[] old = text.getSpans(start, end, StyleSpan.class);
+                if (old != null && old.length > 0) {
+                    for (StyleSpan del : old) {
+                        if (del.getStyle() == Typeface.ITALIC) {
+                            text.removeSpan(del);
+                        }
+                    }
+                    //editText.setText(text);
+                } else {
+                    text.setSpan(new StyleSpan(Typeface.ITALIC), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    //editText.setText(text);
+                }
+                //Log.d("RichText", "onSetSelectedBold: " + Html.toHtml(text));
+            }
+        });
+        rootView.findViewById(R.id.action_underline).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EditText editText = getDtView(true).mEtTextEdit;
+                Editable text = editText.getText();
+                int start = editText.getSelectionStart();
+                int end = editText.getSelectionEnd();
+
+                UnderlineSpan[] old = text.getSpans(start, end, UnderlineSpan.class);
+                if (old != null && old.length > 0) {
+                    for (UnderlineSpan del : old) {
+                        text.removeSpan(del);
+                    }
+                    //editText.setText(text);
+                } else {
+                    UnderlineSpan underlineSpan = new UnderlineSpan();
+                    text.setSpan(underlineSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    //editText.setText(text);
+                }
+                //Log.d("RichText", "onSetSelectedBold: " + Html.toHtml(text));
+            }
+        });
     }
+//    private UnderlineSpan underlineSpan;
 
     private Runnable refreshRunnable;
     Handler handler = new Handler();
@@ -1761,7 +1858,7 @@ public class BookActivity4Fragment extends Fragment {
                                             isUnderline,
                                             path.pointsTextColor,
                                             path.pointsTextSize);
-                                    SizeF size = DrawCanvas.calculateTextSizes(path.pointsText, p);
+                                    SizeF size = DrawCanvas.calculateTextSizes(path.pointsText, p, path.pointsTextType);
                                     tempW = size.getWidth();
                                     tempH = size.getHeight();
 
@@ -1795,8 +1892,16 @@ public class BookActivity4Fragment extends Fragment {
                                     canvas.getSelectionTool().APPEARANCE_SELECTED;
                             canvas.invalidate();
                             //enter re-edit mode
+                            //llRichTextTool.setVisibility(View.VISIBLE);
                         } else {
                             //enter first edit mode
+                            llRichTextTool.setVisibility(View.VISIBLE);
+                            RelativeLayout.LayoutParams pp =
+                                    new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
+                                            RelativeLayout.LayoutParams.WRAP_CONTENT);
+                            pp.topMargin = (int)(Math.max(event.getY() - 100, 60));
+                            pp.leftMargin = (int)(Math.max(event.getX() - 0, 0));
+                            llRichTextTool.setLayoutParams(pp);
 
                             // 获取触摸事件触摸位置的原始X坐标
                             float lastX = event.getX();
@@ -1807,7 +1912,9 @@ public class BookActivity4Fragment extends Fragment {
                             setAlignType(alignType);
                             setSizeType(sizeType);
                             setEditTextColor(editTextColor);
-                            getDtView(true).init2(lastX, lastY, "", BookActivity4Fragment.this.editTextColor,
+                            getDtView(true).init2(lastX, lastY, "",
+                                    BookActivity4Utils.USE_HTML_EDIT ? DrawPath.POINTS_TEXT_TYPE_RICH : DrawPath.POINTS_TEXT_TYPE_NONE,
+                                    BookActivity4Fragment.this.editTextColor,
                                     (float) (BookActivity4Fragment.this.editTextSize * canvas.getScaleFactor()),
                                     new DrawTextView.CallBackListener() {
                                         @Override
@@ -1817,6 +1924,11 @@ public class BookActivity4Fragment extends Fragment {
 
                                         @Override
                                         public void onSave(DrawPoint drawPoint) {
+                                            llRichTextTool.setVisibility(View.GONE);
+                                            if (getDtView(false) != null) {
+                                                getDtView(false).setVisibility(View.GONE);
+                                            }
+
                                             if (drawPoint != null && drawPoint.getDrawText() != null) {
                                                 if (true) {
                                                     //Paint paint = new Paint();
@@ -1824,7 +1936,8 @@ public class BookActivity4Fragment extends Fragment {
                                                     //                                        paint.setColor(0xFFFF0000);
                                                     //                                        paint.setTextSize(sp2px(BookActivity4.this, 24));
                                                     drawText(canvas,
-                                                            drawPoint.getDrawText().getStr(),
+                                                            drawPoint.getDrawText().getStr(drawPoint.getDrawText().getUseHtml()),
+                                                            drawPoint.getDrawText().getUseHtml() ? DrawPath.POINTS_TEXT_TYPE_RICH : DrawPath.POINTS_TEXT_TYPE_NONE,
                                                             drawPoint.getDrawText().getX(),
                                                             drawPoint.getDrawText().getY(),
                                                             paint,
@@ -1833,7 +1946,7 @@ public class BookActivity4Fragment extends Fragment {
                                                             editTextSize// * canvas.getScaleFactor())
                                                     );
                                                 } else {
-                                                    drawText(canvas, "hello", 100, 100, null,
+                                                    drawText(canvas, "hello", DrawPath.POINTS_TEXT_TYPE_RICH, 100, 100, null,
                                                             false, false, false, 0,
                                                             0xFFFF0000, 18 * 5);
                                                 }
@@ -1873,6 +1986,17 @@ public class BookActivity4Fragment extends Fragment {
     }
 
     public void editText(DrawPath path) {
+        llRichTextTool.setVisibility(View.VISIBLE);
+        RelativeLayout.LayoutParams pp =
+                new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
+                        RelativeLayout.LayoutParams.WRAP_CONTENT);
+        float x = path.pointsTextX;
+        float y = path.pointsTextY;
+        Point originalPoint = canvas.mapPointScreen(x, y, 1.0F);
+        pp.topMargin = (int)(Math.max(originalPoint.y - 100, 60));
+        pp.leftMargin = (int)(Math.max(originalPoint.x - 0, 0));
+        llRichTextTool.setLayoutParams(pp);
+
         Point point = canvas.mapPointScreen(
                 path.pointsTextX,
                 path.pointsTextY,
@@ -1886,7 +2010,7 @@ public class BookActivity4Fragment extends Fragment {
         setAlignType(alignType);
         setSizeType(sizeType);
         setEditTextColor(editTextColor);
-        getDtView(true).init2(lastX, lastY, path.pointsText, path.pointsTextColor,
+        getDtView(true).init2(lastX, lastY, path.pointsText, path.pointsTextType, path.pointsTextColor,
                 (float)(path.pointsTextSize * canvas.getScaleFactor() *
                         path.pointsScaleY), //FIXME: scaleY
                 new DrawTextView.CallBackListener() {
@@ -1897,6 +2021,8 @@ public class BookActivity4Fragment extends Fragment {
 
                     @Override
                     public void onSave(DrawPoint drawPoint) {
+                        llRichTextTool.setVisibility(View.GONE);
+
                         if (getDtView(false) != null) {
                             getDtView(false).setVisibility(View.GONE);
                         }
@@ -1908,7 +2034,8 @@ public class BookActivity4Fragment extends Fragment {
 //                                        paint.setTextSize(sp2px(BookActivity4.this, 24));
                                 if (false) {
                                     drawText(canvas,
-                                            drawPoint.getDrawText().getStr(),
+                                            drawPoint.getDrawText().getStr(drawPoint.getDrawText().getUseHtml()),
+                                            drawPoint.getDrawText().getUseHtml() ? DrawPath.POINTS_TEXT_TYPE_RICH : DrawPath.POINTS_TEXT_TYPE_NONE,
                                             drawPoint.getDrawText().getX(),
                                             drawPoint.getDrawText().getY(),
                                             paint,
@@ -1918,12 +2045,16 @@ public class BookActivity4Fragment extends Fragment {
                                     );
                                 } else {
                                     //FIXME:编辑保存
-                                    path.pointsText = drawPoint.getDrawText().getStr();
+                                    if (path.pointsTextType == DrawPath.POINTS_TEXT_TYPE_RICH) {
+                                        path.pointsText = drawPoint.getDrawText().getStr(drawPoint.getDrawText().getUseHtml());
+                                    } else {
+                                        path.pointsText = drawPoint.getDrawText().getStr(drawPoint.getDrawText().getUseHtml());
+                                    }
                                     path.tempHidden = false; //show again
                                     canvas.invalidate();
                                 }
                             } else {
-                                drawText(canvas, "hello", 100, 100, null,
+                                drawText(canvas, "hello", DrawPath.POINTS_TEXT_TYPE_RICH, 100, 100, null,
                                         false, false, false, 0,
                                         0xFFFF0000, 18 * 5);
                             }
@@ -2507,13 +2638,17 @@ public class BookActivity4Fragment extends Fragment {
         //TODO:
         if (backText != null && canvas != null) {
             if (backText.equals(FileMeta.NONE)) {
-                setBackgroundMode(canvas, FabricView.BACKGROUND_STYLE_BLANK);
+                setBackgroundMode(canvas, FileMeta.NONE);//FabricView.BACKGROUND_STYLE_BLANK);
             } else if (backText.equals(FileMeta.LINED)) {
-                setBackgroundMode(canvas, FabricView.BACKGROUND_STYLE_NOTEBOOK_PAPER);
+                setBackgroundMode(canvas, FileMeta.LINED);//FabricView.BACKGROUND_STYLE_NOTEBOOK_PAPER);
+            } else if (backText.equals(FileMeta.LINED_LONG_DASH)) {
+                setBackgroundMode(canvas, FileMeta.LINED_LONG_DASH);//FabricView.BACKGROUND_STYLE_NOTEBOOK_PAPER);
+            } else if (backText.equals(FileMeta.LINED_SHORT_DASH)) {
+                setBackgroundMode(canvas, FileMeta.LINED_SHORT_DASH);//FabricView.BACKGROUND_STYLE_NOTEBOOK_PAPER);
             } else if (backText.equals(FileMeta.DOTTED)) {
-                setBackgroundMode(canvas, FabricView.BACKGROUND_STYLE_DOT_PAPER);
+                setBackgroundMode(canvas, FileMeta.DOTTED);//FabricView.BACKGROUND_STYLE_DOT_PAPER);
             } else if (backText.equals(FileMeta.GRAPH)) {
-                setBackgroundMode(canvas, FabricView.BACKGROUND_STYLE_GRAPH_PAPER);
+                setBackgroundMode(canvas, FileMeta.GRAPH);//FabricView.BACKGROUND_STYLE_GRAPH_PAPER);
             }
         }
     }
@@ -2528,12 +2663,12 @@ public class BookActivity4Fragment extends Fragment {
 //            canvas.drawImage(0, 0, initialBmp.getWidth(), initialBmp.getHeight(), initialBmp);
 //        }
     }
-    private void drawText(DrawCanvas canvas, String text, float x, float y, Paint p_, boolean isBold,
+    private void drawText(DrawCanvas canvas, String text, int textType, float x, float y, Paint p_, boolean isBold,
                           boolean isItalics,
                           boolean isUnderline,
                           int styleType, int pointsTextColor, float pointsTextSize) {
         if (canvas != null) {
-            canvas.drawText(text, x, y, p_, isBold,
+            canvas.drawText(text, textType, x, y, p_, isBold,
                 isItalics,
                 isUnderline,
                 styleType, pointsTextColor, pointsTextSize);
@@ -2560,7 +2695,7 @@ public class BookActivity4Fragment extends Fragment {
         editor.putString("strokeSize", Float.toString(size)); //"strokeColor" or "fillColor"
         editor.apply();
     }
-    private void setBackgroundMode(DrawCanvas canvas, int mode) {
+    private void setBackgroundMode(DrawCanvas canvas, String mode) {
         canvas.setBackgroundMode(mode);
     }
     public void updateInfoBar() {
@@ -2675,7 +2810,7 @@ public class BookActivity4Fragment extends Fragment {
                             dialog.show();
                         }
                     } else if (view.getId() == R.id.popTextViewPageBackground) {
-                        int backgroundMode = -1;
+                        String backgroundMode = null;//-1;
                         if (canvas != null) {
                             backgroundMode = canvas.getBackgroundMode();
                         }
@@ -2920,30 +3055,30 @@ public class BookActivity4Fragment extends Fragment {
     public final static int SIZE_TYPE_H2 = 3;
     public final static int SIZE_TYPE_H3 = 4;
     public int sizeType = SIZE_TYPE_NONE;
-    private float editTextSize = 28;
+    private float editTextSize = 19;//28;
     public void setSizeType(int sizeType) {
         this.sizeType = sizeType;
         if (this.getDtView(false) != null && this.getDtView(false).mEtTextEdit != null) {
             if (sizeType == SIZE_TYPE_NONE) {
                 //this.dtView.mEtTextEdit.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 32);
-                this.getDtView(false).mEtTextEdit.setTextSize(28);
-                this.editTextSize = 28;
+                this.getDtView(false).mEtTextEdit.setTextSize(19);//28);
+                this.editTextSize = 19;//28;
             } else if (sizeType == SIZE_TYPE_TITLE) {
                 //this.dtView.mEtTextEdit.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 48);
-                this.getDtView(false).mEtTextEdit.setTextSize(48);
-                this.editTextSize = 48;
+                this.getDtView(false).mEtTextEdit.setTextSize(39);//48);
+                this.editTextSize = 39;//48;
             } else if (sizeType == SIZE_TYPE_H1) {
                 //this.dtView.mEtTextEdit.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 42);
-                this.getDtView(false).mEtTextEdit.setTextSize(42);
-                this.editTextSize = 42;
+                this.getDtView(false).mEtTextEdit.setTextSize(33);//42);
+                this.editTextSize = 33;//42;
             } else if (sizeType == SIZE_TYPE_H2) {
                 //this.dtView.mEtTextEdit.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 38);
-                this.getDtView(false).mEtTextEdit.setTextSize(38);
-                this.editTextSize = 38;
+                this.getDtView(false).mEtTextEdit.setTextSize(29);//38);
+                this.editTextSize = 29;//38;
             } else if (sizeType == SIZE_TYPE_H3) {
                 //this.dtView.mEtTextEdit.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 36);
-                this.getDtView(false).mEtTextEdit.setTextSize(34);
-                this.editTextSize = 34;
+                this.getDtView(false).mEtTextEdit.setTextSize(25);//34);
+                this.editTextSize = 25;//34;
             }
         }
     }
@@ -2952,6 +3087,61 @@ public class BookActivity4Fragment extends Fragment {
         this.editTextColor = editTextColor;
         if (this.getDtView(false) != null && this.getDtView(false).mEtTextEdit != null) {
             this.getDtView(false).mEtTextEdit.setTextColor(editTextColor);
+        }
+    }
+
+    public void toggleFocusMode() { //focus mode, fullscreen
+        if (g_rootView.findViewById(R.id.llTab).getVisibility() == View.VISIBLE) {
+            //enter fullscreen
+            g_rootView.findViewById(R.id.llTab).setVisibility(View.GONE);
+            g_rootView.findViewById(R.id.llTopBar).setVisibility(View.GONE);
+            //findViewById(R.id.llFullscreen).setVisibility(View.VISIBLE);
+            g_rootView.findViewById(R.id.llFullscreen2).setVisibility(View.VISIBLE);
+            g_rootView.findViewById(R.id.llFullscreen2_demo).setVisibility(View.GONE);//View.VISIBLE);
+            g_rootView.findViewById(R.id.left_toolkit_global).setVisibility(View.GONE);
+        } else {
+            //exit fullscreen
+            g_rootView.findViewById(R.id.llTab).setVisibility(View.VISIBLE);
+            g_rootView.findViewById(R.id.llTopBar).setVisibility(View.VISIBLE);
+            //findViewById(R.id.llFullscreen).setVisibility(View.GONE);
+            g_rootView.findViewById(R.id.llFullscreen2).setVisibility(View.GONE);
+            g_rootView.findViewById(R.id.llFullscreen2_demo).setVisibility(View.GONE);
+            g_rootView.findViewById(R.id.left_toolkit_global).setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void nextPage() {
+        gotoNextPage();
+    }
+    public void previousPage() {
+        gotoPrevPage();
+    }
+    public void flipUp() {
+        if (currentTabIdTopBar == iconsTopBar[0]) { //paint tool
+            g_rootView.findViewById(R.id.bottomDialog2).setVisibility(View.GONE);
+            if (g_rootView.findViewById(R.id.bottomDialog1).getVisibility() == View.VISIBLE) {
+                g_rootView.findViewById(R.id.bottomDialog1).setVisibility(View.GONE);
+            } else {
+                initBottom12();
+                g_rootView.findViewById(R.id.bottomDialog1).setVisibility(View.VISIBLE);
+            }
+        } else if (currentTabIdTopBar == iconsTopBar[1]) { //text tool
+            if (currentTabIdSubmenu2 == R.id.left_toolkit_item21) {
+                initBottom12();
+                g_rootView.findViewById(R.id.llLeftPanel1).setVisibility(View.VISIBLE);
+                g_rootView.findViewById(R.id.llLeftPanel2).setVisibility(View.GONE);
+            } else if (currentTabIdSubmenu2 == R.id.left_toolkit_item22) {
+                initBottom12();
+                g_rootView.findViewById(R.id.llLeftPanel1).setVisibility(View.GONE);
+                g_rootView.findViewById(R.id.llLeftPanel2).setVisibility(View.VISIBLE);
+            }
+            g_rootView.findViewById(R.id.bottomDialog1).setVisibility(View.GONE);
+            if (g_rootView.findViewById(R.id.bottomDialog2).getVisibility() == View.VISIBLE) {
+                g_rootView.findViewById(R.id.bottomDialog2).setVisibility(View.GONE);
+            } else {
+                initBottom12();
+                g_rootView.findViewById(R.id.bottomDialog2).setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -3235,7 +3425,7 @@ public class BookActivity4Fragment extends Fragment {
 //    DrawCanvas.TOOLS lastTool = DrawCanvas.TOOLS.none;
 //    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_SPACE) {
+        if (keyCode == KeyEvent.KEYCODE_MENU) { //keyboard F1, need enable keyboard
             boolean isTextMode = false;
             if (g_rootView != null &&
                     g_rootView.findViewById(R.id.left_toolkit2) != null &&

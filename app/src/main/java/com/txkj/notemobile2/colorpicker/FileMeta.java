@@ -5,7 +5,8 @@ public class FileMeta {
     public final static String LINED = "Lined";
     public final static String GRAPH = "Graph";
     public final static String DOTTED = "Dotted";
-
+    public final static String LINED_LONG_DASH = "LinedLongDash";
+    public final static String LINED_SHORT_DASH = "LinedShortDash";
 
     public String name;
     public int drawable;

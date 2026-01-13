@@ -1703,5 +1703,15 @@
                 <include layout="@layout/book_toolbar"/>
             </LinearLayout>
         </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/llRichTextTool"
+            android:visibility="gone"
+            android:layout_alignParentTop="true"
+            >
+            <include layout="@layout/activity_book4_editor"/>
+        </LinearLayout>
     </RelativeLayout>
 </RelativeLayout>

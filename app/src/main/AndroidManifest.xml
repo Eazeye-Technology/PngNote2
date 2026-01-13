@@ -68,9 +68,12 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
             android:name="com.txkj.notemobile2.BookListActivity"
             android:exported="true"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
-            android:windowSoftInputMode="adjustResize|stateHidden"
+            android:windowSoftInputMode="adjustPan|stateHidden"
             android:launchMode="singleTask"
             >
+            <!--
+            android:windowSoftInputMode="adjustResize|stateHidden"
+            -->
             <!--main, main-->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
