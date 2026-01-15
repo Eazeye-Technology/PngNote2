@@ -142,9 +142,14 @@ public static boolean onBackPressed(Activity context) {
                     fragmentTransaction.replace(R.id.content_layout, fragment);
                     fragmentTransaction.commit();
                 } else {
-                    fragmentTransaction.add(R.id.content_layout, fragment);
-                    fragmentTransaction.addToBackStack("BookActivity4");
-                    fragmentTransaction.commit();
+                    String tag = "BookActivity4";
+                    if (fragmentManager.findFragmentByTag(tag) == null) {
+                        fragmentTransaction.add(R.id.content_layout, fragment);
+                        fragmentTransaction.addToBackStack(tag);
+                        fragmentTransaction.commit();
+                    } else {
+                        //stop starting repeat fragment
+                    }
                 }
             }
         } else {
@@ -283,6 +288,31 @@ public static boolean onBackPressed(Activity context) {
             Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
             if (currentFragment instanceof BookActivity4Fragment) {
                 ((BookActivity4Fragment) currentFragment).editMeetingSummary(newName);
+            }
+        }
+    }
+
+    public static void editMeetingDuration(Activity context, String newName) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            FragmentManager fragmentManager = act.getSupportFragmentManager();
+            Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+            if (currentFragment instanceof BookActivity4Fragment) {
+                ((BookActivity4Fragment) currentFragment).editMeetingDuration(newName);
+            }
+        }
+    }
+
+    public static void editMeetingDate(Activity context, String newName, Long dateVal) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            FragmentManager fragmentManager = act.getSupportFragmentManager();
+            //FIXME:use -2
+            if (fragmentManager.getFragments().size() - 2 >= 0) {
+                Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 2);// - 1);
+                if (currentFragment instanceof BookActivity4Fragment) {
+                    ((BookActivity4Fragment) currentFragment).editMeetingDate(newName, dateVal);
+                }
             }
         }
     }

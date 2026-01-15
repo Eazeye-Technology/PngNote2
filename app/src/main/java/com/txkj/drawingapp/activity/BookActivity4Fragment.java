@@ -1,6 +1,7 @@
 package com.txkj.drawingapp.activity;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -100,10 +101,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -118,7 +121,6 @@ import io.github.pastthepixels.freepaint.MainActivity;
 import io.github.pastthepixels.freepaint.Tools.EraserTool;
 import io.github.pastthepixels.freepaint.Tools.SelectionTool;
 import io.material.catalog.windowpreferences.WindowPreferencesManager;
-import okhttp3.internal.Util;
 
 //FIXME:onBackPressed, onCreateOptionsMenu, onDestroy, onKeyDown, onKeyUp
 
@@ -2143,6 +2145,57 @@ public class BookActivity4Fragment extends Fragment {
                 }
             }
         });
+        TextView tvMeetingDate = rootView.findViewById(R.id.tvMeetingDate);
+        Long meetingDate = getMeetingDate();
+        if (meetingDate != null) {
+            if (meetingDate > 0) {
+                Date newDate = new Date(meetingDate);
+                SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+                String dateStr_ = sdf.format(newDate);
+                if (dateStr_ != null) {
+                    tvMeetingDate.setText(dateStr_);
+                }
+            }
+        }
+        rootView.findViewById(R.id.llMeetingDate).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                /*Dialog dialog = */new BookActivity4MeetingDateDialog(getActivity(), getMeetingDate())
+                        .create();
+//                if (dialog != null) {
+//                    dialog.show();
+//                }
+            }
+        });
+        TextView tvMeetingDuration = rootView.findViewById(R.id.tvMeetingDuration);
+        try {
+            String duration = getMeetingDuration();
+            if (duration != null && duration.length() > 0) {
+                int durationVal = -1;
+                try {
+                    durationVal = Integer.parseInt(duration);
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                }
+                if (durationVal > 1) {
+                    tvMeetingDuration.setText("" + duration + " minutes");
+                } else {
+                    tvMeetingDuration.setText("" + duration + " minute");
+                }
+            }
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+        }
+        rootView.findViewById(R.id.llMeetingDuration).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog dialog = new BookActivity4MeetingDurationDialog(getActivity(), getMeetingDuration())
+                        .create();
+                if (dialog != null) {
+                    dialog.show();
+                }
+            }
+        });
     }
 
     public static int sp2px(Context context, float spValue) {
@@ -2886,6 +2939,59 @@ public class BookActivity4Fragment extends Fragment {
         }
     }
 
+    public void editMeetingDuration(String newSummary) {
+        boolean isFailed = false;
+        if (_bookDir == null || _bookDir.getName() == null ||!_bookDir.getName().startsWith(BookActivity4Config.USE_SKETCH_PREFIX)) {
+            isFailed = true;
+        }
+        String folder = _bookDir.getFilePath();
+        if (folder == null ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).exists() ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).canWrite()
+        ) {
+            isFailed = true;
+        }
+        try {
+            File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
+            String str = FastFile.loadMetaText(file_2);
+            JSONObject item = new JSONObject(str);
+            item.put(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_DURATION, newSummary);
+            FastFile.saveMetaText(file_2, item.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+            isFailed = true;
+        }
+        if (isFailed) {
+            new MaterialAlertDialogBuilder(getActivity(), BookActivity4Utils.getCenteredTitleThemeOverlay())
+                    .setTitle("Error")
+                    .setMessage("Edit meeting summary failed")
+                    .setPositiveButton("OK", null)
+                    .show();
+        } else {
+            onCreateAct(g_rootView);
+            try {
+                String duration = getMeetingDuration();
+                if (duration != null && duration.length() > 0) {
+                    int durationVal = -1;
+                    try {
+                        durationVal = Integer.parseInt(duration);
+                    } catch (Throwable eee) {
+                        eee.printStackTrace();
+                    }
+                    if (durationVal > 1) {
+                        ((TextView) g_rootView.findViewById(R.id.tvMeetingDuration)).setText("" + duration + " minutes");
+                    } else {
+                        ((TextView) g_rootView.findViewById(R.id.tvMeetingDuration)).setText("" + duration + " minute");
+                    }
+                } else {
+                    ((TextView) g_rootView.findViewById(R.id.tvMeetingDuration)).setText("");
+                }
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+            }
+        }
+    }
+
     public void editMeetingSummary(String newSummary) {
         boolean isFailed = false;
         if (_bookDir == null || _bookDir.getName() == null ||!_bookDir.getName().startsWith(BookActivity4Config.USE_SKETCH_PREFIX)) {
@@ -2924,6 +3030,52 @@ public class BookActivity4Fragment extends Fragment {
         }
     }
 
+    public void editMeetingDate(String dateStr, Long dateVal) {
+        boolean isFailed = false;
+        if (_bookDir == null || _bookDir.getName() == null ||!_bookDir.getName().startsWith(BookActivity4Config.USE_SKETCH_PREFIX)) {
+            isFailed = true;
+        }
+        String folder = _bookDir.getFilePath();
+        if (folder == null ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).exists() ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).canWrite()
+        ) {
+            isFailed = true;
+        }
+        try {
+            File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
+            String str = FastFile.loadMetaText(file_2);
+            JSONObject item = new JSONObject(str);
+            item.put(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_DATE, dateVal);
+            FastFile.saveMetaText(file_2, item.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+            isFailed = true;
+        }
+        if (isFailed) {
+            new MaterialAlertDialogBuilder(getActivity(), BookActivity4Utils.getCenteredTitleThemeOverlay())
+                    .setTitle("Error")
+                    .setMessage("Edit meeting date failed")
+                    .setPositiveButton("OK", null)
+                    .show();
+        } else {
+            onCreateAct(g_rootView);
+            try {
+                long newDateVal = getMeetingDate();
+                if (newDateVal > 0) {
+                    Date newDate = new Date(newDateVal);
+                    SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+                    String dateStr_ = sdf.format(newDate);
+                    ((TextView) g_rootView.findViewById(R.id.tvMeetingDate)).setText(dateStr_);
+                } else {
+                    ((TextView) g_rootView.findViewById(R.id.tvMeetingDate)).setText("");
+                }
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+            }
+        }
+    }
+
     public String getMeetingSummary() {
         String newSummary = "";
         boolean isFailed = false;
@@ -2947,6 +3099,56 @@ public class BookActivity4Fragment extends Fragment {
             isFailed = true;
         }
         return newSummary;
+    }
+
+    public String getMeetingDuration() {
+        String newSummary = "";
+        boolean isFailed = false;
+        if (_bookDir == null || _bookDir.getName() == null ||!_bookDir.getName().startsWith(BookActivity4Config.USE_SKETCH_PREFIX)) {
+            isFailed = true;
+        }
+        String folder = _bookDir.getFilePath();
+        if (folder == null ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).exists() ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).canWrite()
+        ) {
+            isFailed = true;
+        }
+        try {
+            File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
+            String str = FastFile.loadMetaText(file_2);
+            JSONObject item = new JSONObject(str);
+            newSummary = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_DURATION, "");
+        } catch (JSONException e) {
+            e.printStackTrace();
+            isFailed = true;
+        }
+        return newSummary;
+    }
+
+    public Long getMeetingDate() {
+        long newDate = -1;
+        boolean isFailed = false;
+        if (_bookDir == null || _bookDir.getName() == null ||!_bookDir.getName().startsWith(BookActivity4Config.USE_SKETCH_PREFIX)) {
+            isFailed = true;
+        }
+        String folder = _bookDir.getFilePath();
+        if (folder == null ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).exists() ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).canWrite()
+        ) {
+            isFailed = true;
+        }
+        try {
+            File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
+            String str = FastFile.loadMetaText(file_2);
+            JSONObject item = new JSONObject(str);
+            newDate = item.optLong(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_DATE, -1L);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            isFailed = true;
+        }
+        return newDate > 0 ? newDate : null;
     }
 
     //isDrawBG is false, unless I want to share
