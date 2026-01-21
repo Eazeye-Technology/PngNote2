@@ -40,7 +40,11 @@
                 android:textColorHighlight="#a6d2ff"
                 />
             <!--
-            android:minWidth="20dip"
+            android:inputType="textNoSuggestions|textImeMultiLine|textEmailAddress"
+            android:inputType="text|none|textMultiLine|textNoSuggestions|textWebEditText|textImeMultiLine"
+
+            android:inputType="textNoSuggestions"
+                android:minWidth="20dip"
             android:textSize="24sp"
             -->
 

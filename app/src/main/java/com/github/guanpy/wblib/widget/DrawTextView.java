@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.Paint;
 import android.os.Build;
 import android.text.Html;
+import android.text.InputType;
 import android.text.Spannable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -135,6 +136,9 @@ public class DrawTextView extends RelativeLayout implements
         mRlContent = (RelativeLayout) findViewById(R.id.rl_content);
         mRlText = (RelativeLayout) findViewById(R.id.rl_text);
         mEtTextEdit = (EditText) findViewById(R.id.et_text_edit);
+//        mEtTextEdit.setShowSoftInputOnFocus(false);
+//        mEtTextEdit.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+//        mEtTextEdit.setRawInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         mEtTextEdit.setEnabled(true);
 //        mTvTextEdit = (TextView) findViewById(R.id.tv_text_edit);
 //        mBtTextDelete = (Button) findViewById(R.id.bt_text_delete);
@@ -362,8 +366,18 @@ public class DrawTextView extends RelativeLayout implements
             hideSoftInput();
             if (null != mCallBackListener) {
                 if (mDrawPoint != null && mDrawPoint.getDrawText() != null) {
-                    String htmlString = Html.toHtml(mEtTextEdit.getText(), Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE);//Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL);
-                    mDrawPoint.getDrawText().setStr(mEtTextEdit.getText().toString(), htmlString);
+                    if (mEtTextEdit != null) {
+                        //https://stackoverflow.com/questions/5504433/how-to-remove-the-underline-from-the-edittext-field-in-android
+                        //remove edittext underline
+                        mEtTextEdit.clearComposingText();
+                        String htmlString = null;//Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                            htmlString = Html.toHtml(mEtTextEdit.getText(), Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE);
+                        } else {
+                            htmlString = Html.toHtml(mEtTextEdit.getText());
+                        }
+                        mDrawPoint.getDrawText().setStr(mEtTextEdit.getText().toString(), htmlString);
+                    }
                 }
                 mCallBackListener.onSave(mDrawPoint);
             }
@@ -392,21 +406,23 @@ public class DrawTextView extends RelativeLayout implements
     }
 
     private void showSoftKeyBoard(final EditText et) {
-        et.requestFocus();
-        et.post(new Runnable() {
-            @Override
-            public void run() {
-                mEtTextEdit.setEnabled(true);
-                mEtTextEdit.requestFocus();
-                // 弹出输入法
-                InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
-                if (true) {
-                    imm.showSoftInput(et, 0);//InputMethodManager.RESULT_UNCHANGED_SHOWN);
-                } else {
-                    imm.showSoftInput(et, InputMethodManager.SHOW_IMPLICIT);
+        if (true) {
+            et.requestFocus();
+            et.post(new Runnable() {
+                @Override
+                public void run() {
+                    mEtTextEdit.setEnabled(true);
+                    mEtTextEdit.requestFocus();
+                    // 弹出输入法
+                    InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (true) {
+                        imm.showSoftInput(et, 0);//InputMethodManager.RESULT_UNCHANGED_SHOWN);
+                    } else {
+                        imm.showSoftInput(et, InputMethodManager.SHOW_IMPLICIT);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     public void hideSoftInput() {

@@ -85,7 +85,12 @@ public class DrawAppearance {
     public void initialisePaint(Paint paint, float dpCorrection) {
         paint.setAntiAlias(true);
         if (penType == PEN_TYPE_3) {
-            paint.setStrokeWidth(!useDP ? strokeSize * 5 : strokeSize * dpCorrection * 5);
+            //highlight
+            if (false) {
+                paint.setStrokeWidth(!useDP ? strokeSize * 5 : strokeSize * dpCorrection * 5);
+            } else {
+                paint.setStrokeWidth(!useDP ? strokeSize * 1 : strokeSize * dpCorrection * 1); //default is 5
+            }
             paint.setStrokeJoin(Paint.Join.BEVEL);
             paint.setStrokeCap(Paint.Cap.BUTT);
         } else {

@@ -1,11 +1,11 @@
 package com.sys.speech.db;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteStatement;
 import android.provider.BaseColumns;
 import android.util.Log;
 
@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SDRecordingsDatabase extends SQLiteOpenHelper {
-    private final static boolean USE_CACHE = false;
-    private static List<RecordingItem> cache = new ArrayList<>();
-    private final static boolean USE_MEMDB = true;
+    private final static boolean USE_MEMDB = true; //if delay saved?
 
+    private final static boolean USE_CACHE_ONLY_TEST = false;
+    private static List<RecordingItem> cache = new ArrayList<>();
     private static final String TAG = "SDRDb";
 
 	private Context mContext;
@@ -72,6 +72,7 @@ public class SDRecordingsDatabase extends SQLiteOpenHelper {
 	}
     private List<RecordingItem> memdb = new ArrayList<>();
     private List<RecordingItem> memdbAppend = new ArrayList<>();
+    @SuppressLint("Range")
     private void loadMemDB() {
         try {
             SQLiteDatabase db = getReadableDatabase();
@@ -117,7 +118,7 @@ public class SDRecordingsDatabase extends SQLiteOpenHelper {
     }
 
 	public long addRecording(String recordingName, String filePath, long length, String meetingId, String agendaId, String recType, String recContent) {
-        if (USE_CACHE) {
+        if (USE_CACHE_ONLY_TEST) {
             RecordingItem item = new RecordingItem();
             item.setId(cache.size());
             item.setName(recordingName);
@@ -158,7 +159,7 @@ public class SDRecordingsDatabase extends SQLiteOpenHelper {
                 long rowId = db.insert(RecordingDatabaseItem.TABLE_NAME, null, values);
 
                 Log.e(TAG, "==============addRecording meetingId = " + meetingId + ", agendaId = " + agendaId);
-
+                db.close();
                 if (mOnDatabaseChangedListener != null)
                     mOnDatabaseChangedListener.onDatabaseEntryUpdated();
 
@@ -199,16 +200,18 @@ public class SDRecordingsDatabase extends SQLiteOpenHelper {
                 db.insert(RecordingDatabaseItem.TABLE_NAME, null, values);
             }
             db.setTransactionSuccessful();
-        }finally{
+        } finally{
             db.endTransaction();
+            db.close();
         }
 
         if (mOnDatabaseChangedListener != null)
             mOnDatabaseChangedListener.onDatabaseEntryUpdated();
     }
 
+    @SuppressLint("Range")
     public RecordingItem getItemAt(int position, String meetingId, String agendaId) {
-        if (USE_CACHE) {
+        if (USE_CACHE_ONLY_TEST) {
             if (position >= 0 && position < cache.size()) {
                 return cache.get(position);
             }
@@ -275,8 +278,10 @@ public class SDRecordingsDatabase extends SQLiteOpenHelper {
                         return item;
                     }
                 }
+                db.close();
             } catch (Throwable eee) {
                 eee.printStackTrace();
+            } finally {
             }
 
             return null;
@@ -284,7 +289,7 @@ public class SDRecordingsDatabase extends SQLiteOpenHelper {
 	}
 
 	public void removeItemWithId(int id, String meetingId, String agendaId) {
-        if (USE_CACHE) {
+        if (USE_CACHE_ONLY_TEST) {
             //skip
         } else if (USE_MEMDB) {
             //skip
@@ -295,7 +300,7 @@ public class SDRecordingsDatabase extends SQLiteOpenHelper {
                 db.delete(RecordingDatabaseItem.TABLE_NAME,
                         "_id=? and " + RecordingDatabaseItem.COLUMN_NAME_MEETING_ID + " = ?",
                         whereArgs);
-
+                db.close();
                 if (mOnDatabaseChangedListener != null)
                     mOnDatabaseChangedListener.onDatabaseEntryUpdated();
             } catch (Throwable eee) {
@@ -305,7 +310,7 @@ public class SDRecordingsDatabase extends SQLiteOpenHelper {
 	}
 
 	public int getCount(String meetingId, String agendaId) {
-        if (USE_CACHE) {
+        if (USE_CACHE_ONLY_TEST) {
             return cache.size();
         } else if (USE_MEMDB) {
             return this.memdb.size();
@@ -317,8 +322,29 @@ public class SDRecordingsDatabase extends SQLiteOpenHelper {
                         RecordingDatabaseItem.COLUMN_NAME_MEETING_ID + " = ?",
                         new String[]{meetingId},
                         null, null, null);
-                int count = c.getCount();
+                int count = 0;
+                if (false) {
+                    count = c.getCount();
+                } else {
+                    if (c.moveToFirst()) {
+                        do {
+//                            RecordingItem item = new RecordingItem();
+//                            item.setId(c.getInt(c.getColumnIndex(RecordingDatabaseItem._ID)));
+//                            item.setLength(c.getInt(c.getColumnIndex(RecordingDatabaseItem.COLUMN_NAME_RECORDING_LENGTH)));
+//                            item.setFilePath(c.getString(c.getColumnIndex(RecordingDatabaseItem.COLUMN_NAME_RECORDING_FILE_PATH)));
+//                            item.setName(c.getString(c.getColumnIndex(RecordingDatabaseItem.COLUMN_NAME_RECORDING_NAME)));
+//                            item.setTime(c.getLong(c.getColumnIndex(RecordingDatabaseItem.COLUMN_NAME_TIME_ADDED)));
+//                            item.setRecType(c.getString(c.getColumnIndex(RecordingDatabaseItem.COLUMN_NAME_REC_TYPE)));
+//                            item.setRecContent(c.getString(c.getColumnIndex(RecordingDatabaseItem.COLUMN_NAME_REC_CONTENT)));
+//                            item.setMeetingId(c.getString(c.getColumnIndex(RecordingDatabaseItem.COLUMN_NAME_MEETING_ID)));
+//                            item.setAgendaId(c.getString(c.getColumnIndex(RecordingDatabaseItem.COLUMN_NAME_AGENDA_ID)));
+//                            memdb.add(item);
+                            count++;
+                        } while (c.moveToNext());
+                    }
+                }
                 c.close();
+                db.close();
                 return count;
             } catch (Throwable eee) {
                 eee.printStackTrace();
@@ -370,7 +396,7 @@ public class SDRecordingsDatabase extends SQLiteOpenHelper {
 	}
 
     public void updateItemContent(long id, String content, boolean isAppend) {
-        if (USE_CACHE) {
+        if (USE_CACHE_ONLY_TEST) {
             RecordingItem item = null;
             if (id >= 0 && id < cache.size()) {
                 item = cache.get((int)id);
@@ -412,6 +438,7 @@ public class SDRecordingsDatabase extends SQLiteOpenHelper {
                 values.put(RecordingDatabaseItem.COLUMN_NAME_REC_CONTENT, content);
                 db.update(RecordingDatabaseItem.TABLE_NAME, values,
                         RecordingDatabaseItem._ID + "=" + id, null);
+                db.close();
 
                 if (mOnDatabaseChangedListener != null)
                     mOnDatabaseChangedListener.onDatabaseEntryUpdated();

@@ -123,33 +123,33 @@ android:background="@color/theme_default_primary"
                 />
 
             <ImageButton
-                android:id="@+id/action_heading1"
+                android:id="@+id/action_heading1_h1"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:background="@drawable/tool_selector"
                 android:contentDescription="@null"
                 android:src="@drawable/h1"
-                android:visibility="gone"
+                android:visibility="visible"
                 />
 
             <ImageButton
-                android:id="@+id/action_heading2"
+                android:id="@+id/action_heading2_h2"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:background="@drawable/tool_selector"
                 android:contentDescription="@null"
                 android:src="@drawable/h2"
-                android:visibility="gone"
+                android:visibility="visible"
                 />
 
             <ImageButton
-                android:id="@+id/action_heading3"
+                android:id="@+id/action_heading3_h3"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:background="@drawable/tool_selector"
                 android:contentDescription="@null"
                 android:src="@drawable/h3"
-                android:visibility="gone"
+                android:visibility="visible"
                 />
 
             <ImageButton
@@ -183,13 +183,33 @@ android:background="@color/theme_default_primary"
                 />
 
             <ImageButton
-                android:id="@+id/action_txt_color"
+                android:id="@+id/action_txt_color_black"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:background="@drawable/tool_selector"
                 android:contentDescription="@null"
-                android:src="@drawable/txt_color"
-                android:visibility="gone"
+                android:src="@drawable/txt_color_black"
+                android:visibility="visible"
+                />
+
+            <ImageButton
+                android:id="@+id/action_txt_color_grey"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/txt_color_grey"
+                android:visibility="visible"
+                />
+
+            <ImageButton
+                android:id="@+id/action_txt_color_white"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/txt_color_white"
+                android:visibility="visible"
                 />
 
             <ImageButton

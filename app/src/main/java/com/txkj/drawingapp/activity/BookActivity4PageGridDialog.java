@@ -40,20 +40,21 @@ import java.util.List;
 
 public class BookActivity4PageGridDialog {
     public final static boolean NO_REOPEN_DIALOG = true;
-    private final static int WIN_HEIGHT = 800;
-
+    private final static int WIN_WIDTH = 633;
+    private final static int WIN_HEIGHT = 750;//600;//646;
+    private AlertDialog mDialog;
     public BookActivity4PageGridDialog(Activity ctx, Uri dirUrl_, String dirUrlPath_) {
         onCreateAct(ctx, dirUrl_, dirUrlPath_);
     }
 
     public AlertDialog create() {
-        AlertDialog dialog = new MaterialAlertDialogBuilder(mContext, BookActivity4Utils.getCenteredTitleThemeOverlay())
+        mDialog = new MaterialAlertDialogBuilder(mContext, BookActivity4Utils.getCenteredTitleThemeOverlay())
                 //.setTitle(title)
                 .setView(R.layout.activity_book4_dialog_jump)
                 .setCancelable(true)
-                .setNegativeButton("Close", null)
+                //.setNegativeButton("Close", null)
                 .create();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+        mDialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialogInterface) {
                 AlertDialog dialog = (AlertDialog)dialogInterface;
@@ -165,27 +166,28 @@ public class BookActivity4PageGridDialog {
                 btnDelete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (bookGridAdapter != null &&
-                                bookGridAdapter.checkMode == BookPageGridAdapter.CHECK_MODE_CHECK) {
-                            List<Page> pages = new ArrayList<>();
-                            for (Page page : _pageList) {
-                                if (page != null && page.checked) {
-                                    pages.add(page);
+                        if (true) {
+                            Runnable runnable = new Runnable() {
+                                @Override
+                                public void run() {
+                                    deleteCurPage();
                                 }
-                            }
-                            deletePages(dialog, pages);
-                            bookGridAdapter.checkMode = BookPageGridAdapter.CHECK_MODE_NONE;
-                            bookGridAdapter.notifyDataSetChanged();
-                            updateButtons();
-                            if (!BookActivity4PageGridDialog.NO_REOPEN_DIALOG) {
-                                if (dialog != null && dialog.isShowing()) {
-                                    dialog.dismiss();
-                                }
-                            } else {
-                                _book = null;
-                                onCreateAct(mContext, dirUrl, dirUrlPath);
-                                requestLoadPages();
-                            }
+                            };
+                            AlertDialog dialogDel = new BookActivity4DeleteDialog(mContext, runnable).create();
+                            dialogDel.show();
+                        } else {
+                            deleteCurPage();
+                        }
+                    }
+                });
+                //TextInputEditText input = dialog.findViewById(R.id.textState);
+                Button btnSave = (Button) dialog.findViewById(R.id.btnSave); //Close
+                //Button btnCancel = (Button) dialog.findViewById(R.id.btnCancel);
+                btnSave.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (dialog != null) {
+                            dialog.dismiss();
                         }
                     }
                 });
@@ -194,17 +196,48 @@ public class BookActivity4PageGridDialog {
                 requestLoadPages();
             }
         });
-        //WIN_HEIGHT
-//        dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT,
-//                ViewGroup.LayoutParams.MATCH_PARENT/*ViewGroup.LayoutParams.WRAP_CONTENT*/);
-        updateLayout(dialog);
-        return dialog;
+        updateLayout(mDialog);
+        return mDialog;
+    }
+    private void deleteCurPage() {
+        if (bookGridAdapter != null &&
+                bookGridAdapter.checkMode == BookPageGridAdapter.CHECK_MODE_CHECK) {
+            List<Page> pages = new ArrayList<>();
+            for (Page page : _pageList) {
+                if (page != null && page.checked) {
+                    pages.add(page);
+                }
+            }
+            deletePages(mDialog, pages);
+            bookGridAdapter.checkMode = BookPageGridAdapter.CHECK_MODE_NONE;
+            bookGridAdapter.notifyDataSetChanged();
+            updateButtons();
+            if (!BookActivity4PageGridDialog.NO_REOPEN_DIALOG) {
+                if (mDialog != null && mDialog.isShowing()) {
+                    mDialog.dismiss();
+                }
+            } else {
+                _book = null;
+                onCreateAct(mContext, dirUrl, dirUrlPath);
+                requestLoadPages();
+            }
+        }
     }
     private void updateLayout(AlertDialog dialog) {
+        //WIN_HEIGHT
+//        dialog.getWindow().setLayout(
+//                WIN_WIDTH, //ViewGroup.LayoutParams.WRAP_CONTENT,
+//                WIN_HEIGHT //ViewGroup.LayoutParams.MATCH_PARENT
+//                /*ViewGroup.LayoutParams.WRAP_CONTENT*/
+//        );
         try {
             Window window = dialog.getWindow();
             if (window != null) {
-                window.setLayout(WindowManager.LayoutParams.WRAP_CONTENT, 800);
+//                window.setLayout(WindowManager.LayoutParams.WRAP_CONTENT, 800);
+                  window.setLayout(
+                        WIN_WIDTH,
+                        WIN_HEIGHT
+                  );
             }
         } catch (Throwable eee) {
             eee.printStackTrace();

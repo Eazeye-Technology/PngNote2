@@ -1,7 +1,6 @@
 package com.txkj.drawingapp.activity;
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -14,8 +13,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
-import android.graphics.PointF;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
@@ -26,12 +23,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
-import android.text.Editable;
-import android.text.Html;
-import android.text.Spanned;
 import android.text.TextPaint;
-import android.text.style.StyleSpan;
-import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.util.SizeF;
 import android.view.KeyEvent;
@@ -40,10 +32,8 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -67,7 +57,6 @@ import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 
-import com.agsw.FabricView.FabricView;
 import com.foobnix.android.utils.KeyboardsMod;
 import com.github.guanpy.wblib.bean.DrawPoint;
 import com.github.guanpy.wblib.widget.DrawTextView;
@@ -667,7 +656,7 @@ public class BookActivity4Fragment extends Fragment {
                 //findViewById(R.id.buttonEraser2).performClick();
                 canvas.setPenType(DrawAppearance.PEN_TYPE_2);
             } else if (id == R.id.left_toolkit_item3) {
-                canvas.setPenType(DrawAppearance.PEN_TYPE_3);
+                canvas.setPenType(DrawAppearance.PEN_TYPE_3); //highlight
             } else if (id == R.id.left_toolkit_item4) {
                 canvas.setPenType(DrawAppearance.PEN_TYPE_4);
             } else if (id == R.id.left_toolkit_item5) {
@@ -752,7 +741,7 @@ public class BookActivity4Fragment extends Fragment {
             dialog.outputBrushSize = left_toolkit_item2_size;
         } else if (id == R.id.left_toolkit_item3) {
             dialog.outputColor = left_toolkit_item3_color;
-            dialog.outputBrushSize = left_toolkit_item3_size;
+            dialog.outputBrushSize = left_toolkit_item3_size; //highlight
         } else if (id == R.id.left_toolkit_item4) {
             dialog.outputColor = left_toolkit_item4_color;
             dialog.outputBrushSize = left_toolkit_item4_size;
@@ -1117,8 +1106,6 @@ public class BookActivity4Fragment extends Fragment {
     }
 
     private void init0001(View rootView) {
-        loadBrushPreset();
-
         newFixedThreadPool = Executors.newFixedThreadPool(6);
         Bundle intent = this.getArguments();
         boolean isInitBackText = false;
@@ -1148,6 +1135,8 @@ public class BookActivity4Fragment extends Fragment {
 //            }
 //        }
         onCreateAct(rootView);
+        loadBrushPreset();
+
         if (BookIO.USE_META_TXT) {
             if (isInitBackText && backText != null) {
                 //如果是创建的才会走这里
@@ -1402,75 +1391,8 @@ public class BookActivity4Fragment extends Fragment {
 //                }
 //            }
 //        });
-        //https://www.cnblogs.com/conglingkaishi/p/9502241.html
-        //https://github.com/gzu-liyujiang/SpanTextBuilder
-        //https://github.com/nalancer08/Android-Utils
-        rootView.findViewById(R.id.action_bold).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                EditText editText = getDtView(true).mEtTextEdit;
-                Editable text = editText.getText();
-                int start = editText.getSelectionStart();
-                int end = editText.getSelectionEnd();
-                StyleSpan[] old = text.getSpans(start, end, StyleSpan.class);
-                if (old != null && old.length > 0) {
-                    for (StyleSpan del : old) {
-                        if (del.getStyle() == Typeface.BOLD) {
-                            text.removeSpan(del);
-                        }
-                    }
-                    //editText.setText(text);
-                } else {
-                    text.setSpan(new StyleSpan(Typeface.BOLD), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    //editText.setText(text);
-                }
-                //Log.d("RichText", "onSetSelectedBold: " + Html.toHtml(text));
-            }
-        });
-        rootView.findViewById(R.id.action_italic).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                EditText editText = getDtView(true).mEtTextEdit;
-                Editable text = editText.getText();
-                int start = editText.getSelectionStart();
-                int end = editText.getSelectionEnd();
-                StyleSpan[] old = text.getSpans(start, end, StyleSpan.class);
-                if (old != null && old.length > 0) {
-                    for (StyleSpan del : old) {
-                        if (del.getStyle() == Typeface.ITALIC) {
-                            text.removeSpan(del);
-                        }
-                    }
-                    //editText.setText(text);
-                } else {
-                    text.setSpan(new StyleSpan(Typeface.ITALIC), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    //editText.setText(text);
-                }
-                //Log.d("RichText", "onSetSelectedBold: " + Html.toHtml(text));
-            }
-        });
-        rootView.findViewById(R.id.action_underline).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                EditText editText = getDtView(true).mEtTextEdit;
-                Editable text = editText.getText();
-                int start = editText.getSelectionStart();
-                int end = editText.getSelectionEnd();
 
-                UnderlineSpan[] old = text.getSpans(start, end, UnderlineSpan.class);
-                if (old != null && old.length > 0) {
-                    for (UnderlineSpan del : old) {
-                        text.removeSpan(del);
-                    }
-                    //editText.setText(text);
-                } else {
-                    UnderlineSpan underlineSpan = new UnderlineSpan();
-                    text.setSpan(underlineSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    //editText.setText(text);
-                }
-                //Log.d("RichText", "onSetSelectedBold: " + Html.toHtml(text));
-            }
-        });
+        BookActivity4RichText.initButtons(this);
     }
 //    private UnderlineSpan underlineSpan;
 
@@ -1493,6 +1415,21 @@ public class BookActivity4Fragment extends Fragment {
 
     private void init001(View rootView) {
         {
+            View.OnClickListener onClickListenerPause = new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (g_rootView.findViewById(R.id.stopRecord).getVisibility() == View.VISIBLE) {
+                        if (g_rootView.findViewById(R.id.pauseRecordOff).getVisibility() == View.VISIBLE) {
+                            g_rootView.findViewById(R.id.pauseRecordOff).setVisibility(View.GONE);
+                            g_rootView.findViewById(R.id.pauseRecordOn).setVisibility(View.VISIBLE);
+                        } else {
+                            g_rootView.findViewById(R.id.pauseRecordOff).setVisibility(View.VISIBLE);
+                            g_rootView.findViewById(R.id.pauseRecordOn).setVisibility(View.GONE);
+                        }
+                    }
+                }
+            };
+
             View.OnClickListener onClickListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -1508,6 +1445,7 @@ public class BookActivity4Fragment extends Fragment {
                             }
                         } else {
                             if (g_rootView.findViewById(R.id.startRecord).getVisibility() == View.VISIBLE) {
+                                rootView.findViewById(R.id.rlTranscript).performClick(); //FIXME:added
                                 //isRecording
                                 if (rtasrDialog == null) {
                                     rtasrDialog = new BookActivity4RTASRDialog(getActivity());
@@ -1557,6 +1495,8 @@ public class BookActivity4Fragment extends Fragment {
             };
             rootView.findViewById(R.id.startRecord).setOnClickListener(onClickListener);
             rootView.findViewById(R.id.stopRecord).setOnClickListener(onClickListener);
+            rootView.findViewById(R.id.pauseRecordOff).setOnClickListener(onClickListenerPause);
+            rootView.findViewById(R.id.pauseRecordOn).setOnClickListener(onClickListenerPause);
             ListView viewListViewBook = (ListView) rootView.findViewById(R.id.viewListViewBook);
             String meetingId = "";
             String agendaId = "";
@@ -1581,88 +1521,90 @@ public class BookActivity4Fragment extends Fragment {
                     }
                 }
             });
-            viewListViewBook.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-                @Override
-                public boolean onItemLongClick(AdapterView<?> av, View v, int position, long id) {
-                    android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(getActivity());
-                    final RecordingItem item = (RecordingItem)adapter.getItem(position);
-                    if (item.getRecType() != null
-                            && item.getRecType().equals("text")) {
-                        builder.setTitle("Sync recognition result")
-                                .setItems(new String[] {
-                                        "Delete", //0
-                                }, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        if (item != null) {
-                                            switch (which) {
-                                                case 0:
-                                                    adapter.remove(item);
-                                                    break;
+            if (false) {
+                viewListViewBook.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                    @Override
+                    public boolean onItemLongClick(AdapterView<?> av, View v, int position, long id) {
+                        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(getActivity());
+                        final RecordingItem item = (RecordingItem) adapter.getItem(position);
+                        if (item.getRecType() != null
+                                && item.getRecType().equals("text")) {
+                            builder.setTitle("Operation")//""Sync recognition result")
+                                    .setItems(new String[]{
+                                            "Delete", //0
+                                    }, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            if (item != null) {
+                                                switch (which) {
+                                                    case 0:
+                                                        adapter.remove(item);
+                                                        break;
+                                                }
                                             }
                                         }
-                                    }
-                                });
-                    } else {
-                        builder.setTitle(item.getName())
-                                .setItems(new String[] {
-                                        "History", //0
-                                        "To Mandarin", //1
-                                        "To Cantonese", //2
-                                        "To English", //3
-                                        "", //4
-                                        "----", //5
-                                        "Clear repeat", //6
-                                        "Clear History", //7
-                                        "Delete", //8
-                                }, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        if (item != null) {
-                                            switch (which) {
-                                                case 0:
-                                                    startActivity(new Intent(getActivity(), DictResultActivity.class).putExtra(DictResultActivity.EXTRA_RECORDING_ID, item.getId()));
+                                    });
+                        } else {
+                            builder.setTitle(item.getName())
+                                    .setItems(new String[]{
+                                            "History", //0
+                                            "To Mandarin", //1
+                                            "To Cantonese", //2
+                                            "To English", //3
+                                            "", //4
+                                            "----", //5
+                                            "Clear repeat", //6
+                                            "Clear History", //7
+                                            "Delete", //8
+                                    }, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            if (item != null) {
+                                                switch (which) {
+                                                    case 0:
+                                                        startActivity(new Intent(getActivity(), DictResultActivity.class).putExtra(DictResultActivity.EXTRA_RECORDING_ID, item.getId()));
+                                                        break;
+
+                                                    case 1: {
+                                                        //Toast.makeText(MainActivity.this, item.getFilePath(), Toast.LENGTH_SHORT).show();
+                                                        RecognizeDialog recogizeDialog = new RecognizeDialog(getActivity(), item, RecognizeDialog.LANG_CHINESE);
+                                                        recogizeDialog.show();
+                                                    }
                                                     break;
 
-                                                case 1: {
-                                                    //Toast.makeText(MainActivity.this, item.getFilePath(), Toast.LENGTH_SHORT).show();
-                                                    RecognizeDialog recogizeDialog = new RecognizeDialog(getActivity(), item, RecognizeDialog.LANG_CHINESE);
-                                                    recogizeDialog.show();
+                                                    case 2: {
+                                                        //Toast.makeText(MainActivity.this, item.getFilePath(), Toast.LENGTH_SHORT).show();
+                                                        RecognizeDialog recogizeDialog = new RecognizeDialog(getActivity(), item, RecognizeDialog.LANG_CHINESE_GD);
+                                                        recogizeDialog.show();
+                                                    }
+                                                    break;
+
+                                                    case 3: {
+                                                        //Toast.makeText(MainActivity.this, item.getFilePath(), Toast.LENGTH_SHORT).show();
+                                                        RecognizeDialog recogizeDialog = new RecognizeDialog(getActivity(), item, RecognizeDialog.LANG_ENGLISH);
+                                                        recogizeDialog.show();
+                                                    }
+                                                    break;
+
+                                                    case 6:
+                                                        //clearHistoryRepeat(item);
+                                                        break;
+
+                                                    case 7:
+                                                        //clearHistory(item);
+                                                        break;
+
+                                                    case 8:
+                                                        adapter.remove(item);
+                                                        break;
                                                 }
-                                                break;
-
-                                                case 2: {
-                                                    //Toast.makeText(MainActivity.this, item.getFilePath(), Toast.LENGTH_SHORT).show();
-                                                    RecognizeDialog recogizeDialog = new RecognizeDialog(getActivity(), item, RecognizeDialog.LANG_CHINESE_GD);
-                                                    recogizeDialog.show();
-                                                }
-                                                break;
-
-                                                case 3: {
-                                                    //Toast.makeText(MainActivity.this, item.getFilePath(), Toast.LENGTH_SHORT).show();
-                                                    RecognizeDialog recogizeDialog = new RecognizeDialog(getActivity(), item, RecognizeDialog.LANG_ENGLISH);
-                                                    recogizeDialog.show();
-                                                }
-                                                break;
-
-                                                case 6:
-                                                    //clearHistoryRepeat(item);
-                                                    break;
-
-                                                case 7:
-                                                    //clearHistory(item);
-                                                    break;
-
-                                                case 8:
-                                                    adapter.remove(item);
-                                                    break;
                                             }
                                         }
-                                    }
-                                });
+                                    });
+                        }
+                        builder.show();
+                        return true;
                     }
-                    builder.show();
-                    return true;
-                }
-            });
+                });
+            }
         }
 
 
@@ -2773,12 +2715,17 @@ public class BookActivity4Fragment extends Fragment {
                                 gotoGridPage();
                             }
                         } else {
-                            beforePageGrid();
-                            AlertDialog dialog = new BookActivity4PageGridDialog(getActivity(),
-                                    BookActivity4Fragment.this.dirUrl,
-                                    BookActivity4Fragment.this.dirUrlPath)
-                                    .create();
-                            dialog.show();
+                            view.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    beforePageGrid();
+                                    AlertDialog dialog = new BookActivity4PageGridDialog(getActivity(),
+                                            BookActivity4Fragment.this.dirUrl,
+                                            BookActivity4Fragment.this.dirUrlPath)
+                                            .create();
+                                    dialog.show();
+                                }
+                            }, 100);
                         }
                     } else if (view.getId() == R.id.popButtonPrevPage) {
                         notifyForceSave(false);
@@ -3267,20 +3214,20 @@ public class BookActivity4Fragment extends Fragment {
                 this.editTextSize = 19;//28;
             } else if (sizeType == SIZE_TYPE_TITLE) {
                 //this.dtView.mEtTextEdit.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 48);
-                this.getDtView(false).mEtTextEdit.setTextSize(39);//48);
-                this.editTextSize = 39;//48;
+                this.getDtView(false).mEtTextEdit.setTextSize(36);//39);//48);
+                this.editTextSize = 36;//39;//48;
             } else if (sizeType == SIZE_TYPE_H1) {
                 //this.dtView.mEtTextEdit.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 42);
-                this.getDtView(false).mEtTextEdit.setTextSize(33);//42);
-                this.editTextSize = 33;//42;
+                this.getDtView(false).mEtTextEdit.setTextSize(32);//33);//42);
+                this.editTextSize = 32;//33;//42;
             } else if (sizeType == SIZE_TYPE_H2) {
                 //this.dtView.mEtTextEdit.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 38);
-                this.getDtView(false).mEtTextEdit.setTextSize(29);//38);
-                this.editTextSize = 29;//38;
+                this.getDtView(false).mEtTextEdit.setTextSize(28);//29);//38);
+                this.editTextSize = 28;//29;//38;
             } else if (sizeType == SIZE_TYPE_H3) {
                 //this.dtView.mEtTextEdit.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 36);
-                this.getDtView(false).mEtTextEdit.setTextSize(25);//34);
-                this.editTextSize = 25;//34;
+                this.getDtView(false).mEtTextEdit.setTextSize(24);//25);//34);
+                this.editTextSize = 24;//25;//34;
             }
         }
     }
@@ -3646,6 +3593,12 @@ public class BookActivity4Fragment extends Fragment {
     private long rowId = -1;
     public void tv_result_setText(String str, String subStr, boolean isEnd, boolean isAppend) {
         Log.e(TAG, "tv_result_setText : " + str);
+
+        if (g_rootView.findViewById(R.id.pauseRecordOn).getVisibility() == View.VISIBLE) {
+            //pause, no output
+            return;
+        }
+
         if (str != null && str.equals("")) {
             rowId = -1;
             //return;
@@ -3656,12 +3609,23 @@ public class BookActivity4Fragment extends Fragment {
                 if (rowId > -1) {
                     mDatabase.updateItemContent(rowId, str, isAppend);
                 } else {
-                    rowId = mDatabase.addRecording(
-                            "rtasr-" + System.currentTimeMillis(),
-                            "",
-                            0,
-                            "", "",
-                            "text", str);
+                    if (str != null &&
+                            (str.startsWith(".") || str.startsWith("?") || str.startsWith(","))) {
+                        rowId = mDatabase.addRecording(
+                                "rtasr-" + System.currentTimeMillis(),
+                                "",
+                                0,
+                                "", "",
+                                "text", str.substring(1));
+                        mDatabase.updateItemContent(rowId - 1, str.substring(0, 1), true);
+                    } else {
+                        rowId = mDatabase.addRecording(
+                                "rtasr-" + System.currentTimeMillis(),
+                                "",
+                                0,
+                                "", "",
+                                "text", str);
+                    }
                 }
                 if (isEnd) {
                     rowId = -1;
@@ -3699,6 +3663,8 @@ public class BookActivity4Fragment extends Fragment {
             anim.start();
             g_rootView.findViewById(R.id.startRecord).setVisibility(View.GONE);
             g_rootView.findViewById(R.id.stopRecord).setVisibility(View.VISIBLE);
+            g_rootView.findViewById(R.id.pauseRecordOff).setVisibility(View.VISIBLE);
+            g_rootView.findViewById(R.id.pauseRecordOn).setVisibility(View.GONE);
 
             rlAIIcon.setVisibility(View.GONE);
             btnPanel2.setVisibility(View.VISIBLE);
@@ -3710,6 +3676,8 @@ public class BookActivity4Fragment extends Fragment {
             anim.selectDrawable(0);
             g_rootView.findViewById(R.id.startRecord).setVisibility(View.VISIBLE);
             g_rootView.findViewById(R.id.stopRecord).setVisibility(View.GONE);
+            g_rootView.findViewById(R.id.pauseRecordOff).setVisibility(View.VISIBLE);
+            g_rootView.findViewById(R.id.pauseRecordOn).setVisibility(View.GONE);
 
             rlAIIcon.setVisibility(View.VISIBLE);
             btnPanel2.setVisibility(View.GONE);
@@ -3759,107 +3727,246 @@ public class BookActivity4Fragment extends Fragment {
         return "";
     }
 
+    private final static boolean USE_PRUSH_PRESET_SINGLE_FOLDER = true;
     private void saveBrushPreset() {
         try {
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putInt("left_toolkit_item1_color", left_toolkit_item1_color);
-            editor.putInt("left_toolkit_item2_color", left_toolkit_item2_color);
-            editor.putInt("left_toolkit_item3_color", left_toolkit_item3_color);
-            editor.putInt("left_toolkit_item4_color", left_toolkit_item4_color);
-            editor.putInt("left_toolkit_item5_color", left_toolkit_item5_color);
-            editor.putInt("left_toolkit_item6_color", left_toolkit_item6_color);
+            if (USE_PRUSH_PRESET_SINGLE_FOLDER) {
+                boolean isFailed = false;
+                if (_bookDir == null || _bookDir.getName() == null ||!_bookDir.getName().startsWith(BookActivity4Config.USE_SKETCH_PREFIX)) {
+                    isFailed = true;
+                }
+                String folder = _bookDir.getFilePath();
+                if (folder == null ||
+                        !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).exists() ||
+                        !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).canWrite()
+                ) {
+                    isFailed = true;
+                }
+                try {
+                    File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
+                    String str = FastFile.loadMetaText(file_2);
+                    JSONObject item = new JSONObject(str);
+                    item.put("left_toolkit_item1_color", left_toolkit_item1_color);
+                    item.put("left_toolkit_item2_color", left_toolkit_item2_color);
+                    item.put("left_toolkit_item3_color", left_toolkit_item3_color);
+                    item.put("left_toolkit_item4_color", left_toolkit_item4_color);
+                    item.put("left_toolkit_item5_color", left_toolkit_item5_color);
+                    item.put("left_toolkit_item6_color", left_toolkit_item6_color);
 
-            editor.putInt("left_toolkit_item1_size", left_toolkit_item1_size);
-            editor.putInt("left_toolkit_item2_size", left_toolkit_item2_size);
-            editor.putInt("left_toolkit_item3_size", left_toolkit_item3_size);
-            editor.putInt("left_toolkit_item4_size", left_toolkit_item4_size);
-            editor.putInt("left_toolkit_item5_size", left_toolkit_item5_size);
-            editor.putInt("left_toolkit_item6_size", left_toolkit_item6_size);
+                    item.put("left_toolkit_item1_size", left_toolkit_item1_size);
+                    item.put("left_toolkit_item2_size", left_toolkit_item2_size);
+                    item.put("left_toolkit_item3_size", left_toolkit_item3_size);
+                    item.put("left_toolkit_item4_size", left_toolkit_item4_size);
+                    item.put("left_toolkit_item5_size", left_toolkit_item5_size);
+                    item.put("left_toolkit_item6_size", left_toolkit_item6_size);
+                    FastFile.saveMetaText(file_2, item.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    isFailed = true;
+                }
+            } else {
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putInt("left_toolkit_item1_color", left_toolkit_item1_color);
+                editor.putInt("left_toolkit_item2_color", left_toolkit_item2_color);
+                editor.putInt("left_toolkit_item3_color", left_toolkit_item3_color);
+                editor.putInt("left_toolkit_item4_color", left_toolkit_item4_color);
+                editor.putInt("left_toolkit_item5_color", left_toolkit_item5_color);
+                editor.putInt("left_toolkit_item6_color", left_toolkit_item6_color);
 
-            editor.apply();
+                editor.putInt("left_toolkit_item1_size", left_toolkit_item1_size);
+                editor.putInt("left_toolkit_item2_size", left_toolkit_item2_size);
+                editor.putInt("left_toolkit_item3_size", left_toolkit_item3_size);
+                editor.putInt("left_toolkit_item4_size", left_toolkit_item4_size);
+                editor.putInt("left_toolkit_item5_size", left_toolkit_item5_size);
+                editor.putInt("left_toolkit_item6_size", left_toolkit_item6_size);
+
+                editor.apply();
+            }
         } catch (Throwable eee) {
             eee.printStackTrace();
         }
     }
     private void loadBrushPreset() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        try {
-            this.left_toolkit_item1_color = preferences.getInt("left_toolkit_item1_color", Color.BLACK);
-        } catch (Throwable eee) {
-            eee.printStackTrace();
-            this.left_toolkit_item1_color = Color.BLACK;
-        }
-        try {
-            this.left_toolkit_item2_color = preferences.getInt("left_toolkit_item2_color", Color.BLACK);
-        } catch (Throwable eee) {
-            eee.printStackTrace();
-            this.left_toolkit_item2_color = Color.BLACK;
-        }
-        try {
-            this.left_toolkit_item3_color = preferences.getInt("left_toolkit_item3_color", Color.BLACK);
-        } catch (Throwable eee) {
-            eee.printStackTrace();
-            this.left_toolkit_item3_color = Color.BLACK;
-        }
+        if (USE_PRUSH_PRESET_SINGLE_FOLDER) {
+            //String newSummary = "";
+            boolean isFailed = false;
+            if (_bookDir == null || _bookDir.getName() == null ||!_bookDir.getName().startsWith(BookActivity4Config.USE_SKETCH_PREFIX)) {
+                isFailed = true;
+            }
+            String folder = _bookDir.getFilePath();
+            if (folder == null ||
+                    !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).exists() ||
+                    !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).canWrite()
+            ) {
+                isFailed = true;
+            }
+            try {
+                File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
+                String str = FastFile.loadMetaText(file_2);
+                JSONObject item = new JSONObject(str);
+                try {
+                    this.left_toolkit_item1_color = item.optInt("left_toolkit_item1_color", Color.BLACK);
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                    this.left_toolkit_item1_color = Color.BLACK;
+                }
+                try {
+                    this.left_toolkit_item2_color = item.optInt("left_toolkit_item2_color", Color.BLACK);
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                    this.left_toolkit_item2_color = Color.BLACK;
+                }
+                try {
+                    this.left_toolkit_item3_color = item.optInt("left_toolkit_item3_color", Color.BLACK);
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                    this.left_toolkit_item3_color = Color.BLACK;
+                }
 
-        try {
-            this.left_toolkit_item4_color = preferences.getInt("left_toolkit_item4_color", Color.BLACK);
-        } catch (Throwable eee) {
-            eee.printStackTrace();
-            this.left_toolkit_item4_color = Color.BLACK;
-        }
-        try {
-            this.left_toolkit_item5_color = preferences.getInt("left_toolkit_item5_color", Color.BLACK);
-        } catch (Throwable eee) {
-            eee.printStackTrace();
-            this.left_toolkit_item5_color = Color.BLACK;
-        }
-        try {
-            this.left_toolkit_item6_color = preferences.getInt("left_toolkit_item6_color", Color.BLACK);
-        } catch (Throwable eee) {
-            eee.printStackTrace();
-            this.left_toolkit_item6_color = Color.BLACK;
-        }
-
-
-        try {
-            this.left_toolkit_item1_size = preferences.getInt("left_toolkit_item1_size", 1);
-        } catch (Throwable eee) {
-            eee.printStackTrace();
-            this.left_toolkit_item1_size = 1;
-        }
-        try {
-            this.left_toolkit_item2_size = preferences.getInt("left_toolkit_item2_size", 1);
-        } catch (Throwable eee) {
-            eee.printStackTrace();
-            this.left_toolkit_item2_size = 1;
-        }
-        try {
-            this.left_toolkit_item3_size = preferences.getInt("left_toolkit_item3_size", 1);
-        } catch (Throwable eee) {
-            eee.printStackTrace();
-            this.left_toolkit_item3_size = 1;
-        }
+                try {
+                    this.left_toolkit_item4_color = item.optInt("left_toolkit_item4_color", Color.BLACK);
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                    this.left_toolkit_item4_color = Color.BLACK;
+                }
+                try {
+                    this.left_toolkit_item5_color = item.optInt("left_toolkit_item5_color", Color.BLACK);
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                    this.left_toolkit_item5_color = Color.BLACK;
+                }
+                try {
+                    this.left_toolkit_item6_color = item.optInt("left_toolkit_item6_color", Color.BLACK);
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                    this.left_toolkit_item6_color = Color.BLACK;
+                }
 
 
-        try {
-            this.left_toolkit_item4_size = preferences.getInt("left_toolkit_item4_size", 1);
-        } catch (Throwable eee) {
-            eee.printStackTrace();
-            this.left_toolkit_item4_size = 1;
-        }
-        try {
-            this.left_toolkit_item5_size = preferences.getInt("left_toolkit_item5_size", 1);
-        } catch (Throwable eee) {
-            eee.printStackTrace();
-            this.left_toolkit_item5_size = 1;
-        }
-        try {
-            this.left_toolkit_item6_size = preferences.getInt("left_toolkit_item6_size", 1);
-        } catch (Throwable eee) {
-            eee.printStackTrace();
-            this.left_toolkit_item6_size = 1;
+                try {
+                    this.left_toolkit_item1_size = item.optInt("left_toolkit_item1_size", 1);
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                    this.left_toolkit_item1_size = 1;
+                }
+                try {
+                    this.left_toolkit_item2_size = item.optInt("left_toolkit_item2_size", 1);
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                    this.left_toolkit_item2_size = 1;
+                }
+                ////highlight
+                try {
+                    this.left_toolkit_item3_size = item.optInt("left_toolkit_item3_size", 5);//1);
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                    this.left_toolkit_item3_size = 5;
+                }
+
+
+                try {
+                    this.left_toolkit_item4_size = item.optInt("left_toolkit_item4_size", 1);
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                    this.left_toolkit_item4_size = 1;
+                }
+                try {
+                    this.left_toolkit_item5_size = item.optInt("left_toolkit_item5_size", 1);
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                    this.left_toolkit_item5_size = 1;
+                }
+                try {
+                    this.left_toolkit_item6_size = item.optInt("left_toolkit_item6_size", 1);
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                    this.left_toolkit_item6_size = 1;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                isFailed = true;
+            }
+        } else {
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            try {
+                this.left_toolkit_item1_color = preferences.getInt("left_toolkit_item1_color", Color.BLACK);
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+                this.left_toolkit_item1_color = Color.BLACK;
+            }
+            try {
+                this.left_toolkit_item2_color = preferences.getInt("left_toolkit_item2_color", Color.BLACK);
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+                this.left_toolkit_item2_color = Color.BLACK;
+            }
+            try {
+                this.left_toolkit_item3_color = preferences.getInt("left_toolkit_item3_color", Color.BLACK);
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+                this.left_toolkit_item3_color = Color.BLACK;
+            }
+
+            try {
+                this.left_toolkit_item4_color = preferences.getInt("left_toolkit_item4_color", Color.BLACK);
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+                this.left_toolkit_item4_color = Color.BLACK;
+            }
+            try {
+                this.left_toolkit_item5_color = preferences.getInt("left_toolkit_item5_color", Color.BLACK);
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+                this.left_toolkit_item5_color = Color.BLACK;
+            }
+            try {
+                this.left_toolkit_item6_color = preferences.getInt("left_toolkit_item6_color", Color.BLACK);
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+                this.left_toolkit_item6_color = Color.BLACK;
+            }
+
+
+            try {
+                this.left_toolkit_item1_size = preferences.getInt("left_toolkit_item1_size", 1);
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+                this.left_toolkit_item1_size = 1;
+            }
+            try {
+                this.left_toolkit_item2_size = preferences.getInt("left_toolkit_item2_size", 1);
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+                this.left_toolkit_item2_size = 1;
+            }
+            //highlight
+            try {
+                this.left_toolkit_item3_size = preferences.getInt("left_toolkit_item3_size", 5);//1);
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+                this.left_toolkit_item3_size = 5;//1;
+            }
+
+
+            try {
+                this.left_toolkit_item4_size = preferences.getInt("left_toolkit_item4_size", 1);
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+                this.left_toolkit_item4_size = 1;
+            }
+            try {
+                this.left_toolkit_item5_size = preferences.getInt("left_toolkit_item5_size", 1);
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+                this.left_toolkit_item5_size = 1;
+            }
+            try {
+                this.left_toolkit_item6_size = preferences.getInt("left_toolkit_item6_size", 1);
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+                this.left_toolkit_item6_size = 1;
+            }
         }
     }
     LinkedList<DrawPath> copyPaths = new LinkedList<>();
@@ -3885,5 +3992,10 @@ public class BookActivity4Fragment extends Fragment {
             }
             BookActivity4Utils.finish(getActivity(), true);
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
     }
 }

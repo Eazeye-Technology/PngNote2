@@ -11,6 +11,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.txkj.contentbrowser.NoteFragment2;
+import com.txkj.contentbrowser.NoteFragment3;
 import com.txkj.drawingapp.R;
 import com.txkj.notemobile2.BookListActivity;
 import com.txkj.notemobile2.BookListFragment;
@@ -53,6 +54,8 @@ public class BookActivity4Utils {
             Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
             if (currentFragment instanceof NoteFragment2) {
                 return true;
+            } else if (currentFragment instanceof NoteFragment3) {
+                return true;
             }
         }
         return false;
@@ -94,8 +97,17 @@ public static boolean onBackPressed(Activity context) {
                 FragmentManager fragmentManager = act.getSupportFragmentManager();
                 fragmentManager.popBackStack();
                 if (isRefreshList) {
+//                    if (act.noteFragment2 instanceof NoteFragment2) {
+//
+//                    }
                     if (act.noteFragment2 != null) {
                         act.noteFragment2.refresh();
+                    }
+//                    if (act.noteFragment3 instanceof NoteFragment3) {
+//
+//                    }
+                    if (act.noteFragment3 != null) {
+                        act.noteFragment3.refresh();
                     }
                 }
                 if (act.isIntentNew || act.isIntentOpen) {

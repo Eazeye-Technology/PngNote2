@@ -493,6 +493,7 @@
             app:icon="@null"
             android:id="@+id/btnCancel"
             android:padding="0px"
+            android:textColor="#000000"
             />
         <!--android:textStyle="bold"
             -->
@@ -505,6 +506,7 @@
             app:icon="@null"
             android:id="@+id/btnSave"
             android:padding="0px"
+            android:textColor="#000000"
             />
     </LinearLayout>
 

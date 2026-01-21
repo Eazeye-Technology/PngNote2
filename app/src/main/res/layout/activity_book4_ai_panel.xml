@@ -271,16 +271,24 @@
                         </androidx.cardview.widget.CardView>
                     </FrameLayout>
 
-                    <androidx.cardview.widget.CardView
+                    <FrameLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        app:cardBackgroundColor="#F6F3F2"
-                        app:cardCornerRadius="30px"
-                        android:layout_gravity="center|center_vertical"
-                        android:layout_margin="5px"
-                        android:layout_marginLeft="5px"
+                        android:layout_gravity="center_vertical|center"
+                        android:layout_marginLeft="0px"
                         >
-                        <LinearLayout
+                        <androidx.cardview.widget.CardView
+                            android:id="@+id/pauseRecordOff"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:cardBackgroundColor="#F6F3F2"
+                            app:cardCornerRadius="30px"
+                            android:layout_gravity="center|center_vertical"
+                            android:layout_margin="5px"
+                            android:layout_marginLeft="5px"
+                            android:visibility="visible"
+                            >
+                            <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:paddingLeft="20px"
@@ -312,8 +320,52 @@
                                 android:visibility="visible"
                                 />
                         </LinearLayout>
-                    </androidx.cardview.widget.CardView>
-
+                        </androidx.cardview.widget.CardView>
+                        <androidx.cardview.widget.CardView
+                            android:id="@+id/pauseRecordOn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:cardBackgroundColor="#585858"
+                            app:cardCornerRadius="30px"
+                            android:layout_gravity="center|center_vertical"
+                            android:layout_margin="5px"
+                            android:layout_marginLeft="5px"
+                            android:visibility="gone"
+                            >
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:paddingLeft="20px"
+                                >
+                                <androidx.appcompat.widget.AppCompatImageView
+                                    android:layout_width="20px"
+                                    android:layout_height="20px"
+                                    android:layout_centerVertical="true"
+                                    android:scaleType="fitCenter"
+                                    android:textSize="11px"
+                                    android:textAllCaps="true"
+                                    android:background="@drawable/ic_baseline_pause_24_white"
+                                    android:text="PEN"
+                                    android:layout_gravity="center"
+                                    android:gravity="center"
+                                    android:tag="binding_1"
+                                    android:layout_margin="10px"
+                                    />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textSize="14px"
+                                    android:text="Resume"
+                                    android:textColor="#FFFFFF"
+                                    android:textStyle="bold"
+                                    android:layout_gravity="center"
+                                    android:gravity="center"
+                                    android:layout_marginRight="30px"
+                                    android:visibility="visible"
+                                    />
+                            </LinearLayout>
+                        </androidx.cardview.widget.CardView>
+                    </FrameLayout>
 
                 </LinearLayout>
             </LinearLayout>

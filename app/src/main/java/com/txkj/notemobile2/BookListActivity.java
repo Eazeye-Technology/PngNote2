@@ -22,6 +22,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.foobnix.pdf.info.Android6Mod;
 import com.txkj.contentbrowser.NoteFragment2;
+import com.txkj.contentbrowser.NoteFragment3;
 import com.txkj.drawingapp.R;
 import com.txkj.drawingapp.activity.BookActivity4Fragment;
 import com.txkj.drawingapp.activity.BookActivity4Utils;
@@ -30,8 +31,10 @@ public class BookListActivity extends AppCompatActivity {
     private final static boolean D = true;
     private final static String TAG = "BookListActivity";
 
+//    public BookListFragment2 bookListFragment2;
     public BookListFragment bookListFragment;
     public NoteFragment2 noteFragment2;
+    public NoteFragment3 noteFragment3;
 
     private FragmentManager fragmentManager = null;
     private FragmentTransaction fragmentTransaction = null;
@@ -80,14 +83,18 @@ public class BookListActivity extends AppCompatActivity {
 
 
         bookListFragment = new BookListFragment();
+//        bookListFragment2 = new BookListFragment2();
         noteFragment2 = new NoteFragment2();
+        noteFragment3 = new NoteFragment3();
 
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
         if (false) {
             fragmentTransaction.replace(R.id.content_layout, bookListFragment);
-        } else {
+        } else if (false) {
             fragmentTransaction.replace(R.id.content_layout, noteFragment2);
+        } else {
+            fragmentTransaction.replace(R.id.content_layout, noteFragment3);
         }
         fragmentTransaction.commit();
     }
@@ -191,6 +198,17 @@ Android6.onRequestPermissionsResult(this, i, strArr, iArr);
     public void onBackPressed() {
         if (!BookActivity4Utils.onBackPressed(this)) {
             super.onBackPressed();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (noteFragment2 != null) {
+            noteFragment2.refresh();
+        }
+        if (noteFragment3 != null) {
+            noteFragment3.refresh();
         }
     }
 }

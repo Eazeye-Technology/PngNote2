@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * 2024-12-16
  * **********************************/
 public class BookActivity4RTASRDialog implements AudioRecorderManager.AudioDataCallback{
+    public final static boolean NO_AUTO_WRAP = true;
     private static final String TAG = "AEELog";
     private String RTASRAPIKEY = "";
 //    private Spinner sp_language;
@@ -55,7 +56,7 @@ public class BookActivity4RTASRDialog implements AudioRecorderManager.AudioDataC
     long lastUpdate = 0;
     public final static boolean SHOW_DEBUG_TIME = false;
     public void tv_result_setText(String str, String subStr, boolean isEnd) {
-        if (System.currentTimeMillis() - lastUpdate > 1000L * 2L) { //5 second auto wrap
+        if (!NO_AUTO_WRAP && System.currentTimeMillis() - lastUpdate > 1000L * 2L) { //5 second auto wrap
             //idle, send new line
             String oldStr = asrFinalResult;
             asrFinalResult = "";

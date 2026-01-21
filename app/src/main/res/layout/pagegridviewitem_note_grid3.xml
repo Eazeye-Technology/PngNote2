@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="5px"
+    android:background="@android:color/transparent"
+    android:descendantFocusability="blocksDescendants"
+    android:id="@+id/llGridTop"
+    android:visibility="visible"
+    >
+    <!--
+    -->
+<!--
+格子
+android:background="#fff6f3f2"
+android:descendantFocusability="blocksDescendants"
+android:background="@android:color/transparent"
+android:background="@drawable/toolbar_button"
+-->
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        >
+        <LinearLayout
+            android:clickable="false"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="1px"
+            android:background="@drawable/note_grid_item_list_outline"
+            android:elevation="2px"
+            >
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center|center_vertical"
+                android:padding="10px"
+                >
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/browserItemIcon_library"
+                    android:layout_width="match_parent"
+                    android:layout_height="0px"
+                    android:layout_weight="1"
+                    android:padding="1px"
+                    />
+                <!--android:src="@drawable/book001"-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    >
+                    <TextView
+                        android:id="@+id/bookgrid_name_library"
+                        android:layout_width="0px"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:maxLines="2"
+                        android:text=""
+                        android:textStyle="bold"
+                        android:textSize="16px"
+                        android:gravity="left|top"
+                        android:layout_marginTop="5px"
+                        android:layout_marginBottom="5px"
+                        />
+                    <!--android:minHeight="50px"
+                        -->
+                    <CheckBox
+                        android:id="@+id/checkbox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom|right"
+                        android:visibility="gone"
+                        android:clickable="false"
+                        />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+
+    </LinearLayout>
+</LinearLayout>
