@@ -109,6 +109,12 @@ public static boolean onBackPressed(Activity context) {
                     if (act.noteFragment3 != null) {
                         act.noteFragment3.refresh();
                     }
+//                    if (act.noteFragment4 instanceof NoteFragment4) {
+//
+//                    }
+                    if (act.noteFragment4 != null) {
+                        act.noteFragment4.refresh();
+                    }
                 }
                 if (act.isIntentNew || act.isIntentOpen) {
                     act.finish();

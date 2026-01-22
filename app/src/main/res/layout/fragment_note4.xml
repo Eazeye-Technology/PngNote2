@@ -282,103 +282,48 @@ android:background="#f6f3f2"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 >
-                <!-- 设置列表 -->
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/recycler_view"
-                    android:scrollbars="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="400px"/>
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Today"
                     android:textSize="12px"
                     />
-                <HorizontalScrollView
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/notegridview_note1"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:orientation="horizontal"
-                        android:padding="0px"
-                        android:layout_marginLeft="10px"
-                        android:paddingBottom="0px"
-                        android:gravity="center_vertical"
-                        >
-                        <GridView
-                            android:id="@+id/notegridview_note1"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:numColumns="3"
-                            android:paddingLeft="0px"
-                            android:paddingRight="0px"
-                            android:gravity="center"
-                            android:stretchMode="columnWidth"
-                            />
-                    </LinearLayout>
-                </HorizontalScrollView>
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="0px"
+                    android:paddingRight="0px"
+                    android:gravity="center"
+                    />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="This week"
                     android:textSize="12px"
                     />
-                <HorizontalScrollView
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/notegridview_note2"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:orientation="horizontal"
-                        android:padding="0px"
-                        android:layout_marginLeft="10px"
-                        android:paddingBottom="0px"
-                        android:gravity="center_vertical"
-                        >
-                        <GridView
-                            android:id="@+id/notegridview_note2"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:numColumns="3"
-                            android:paddingLeft="0px"
-                            android:paddingRight="0px"
-                            android:gravity="center"
-                            android:stretchMode="columnWidth"
-                            />
-                    </LinearLayout>
-                </HorizontalScrollView>
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="0px"
+                    android:paddingRight="0px"
+                    android:gravity="center"
+                    />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Earlier"
                     android:textSize="12px"
                     />
-                <HorizontalScrollView
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/notegridview_note3"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:orientation="horizontal"
-                        android:padding="0px"
-                        android:layout_marginLeft="10px"
-                        android:paddingBottom="0px"
-                        android:gravity="center_vertical"
-                        >
-                        <GridView
-                            android:id="@+id/notegridview_note3"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:numColumns="3"
-                            android:paddingLeft="0px"
-                            android:paddingRight="0px"
-                            android:gravity="center"
-                            android:stretchMode="columnWidth"
-                            />
-                    </LinearLayout>
-                </HorizontalScrollView>
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="0px"
+                    android:paddingRight="0px"
+                    android:gravity="center"
+                    />
             </LinearLayout>
         </ScrollView>
         <LinearLayout

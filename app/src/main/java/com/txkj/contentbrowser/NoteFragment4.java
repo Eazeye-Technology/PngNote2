@@ -1,9 +1,7 @@
 package com.txkj.contentbrowser;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -35,7 +33,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.BaseExtractor;
 import com.foobnix.android.utils.Apps;
-import com.foobnix.android.utils.Dips;
 import com.foobnix.android.utils.KeyboardsMod;
 import com.foobnix.android.utils.LOG;
 import com.foobnix.dao2.FileMeta;
@@ -68,7 +65,7 @@ import java.util.UUID;
 
 import gm.com.dosya.utils.FileTransactions;
 
-public class NoteFragment3 extends Fragment {
+public class NoteFragment4 extends Fragment {
 //    public final static boolean USE_NEW_NOTE = true;
 //    public final static String APPNAME = "txkjnote";
     public final static String APPNAME_NEW = "txkjnote2";
@@ -115,12 +112,12 @@ class PreferencesKeys {
     private List<FileMeta> recentNoteList1;
     private List<FileMeta> recentNoteList2;
     private List<FileMeta> recentNoteList3;
-    private GridView recentNoteView1;
-    NoteGridAdapter3 recentNoteAdapter1;
-    private GridView recentNoteView2;
-    NoteGridAdapter3 recentNoteAdapter2;
-    private GridView recentNoteView3;
-    NoteGridAdapter3 recentNoteAdapter3;
+    private RecyclerView recentNoteView1;
+    NoteGridAdapter4 recentNoteAdapter1;
+    private RecyclerView recentNoteView2;
+    NoteGridAdapter4 recentNoteAdapter2;
+    private RecyclerView recentNoteView3;
+    NoteGridAdapter4 recentNoteAdapter3;
 
 
 //    @Override
@@ -139,7 +136,7 @@ class PreferencesKeys {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_note3, container, false);
+        View view = inflater.inflate(R.layout.fragment_note4, container, false);
 //        view.findViewById(R.id.button_second).setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
@@ -210,27 +207,22 @@ class PreferencesKeys {
         DisplayMetrics DM = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(DM);
 
-        RecyclerView recycler_view = view.findViewById(R.id.recycler_view);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false);
-        recycler_view.setLayoutManager(layoutManager);
-        ReAdapter adapter = new ReAdapter(getContext());
-        recycler_view.setAdapter(adapter);
-        recycler_view.setVisibility(View.GONE);
-
         recentNoteList1 = new ArrayList<FileMeta>();
-        recentNoteView1 = (GridView) view.findViewById(R.id.notegridview_note1);
-        recentNoteView1.setSelector(new ColorDrawable(Color.TRANSPARENT));
-        if (DM.heightPixels > DM.widthPixels) {
-            recentNoteView1.setNumColumns(3);
-        } else {
-            recentNoteView1.setNumColumns(4);
-        }
+        recentNoteView1 = (RecyclerView) view.findViewById(R.id.notegridview_note1);
+        LinearLayoutManager layoutManager1 = new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false);
+        recentNoteView1.setLayoutManager(layoutManager1);
+        //recentNoteView1.setSelector(new ColorDrawable(Color.TRANSPARENT));
+//        if (DM.heightPixels > DM.widthPixels) {
+//            recentNoteView1.setNumColumns(3);
+//        } else {
+//            recentNoteView1.setNumColumns(4);
+//        }
         //recentNoteView.setBackgroundColor(Color.WHITE);
-        recentNoteAdapter1 = new NoteGridAdapter3(this.getContext(), recentNoteList1);
+        recentNoteAdapter1 = new NoteGridAdapter4(this.getContext(), recentNoteList1);
         recentNoteView1.setAdapter(recentNoteAdapter1);
-        recentNoteView1.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        recentNoteAdapter1.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+            public boolean onItemLongClick(AdapterView<?> adapterView_, View view_, int i, long l_) {
                 for (FileMeta meta : recentNoteList1) {
                     if (meta != null) {
                         meta.checkShow = true;
@@ -244,9 +236,9 @@ class PreferencesKeys {
                 return false;
             }
         });
-        recentNoteView1.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        recentNoteAdapter1.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemClick(AdapterView<?> parent_, View view_, int position, long id_) {
                 if (isCheckMode1) {
                     FileMeta meta = recentNoteList1.get(position);
                     if (meta != null) {
@@ -271,17 +263,19 @@ class PreferencesKeys {
 
 
         recentNoteList2 = new ArrayList<FileMeta>();
-        recentNoteView2 = (GridView) view.findViewById(R.id.notegridview_note2);
-        recentNoteView2.setSelector(new ColorDrawable(Color.TRANSPARENT));
-        if (DM.heightPixels > DM.widthPixels) {
-            recentNoteView2.setNumColumns(3);
-        } else {
-            recentNoteView2.setNumColumns(4);
-        }
+        recentNoteView2 = (RecyclerView) view.findViewById(R.id.notegridview_note2);
+        LinearLayoutManager layoutManager2 = new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false);
+        recentNoteView2.setLayoutManager(layoutManager2);
+        //recentNoteView2.setSelector(new ColorDrawable(Color.TRANSPARENT));
+//        if (DM.heightPixels > DM.widthPixels) {
+//            recentNoteView2.setNumColumns(3);
+//        } else {
+//            recentNoteView2.setNumColumns(4);
+//        }
         //recentNoteView.setBackgroundColor(Color.WHITE);
-        recentNoteAdapter2 = new NoteGridAdapter3(this.getContext(), recentNoteList2);
+        recentNoteAdapter2 = new NoteGridAdapter4(this.getContext(), recentNoteList2);
         recentNoteView2.setAdapter(recentNoteAdapter2);
-        recentNoteView2.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        recentNoteAdapter2.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
                 for (FileMeta meta : recentNoteList2) {
@@ -297,7 +291,7 @@ class PreferencesKeys {
                 return false;
             }
         });
-        recentNoteView2.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        recentNoteAdapter2.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (isCheckMode2) {
@@ -324,17 +318,19 @@ class PreferencesKeys {
 
 
         recentNoteList3 = new ArrayList<FileMeta>();
-        recentNoteView3 = (GridView) view.findViewById(R.id.notegridview_note3);
-        recentNoteView3.setSelector(new ColorDrawable(Color.TRANSPARENT));
-        if (DM.heightPixels > DM.widthPixels) {
-            recentNoteView3.setNumColumns(3);
-        } else {
-            recentNoteView3.setNumColumns(4);
-        }
+        recentNoteView3 = (RecyclerView) view.findViewById(R.id.notegridview_note3);
+        LinearLayoutManager layoutManager3 = new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false);
+        recentNoteView3.setLayoutManager(layoutManager3);
+//        recentNoteView3.setSelector(new ColorDrawable(Color.TRANSPARENT));
+//        if (DM.heightPixels > DM.widthPixels) {
+//            recentNoteView3.setNumColumns(3);
+//        } else {
+//            recentNoteView3.setNumColumns(4);
+//        }
         //recentNoteView.setBackgroundColor(Color.WHITE);
-        recentNoteAdapter3 = new NoteGridAdapter3(this.getContext(), recentNoteList3);
+        recentNoteAdapter3 = new NoteGridAdapter4(this.getContext(), recentNoteList3);
         recentNoteView3.setAdapter(recentNoteAdapter3);
-        recentNoteView3.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        recentNoteAdapter3.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
                 for (FileMeta meta : recentNoteList3) {
@@ -350,7 +346,7 @@ class PreferencesKeys {
                 return false;
             }
         });
-        recentNoteView3.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        recentNoteAdapter3.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (isCheckMode3) {
@@ -736,9 +732,9 @@ class PreferencesKeys {
         progressLoading1.setVisibility(View.GONE);
         loadingContent1.setVisibility(View.VISIBLE);
 
-        if (recentNoteAdapter1.getCount() == 0 &&
-                recentNoteAdapter2.getCount() == 0 &&
-                recentNoteAdapter3.getCount() == 0) {
+        if (recentNoteAdapter1.getItemCount() == 0 &&
+                recentNoteAdapter2.getItemCount() == 0 &&
+                recentNoteAdapter3.getItemCount() == 0) {
             llEmpty1.setVisibility(View.VISIBLE);
             scrollView1.setVisibility(View.GONE);
         } else {
@@ -750,7 +746,7 @@ class PreferencesKeys {
         updateList3();
         if (tvPageInfo != null) {
             tvPageInfo.setText("Total item(s) : " +
-                    (recentNoteAdapter1.getCount() + recentNoteAdapter2.getCount() + recentNoteAdapter3.getCount())
+                    (recentNoteAdapter1.getItemCount() + recentNoteAdapter2.getItemCount() + recentNoteAdapter3.getItemCount())
                             +
                     "");
         }
@@ -927,7 +923,7 @@ class PreferencesKeys {
     }
 
     public void updateList1() {
-        recentNoteView1.setNumColumns(recentNoteList1.size());//recentNoteAdapter1.getCount());
+        //recentNoteView1.setNumColumns(recentNoteList1.size());//recentNoteAdapter1.getCount());
         //recentNoteView1.getParent().requestLayout();
         recentNoteAdapter1.notifyDataSetChanged();
         int gridviewHeight = 0;
@@ -941,14 +937,18 @@ class PreferencesKeys {
             gridviewHeight = NoteGridAdapter3.SINGLE_GRID_PX_HEIGHT_LAND;
             gridviewWidth = recentNoteList1.size() * NoteGridAdapter3.SINGLE_GRID_PX_WIDTH_LAND;//Dips.dpToPx(SINGLE_GRID_DP_WIDTH);
         }
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                gridviewWidth, gridviewHeight);
-        recentNoteView1.setLayoutParams(params);
+        if (false) {
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    gridviewWidth, gridviewHeight);
+            recentNoteView1.setLayoutParams(params);
+        } else {
+            recentNoteView1.setMinimumHeight(gridviewHeight);
+        }
         //recentNoteView1.getParent().requestLayout();
     }
 
     public void updateList2() {
-        recentNoteView2.setNumColumns(recentNoteList2.size());//recentNoteAdapter2.getCount());
+        //recentNoteView2.setNumColumns(recentNoteList2.size());//recentNoteAdapter2.getCount());
         recentNoteAdapter2.notifyDataSetChanged();
         int gridviewHeight = 0;
         int gridviewWidth = 0;
@@ -962,13 +962,17 @@ class PreferencesKeys {
             gridviewWidth = recentNoteList2.size() * NoteGridAdapter3.SINGLE_GRID_PX_WIDTH_LAND;//Dips.dpToPx(SINGLE_GRID_DP_WIDTH);
         }
         //https://blog.csdn.net/zhuwentao2150/article/details/70211610
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                gridviewWidth, gridviewHeight);
-        recentNoteView2.setLayoutParams(params);
+        if (false) {
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    gridviewWidth, gridviewHeight);
+            recentNoteView2.setLayoutParams(params);
+        } else {
+            recentNoteView2.setMinimumHeight(gridviewHeight);
+        }
     }
 
     public void updateList3() {
-        recentNoteView3.setNumColumns(recentNoteList3.size());//recentNoteAdapter3.getCount());
+//        recentNoteView3.setNumColumns(recentNoteList3.size());//recentNoteAdapter3.getCount());
         recentNoteAdapter3.notifyDataSetChanged();
         int gridviewHeight = 0;
         int gridviewWidth = 0;
@@ -982,9 +986,13 @@ class PreferencesKeys {
             gridviewWidth = recentNoteList3.size() * NoteGridAdapter3.SINGLE_GRID_PX_WIDTH_LAND;//Dips.dpToPx(SINGLE_GRID_DP_WIDTH);
         }
         //https://blog.csdn.net/zhuwentao2150/article/details/70211610
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                gridviewWidth, gridviewHeight);
-        recentNoteView3.setLayoutParams(params);
+        if (false) {
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    gridviewWidth, gridviewHeight);
+            recentNoteView3.setLayoutParams(params);
+        } else {
+            recentNoteView3.setMinimumHeight(gridviewHeight);
+        }
     }
 
     public void removeRecent(List<String> arrPaths) {

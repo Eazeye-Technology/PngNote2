@@ -118,6 +118,8 @@ import io.material.catalog.windowpreferences.WindowPreferencesManager;
 //isDirty = true; //FIXME: force save
 //TODO:notifyForceSave, when view onSizeChanged or other events, need call it
 public class BookActivity4Fragment extends Fragment {
+    private final static boolean TIMER_SAVE = false; //定时器存档
+
     BookActivity4FragmentBottom1 mBottom1;
     public FrameLayout frameLayout1, frameLayout2;
     private void initBottom12() {
@@ -1102,6 +1104,9 @@ public class BookActivity4Fragment extends Fragment {
         runFullScreen(getActivity());
         long t7 = System.currentTimeMillis();
         Log.e(TAG, "oncreateview, t7== " + (t7 - t6));
+        if (TIMER_SAVE) {
+            startHandlerTask2();
+        }
         return rootView;
     }
 
@@ -1413,6 +1418,27 @@ public class BookActivity4Fragment extends Fragment {
         handler.postDelayed(refreshRunnable, 2000);
     }
 
+    private final static long DELAY_TIME2 = 10 * 1000L;
+    private Runnable refreshRunnable2;
+    Handler handler2 = new Handler();
+    private void startHandlerTask2() {
+        refreshRunnable2 = new Runnable() {
+            @Override
+            public void run() {
+                if (SAVING_ASYNC) {
+                    if (task == null) {
+                        task = new SavingTask(false, true);
+                        task.executeOnExecutor(newFixedThreadPool);
+                    }
+                }
+                if (!BookActivity4Fragment.this.isDetached()) {
+                    handler2.postDelayed(this, DELAY_TIME2);
+                }
+            }
+        };
+        handler2.postDelayed(refreshRunnable2, DELAY_TIME2);
+    }
+
     private void init001(View rootView) {
         {
             View.OnClickListener onClickListenerPause = new View.OnClickListener() {
@@ -1706,7 +1732,7 @@ public class BookActivity4Fragment extends Fragment {
             public void onClick(View view) {
                 if (SAVING_ASYNC) {
                     if (task == null) {
-                        task = new SavingTask(false);
+                        task = new SavingTask(false, false);
                         task.executeOnExecutor(newFixedThreadPool);
                     }
                 } else {
@@ -2186,7 +2212,7 @@ public class BookActivity4Fragment extends Fragment {
         } else if (item.getItemId() == R.id.grid) {
             if (SAVING_ASYNC) {
                 if (task == null) {
-                    task = new SavingTask(false);
+                    task = new SavingTask(false, false);
                     task.executeOnExecutor(newFixedThreadPool);
                 }
             } else {
@@ -2516,7 +2542,8 @@ public class BookActivity4Fragment extends Fragment {
 
     public class SavingTask extends AsyncTask<Void, Void, Void> {
         private boolean mIsBack = true;
-        public SavingTask(boolean isBack) {
+        private boolean mDoNothing = true;
+        public SavingTask(boolean isBack, boolean doNothing) {
             if (isBack) {
                 //TODO:
                 //https://github.com/antwankakki/FabricView/wiki
@@ -2526,7 +2553,12 @@ public class BookActivity4Fragment extends Fragment {
                 }
             }
             this.mIsBack = isBack;
-            createWaitingProgressDialog();
+            this.mDoNothing = doNothing;
+            if (this.mDoNothing) {
+                //skip
+            } else {
+                createWaitingProgressDialog();
+            }
         }
 
         @Override
@@ -2541,12 +2573,16 @@ public class BookActivity4Fragment extends Fragment {
 
         @Override
         protected void onPostExecute(Void result){
-            cancelWaitingProgressDialog();
             task = null;
-            if (this.mIsBack) {
-                BookActivity4Utils.finish(getActivity(), true);
+            if (this.mDoNothing) {
+                //skip
             } else {
-                gotoGridPage();
+                cancelWaitingProgressDialog();
+                if (this.mIsBack) {
+                    BookActivity4Utils.finish(getActivity(), true);
+                } else {
+                    gotoGridPage();
+                }
             }
         }
     }
@@ -2708,7 +2744,7 @@ public class BookActivity4Fragment extends Fragment {
                             notifyForceSave(false);
                             if (SAVING_ASYNC) {
                                 if (task == null) {
-                                    task = new SavingTask(false);
+                                    task = new SavingTask(false, false);
                                     task.executeOnExecutor(newFixedThreadPool);
                                 }
                             } else {
@@ -3981,7 +4017,7 @@ public class BookActivity4Fragment extends Fragment {
         //FIXME:退出立即保存
         if (SAVING_ASYNC) {
             if (task == null) {
-                task = new SavingTask(true);
+                task = new SavingTask(true, false);
                 task.executeOnExecutor(newFixedThreadPool);
             }
         } else {

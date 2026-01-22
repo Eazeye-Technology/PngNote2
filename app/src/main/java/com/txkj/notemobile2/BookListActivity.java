@@ -23,6 +23,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.foobnix.pdf.info.Android6Mod;
 import com.txkj.contentbrowser.NoteFragment2;
 import com.txkj.contentbrowser.NoteFragment3;
+import com.txkj.contentbrowser.NoteFragment4;
 import com.txkj.drawingapp.R;
 import com.txkj.drawingapp.activity.BookActivity4Fragment;
 import com.txkj.drawingapp.activity.BookActivity4Utils;
@@ -35,6 +36,7 @@ public class BookListActivity extends AppCompatActivity {
     public BookListFragment bookListFragment;
     public NoteFragment2 noteFragment2;
     public NoteFragment3 noteFragment3;
+    public NoteFragment4 noteFragment4;
 
     private FragmentManager fragmentManager = null;
     private FragmentTransaction fragmentTransaction = null;
@@ -86,6 +88,7 @@ public class BookListActivity extends AppCompatActivity {
 //        bookListFragment2 = new BookListFragment2();
         noteFragment2 = new NoteFragment2();
         noteFragment3 = new NoteFragment3();
+        noteFragment4 = new NoteFragment4();
 
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
@@ -93,8 +96,10 @@ public class BookListActivity extends AppCompatActivity {
             fragmentTransaction.replace(R.id.content_layout, bookListFragment);
         } else if (false) {
             fragmentTransaction.replace(R.id.content_layout, noteFragment2);
-        } else {
+        } else if (false) {
             fragmentTransaction.replace(R.id.content_layout, noteFragment3);
+        } else {
+            fragmentTransaction.replace(R.id.content_layout, noteFragment4);
         }
         fragmentTransaction.commit();
     }
@@ -209,6 +214,9 @@ Android6.onRequestPermissionsResult(this, i, strArr, iArr);
         }
         if (noteFragment3 != null) {
             noteFragment3.refresh();
+        }
+        if (noteFragment4 != null) {
+            noteFragment4.refresh();
         }
     }
 }
