@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+    <!--
+    https://github.com/konradrenner/kolabnotes-android
+    jp.wasabeef.richeditor.RichEditor
+    wasabeef/richeditor-android
+    -->
+    <LinearLayout
+        android:id="@+id/editor_bar2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#CCCCCC"
+        >
+<!--
+android:visibility="gone"
+android:background="@color/theme_default_primary"
+-->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+<!--            <ImageButton-->
+<!--                android:id="@+id/action_undo"-->
+<!--                android:layout_width="48dp"-->
+<!--                android:layout_height="48dp"-->
+<!--                android:background="@drawable/tool_selector"-->
+<!--                android:contentDescription="@null"-->
+<!--                android:src="@drawable/ic_undo_white_24dp"/>-->
+
+<!--            <ImageButton-->
+<!--                android:id="@+id/action_redo"-->
+<!--                android:layout_width="48dp"-->
+<!--                android:layout_height="48dp"-->
+<!--                android:background="@drawable/tool_selector"-->
+<!--                android:contentDescription="@null"-->
+<!--                android:src="@drawable/ic_redo_white_24dp"/>-->
+
+<!--            <ImageButton-->
+<!--                android:id="@+id/action_draweditor"-->
+<!--                android:layout_width="48dp"-->
+<!--                android:layout_height="48dp"-->
+<!--                android:background="@drawable/tool_selector"-->
+<!--                android:contentDescription="@null"-->
+<!--                android:src="@drawable/ic_gesture_white_24dp"/>-->
+
+            <ImageButton
+                android:id="@+id/action_bold2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_format_bold_white_24dp"/>
+
+            <ImageButton
+                android:id="@+id/action_italic2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_format_italic_white_24dp"/>
+
+            <ImageButton
+                android:id="@+id/action_subscript2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/subscript"
+                android:visibility="gone"
+                />
+
+            <ImageButton
+                android:id="@+id/action_superscript2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/superscript"
+                android:visibility="gone"
+                />
+
+            <ImageButton
+                android:id="@+id/action_strikethrough2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_strikethrough_s_white_24dp"
+                android:visibility="gone"
+                />
+
+            <ImageButton
+                android:id="@+id/action_underline2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_format_underlined_white_24dp"/>
+
+            <ImageButton
+                android:id="@+id/action_bullets2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_format_list_bulleted_white_24dp"
+                android:visibility="gone"
+                />
+
+            <ImageButton
+                android:id="@+id/action_numbers2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@null"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_format_list_numbered_white_24dp"
+                android:visibility="gone"
+                />
+
+            <ImageButton
+                android:id="@+id/action_heading1_h12"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/h1"
+                android:visibility="visible"
+                />
+
+            <ImageButton
+                android:id="@+id/action_heading2_h22"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/h2"
+                android:visibility="visible"
+                />
+
+            <ImageButton
+                android:id="@+id/action_heading3_h32"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/h3"
+                android:visibility="visible"
+                />
+
+            <ImageButton
+                android:id="@+id/action_heading42"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/h4"
+                android:visibility="gone"
+                />
+
+            <ImageButton
+                android:id="@+id/action_heading52"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/h5"
+                android:visibility="gone"
+                />
+
+            <ImageButton
+                android:id="@+id/action_heading62"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/h6"
+                android:visibility="gone"
+                />
+
+            <ImageButton
+                android:id="@+id/action_txt_color_black2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/txt_color_black"
+                android:visibility="visible"
+                />
+
+            <ImageButton
+                android:id="@+id/action_txt_color_grey2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/txt_color_grey"
+                android:visibility="visible"
+                />
+
+            <ImageButton
+                android:id="@+id/action_txt_color_white2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/txt_color_white"
+                android:visibility="visible"
+                />
+
+            <ImageButton
+                android:id="@+id/action_bg_color2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/bg_color"
+                android:visibility="gone"
+                />
+
+
+            <ImageButton
+                android:id="@+id/action_indent2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_format_indent_increase_white_24dp"
+                android:visibility="gone"
+                />
+
+            <ImageButton
+                android:id="@+id/action_outdent2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_format_indent_decrease_white_24dp"
+                android:visibility="gone"
+                />
+
+            <ImageButton
+                android:id="@+id/action_align_left2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_format_align_left_white_24dp"
+                android:visibility="gone"
+                />
+
+            <ImageButton
+                android:id="@+id/action_align_center2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_format_align_center_white_24dp"
+                android:visibility="gone"
+                />
+
+            <ImageButton
+                android:id="@+id/action_align_right2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_format_align_right_white_24dp"
+                android:visibility="gone"
+                />
+
+            <ImageButton
+                android:id="@+id/action_blockquote2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_format_quote_white_24dp"
+                android:visibility="gone"
+                />
+
+            <ImageButton
+                android:id="@+id/action_insert_image2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_insert_photo_white_24dp"
+                android:visibility="gone"
+                />
+
+            <ImageButton
+                android:id="@+id/action_insert_link2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_insert_link_white_24dp"
+                android:visibility="gone"
+                />
+
+            <ImageButton
+                android:id="@+id/action_insert_checkbox2"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@drawable/tool_selector"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_check_box_white_24dp"
+                android:visibility="gone"
+                />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

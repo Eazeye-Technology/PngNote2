@@ -39,6 +39,8 @@ import java.util.Iterator;
 import java.util.List;
 
 public class BookActivity4PageGridDialog {
+    public final static boolean HIDE_BUTTONS = true;
+
     public final static boolean NO_REOPEN_DIALOG = true;
     private final static int WIN_WIDTH = 633;
     private final static int WIN_HEIGHT = 750;//600;//646;
@@ -191,6 +193,10 @@ public class BookActivity4PageGridDialog {
                         }
                     }
                 });
+                if (HIDE_BUTTONS) {
+                    btnReorder.setVisibility(View.GONE);
+                    btnDuplicate.setVisibility(View.GONE);
+                }
                 updateButtons();
                 updateLayout(dialog);
                 requestLoadPages();

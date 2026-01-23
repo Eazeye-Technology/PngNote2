@@ -17,8 +17,8 @@
             android:background="?attr/colorSurface"
             android:backgroundTint="?attr/colorControlHighlight"
             android:contentDescription="@string/draw_canvas_description"
-            android:fitsSystemWindows="false" />
-
+            />
+<!--android:fitsSystemWindows="false" -->
         <View
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
@@ -1712,6 +1712,16 @@
             android:layout_alignParentTop="true"
             >
             <include layout="@layout/activity_book4_editor"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/llRichTextTool2"
+            android:visibility="gone"
+            android:layout_alignParentBottom="true"
+            >
+            <include layout="@layout/activity_book4_editor2"/>
         </LinearLayout>
     </RelativeLayout>
 </RelativeLayout>

@@ -13,6 +13,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
@@ -32,6 +33,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
@@ -118,7 +120,11 @@ import io.material.catalog.windowpreferences.WindowPreferencesManager;
 //isDirty = true; //FIXME: force save
 //TODO:notifyForceSave, when view onSizeChanged or other events, need call it
 public class BookActivity4Fragment extends Fragment {
-    private final static boolean TIMER_SAVE = false; //定时器存档
+    private final static boolean USE_FLOAT_IME_TOOLBAR = false;
+    private final static boolean USE_BOTTOM_IME_TOOLBAR = true;
+
+    private final static boolean TIMER_AUTOSAVE = true; //定时器存档
+    private final static long DELAY_TIME2 = 10 * 1000L;
 
     BookActivity4FragmentBottom1 mBottom1;
     public FrameLayout frameLayout1, frameLayout2;
@@ -930,6 +936,7 @@ public class BookActivity4Fragment extends Fragment {
 
     //--------------------------
     LinearLayout llRichTextTool;
+    LinearLayout llRichTextTool2;
     private final static int iconsTopBar[] = {
             R.id.top_toolkit_item1,
             R.id.top_toolkit_item2,
@@ -1104,7 +1111,7 @@ public class BookActivity4Fragment extends Fragment {
         runFullScreen(getActivity());
         long t7 = System.currentTimeMillis();
         Log.e(TAG, "oncreateview, t7== " + (t7 - t6));
-        if (TIMER_SAVE) {
+        if (TIMER_AUTOSAVE) {
             startHandlerTask2();
         }
         return rootView;
@@ -1381,24 +1388,52 @@ public class BookActivity4Fragment extends Fragment {
         }
 
         llRichTextTool = (LinearLayout) rootView.findViewById(R.id.llRichTextTool);
-//        View decorView = getActivity().getWindow().getDecorView();
-//        decorView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-//            @Override
-//            public void onGlobalLayout() {
-//                Rect r = new Rect();
-//                //r will be populated with the coordinates of your view that area still visible.
-//                decorView.getWindowVisibleDisplayFrame(r);
-//                int heightDiff = decorView.getRootView().getHeight() - (r.bottom - r.top);
-//                if (heightDiff > 100) { // if more than 100 pixels, it's probably a keyboard...
-//                    // Keyboard is shown
-//                } else {
-//                    // Keyboard is hidden
-//                }
-//            }
-//        });
+        llRichTextTool2 = (LinearLayout) rootView.findViewById(R.id.llRichTextTool2);
+        if (USE_BOTTOM_IME_TOOLBAR) {
+            View decorView = getActivity().getWindow().getDecorView();
+            decorView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    Rect r = new Rect();
+                    //r will be populated with the coordinates of your view that area still visible.
+                    decorView.getWindowVisibleDisplayFrame(r);
+                    //canvas.getGlobalVisibleRect()
+                    int[] location = new int[2];
+                    canvas.getLocationOnScreen(location);
+                    Rect rect2 = new Rect();
+                    canvas.getGlobalVisibleRect(rect2);
+                    int heightDiff = decorView.getRootView().getHeight() - (r.bottom - r.top);
+                    if (heightDiff > 100) { // if more than 100 pixels, it's probably a keyboard...
+                        // Keyboard is shown
+                        if (llRichTextTool2 != null && g_y_on) {
+//                        RelativeLayout.LayoutParams pp =
+//                                new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
+//                                        RelativeLayout.LayoutParams.WRAP_CONTENT);
+                            RelativeLayout.LayoutParams pp = (RelativeLayout.LayoutParams) llRichTextTool2.getLayoutParams();
+                            if (g_y > rect2.height() - (heightDiff)) {
+                                pp.bottomMargin = (int) (rect2.height() - g_y);
+                            } else {
+                                pp.bottomMargin = (int) (Math.max((heightDiff)/*r.bottom - r.top*/, 0));
+                            }
+                            pp.leftMargin = (int) (Math.max(0 - 0, 0));
+                            //pp.alignWithParent = true;
+                            llRichTextTool2.setLayoutParams(pp);
+                            llRichTextTool2.setVisibility(View.VISIBLE);
+                        }
+                    } else {
+                        // Keyboard is hidden
+                        if (llRichTextTool2 != null) {
+                            llRichTextTool2.setVisibility(View.GONE);
+                        }
+                    }
+                }
+            });
+        }
 
         BookActivity4RichText.initButtons(this);
     }
+    float g_y = 0;
+    boolean g_y_on = false;
 //    private UnderlineSpan underlineSpan;
 
     private Runnable refreshRunnable;
@@ -1418,7 +1453,6 @@ public class BookActivity4Fragment extends Fragment {
         handler.postDelayed(refreshRunnable, 2000);
     }
 
-    private final static long DELAY_TIME2 = 10 * 1000L;
     private Runnable refreshRunnable2;
     Handler handler2 = new Handler();
     private void startHandlerTask2() {
@@ -1865,13 +1899,19 @@ public class BookActivity4Fragment extends Fragment {
                             //llRichTextTool.setVisibility(View.VISIBLE);
                         } else {
                             //enter first edit mode
-                            llRichTextTool.setVisibility(View.VISIBLE);
-                            RelativeLayout.LayoutParams pp =
-                                    new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
-                                            RelativeLayout.LayoutParams.WRAP_CONTENT);
-                            pp.topMargin = (int)(Math.max(event.getY() - 100, 60));
-                            pp.leftMargin = (int)(Math.max(event.getX() - 0, 0));
-                            llRichTextTool.setLayoutParams(pp);
+                            if (USE_FLOAT_IME_TOOLBAR) {
+                                llRichTextTool.setVisibility(View.VISIBLE);
+                                RelativeLayout.LayoutParams pp =
+                                        new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
+                                                RelativeLayout.LayoutParams.WRAP_CONTENT);
+                                pp.topMargin = (int) (Math.max(event.getY() - 100, 60));
+                                pp.leftMargin = (int) (Math.max(event.getX() - 0, 0));
+                                llRichTextTool.setLayoutParams(pp);
+                            }
+                            if (USE_BOTTOM_IME_TOOLBAR) {
+                                g_y = event.getY();
+                                g_y_on = true;
+                            }
 
                             // 获取触摸事件触摸位置的原始X坐标
                             float lastX = event.getX();
@@ -1894,7 +1934,13 @@ public class BookActivity4Fragment extends Fragment {
 
                                         @Override
                                         public void onSave(DrawPoint drawPoint) {
-                                            llRichTextTool.setVisibility(View.GONE);
+                                            if (USE_FLOAT_IME_TOOLBAR) {
+                                                llRichTextTool.setVisibility(View.GONE);
+                                            }
+                                            if (USE_BOTTOM_IME_TOOLBAR) {
+                                                g_y = 0;
+                                                g_y_on = false;
+                                            }
                                             if (getDtView(false) != null) {
                                                 getDtView(false).setVisibility(View.GONE);
                                             }
@@ -1956,16 +2002,25 @@ public class BookActivity4Fragment extends Fragment {
     }
 
     public void editText(DrawPath path) {
-        llRichTextTool.setVisibility(View.VISIBLE);
-        RelativeLayout.LayoutParams pp =
-                new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
-                        RelativeLayout.LayoutParams.WRAP_CONTENT);
-        float x = path.pointsTextX;
-        float y = path.pointsTextY;
-        Point originalPoint = canvas.mapPointScreen(x, y, 1.0F);
-        pp.topMargin = (int)(Math.max(originalPoint.y - 100, 60));
-        pp.leftMargin = (int)(Math.max(originalPoint.x - 0, 0));
-        llRichTextTool.setLayoutParams(pp);
+        if (USE_FLOAT_IME_TOOLBAR) {
+            llRichTextTool.setVisibility(View.VISIBLE);
+            RelativeLayout.LayoutParams pp =
+                    new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
+                            RelativeLayout.LayoutParams.WRAP_CONTENT);
+            float x = path.pointsTextX;
+            float y = path.pointsTextY;
+            Point originalPoint = canvas.mapPointScreen(x, y, 1.0F);
+            pp.topMargin = (int) (Math.max(originalPoint.y - 100, 60));
+            pp.leftMargin = (int) (Math.max(originalPoint.x - 0, 0));
+            llRichTextTool.setLayoutParams(pp);
+        }
+        if (USE_BOTTOM_IME_TOOLBAR) {
+            float x = path.pointsTextX;
+            float y = path.pointsTextY;
+            Point originalPoint = canvas.mapPointScreen(x, y, 1.0F);
+            g_y = originalPoint.y;
+            g_y_on = true;
+        }
 
         Point point = canvas.mapPointScreen(
                 path.pointsTextX,
@@ -1991,7 +2046,13 @@ public class BookActivity4Fragment extends Fragment {
 
                     @Override
                     public void onSave(DrawPoint drawPoint) {
-                        llRichTextTool.setVisibility(View.GONE);
+                        if (USE_FLOAT_IME_TOOLBAR) {
+                            llRichTextTool.setVisibility(View.GONE);
+                        }
+                        if (USE_BOTTOM_IME_TOOLBAR) {
+                            g_y = 0;
+                            g_y_on = false;
+                        }
 
                         if (getDtView(false) != null) {
                             getDtView(false).setVisibility(View.GONE);
@@ -2544,7 +2605,7 @@ public class BookActivity4Fragment extends Fragment {
         private boolean mIsBack = true;
         private boolean mDoNothing = true;
         public SavingTask(boolean isBack, boolean doNothing) {
-            if (isBack) {
+            if (isBack || doNothing) {
                 //TODO:
                 //https://github.com/antwankakki/FabricView/wiki
                 if (mOnUpdateBmpListener != null) {

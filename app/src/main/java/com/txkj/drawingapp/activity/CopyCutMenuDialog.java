@@ -1,6 +1,7 @@
 package com.txkj.drawingapp.activity;
 
 import android.content.Context;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -10,7 +11,8 @@ import android.widget.TextView;
 import com.txkj.drawingapp.R;
 
 public class CopyCutMenuDialog {
-    private static final int POPUP_OFFSET = 0;//30;
+    private static final int POPUP_OFFSET_X = 0;//30;
+    private static final int POPUP_OFFSET_Y = 0;//30;
 
     private static View.OnClickListener mListener = null;
     private static PopupWindow popup;
@@ -68,7 +70,7 @@ public class CopyCutMenuDialog {
         popup.setFocusable(true);
 
         //  now show the popup
-        popup.showAsDropDown(anchor, POPUP_OFFSET, POPUP_OFFSET);
+        popup.showAsDropDown(anchor, POPUP_OFFSET_X, POPUP_OFFSET_Y, Gravity.RIGHT);
     }
 //    public interface WidthChangedListener {
 //        void onWidthChanged(float value);

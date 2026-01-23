@@ -38,7 +38,7 @@ h6: 更小 (0.67em)。
         //https://www.cnblogs.com/conglingkaishi/p/9502241.html
         //https://github.com/gzu-liyujiang/SpanTextBuilder
         //https://github.com/nalancer08/Android-Utils
-        fragment.g_rootView.findViewById(R.id.action_bold).setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener l_bold = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 EditText editText = fragment.getDtView(true).mEtTextEdit;
@@ -59,8 +59,10 @@ h6: 更小 (0.67em)。
                 }
                 //Log.d("RichText", "onSetSelectedBold: " + Html.toHtml(text));
             }
-        });
-        fragment.g_rootView.findViewById(R.id.action_italic).setOnClickListener(new View.OnClickListener() {
+        };
+        fragment.g_rootView.findViewById(R.id.action_bold).setOnClickListener(l_bold);
+        fragment.g_rootView.findViewById(R.id.action_bold2).setOnClickListener(l_bold);
+        View.OnClickListener l_italic = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 EditText editText = fragment.getDtView(true).mEtTextEdit;
@@ -81,8 +83,10 @@ h6: 更小 (0.67em)。
                 }
                 //Log.d("RichText", "onSetSelectedBold: " + Html.toHtml(text));
             }
-        });
-        fragment.g_rootView.findViewById(R.id.action_underline).setOnClickListener(new View.OnClickListener() {
+        };
+        fragment.g_rootView.findViewById(R.id.action_italic).setOnClickListener(l_italic);
+        fragment.g_rootView.findViewById(R.id.action_italic2).setOnClickListener(l_italic);
+        View.OnClickListener l_underline = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 EditText editText = fragment.getDtView(true).mEtTextEdit;
@@ -103,8 +107,10 @@ h6: 更小 (0.67em)。
                 }
                 //Log.d("RichText", "onSetSelectedBold: " + Html.toHtml(text));
             }
-        });
-        fragment.g_rootView.findViewById(R.id.action_txt_color_black).setOnClickListener(new View.OnClickListener() {
+        };
+        fragment.g_rootView.findViewById(R.id.action_underline).setOnClickListener(l_underline);
+        fragment.g_rootView.findViewById(R.id.action_underline2).setOnClickListener(l_underline);
+        View.OnClickListener l_black = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 EditText editText = fragment.getDtView(true).mEtTextEdit;
@@ -125,8 +131,10 @@ h6: 更小 (0.67em)。
                 }
                 //Log.d("RichText", "onSetSelectedBold: " + Html.toHtml(text));
             }
-        });
-        fragment.g_rootView.findViewById(R.id.action_txt_color_grey).setOnClickListener(new View.OnClickListener() {
+        };
+        fragment.g_rootView.findViewById(R.id.action_txt_color_black).setOnClickListener(l_black);
+        fragment.g_rootView.findViewById(R.id.action_txt_color_black2).setOnClickListener(l_black);
+        View.OnClickListener l_grey = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 EditText editText = fragment.getDtView(true).mEtTextEdit;
@@ -147,8 +155,10 @@ h6: 更小 (0.67em)。
                 }
                 //Log.d("RichText", "onSetSelectedBold: " + Html.toHtml(text));
             }
-        });
-        fragment.g_rootView.findViewById(R.id.action_txt_color_white).setOnClickListener(new View.OnClickListener() {
+        };
+        fragment.g_rootView.findViewById(R.id.action_txt_color_grey).setOnClickListener(l_grey);
+        fragment.g_rootView.findViewById(R.id.action_txt_color_grey2).setOnClickListener(l_grey);
+        View.OnClickListener l_white = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 EditText editText = fragment.getDtView(true).mEtTextEdit;
@@ -169,8 +179,10 @@ h6: 更小 (0.67em)。
                 }
                 //Log.d("RichText", "onSetSelectedBold: " + Html.toHtml(text));
             }
-        });
-        fragment.g_rootView.findViewById(R.id.action_heading1_h1).setOnClickListener(new View.OnClickListener() {
+        };
+        fragment.g_rootView.findViewById(R.id.action_txt_color_white).setOnClickListener(l_white);
+        fragment.g_rootView.findViewById(R.id.action_txt_color_white2).setOnClickListener(l_white);
+        View.OnClickListener l_h1 = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 EditText editText = fragment.getDtView(true).mEtTextEdit;
@@ -192,8 +204,10 @@ h6: 更小 (0.67em)。
                 }
                 //Log.d("RichText", "onSetSelectedBold: " + Html.toHtml(text));
             }
-        });
-        fragment.g_rootView.findViewById(R.id.action_heading2_h2).setOnClickListener(new View.OnClickListener() {
+        };
+        fragment.g_rootView.findViewById(R.id.action_heading1_h1).setOnClickListener(l_h1);
+        fragment.g_rootView.findViewById(R.id.action_heading1_h12).setOnClickListener(l_h1);
+        View.OnClickListener l_h2 = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 EditText editText = fragment.getDtView(true).mEtTextEdit;
@@ -214,8 +228,10 @@ h6: 更小 (0.67em)。
                 }
                 //Log.d("RichText", "onSetSelectedBold: " + Html.toHtml(text));
             }
-        });
-        fragment.g_rootView.findViewById(R.id.action_heading3_h3).setOnClickListener(new View.OnClickListener() {
+        };
+        fragment.g_rootView.findViewById(R.id.action_heading2_h2).setOnClickListener(l_h2);
+        fragment.g_rootView.findViewById(R.id.action_heading2_h22).setOnClickListener(l_h2);
+        View.OnClickListener l_h3 = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 EditText editText = fragment.getDtView(true).mEtTextEdit;
@@ -236,6 +252,8 @@ h6: 更小 (0.67em)。
                 }
                 //Log.d("RichText", "onSetSelectedBold: " + Html.toHtml(text));
             }
-        });
+        };
+        fragment.g_rootView.findViewById(R.id.action_heading3_h3).setOnClickListener(l_h3);
+        fragment.g_rootView.findViewById(R.id.action_heading3_h32).setOnClickListener(l_h3);
     }
 }

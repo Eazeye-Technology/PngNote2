@@ -72,6 +72,7 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
             android:launchMode="singleTask"
             >
             <!--
+            android:windowSoftInputMode="adjustPan|stateHidden"
             android:windowSoftInputMode="adjustResize|stateHidden"
             -->
             <!--main, main-->
