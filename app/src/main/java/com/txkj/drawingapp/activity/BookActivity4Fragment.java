@@ -629,6 +629,9 @@ public class BookActivity4Fragment extends Fragment {
     }
     private int currentTabIdSubmenu1 = iconsSubmenu1[0];
     public void onClickSubmenu1(View rootView, int id, boolean isClick) {
+        if (canvas != null) {
+            canvas.gScaleBegin = false;
+        }
         boolean isShowBottom = false;
         if (this.currentTabIdSubmenu1 == id) {
             isShowBottom = true;
@@ -803,6 +806,9 @@ public class BookActivity4Fragment extends Fragment {
     }
     private int currentTabIdSubmenu2 = iconsSubmenu2[0];
     public void onClickSubmenu2(View rootView, int id, boolean isClick) {
+        if (canvas != null) {
+            canvas.gScaleBegin = false;
+        }
         boolean isShowBottom = false;
         if (this.currentTabIdSubmenu2 == id) {
             isShowBottom = true;
@@ -876,6 +882,9 @@ public class BookActivity4Fragment extends Fragment {
     }
     private int currentTabIdSubmenu4 = iconsSubmenu4[0];
     public void onClickSubmenu4(View rootView, int id, boolean isClick) {
+        if (canvas != null) {
+            canvas.gScaleBegin = false;
+        }
         this.currentTabIdSubmenu4 = id;
         View view = rootView.findViewById(id);
         for (int i = 0; i < iconsSubmenu4.length; ++i) {
@@ -957,6 +966,9 @@ public class BookActivity4Fragment extends Fragment {
     }
     private int currentTabIdTopBar = iconsTopBar[0];
     public void onClickTopBar(View rootView, int id, boolean isClick) {
+        if (canvas != null) {
+            canvas.gScaleBegin = false;
+        }
         this.currentTabIdTopBar = id;
         View view = rootView.findViewById(id);
         for (int i = 0; i < iconsTopBar.length; ++i) {
@@ -1409,16 +1421,42 @@ public class BookActivity4Fragment extends Fragment {
 //                        RelativeLayout.LayoutParams pp =
 //                                new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
 //                                        RelativeLayout.LayoutParams.WRAP_CONTENT);
+
+                            //getDtView(true).getHeight();
+                            //getDtView(true).getMeasuredHeight();
+                            Rect rect3 = new Rect();
+                            Rect rect4 = new Rect();
+                            getDtView(true).mEtTextEdit.getGlobalVisibleRect(rect3);
+                            llRichTextTool2.getGlobalVisibleRect(rect4);
+
+
                             RelativeLayout.LayoutParams pp = (RelativeLayout.LayoutParams) llRichTextTool2.getLayoutParams();
-                            if (g_y > rect2.height() - (heightDiff)) {
-                                pp.bottomMargin = (int) (rect2.height() - g_y);
+                            if (g_y + rect4.height() + rect3.height() > rect2.height() - (heightDiff)) {
+                                //edittext too low
+                                if (false) {
+                                    //if use this method, edittext will be between tool bar and soft keyboard
+                                    pp.bottomMargin = (int) (rect2.height() - g_y);
+                                } else {
+                                    getDtView(true).moveUp((int) (g_y - (rect2.height() - (heightDiff)) + rect4.height() + rect3.height()));
+                                    canvas.getPanTool().moveUp((int) (g_y - (rect2.height() - (heightDiff)) + rect4.height() + rect3.height()));
+                                    pp.bottomMargin = (int) (Math.max((heightDiff)/*r.bottom - r.top*/, 0));
+                                }
                             } else {
                                 pp.bottomMargin = (int) (Math.max((heightDiff)/*r.bottom - r.top*/, 0));
+
+                                //edittext not too low
+                                getDtView(true).moveUp(0);
+                                canvas.getPanTool().moveUp(0);
                             }
                             pp.leftMargin = (int) (Math.max(0 - 0, 0));
                             //pp.alignWithParent = true;
                             llRichTextTool2.setLayoutParams(pp);
                             llRichTextTool2.setVisibility(View.VISIBLE);
+
+//                            RelativeLayout.LayoutParams pp2 = (RelativeLayout.LayoutParams) canvas.getLayoutParams();
+//                            pp2.topMargin = -(int) (Math.max((heightDiff)/*r.bottom - r.top*/, 0)); //(int) (rect2.height() - g_y);
+//                            canvas.setLayoutParams(pp2);
+
                         }
                     } else {
                         // Keyboard is hidden
@@ -1436,41 +1474,57 @@ public class BookActivity4Fragment extends Fragment {
     boolean g_y_on = false;
 //    private UnderlineSpan underlineSpan;
 
-    private Runnable refreshRunnable;
-    Handler handler = new Handler();
-    private void startHandlerTask() {
-        refreshRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (adapter != null) {
-                    adapter.notifyDataSetChanged();
-                }
-                if (rtasrDialog != null) {
-                    handler.postDelayed(this, 2000);
-                }
-            }
-        };
-        handler.postDelayed(refreshRunnable, 2000);
-    }
+//    private Runnable refreshRunnable;
+//    Handler handler = new Handler();
+//    private void startHandlerTask() {
+//        refreshRunnable = new Runnable() {
+//            @Override
+//            public void run() {
+//                if (adapter != null) {
+//                    adapter.notifyDataSetChanged();
+//                }
+//                if (rtasrDialog != null) {
+//                    handler.postDelayed(this, 2000);
+//                }
+//            }
+//        };
+//        handler.postDelayed(refreshRunnable, 2000);
+//    }
 
-    private Runnable refreshRunnable2;
+    private MyRunnable refreshRunnable2;
     Handler handler2 = new Handler();
-    private void startHandlerTask2() {
-        refreshRunnable2 = new Runnable() {
-            @Override
-            public void run() {
-                if (SAVING_ASYNC) {
-                    if (task == null) {
-                        task = new SavingTask(false, true);
-                        task.executeOnExecutor(newFixedThreadPool);
-                    }
-                }
-                if (!BookActivity4Fragment.this.isDetached()) {
-                    handler2.postDelayed(this, DELAY_TIME2);
+    class MyRunnable implements Runnable {
+        private boolean isStop = false;
+        public void stop() {
+            isStop = true;
+        }
+        @Override
+        public void run() {
+            if (isStop) {
+                return;
+            }
+            if (SAVING_ASYNC) {
+                if (task == null) {
+                    task = new SavingTask(false, true);
+                    task.executeOnExecutor(newFixedThreadPool);
+                    Log.e(TAG, "startHandlerTask2 MyRunnable " + System.currentTimeMillis());
                 }
             }
-        };
+            if (refreshRunnable2 == null || refreshRunnable2 != this) {
+                return;
+            }
+            if (!BookActivity4Fragment.this.isDetached()) {
+                handler2.postDelayed(this, DELAY_TIME2);
+            }
+        }
+    }
+    private void startHandlerTask2() {
+        if (refreshRunnable2 != null) {
+            refreshRunnable2.stop();
+        }
+        refreshRunnable2 = new MyRunnable();
         handler2.postDelayed(refreshRunnable2, DELAY_TIME2);
+        Log.e(TAG, "startHandlerTask2 " + System.currentTimeMillis());
     }
 
     private void init001(View rootView) {
@@ -1912,6 +1966,7 @@ public class BookActivity4Fragment extends Fragment {
                                 g_y = event.getY();
                                 g_y_on = true;
                             }
+                            canvas.getPanTool().moveUp(0);
 
                             // 获取触摸事件触摸位置的原始X坐标
                             float lastX = event.getX();
@@ -1941,6 +1996,7 @@ public class BookActivity4Fragment extends Fragment {
                                                 g_y = 0;
                                                 g_y_on = false;
                                             }
+                                            canvas.getPanTool().moveUp(0);
                                             if (getDtView(false) != null) {
                                                 getDtView(false).setVisibility(View.GONE);
                                             }
@@ -2053,6 +2109,7 @@ public class BookActivity4Fragment extends Fragment {
                             g_y = 0;
                             g_y_on = false;
                         }
+                        canvas.getPanTool().moveUp(0);
 
                         if (getDtView(false) != null) {
                             getDtView(false).setVisibility(View.GONE);
@@ -4094,5 +4151,6 @@ public class BookActivity4Fragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        refreshRunnable2 = null;
     }
 }

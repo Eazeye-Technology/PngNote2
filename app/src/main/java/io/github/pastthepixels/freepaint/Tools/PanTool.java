@@ -18,6 +18,11 @@ import io.github.pastthepixels.freepaint.Graphics.DrawPath;
 import io.github.pastthepixels.freepaint.Graphics.Point;
 
 public class PanTool implements Tool {
+    public int mDeltaY = 0;
+    public void moveUp(int deltaY) {
+        this.mDeltaY = deltaY;
+        canvas.invalidate();
+    }
     /**
      * Offset
      */
@@ -85,6 +90,8 @@ public class PanTool implements Tool {
         gestureDetector.setIsLongpressEnabled(false);
     }
 
+    private boolean useFlip = false;
+    private long flipTime = 0L;
     private GestureDetector gestureDetector;
     private GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
         @Override
@@ -107,14 +114,20 @@ public class PanTool implements Tool {
             if (e1.getY() - e2.getY() > VERTICAL_MIN_DISTANCE && Math.abs(velocityY) > MIN_VELOCITY) {
                 //flip up
                 BookActivity4Utils.flipUp(canvas.mAct);
+                flipTime = System.currentTimeMillis();
+                useFlip = true;
                 return true;
             } else if (e1.getX() - e2.getX() > VERTICAL_MIN_DISTANCE && Math.abs(velocityX) > MIN_VELOCITY) {
                 //flip left
-                BookActivity4Utils.nextPage(canvas.mAct);
+                BookActivity4Utils.previousPage(canvas.mAct);
+                flipTime = System.currentTimeMillis();
+                useFlip = true;
                 return true;
             } else if (e2.getX() - e1.getX() > VERTICAL_MIN_DISTANCE && Math.abs(velocityX) > MIN_VELOCITY) {
                 //flip right
-                BookActivity4Utils.previousPage(canvas.mAct);
+                BookActivity4Utils.nextPage(canvas.mAct);
+                flipTime = System.currentTimeMillis();
+                useFlip = true;
                 return true;
             }
             return super.onFling(e1, e2, velocityX, velocityY);
@@ -145,6 +158,9 @@ public class PanTool implements Tool {
      */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (gestureDetector.onTouchEvent(event)) {
+            return true;
+        }
         // Scaling
         detector.onTouchEvent(event);
         // This bit of code basically prevents edge cases where you're scrolling and let go of one finger
@@ -161,6 +177,9 @@ public class PanTool implements Tool {
         }
         // Panning
         if (!isScaling) {
+            if (System.currentTimeMillis() - flipTime < 2000L) {
+                return true; //disable move
+            }
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     touchDown.set(event.getX(), event.getY());
@@ -172,6 +191,10 @@ public class PanTool implements Tool {
                             oldOffset.x - (touchDown.x - event.getX()) / scaleFactor,
                             oldOffset.y - (touchDown.y - event.getY()) / scaleFactor
                     );
+                    break;
+
+                case MotionEvent.ACTION_UP:
+                    useFlip = false;
                     break;
             }
         }

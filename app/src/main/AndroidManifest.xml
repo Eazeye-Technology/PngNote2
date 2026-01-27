@@ -221,6 +221,37 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
 <!--            &lt;!&ndash;main&ndash;&gt;-->
 <!--        </activity>-->
 
+<!--        <service-->
+<!--            android:name="com.txkj.drawingapp.activity.MyInputMethodService"-->
+<!--            android:exported="true"-->
+<!--            android:permission="android.permission.BIND_INPUT_METHOD">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.view.InputMethod"/>-->
+<!--            </intent-filter>-->
+<!--            <meta-data-->
+<!--                android:name="android.view.im"-->
+<!--                android:resource="@xml/method" />-->
+<!--        </service>-->
+
+<!--        <activity android:name="com.esther.custom_keyboard.MainActivity"-->
+<!--            android:exported="true">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
+<!--        <service-->
+<!--            android:name="com.esther.custom_keyboard.CustomInputMethodService"-->
+<!--            android:exported="true"-->
+<!--            android:permission="android.permission.BIND_INPUT_METHOD">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.view.InputMethod"/>-->
+<!--            </intent-filter>-->
+<!--            <meta-data-->
+<!--                android:name="android.view.im"-->
+<!--                android:resource="@xml/method"/>-->
+<!--        </service>-->
     </application>
 
 </manifest>

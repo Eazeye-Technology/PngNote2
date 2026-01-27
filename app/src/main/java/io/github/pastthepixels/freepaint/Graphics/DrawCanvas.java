@@ -27,14 +27,13 @@ import android.util.SizeF;
 import android.view.GestureDetector;
 import android.view.InputDevice;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 
-import com.agsw.FabricView.FabricView;
-import com.txkj.contentbrowser.NoteFragment2;
 import com.txkj.drawingapp.activity.BookActivity4Fragment;
 import com.txkj.drawingapp.activity.BookActivity4Utils;
 import com.txkj.notemobile2.colorpicker.FileMeta;
@@ -56,6 +55,8 @@ import io.github.pastthepixels.freepaint.Tools.SelectionTool;
 import io.github.pastthepixels.freepaint.Tools.Tool;
 
 public final class DrawCanvas extends View {
+    private final static boolean USE_JUMP_PAGE_CENTER = true;//跳转页面后居中
+
     private final static double INIT_SCALE = 1.0;//0.8;
     private final static boolean DEBUG_EVENT = false;
     private final static String TAG = "DrawCanvas";
@@ -119,6 +120,7 @@ public final class DrawCanvas extends View {
 
         gestureDetector = new GestureDetector(getContext(), gestureListener);
         //gestureDetector.setIsLongpressEnabled(false);
+        this.scaleDetector = new ScaleGestureDetector(getContext(), scaleListener);
     }
 
     /**
@@ -219,6 +221,21 @@ public final class DrawCanvas extends View {
     int lastSource = 0;
 
 
+    public boolean gScaleBegin = false;
+    private ScaleGestureDetector scaleDetector;
+    private ScaleGestureDetector.SimpleOnScaleGestureListener scaleListener = new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+        @Override
+        public boolean onScaleBegin(@NonNull ScaleGestureDetector detector) {
+            //Toast.makeText(getContext(), "onScaleBegin", Toast.LENGTH_LONG).show();
+            gScaleBegin = true;
+            return super.onScaleBegin(detector);
+        }
+//        @Override
+//        public boolean onScale(@NonNull ScaleGestureDetector detector) {
+//            Toast.makeText(getContext(), "onScale", Toast.LENGTH_LONG).show();
+//            return super.onScale(detector);
+//        }
+    };
     private GestureDetector gestureDetector;
     private GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
         @Override
@@ -271,7 +288,6 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
     public static final int TOOL_TYPE_UNKNOWN = 0;
                  */
         }
-
         // Runs chosenTool.onTouchEvent if it exists, otherwise don't update the screen.
         TOOLS curTool = this.tool; //temporary, don't modify current Tool
         if (tool == TOOLS.paint) {
@@ -306,6 +322,13 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
                         isPan = true;
                     }
                 }
+            }
+        } else if (this.tool == TOOLS.select) {
+            scaleDetector.onTouchEvent(event);
+            if (gScaleBegin) {
+                curTool = TOOLS.pan;
+                getSelectionTool().getToolPaths().clear();
+                isPan = true;
             }
         }
 
@@ -612,6 +635,7 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
         canvas.save();
         // SCALES, THEN TRANSLATES (translations are independent of scales)
         if (!drawMinimal) {
+            canvas.translate(0,  - panTool.mDeltaY);
             canvas.scale(panTool.scaleFactor, panTool.scaleFactor);
             canvas.translate(panTool.offset.x + panTool.panOffset.x, panTool.offset.y + panTool.panOffset.y);
         }
@@ -1146,7 +1170,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
             if (text == null) {
                 text = "";
             }
-            Log.e(TAG, "drawText == " + text);
+//            Log.e(TAG, "drawText == " + text);
             //BookActivity4Utils.USE_HTML_EDIT
             Spanned textViewText = null;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
@@ -1319,6 +1343,9 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
                     this.initialBmp = newBmp;
                 }
 
+                if (USE_JUMP_PAGE_CENTER) {
+                    centerDocument();
+                }
                 this.invalidate();
             }
         }
@@ -1344,5 +1371,8 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
     }
     public SelectionTool getSelectionTool() {
         return selectionTool;
+    }
+    public PanTool getPanTool() {
+        return panTool;
     }
 }

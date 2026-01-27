@@ -152,6 +152,12 @@ public class DrawTextView extends RelativeLayout implements
         setLayoutParams();
     }
 
+    int mDeltaY = 0;
+    public void moveUp(int deltaY) {
+        this.mDeltaY = deltaY;
+        setLayoutParams();
+    }
+
     /**
      * 初始化监听 <br>
      * Created 2015-8-10 16:55:49
@@ -284,7 +290,7 @@ public class DrawTextView extends RelativeLayout implements
         LayoutParams layParamsTxt = new LayoutParams(
                 LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         layParamsTxt.leftMargin = (int) (mDrawPoint.getDrawText().getX() ); //- dp2px(getContext(), 30) //FIXME:
-        layParamsTxt.topMargin = (int) (mDrawPoint.getDrawText().getY() ); // - dp2px(getContext(), 25)
+        layParamsTxt.topMargin = (int) (mDrawPoint.getDrawText().getY() ) - this.mDeltaY; // - dp2px(getContext(), 25)
         mRlContent.setLayoutParams(layParamsTxt);
     }
     public static int dp2px(Context context, float dpValue) {
