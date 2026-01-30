@@ -282,7 +282,7 @@ public class BookActivity4Fragment extends Fragment {
         return this._bookIO;
     }
 
-    private void set_book(Book newbook) {
+    private synchronized void set_book(Book newbook) {
         this.pageNum = 0;
         this._book = newbook;
         if (newbook != null) {
@@ -328,7 +328,7 @@ public class BookActivity4Fragment extends Fragment {
         return (new Date()).getTime();
     }
 
-    private void savePage(final int pageIdx, Bitmap pageBmp, String vecJson) {
+    private synchronized void savePage(final int pageIdx, Bitmap pageBmp, String vecJson) {
         this.getBookIO().saveBitmap(this.getBook().getPage(pageIdx), pageBmp, vecJson, this.getBook());
         new Thread(new Runnable() {
             @Override
@@ -604,12 +604,12 @@ public class BookActivity4Fragment extends Fragment {
 
     //--------------------------
     private final static int iconsSubmenu1[] = {
-            R.id.left_toolkit_item1,
+            R.id.left_toolkit_item1, //1 pen
             R.id.left_toolkit_item2,
-            R.id.left_toolkit_item3,
-            R.id.left_toolkit_item4,
+            R.id.left_toolkit_item3, //2 highlight
+            R.id.left_toolkit_item4, //3 pencil
             R.id.left_toolkit_item5,
-            R.id.left_toolkit_item6,
+            R.id.left_toolkit_item6, //6 shape
     };
     public int getActiveIconIdSubmenu1(int id, boolean isActive) {
         if (id == R.id.left_toolkit_item1) {
@@ -628,12 +628,12 @@ public class BookActivity4Fragment extends Fragment {
         return 0;
     }
     private int currentTabIdSubmenu1 = iconsSubmenu1[0];
-    public void onClickSubmenu1(View rootView, int id, boolean isClick) {
+    public void onClickSubmenu1(View rootView, int id, boolean isClick, boolean noShowBottom) {
         if (canvas != null) {
             canvas.gScaleBegin = false;
         }
         boolean isShowBottom = false;
-        if (this.currentTabIdSubmenu1 == id) {
+        if (this.currentTabIdSubmenu1 == id && !noShowBottom) {
             isShowBottom = true;
         }
         this.currentTabIdSubmenu1 = id;
@@ -675,9 +675,7 @@ public class BookActivity4Fragment extends Fragment {
             } else if (id == R.id.left_toolkit_item6) {
                 canvas.setPenType(DrawAppearance.PEN_TYPE_6);
             }
-
             updateAppear(id);
-
 //            if (bottomSheetDialog1 != null) {
 //                bottomSheetDialog1.show();
 //            }
@@ -1107,13 +1105,13 @@ public class BookActivity4Fragment extends Fragment {
         init0001(rootView);
         long t2 = System.currentTimeMillis();
         Log.e(TAG, "oncreateview, t2== " + (t2 - t1));
+        init002(rootView);
         init000(rootView);
         long t3 = System.currentTimeMillis();
         Log.e(TAG, "oncreateview, t3== " + (t3 - t2));
         init001(rootView);
         long t4 = System.currentTimeMillis();
         Log.e(TAG, "oncreateview, t4== " + (t4 - t3));
-        init002(rootView);
         long t5 = System.currentTimeMillis();
         Log.e(TAG, "oncreateview, t5== " + (t5 - t4));
         init003(rootView);
@@ -1130,6 +1128,9 @@ public class BookActivity4Fragment extends Fragment {
     }
 
     private void init0001(View rootView) {
+        setColor(canvas, 0xFF000000);  //reset pen color
+        setSize(canvas, 1);  //reset pen size
+
         newFixedThreadPool = Executors.newFixedThreadPool(6);
         Bundle intent = this.getArguments();
         boolean isInitBackText = false;
@@ -1201,7 +1202,7 @@ public class BookActivity4Fragment extends Fragment {
             rootView.findViewById(id).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    onClickSubmenu1(rootView, id, true);
+                    onClickSubmenu1(rootView, id, true, false);
                 }
             });
             rootView.findViewById(id).setOnLongClickListener(new View.OnLongClickListener() {
@@ -1212,6 +1213,7 @@ public class BookActivity4Fragment extends Fragment {
                 }
             });
         }
+        onClickSubmenu1(rootView, iconsSubmenu1[0], true, true);
         for (int id : iconsSubmenu2) {
             rootView.findViewById(id).setOnClickListener(new View.OnClickListener() {
                 @Override
