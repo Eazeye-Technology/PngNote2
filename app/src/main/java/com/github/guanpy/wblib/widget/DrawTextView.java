@@ -29,6 +29,8 @@ import io.github.pastthepixels.freepaint.Graphics.DrawPath;
 
 public class DrawTextView extends RelativeLayout implements
         View.OnClickListener {
+    private final static String TAG = "DrawTextView";
+
     /**
      * 显示状态
      */
@@ -239,8 +241,9 @@ public class DrawTextView extends RelativeLayout implements
         } else {
             if (strText == null) strText = "";
             if (isHtml) { //if (DrawPath.POINTS_TEXT_TYPE_RICH)
+                Log.e(TAG, "Html.fromHtml : " + strText);
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                    mEtTextEdit.setText(Html.fromHtml(strText, Html.FROM_HTML_MODE_LEGACY));
+                    mEtTextEdit.setText(Html.fromHtml(strText, Html.FROM_HTML_MODE_COMPACT));//Html.FROM_HTML_MODE_LEGACY));
                 } else {
                     mEtTextEdit.setText(Html.fromHtml(strText));
                 }
@@ -382,6 +385,7 @@ public class DrawTextView extends RelativeLayout implements
                         } else {
                             htmlString = Html.toHtml(mEtTextEdit.getText());
                         }
+                        Log.e(TAG, "htmlString : " + htmlString);
                         mDrawPoint.getDrawText().setStr(mEtTextEdit.getText().toString(), htmlString);
                     }
                 }

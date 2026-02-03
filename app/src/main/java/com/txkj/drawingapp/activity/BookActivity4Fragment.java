@@ -120,6 +120,7 @@ import io.material.catalog.windowpreferences.WindowPreferencesManager;
 //isDirty = true; //FIXME: force save
 //TODO:notifyForceSave, when view onSizeChanged or other events, need call it
 public class BookActivity4Fragment extends Fragment {
+    private final static boolean USE_FIRST_HIDE_EDITTEXT = true;
     private final static boolean USE_FLOAT_IME_TOOLBAR = false;
     private final static boolean USE_BOTTOM_IME_TOOLBAR = true;
 
@@ -329,7 +330,7 @@ public class BookActivity4Fragment extends Fragment {
     }
 
     private synchronized void savePage(final int pageIdx, Bitmap pageBmp, String vecJson) {
-        this.getBookIO().saveBitmap(this.getBook().getPage(pageIdx), pageBmp, vecJson, this.getBook());
+        this.getBookIO().saveBitmap(this.getBook().getPage(pageIdx), pageBmp, vecJson, this.getBook(), getActivity());
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -339,7 +340,7 @@ public class BookActivity4Fragment extends Fragment {
     }
 
     private void savePageInMain(int pageIdx, Bitmap pageBmp, String vecJson) {
-        this.getBookIO().saveBitmap(this.getBook().getPage(pageIdx), pageBmp, vecJson, this.getBook());
+        this.getBookIO().saveBitmap(this.getBook().getPage(pageIdx), pageBmp, vecJson, this.getBook(), getActivity());
         this.set_book(this.getBook().assignNonEmpty(pageIdx));
     }
 
@@ -1417,9 +1418,13 @@ public class BookActivity4Fragment extends Fragment {
                     Rect rect2 = new Rect();
                     canvas.getGlobalVisibleRect(rect2);
                     int heightDiff = decorView.getRootView().getHeight() - (r.bottom - r.top);
+                    //Log.e(TAG, "heightDiff : " + heightDiff);
                     if (heightDiff > 100) { // if more than 100 pixels, it's probably a keyboard...
                         // Keyboard is shown
                         if (llRichTextTool2 != null && g_y_on) {
+                            if (lastTimeShowKeyboard == 0) {
+                                lastTimeShowKeyboard = System.currentTimeMillis();
+                            }
 //                        RelativeLayout.LayoutParams pp =
 //                                new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT,
 //                                        RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -1429,6 +1434,14 @@ public class BookActivity4Fragment extends Fragment {
                             Rect rect3 = new Rect();
                             Rect rect4 = new Rect();
                             getDtView(true).mEtTextEdit.getGlobalVisibleRect(rect3);
+                            if (USE_FIRST_HIDE_EDITTEXT) {
+                                if (lastTimeShowKeyboard != 0 &&
+                                        System.currentTimeMillis() - lastTimeShowKeyboard > 0) { //500) { //5000) {
+                                    getDtView(true).setVisibility(View.VISIBLE);
+                                } else {
+                                    getDtView(true).setVisibility(View.INVISIBLE);
+                                }
+                            }
                             llRichTextTool2.getGlobalVisibleRect(rect4);
 
 
@@ -1454,7 +1467,6 @@ public class BookActivity4Fragment extends Fragment {
                             //pp.alignWithParent = true;
                             llRichTextTool2.setLayoutParams(pp);
                             llRichTextTool2.setVisibility(View.VISIBLE);
-
 //                            RelativeLayout.LayoutParams pp2 = (RelativeLayout.LayoutParams) canvas.getLayoutParams();
 //                            pp2.topMargin = -(int) (Math.max((heightDiff)/*r.bottom - r.top*/, 0)); //(int) (rect2.height() - g_y);
 //                            canvas.setLayoutParams(pp2);
@@ -1465,6 +1477,7 @@ public class BookActivity4Fragment extends Fragment {
                         if (llRichTextTool2 != null) {
                             llRichTextTool2.setVisibility(View.GONE);
                         }
+                        lastTimeShowKeyboard = 0;
                     }
                 }
             });
@@ -1472,6 +1485,7 @@ public class BookActivity4Fragment extends Fragment {
 
         BookActivity4RichText.initButtons(this);
     }
+    long lastTimeShowKeyboard = 0;
     float g_y = 0;
     boolean g_y_on = false;
 //    private UnderlineSpan underlineSpan;
@@ -1966,6 +1980,7 @@ public class BookActivity4Fragment extends Fragment {
                             }
                             if (USE_BOTTOM_IME_TOOLBAR) {
                                 g_y = event.getY();
+
                                 g_y_on = true;
                             }
                             canvas.getPanTool().moveUp(0);
@@ -1975,6 +1990,11 @@ public class BookActivity4Fragment extends Fragment {
                             float lastY = event.getY();
                             dtViewBottom.setVisibility(View.GONE);
                             getDtView(true).setVisibility(View.VISIBLE);
+                            if (USE_FIRST_HIDE_EDITTEXT) {
+                                if (g_y_on) {
+                                    getDtView(true).setVisibility(View.INVISIBLE);
+                                }
+                            }
                             setBoldItalicsStyle();
                             setAlignType(alignType);
                             setSizeType(sizeType);
@@ -2077,6 +2097,7 @@ public class BookActivity4Fragment extends Fragment {
             float y = path.pointsTextY;
             Point originalPoint = canvas.mapPointScreen(x, y, 1.0F);
             g_y = originalPoint.y;
+
             g_y_on = true;
         }
 
@@ -2089,6 +2110,11 @@ public class BookActivity4Fragment extends Fragment {
 
         dtViewBottom.setVisibility(View.GONE);
         getDtView(true).setVisibility(View.VISIBLE);
+        if (USE_FIRST_HIDE_EDITTEXT) {
+            if (g_y_on) {
+                getDtView(true).setVisibility(View.INVISIBLE);
+            }
+        }
         setBoldItalicsStyle();
         setAlignType(alignType);
         setSizeType(sizeType);

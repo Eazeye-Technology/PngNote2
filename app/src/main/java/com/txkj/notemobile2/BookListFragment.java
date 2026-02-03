@@ -147,7 +147,7 @@ public class BookListFragment extends Fragment {
         }
         List<SimpleFileMeta> datas = null;
         try {
-            datas = getBookIO().loadRecent();
+            datas = getBookIO().loadRecent_new(getActivity());
         } catch (Throwable eee) {
             eee.printStackTrace();
         }
@@ -448,7 +448,7 @@ public class BookListFragment extends Fragment {
 //                                  if (bookListAdapter != null) {
 //                                      bookListAdapter.notifyDataSetChanged();
 //                                  }
-                                    getBookIO().removeSaveRecent(f.getName());
+                                    getBookIO().removeSaveRecent(f.getFilePath(), getActivity());
                                     reloadBookList(_url, _urlPath);
                                 }
                             }

@@ -1,5 +1,6 @@
 package com.txkj.notemobile2.book;
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,6 +10,9 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.util.Base64;
 import android.util.Log;
+import android.view.animation.AccelerateInterpolator;
+
+import androidx.activity.ActivityViewModelLazyKt;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -23,6 +27,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -32,13 +37,19 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.BaseExtractor;
+import com.foobnix.dao2.FileMeta;
+import com.txkj.contentbrowser.NoteFragment4;
 import com.txkj.drawingapp.activity.BookActivity4Config;
+import com.txkj.drawingapp.db.NoteItem;
+import com.txkj.drawingapp.db.SDNotesDatabase;
 import com.txkj.notemobile2.Book;
 import com.txkj.notemobile2.ui.CanvasBoox;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.librera.LinkedJSONObject;
 
 import io.github.pastthepixels.freepaint.Graphics.BitmapVector;
 
@@ -355,7 +366,7 @@ public class BookIO {
         }
     }
 
-    public void saveBitmap(BookPage page, Bitmap bitmap, String vecJson, Book book) {
+    public void saveBitmap(BookPage page, Bitmap bitmap, String vecJson, Book book, Activity act) {
         if (USE_CONTENT_RESOLVER) {
             OutputStream it = null;
             try {
@@ -423,34 +434,12 @@ public class BookIO {
 
 
         try {
-            List<SimpleFileMeta> datas = loadRecent();
-            if (datas == null) {
-                datas = new ArrayList<SimpleFileMeta>();
-            }
             File file = new File(page.getFile().getFilePath());
             File folder = file.getParentFile();
             String name = folder.getName();
-            List<SimpleFileMeta> datas2 = new ArrayList<>();
-            List<SimpleFileMeta> datas3 = new ArrayList<>();
             SimpleFileMeta itemFound = null;
-            for (int i = 0; i < datas.size(); ++i) {
-                SimpleFileMeta item = datas.get(i);
-                if (name != null && name.length() > 0 && item != null && item.getName() != null) {
-                    if (name.equals(item.getName()) && itemFound == null) {
-                        itemFound = item;
-                        datas3.add(item);
-                    } else {
-                        datas2.add(item);
-                    }
-                }
-            }
-            if (itemFound == null) {
-                itemFound = new SimpleFileMeta();
-                datas3.add(itemFound); //最新的记录移动到最前面
-                itemFound.setCreateTime("" + new Date().getTime());
-            }
-            datas3.addAll(datas2);
-
+            itemFound = new SimpleFileMeta();
+            itemFound.setCreateTime("" + new Date().getTime());
             itemFound.setPath(name); //FIXME:可能不是读目录名称
             itemFound.setName(name);
             itemFound.setDispName(FastFile.getDisplayMetaName(folder));
@@ -527,68 +516,84 @@ public class BookIO {
                     thumbnailBitmap.recycle();
                 }
             }
-            JSONArray arr = new JSONArray();
-            for (SimpleFileMeta meta : datas3) {
-                JSONObject obj = new JSONObject();
-                obj.put("preview", meta.getPreview());
-                obj.put("name", meta.getName());
-                obj.put("path", meta.getPath());
-                obj.put("createTime", meta.getCreateTime());
-                obj.put("updateTime", meta.getUpdateTime());
-                obj.put("dispName", meta.getDispName());
-                arr.put(obj);
-                if (false) {
-                    Log.e(TAG, "<<< adding node: " + meta.getName());
-                }
-            }
-            saveRecent(arr.toString());
+            saveRecent_new(act, itemFound);
         } catch (Throwable eee) {
             eee.printStackTrace();
         }
     }
 
-    public void removeSaveRecent(String name) {
-        try {
-            List<SimpleFileMeta> datas = loadRecent();
-            if (datas == null) {
-                datas = new ArrayList<SimpleFileMeta>();
-            }
-            List<SimpleFileMeta> datas2 = new ArrayList<>();
-            List<SimpleFileMeta> datas3 = new ArrayList<>();
-            SimpleFileMeta itemFound = null;
-            for (int i = 0; i < datas.size(); ++i) {
-                SimpleFileMeta item = datas.get(i);
-                if (name != null && name.length() > 0 && item != null && item.getName() != null) {
-                    if (name.equals(item.getName()) && itemFound == null) {
-                        itemFound = item;
-                        datas3.add(item);
-                    } else {
-                        datas2.add(item);
+    private static Object lockSave = new Object();
+
+    private void saveRecent_new(Activity act, SimpleFileMeta itemFound) {
+        synchronized (lockSave) {
+            try {
+                String dirPath = new File(Environment.getExternalStorageDirectory(), NoteFragment4.APPNAME_NEW).toString();
+                SDNotesDatabase mDatabase = new SDNotesDatabase(act, dirPath);
+                NoteItem itemNoteFound = null;
+                List<NoteItem> items = mDatabase.getAllItems();
+                for (NoteItem itemNote : items) {
+                    if (itemNote != null &&
+                            itemNote.getNoteFilePath() != null &&
+                            itemFound.getPath() != null &&
+                            itemNote.getNoteFilePath().equals(itemFound.getPath())) {
+                        itemNoteFound = itemNote;
+                        break;
                     }
                 }
-            }
-            if (itemFound == null) {
-                itemFound = new SimpleFileMeta();
-                datas3.add(itemFound); //最新的记录移动到最前面
-                itemFound.setCreateTime("" + new Date().getTime());
-            }
-            datas3.addAll(datas2);
 
-            JSONArray arr = new JSONArray();
-            for (SimpleFileMeta meta : datas3) {
+
                 JSONObject obj = new JSONObject();
-                obj.put("preview", meta.getPreview());
-                obj.put("name", meta.getName());
-                obj.put("path", meta.getPath());
-                obj.put("createTime", meta.getCreateTime());
-                obj.put("updateTime", meta.getUpdateTime());
-                obj.put("dispName", meta.getDispName());
-                arr.put(obj);
-                if (false) {
-                    Log.e(TAG, "<<< adding node: " + meta.getName());
+                obj.put("preview", itemFound.getPreview());
+                obj.put("name", itemFound.getName());
+                obj.put("path", itemFound.getPath());
+                obj.put("createTime", itemFound.getCreateTime());
+                obj.put("updateTime", itemFound.getUpdateTime());
+                obj.put("dispName", itemFound.getDispName());
+                String content = obj.toString();
+                NoteItem item = new NoteItem();
+                item.setNoteContent(content);
+                item.setNoteName(itemFound.getName());
+                item.setNoteFilePath(itemFound.getPath());
+                item.setCreateTime(itemFound.getCreateTime());
+                item.setUpdateTime(itemFound.getUpdateTime());
+                item.setNoteName(itemFound.getDispName());
+                if (itemNoteFound != null) {
+                    mDatabase.updateItem(itemNoteFound.getId(), item);
+                } else {
+                    mDatabase.addNote(item);
+                }
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+            }
+        }
+    }
+
+    private void saveRecent_remove(Activity act, String filePath) {
+        try {
+            String dirPath = new File(Environment.getExternalStorageDirectory(), NoteFragment4.APPNAME_NEW).toString();
+            SDNotesDatabase mDatabase = new SDNotesDatabase(act, dirPath);
+            NoteItem itemNoteFound = null;
+            List<NoteItem> items = mDatabase.getAllItems();
+            for (NoteItem itemNote : items) {
+                if (itemNote != null &&
+                        filePath != null &&
+                        itemNote.getNoteFilePath() != null &&
+                        itemNote.getNoteFilePath().equals(filePath)) {
+                    itemNoteFound = itemNote;
+                    break;
                 }
             }
-            saveRecent(arr.toString());
+            if (itemNoteFound != null) {
+                mDatabase.removeItemWithId(itemNoteFound.getId());
+            }
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+        }
+    }
+
+    public void removeSaveRecent(String filePath, Activity act) {
+        try {
+            saveRecent_remove(act, filePath);
         } catch (Throwable eee) {
             eee.printStackTrace();
         }
@@ -867,7 +872,7 @@ public class BookIO {
 
     private static final String KEY_RECENT_FILES = "recentFiles";
     //private final static String APPNAME = "txkjnote";
-    public void saveRecent(String value) {
+    public void saveRecent_not_used(String value) {
         String key = "flutter." + KEY_RECENT_FILES;
         try {
             //String rootPath = new File(Environment.getExternalStorageDirectory(), APPNAME).toString();
@@ -883,7 +888,7 @@ public class BookIO {
         }
     }
 
-    public void removeOrClearRecent() {
+    public void removeOrClearRecent_not_used() {
         String key = "flutter." + KEY_RECENT_FILES;
         try {
             //String rootPath = new File(Environment.getExternalStorageDirectory(), APPNAME).toString();
@@ -899,7 +904,7 @@ public class BookIO {
         }
     }
 
-    public List<SimpleFileMeta> loadRecent() {
+    public List<SimpleFileMeta> loadRecent_not_used() {
         String recentFiles = "";
         if (true) {
             try {
@@ -1038,5 +1043,119 @@ public class BookIO {
             flag = true;
         }
         return flag;
+    }
+
+    public List<SimpleFileMeta> loadRecent_new(Activity act) {
+        List<SimpleFileMeta> recentNoteList2 = new ArrayList<>();
+        String dirPath = new File(Environment.getExternalStorageDirectory(), NoteFragment4.APPNAME_NEW).toString();
+        boolean kkk2 = new File(dirPath).mkdirs();
+        if (new File(dirPath, SDNotesDatabase.DATABASE_NAME).exists()) {
+            SDNotesDatabase mDatabase = new SDNotesDatabase(act, dirPath);
+            List<NoteItem> items = mDatabase.getAllItems();
+            for (NoteItem itemNote : items) {
+                try {
+                    LinkedJSONObject item = new LinkedJSONObject(itemNote.getNoteContent());
+                    if (item != null) {
+                        String preview = item.optString("preview");
+                        String name = item.optString("name");
+                        String path = item.optString("path");
+                        String createTime = item.optString("createTime");
+                        String updateTime = item.optString("updateTime");
+                        String dispName = item.optString("dispName");
+
+                        SimpleFileMeta meta = new SimpleFileMeta();
+                        meta.setPreview(preview);
+                        meta.setName(name);
+                        meta.setPath(path);
+                        meta.setCreateTime(createTime);
+                        meta.setUpdateTime(updateTime);
+                        meta.setDispName(dispName);
+                        //搜索过滤
+                        recentNoteList2.add(meta);
+                    }
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                }
+            }
+        } else {
+            if (NoteFragment4.LOAD_OLD_DATA) {
+                String recentFiles = "";
+                try {
+                    String rootPath = null;
+                    rootPath = new File(Environment.getExternalStorageDirectory(), NoteFragment4.APPNAME_NEW).toString();
+                    boolean kkk = new File(rootPath).mkdirs();
+                    if (new File(rootPath, "flutter." + KEY_RECENT_FILES + ".txt").exists()) {
+                        InputStream fis = new FileInputStream(new File(rootPath, "flutter." + KEY_RECENT_FILES + ".txt"));
+                        InputStreamReader isr = new InputStreamReader(fis, "UTF-8");
+                        BufferedReader reader = new BufferedReader(isr);
+                        StringBuffer recentFilesBuffer = new StringBuffer();
+                        while (true) {
+                            String line = reader.readLine();
+                            if (line != null) {
+                                recentFilesBuffer.append(line);
+                                recentFilesBuffer.append("\n");
+                            } else {
+                                break;
+                            }
+                        }
+                        recentFiles = recentFilesBuffer.toString();
+                        reader.close();
+                        isr.close();
+                        fis.close();
+                    }
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                }
+                //Log.e(TAG, "recentFiles: " + recentFiles);
+                //List<FileMeta> recentNoteList2 = new ArrayList<>();
+                List<NoteItem> noteItems = new ArrayList<>();
+                try {
+                    org.librera.JSONArray jsonArray = new org.librera.JSONArray(recentFiles);
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        LinkedJSONObject item = jsonArray.getJSONObject(i);
+                        if (item != null) {
+                            String preview = item.optString("preview");
+                            String name = item.optString("name");
+                            String path = item.optString("path");
+                            String createTime = item.optString("createTime");
+                            String updateTime = item.optString("updateTime");
+                            String dispName = item.optString("dispName");
+
+                            NoteItem noteItem = new NoteItem();
+                            noteItem.setCreateTime(createTime);
+                            noteItem.setNoteFilePath(path);
+                            noteItem.setUpdateTime(updateTime);
+                            noteItem.setNoteName(dispName);
+                            noteItem.setNoteContent(item.toString());
+                            noteItems.add(noteItem);
+
+                            SimpleFileMeta meta = new SimpleFileMeta();
+                            meta.setPreview(preview);
+                            meta.setName(name);
+                            meta.setPath(path);
+                            meta.setCreateTime(createTime);
+                            meta.setUpdateTime(updateTime);
+                            meta.setDispName(dispName);
+                            //搜索过滤
+                            recentNoteList2.add(meta);
+                        }
+                    }
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                }
+
+
+                //reimport
+                try {
+                    SDNotesDatabase mDatabase = new SDNotesDatabase(act, dirPath);
+                    for (NoteItem item : noteItems) {
+                        mDatabase.addNote(item);
+                    }
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                }
+            }
+        }
+        return recentNoteList2;
     }
 }

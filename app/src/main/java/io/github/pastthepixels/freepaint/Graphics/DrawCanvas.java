@@ -1099,7 +1099,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
             Spanned textViewText = null;
             if (textType == DrawPath.POINTS_TEXT_TYPE_RICH) {
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                    textViewText = (Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY));
+                    textViewText = (Html.fromHtml(text, Html.FROM_HTML_MODE_COMPACT));//Html.FROM_HTML_MODE_LEGACY));
                 } else {
                     textViewText = (Html.fromHtml(text));
                 }
@@ -1174,7 +1174,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
             //BookActivity4Utils.USE_HTML_EDIT
             Spanned textViewText = null;
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                textViewText = (Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY));
+                textViewText = (Html.fromHtml(text, Html.FROM_HTML_MODE_COMPACT));//Html.FROM_HTML_MODE_LEGACY));
             } else {
                 textViewText = (Html.fromHtml(text));
             }

@@ -124,6 +124,7 @@ public class VecJson {
                         objPath.put("stroke", colorToHex8(path.appearance.stroke));
                     }
                     objPath.put("strokeSize", path.appearance.strokeSize);
+                    objPath.put("penType", path.appearance.penType);
                 }
 
                 // Done
@@ -249,6 +250,9 @@ public class VecJson {
                 // Stroke width
                 if (element.has("strokeSize")) {
                     path.appearance.strokeSize = Integer.parseInt(element.optString("strokeSize"));
+                }
+                if (element.has("penType")) {
+                    path.appearance.penType = Integer.parseInt(element.optString("penType"));
                 }
                 // Done!!
                 path.cachePath();
