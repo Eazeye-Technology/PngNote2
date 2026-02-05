@@ -467,8 +467,9 @@ public class FastFile {
         }
         String uuid = UUID.randomUUID().toString();
         String dispMetaName = null;
-        if (file_.getName().startsWith(BookActivity4Config.USE_SKETCH_PREFIX) &&
-                file_.getName().length() == BookActivity4Config.USE_SKETCH_PREFIX.length() + uuid.length()) {
+        String name = file_.getName();
+        if (name.startsWith(BookActivity4Config.USE_SKETCH_PREFIX) &&
+                name.length() == BookActivity4Config.USE_SKETCH_PREFIX.length() + uuid.length()) {
             try {
                 File file_2 = new File(file_, BookActivity4Config.USE_SKETCH_CONFIG);
                 if (file_2.exists() && file_2.canRead()) {

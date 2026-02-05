@@ -1421,6 +1421,15 @@ public class BookActivity4Fragment extends Fragment {
                     //Log.e(TAG, "heightDiff : " + heightDiff);
                     if (heightDiff > 100) { // if more than 100 pixels, it's probably a keyboard...
                         // Keyboard is shown
+                        {
+                            //hide bottom dialogs
+                            if (g_rootView.findViewById(R.id.bottomDialog1).getVisibility() == View.VISIBLE) {
+                                g_rootView.findViewById(R.id.bottomDialog1).setVisibility(View.GONE);
+                            }
+                            if (g_rootView.findViewById(R.id.bottomDialog2).getVisibility() == View.VISIBLE) {
+                                g_rootView.findViewById(R.id.bottomDialog2).setVisibility(View.GONE);
+                            }
+                        }
                         if (llRichTextTool2 != null && g_y_on) {
                             if (lastTimeShowKeyboard == 0) {
                                 lastTimeShowKeyboard = System.currentTimeMillis();
@@ -1983,6 +1992,7 @@ public class BookActivity4Fragment extends Fragment {
 
                                 g_y_on = true;
                             }
+                            g_rootView.findViewById(R.id.left_toolkit_global).setVisibility(View.GONE);
                             canvas.getPanTool().moveUp(0);
 
                             // 获取触摸事件触摸位置的原始X坐标
@@ -2018,6 +2028,8 @@ public class BookActivity4Fragment extends Fragment {
                                                 g_y = 0;
                                                 g_y_on = false;
                                             }
+                                            g_rootView.findViewById(R.id.left_toolkit_global).setVisibility(View.VISIBLE);
+
                                             canvas.getPanTool().moveUp(0);
                                             if (getDtView(false) != null) {
                                                 getDtView(false).setVisibility(View.GONE);
@@ -2100,6 +2112,7 @@ public class BookActivity4Fragment extends Fragment {
 
             g_y_on = true;
         }
+        g_rootView.findViewById(R.id.left_toolkit_global).setVisibility(View.GONE);
 
         Point point = canvas.mapPointScreen(
                 path.pointsTextX,
@@ -2137,6 +2150,7 @@ public class BookActivity4Fragment extends Fragment {
                             g_y = 0;
                             g_y_on = false;
                         }
+                        g_rootView.findViewById(R.id.left_toolkit_global).setVisibility(View.VISIBLE);
                         canvas.getPanTool().moveUp(0);
 
                         if (getDtView(false) != null) {
@@ -3043,7 +3057,12 @@ public class BookActivity4Fragment extends Fragment {
         try {
             File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
             String str = FastFile.loadMetaText(file_2);
-            JSONObject item = new JSONObject(str);
+            JSONObject item = new JSONObject();
+            try {
+                item = new JSONObject(str);
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+            }
             item.put(BookActivity4Config.USE_SKETCH_CONFIG_DISPNAME, newName);
             FastFile.saveMetaText(file_2, item.toString());
         } catch (JSONException e) {
@@ -3053,9 +3072,10 @@ public class BookActivity4Fragment extends Fragment {
         if (isFailed) {
             new MaterialAlertDialogBuilder(getActivity(), BookActivity4Utils.getCenteredTitleThemeOverlay())
                     .setTitle("Error")
-                    .setMessage("Rename failed : " + _bookDir.getFilePath() + ",\n" +
-                            "please check the path starts with '" + BookActivity4Config.USE_SKETCH_PREFIX + "' prefix, " +
-                            "and make sure " + BookActivity4Config.USE_SKETCH_CONFIG + " file exists.")
+//                    .setMessage("Rename failed : " + _bookDir.getFilePath() + ",\n" +
+//                            "please check the path starts with '" + BookActivity4Config.USE_SKETCH_PREFIX + "' prefix, " +
+//                            "and make sure " + BookActivity4Config.USE_SKETCH_CONFIG + " file exists.")
+                    .setMessage("Renaming failed")
                     .setPositiveButton("OK", null)
                     .show();
         } else {

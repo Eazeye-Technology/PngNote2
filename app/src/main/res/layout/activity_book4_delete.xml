@@ -80,15 +80,20 @@
                         />
                     <Button
                         style="@style/Widget.Material3.Button.TextButton.Icon"
-                        android:layout_width="106px"
+                        android:layout_width="156px"
                         android:layout_height="40px"
                         android:text="Delete"
                         android:textSize="14px"
-                        app:icon="@drawable/ic_outline_delete_forever_24_w"
                         android:id="@+id/btnSave"
-                        android:padding="0px"
+                        android:paddingLeft="30px"
+                        android:paddingRight="30px"
+                        android:paddingTop="0px"
+                        android:paddingBottom="0px"
                         android:textColor="#000000"
+                        android:drawableLeft="@drawable/ic_outline_delete_forever_24_w"
                         />
+                    <!--app:icon="@drawable/ic_outline_delete_forever_24_w"
+                        -->
                 </LinearLayout>
 
             </LinearLayout>
