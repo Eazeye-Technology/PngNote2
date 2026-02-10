@@ -336,7 +336,7 @@ public class BookIO {
         }
     }
 
-    public void savePageOrder(BookPage page, Book book) {
+    public void savePageOrder(BookPage page, Book book, int lastPageIndex) {
         boolean isFailed = false;
         String folder = null;
         if (page.getFile().getFilePath() != null) {
@@ -358,6 +358,7 @@ public class BookIO {
                     pageOrderObj.put(Integer.toString(key), book.getPagetNameMap().get(key));
                 }
                 item.put(BookActivity4Config.USE_SKETCH_CONFIG_PAGEORDER, pageOrderObj);
+                item.put(BookActivity4Config.USE_SKETCH_CONFIG_LASTPAGEINDEX, lastPageIndex);
                 FastFile.saveMetaText(file_2, item.toString());
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -366,7 +367,7 @@ public class BookIO {
         }
     }
 
-    public void saveBitmap(BookPage page, Bitmap bitmap, String vecJson, Book book, Activity act) {
+    public void saveBitmap(BookPage page, Bitmap bitmap, String vecJson, Book book, Activity act, int lastPageIndex) {
         if (USE_CONTENT_RESOLVER) {
             OutputStream it = null;
             try {
@@ -429,7 +430,7 @@ public class BookIO {
             }
         }
         {
-            savePageOrder(page, book);
+            savePageOrder(page, book, lastPageIndex);
         }
 
 
@@ -611,6 +612,7 @@ public class BookIO {
 
         Map<Integer, FastFile> pageMap = new HashMap<Integer, FastFile>();
         Map<Integer, String> pageOrderObj = new HashMap<>();
+        int lastPageIndex = 0;
         if (BookActivity4Config.USE_UUID_PAGE_NAME) {
             boolean isFailed = false;
             String folder = bookDir.getFilePath();
@@ -625,6 +627,8 @@ public class BookIO {
                     File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
                     String str = FastFile.loadMetaText(file_2);
                     JSONObject item = new JSONObject(str);
+                    //normally hit here
+                    lastPageIndex = item.optInt(BookActivity4Config.USE_SKETCH_CONFIG_LASTPAGEINDEX, 0);
                     JSONObject pageOrder = item.optJSONObject(BookActivity4Config.USE_SKETCH_CONFIG_PAGEORDER);
                     if (pageOrder != null) {
                         Iterator<String> it = pageOrder.keys();
@@ -687,6 +691,7 @@ public class BookIO {
                     for (Integer key : pageOrderObj.keySet()) {
                         pageOrderObj_.put(Integer.toString(key), pageOrderObj.get(key));
                     }
+                    lastPageIndex = item.optInt(BookActivity4Config.USE_SKETCH_CONFIG_LASTPAGEINDEX, 0);
                     item.put(BookActivity4Config.USE_SKETCH_CONFIG_PAGEORDER, pageOrderObj_);
                     FastFile.saveMetaText(file_2, item.toString());
                 } catch (JSONException e) {
@@ -720,13 +725,14 @@ public class BookIO {
             pages.add(item);
         }
         FastFile bgFile = bookDir.findFile("background.png");
-        return new Book(bookDir, pages, bgFile);
+        return new Book(bookDir, pages, bgFile, lastPageIndex);
     }
 
     //FIXME:不插入空白页而是移动到新文件，可能会不正确
     public Book loadBookParentNoCreate(FastFile bookDir, Book book) {
         Map<Integer, FastFile> pageMap = new HashMap<Integer, FastFile>();
         Map<Integer, String> pageOrderObj = new HashMap<>();
+        int lastPageIndex = 0;
         if (BookActivity4Config.USE_UUID_PAGE_NAME) {
             boolean isFailed = false;
             String folder = bookDir.getFilePath();
@@ -741,6 +747,7 @@ public class BookIO {
                     File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
                     String str = FastFile.loadMetaText(file_2);
                     JSONObject item = new JSONObject(str);
+                    lastPageIndex = item.optInt(BookActivity4Config.USE_SKETCH_CONFIG_LASTPAGEINDEX, 0);
                     JSONObject pageOrder = item.optJSONObject(BookActivity4Config.USE_SKETCH_CONFIG_PAGEORDER);
                     if (pageOrder != null) {
                         Iterator<String> it = pageOrder.keys();
@@ -851,7 +858,7 @@ public class BookIO {
             }
         }
         FastFile bgFile = bookDir.findFile("background.png");
-        return new Book(bookDir, pages, bgFile);
+        return new Book(bookDir, pages, bgFile, lastPageIndex);
     }
 
 

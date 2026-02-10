@@ -12,6 +12,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -19,6 +20,10 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -33,6 +38,7 @@ import com.txkj.notemobile2.ui.Page;
 import com.txkj.notemobile2.ui.PageGridData;
 
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -50,9 +56,13 @@ public class BookActivity4PageGridDialog {
     }
 
     public AlertDialog create() {
+        View view = LayoutInflater.from(mContext).inflate(R.layout.activity_book4_dialog_jump, null);
+        LinearLayout llTopJump = (LinearLayout) view.findViewById(R.id.llTopJump);
+        llTopJump.setVisibility(View.GONE);
         mDialog = new MaterialAlertDialogBuilder(mContext, BookActivity4Utils.getCenteredTitleThemeOverlay())
                 //.setTitle(title)
-                .setView(R.layout.activity_book4_dialog_jump)
+                //.setView(R.layout.activity_book4_dialog_jump)
+                .setView(view)
                 .setCancelable(true)
                 //.setNegativeButton("Close", null)
                 .create();
@@ -60,150 +70,163 @@ public class BookActivity4PageGridDialog {
             @Override
             public void onShow(DialogInterface dialogInterface) {
                 AlertDialog dialog = (AlertDialog)dialogInterface;
-                gridview = (BookActivity4DragGridView) dialog.findViewById(R.id.bookgridview);
-                gridview.setOnDrop(new Runnable() {
-                    @Override
-                    public void run() {
-                        reorderPages(dialogInterface, getPageList());
-                        if (!BookActivity4PageGridDialog.NO_REOPEN_DIALOG) {
-                            if (dialog != null && dialog.isShowing()) {
-                                dialog.dismiss();
-                            }
-                        } else {
-                            _book = null;
-                            onCreateAct(mContext, dirUrl, dirUrlPath);
-                            requestLoadPages();
-                        }
-                    }
-                });
-                gridview.setSelector(new ColorDrawable(Color.TRANSPARENT));
-                //gridview.setBackgroundColor(Color.WHITE);
-                bookGridAdapter = new BookPageGridAdapter(mContext, getPageList());
-                bookGridAdapter.pageIndex = BookActivity4Utils.getPageIndex(mContext);
-                gridview.setAdapter(bookGridAdapter);
-                gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        if (bookGridAdapter != null &&
-                                bookGridAdapter.checkMode != BookPageGridAdapter.CHECK_MODE_NONE) {
-                            if (bookGridAdapter.checkMode == BookPageGridAdapter.CHECK_MODE_CHECK) {
-                                Page page = _pageList.get(position);
-                                if (page != null) {
-                                    page.checked = !page.checked;
-                                    bookGridAdapter.notifyDataSetChanged();
-                                }
-                            }
-                        } else {
-                            int pageIdx = position;
-                            openPage(dialog, pageIdx);
-                        }
-                    }
-                });
-                btnReorder = (Button) dialog.findViewById(R.id.btnReorder);
-                btnSelect = (Button) dialog.findViewById(R.id.btnSelect);
-                btnDuplicate = (Button) dialog.findViewById(R.id.btnDuplicate);
-                btnDelete = (Button) dialog.findViewById(R.id.btnDelete);
-                btnReorder.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if (bookGridAdapter != null) {
-                            if (bookGridAdapter.checkMode != BookPageGridAdapter.CHECK_MODE_MOVE) {
-                                bookGridAdapter.checkMode = BookPageGridAdapter.CHECK_MODE_MOVE;
-                            } else {
-                                bookGridAdapter.checkMode = BookPageGridAdapter.CHECK_MODE_NONE;
-                            }
-                            bookGridAdapter.notifyDataSetChanged();
-                            updateButtons();
-                        }
-                    }
-                });
-                btnSelect.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if (bookGridAdapter != null) {
-                            if (bookGridAdapter.checkMode != BookPageGridAdapter.CHECK_MODE_CHECK) {
-                                bookGridAdapter.checkMode = BookPageGridAdapter.CHECK_MODE_CHECK;
-                                if (_pageList != null) {
-                                    for (Page page : _pageList) {
-                                        if (page != null) {
-                                            page.checked = false;
-                                        }
-                                    }
-                                }
-                            } else {
-                                bookGridAdapter.checkMode = BookPageGridAdapter.CHECK_MODE_NONE;
-                            }
-                            bookGridAdapter.notifyDataSetChanged();
-                            updateButtons();
-                        }
-                    }
-                });
-                btnDuplicate.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if (bookGridAdapter != null &&
-                                bookGridAdapter.checkMode == BookPageGridAdapter.CHECK_MODE_CHECK) {
-                            List<Page> pages = new ArrayList<>();
-                            for (Page page : _pageList) {
-                                if (page != null && page.checked) {
-                                    pages.add(page);
-                                }
-                            }
-                            copyPages(dialog, pages);
-                            bookGridAdapter.checkMode = BookPageGridAdapter.CHECK_MODE_NONE;
-                            bookGridAdapter.notifyDataSetChanged();
-                            updateButtons();
-                            if (!BookActivity4PageGridDialog.NO_REOPEN_DIALOG) {
-                                if (dialog != null && dialog.isShowing()) {
-                                    dialog.dismiss();
-                                }
-                            } else {
-                                _book = null;
-                                onCreateAct(mContext, dirUrl, dirUrlPath);
-                                requestLoadPages();
-                            }
-                        }
-                    }
-                });
-                btnDelete.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if (true) {
-                            Runnable runnable = new Runnable() {
-                                @Override
-                                public void run() {
-                                    deleteCurPage();
-                                }
-                            };
-                            AlertDialog dialogDel = new BookActivity4DeleteDialog(mContext, runnable).create();
-                            dialogDel.show();
-                        } else {
-                            deleteCurPage();
-                        }
-                    }
-                });
-                //TextInputEditText input = dialog.findViewById(R.id.textState);
-                Button btnSave = (Button) dialog.findViewById(R.id.btnSave); //Close
-                //Button btnCancel = (Button) dialog.findViewById(R.id.btnCancel);
-                btnSave.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        if (dialog != null) {
-                            dialog.dismiss();
-                        }
-                    }
-                });
-                if (HIDE_BUTTONS) {
-                    btnReorder.setVisibility(View.GONE);
-                    btnDuplicate.setVisibility(View.GONE);
-                }
-                updateButtons();
-                updateLayout(dialog);
-                requestLoadPages();
+                LinearLayout llTopJump = (LinearLayout) dialog.findViewById(R.id.llTopJump);
+                onshow(mDialog);
+                llTopJump.setVisibility(View.VISIBLE);
             }
         });
         updateLayout(mDialog);
         return mDialog;
+    }
+    private void onshow(DialogInterface dialogInterface) {
+        AlertDialog dialog = (AlertDialog)dialogInterface;
+        gridview = (BookActivity4DragGridView) dialog.findViewById(R.id.bookgridview);
+        gridview.setOnDrop(new Runnable() {
+            @Override
+            public void run() {
+                reorderPages(dialogInterface, getPageList());
+                if (!BookActivity4PageGridDialog.NO_REOPEN_DIALOG) {
+                    if (dialog != null && dialog.isShowing()) {
+                        dialog.dismiss();
+                    }
+                } else {
+                    _book = null;
+                    onCreateAct(mContext, dirUrl, dirUrlPath);
+                    requestLoadPages();
+                }
+            }
+        });
+        gridview.setSelector(new ColorDrawable(Color.TRANSPARENT));
+        //gridview.setBackgroundColor(Color.WHITE);
+        bookGridAdapter = new BookPageGridAdapter(mContext, getPageList());
+        bookGridAdapter.pageIndex = BookActivity4Utils.getPageIndex(mContext);
+        gridview.setAdapter(bookGridAdapter);
+        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (bookGridAdapter != null &&
+                        bookGridAdapter.checkMode != BookPageGridAdapter.CHECK_MODE_NONE) {
+                    if (bookGridAdapter.checkMode == BookPageGridAdapter.CHECK_MODE_CHECK) {
+                        Page page = _pageList.get(position);
+                        if (page != null) {
+                            page.checked = !page.checked;
+                            bookGridAdapter.notifyDataSetChanged();
+                        }
+                    }
+                } else {
+                    int pageIdx = position;
+                    openPage(dialog, pageIdx);
+                }
+            }
+        });
+        btnReorder = (RelativeLayout) dialog.findViewById(R.id.btnReorder);
+        btnReorderText = (TextView) dialog.findViewById(R.id.btnReorderText);
+        btnSelect = (RelativeLayout) dialog.findViewById(R.id.btnSelect);
+        btnSelectText = (TextView) dialog.findViewById(R.id.btnSelectText);
+        btnDuplicate = (RelativeLayout) dialog.findViewById(R.id.btnDuplicate);
+        btnDuplicateText = (TextView) dialog.findViewById(R.id.btnDuplicateText);
+        btnDelete = (RelativeLayout) dialog.findViewById(R.id.btnDelete);
+        btnDeleteText = (TextView) dialog.findViewById(R.id.btnDeleteText);
+        btnDeleteTextIcon = (ImageView) dialog.findViewById(R.id.btnDeleteTextIcon);
+        btnReorder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (bookGridAdapter != null) {
+                    if (bookGridAdapter.checkMode != BookPageGridAdapter.CHECK_MODE_MOVE) {
+                        bookGridAdapter.checkMode = BookPageGridAdapter.CHECK_MODE_MOVE;
+                    } else {
+                        bookGridAdapter.checkMode = BookPageGridAdapter.CHECK_MODE_NONE;
+                    }
+                    bookGridAdapter.notifyDataSetChanged();
+                    updateButtons();
+                }
+            }
+        });
+        btnSelect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (bookGridAdapter != null) {
+                    if (bookGridAdapter.checkMode != BookPageGridAdapter.CHECK_MODE_CHECK) {
+                        bookGridAdapter.checkMode = BookPageGridAdapter.CHECK_MODE_CHECK;
+                        if (_pageList != null) {
+                            for (Page page : _pageList) {
+                                if (page != null) {
+                                    page.checked = false;
+                                }
+                            }
+                        }
+                    } else {
+                        bookGridAdapter.checkMode = BookPageGridAdapter.CHECK_MODE_NONE;
+                    }
+                    bookGridAdapter.notifyDataSetChanged();
+                    updateButtons();
+                }
+            }
+        });
+        btnDuplicate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (bookGridAdapter != null &&
+                        bookGridAdapter.checkMode == BookPageGridAdapter.CHECK_MODE_CHECK) {
+                    List<Page> pages = new ArrayList<>();
+                    for (Page page : _pageList) {
+                        if (page != null && page.checked) {
+                            pages.add(page);
+                        }
+                    }
+                    copyPages(dialog, pages);
+                    bookGridAdapter.checkMode = BookPageGridAdapter.CHECK_MODE_NONE;
+                    bookGridAdapter.notifyDataSetChanged();
+                    updateButtons();
+                    if (!BookActivity4PageGridDialog.NO_REOPEN_DIALOG) {
+                        if (dialog != null && dialog.isShowing()) {
+                            dialog.dismiss();
+                        }
+                    } else {
+                        _book = null;
+                        onCreateAct(mContext, dirUrl, dirUrlPath);
+                        requestLoadPages();
+                    }
+                }
+            }
+        });
+        btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (bookGridAdapter.checkMode == BookPageGridAdapter.CHECK_MODE_CHECK) {
+                    if (true) {
+                        Runnable runnable = new Runnable() {
+                            @Override
+                            public void run() {
+                                deleteCurPage();
+                            }
+                        };
+                        AlertDialog dialogDel = new BookActivity4DeleteDialog(mContext, runnable).create();
+                        dialogDel.show();
+                    } else {
+                        deleteCurPage();
+                    }
+                }
+            }
+        });
+        //TextInputEditText input = dialog.findViewById(R.id.textState);
+        Button btnSave = (Button) dialog.findViewById(R.id.btnSave); //Close
+        //Button btnCancel = (Button) dialog.findViewById(R.id.btnCancel);
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        });
+        if (HIDE_BUTTONS) {
+            btnReorder.setVisibility(View.GONE);
+            btnDuplicate.setVisibility(View.GONE);
+        }
+        updateButtons();
+        updateLayout(dialog);
+        requestLoadPages();
     }
     private void deleteCurPage() {
         if (bookGridAdapter != null &&
@@ -249,71 +272,58 @@ public class BookActivity4PageGridDialog {
             eee.printStackTrace();
         }
     }
-    Button btnReorder;
-    Button btnSelect;
-    Button btnDuplicate;
-    Button btnDelete;
+    RelativeLayout btnReorder;
+    TextView btnReorderText;
+    RelativeLayout btnSelect;
+    TextView btnSelectText;
+    RelativeLayout btnDuplicate;
+    TextView btnDuplicateText;
+    RelativeLayout btnDelete;
+    TextView btnDeleteText;
+    ImageView btnDeleteTextIcon;
     public void updateButtons() {
         if (btnReorder != null && btnSelect != null &&
                 btnDuplicate != null && btnDelete != null &&
                 bookGridAdapter != null) {
             if (bookGridAdapter.checkMode == BookPageGridAdapter.CHECK_MODE_CHECK) {
-                btnDuplicate.setTextColor(0xFF000000);
-                btnDelete.setTextColor(0xFF000000);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    btnDelete.setCompoundDrawableTintList(ColorStateList.valueOf(0xFF000000));
-                    btnDelete.setCompoundDrawableTintMode(PorterDuff.Mode.SRC_IN);
-                }
+                btnDuplicateText.setTextColor(0xFF000000);
+                btnDuplicate.setBackgroundResource(R.drawable.button_outline);
 
-                btnSelect.setTextColor(0xFFFFFFFF);
-                btnSelect.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    btnSelect.setBackgroundTintBlendMode(BlendMode.SRC_IN);
-                }
+                btnDeleteText.setTextColor(0xFF000000);
+                btnDeleteTextIcon.setBackgroundTintList(ColorStateList.valueOf(0xFF000000));
+                btnDelete.setBackgroundResource(R.drawable.button_outline);
 
-                btnReorder.setTextColor(0xFF000000);
-                btnReorder.setBackgroundTintList(ColorStateList.valueOf(Color.TRANSPARENT));
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    btnReorder.setBackgroundTintBlendMode(BlendMode.SRC_IN);
-                }
+                btnSelectText.setTextColor(0xFFFFFFFF);
+                btnSelect.setBackgroundResource(R.drawable.button_outline_black);
+
+                btnReorderText.setTextColor(0xFF000000);
+                btnReorder.setBackgroundResource(R.drawable.button_outline);
             } else if (bookGridAdapter.checkMode == BookPageGridAdapter.CHECK_MODE_MOVE) {
-                btnDuplicate.setTextColor(0xFFCCCCCC);
-                btnDelete.setTextColor(0xFFCCCCCC);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    btnDelete.setCompoundDrawableTintList(ColorStateList.valueOf(0xFFCCCCCC));
-                    btnDelete.setCompoundDrawableTintMode(PorterDuff.Mode.SRC_IN);
-                }
+                btnDuplicateText.setTextColor(0xFF908E8E);
+                btnDuplicate.setBackgroundResource(R.drawable.button_outline_gray);
 
-                btnSelect.setTextColor(0xFF000000);
-                btnSelect.setBackgroundTintList(ColorStateList.valueOf(Color.TRANSPARENT));
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    btnSelect.setBackgroundTintBlendMode(BlendMode.SRC_IN);
-                }
+                btnDeleteText.setTextColor(0xFF908E8E);
+                btnDeleteTextIcon.setBackgroundTintList(ColorStateList.valueOf(0xFF908E8E));
+                btnDelete.setBackgroundResource(R.drawable.button_outline_gray);
 
-                btnReorder.setTextColor(0xFFFFFFFF);
-                btnReorder.setBackgroundTintList(ColorStateList.valueOf(Color.BLACK));
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    btnReorder.setBackgroundTintBlendMode(BlendMode.SRC_IN);
-                }
+                btnSelectText.setTextColor(0xFF000000);
+                btnSelect.setBackgroundResource(R.drawable.button_outline);
+
+                btnReorderText.setTextColor(0xFFFFFFFF);
+                btnReorder.setBackgroundResource(R.drawable.button_outline_black);
             } else if (bookGridAdapter.checkMode == BookPageGridAdapter.CHECK_MODE_NONE) {
-                btnDuplicate.setTextColor(0xFFCCCCCC);
-                btnDelete.setTextColor(0xFFCCCCCC);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    btnDelete.setCompoundDrawableTintList(ColorStateList.valueOf(0xFFCCCCCC));
-                    btnDelete.setCompoundDrawableTintMode(PorterDuff.Mode.SRC_IN);
-                }
+                btnDuplicateText.setTextColor(0xFF908E8E);
+                btnDuplicate.setBackgroundResource(R.drawable.button_outline_gray);
 
-                btnSelect.setTextColor(0xFF000000);
-                btnSelect.setBackgroundTintList(ColorStateList.valueOf(Color.TRANSPARENT));
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    btnSelect.setBackgroundTintBlendMode(BlendMode.SRC_IN);
-                }
+                btnDeleteText.setTextColor(0xFF908E8E);
+                btnDeleteTextIcon.setBackgroundTintList(ColorStateList.valueOf(0xFF908E8E));
+                btnDelete.setBackgroundResource(R.drawable.button_outline_gray);
 
-                btnReorder.setTextColor(0xFF000000);
-                btnReorder.setBackgroundTintList(ColorStateList.valueOf(Color.TRANSPARENT));
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    btnReorder.setBackgroundTintBlendMode(BlendMode.SRC_IN);
-                }
+                btnSelectText.setTextColor(0xFF000000);
+                btnSelect.setBackgroundResource(R.drawable.button_outline);
+
+                btnReorderText.setTextColor(0xFF000000);
+                btnReorder.setBackgroundResource(R.drawable.button_outline);
             }
         }
     }

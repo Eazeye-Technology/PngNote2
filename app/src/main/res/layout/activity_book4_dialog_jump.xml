@@ -5,6 +5,8 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:layout_margin="10px"
+    android:id="@+id/llTopJump"
+    android:visibility="visible"
     >
     <!--
     -->
@@ -63,16 +65,26 @@
                     android:layout_marginTop="10px"
                     android:layout_marginBottom="10px"
                     >
-                        <Button
-                            style="?attr/materialButtonOutlinedStyle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Reorder"
-                            android:layout_marginRight="40px"
-                            android:textAllCaps="false"
+                        <RelativeLayout
+                            android:layout_width="114px"
+                            android:layout_height="40px"
+                            android:orientation="horizontal"
+                            android:background="@drawable/button_outline"
                             android:id="@+id/btnReorder"
-                            android:textSize="14px"
-                            />
+                            android:gravity="center|center_vertical"
+                            android:layout_marginRight="10px"
+                            >
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Reorder"
+                                android:textAllCaps="false"
+                                android:id="@+id/btnReorderText"
+                                android:textSize="14px"
+                                android:background="@android:color/transparent"
+                                />
+                        </RelativeLayout>
+
 <!--
 android:backgroundTint="#000"
 android:textColor="#FFFFFFFF"
@@ -83,44 +95,79 @@ android:textColor="#FFFFFFFF"
                             android:orientation="horizontal"
                             >
 
-                            <Button
-                                style="?attr/materialButtonOutlinedStyle"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="start|top"
-                                android:text="Select"
-                                android:textAllCaps="false"
+                            <RelativeLayout
+                                android:layout_width="134px"
+                                android:layout_height="40px"
+                                android:background="@drawable/button_outline"
+                                android:padding="0px"
+                                android:layout_marginRight="18px"
+                                android:gravity="center|center_vertical"
                                 android:id="@+id/btnSelect"
-                                android:textSize="14px"
-                                android:layout_marginRight="2px"
-                                />
+                                >
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="start|top"
+                                    android:text="Select Page"
+                                    android:textAllCaps="false"
+                                    android:id="@+id/btnSelectText"
+                                    android:textSize="14px"
+                                    android:background="@android:color/transparent"
+                                    />
+                            </RelativeLayout>
 
-                            <Button
-                                style="?attr/materialButtonOutlinedStyle"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="start|top"
-                                android:text="Duplicate"
-                                android:textColor="#CCCCCC"
-                                android:textAllCaps="false"
+                            <RelativeLayout
+                                android:layout_width="134px"
+                                android:layout_height="40px"
+                                android:orientation="horizontal"
+                                android:background="@drawable/button_outline"
                                 android:id="@+id/btnDuplicate"
-                                android:textSize="14px"
-                                />
+                                android:gravity="center|center_vertical"
+                                android:layout_marginRight="10px"
+                                >
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="start|top"
+                                    android:text="Duplicate"
+                                    android:textColor="#CCCCCC"
+                                    android:textAllCaps="false"
+                                    android:textSize="14px"
+                                    android:background="@android:color/transparent"
+                                    android:id="@+id/btnDuplicateText"
+                                    />
+                            </RelativeLayout>
 
-                            <Button
-                                style="?attr/materialButtonOutlinedStyle"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="start|top"
-                                android:text="Delete"
-                                android:drawableLeft="@drawable/ic_outline_delete_forever_24"
-                                app:iconPadding="0px"
-                                android:textColor="#CCC"
-                                android:textAllCaps="false"
-                                android:drawableTint="#FFCCCCCC"
+                            <RelativeLayout
+                                android:layout_width="101px"
+                                android:layout_height="40px"
+                                android:background="@drawable/button_outline"
+                                android:padding="0px"
                                 android:id="@+id/btnDelete"
-                                android:textSize="14px"
-                                />
+                                android:gravity="center|center_vertical"
+                                >
+                                <ImageView
+                                    android:layout_width="20px"
+                                    android:layout_height="20px"
+                                    android:background="@drawable/ic_outline_delete_forever_24"
+                                    android:layout_gravity="center_vertical|center"
+                                    android:id="@+id/btnDeleteTextIcon"
+                                    />
+                                <TextView
+                                    android:id="@+id/btnDeleteText"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center_vertical|left"
+                                    android:text="Delete"
+                                    app:iconPadding="0px"
+                                    android:textColor="#CCC"
+                                    android:textAllCaps="false"
+                                    android:drawableTint="#FFCCCCCC"
+                                    android:textSize="14px"
+                                    android:background="@android:color/transparent"
+                                    android:layout_toRightOf="@+id/btnDeleteTextIcon"
+                                    />
+                            </RelativeLayout>
                             <!--app:icon-->
                         </LinearLayout>
                 </LinearLayout>

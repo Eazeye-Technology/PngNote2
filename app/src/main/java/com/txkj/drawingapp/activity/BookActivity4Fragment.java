@@ -223,12 +223,14 @@ public class BookActivity4Fragment extends Fragment {
     }
     private void onPageIdxChange(boolean forceReload) {
         int idx = getPageIdx();
+        List<FastFile> pages = getBook().getPages();
+        int size = pages.size();
         if (idx < 0) {
             idx = this._pageIdx = 0;
-        } else if (idx >= getBook().getPages().size()) {
-            idx = this._pageIdx = getBook().getPages().size() - 1;
+        } else if (idx >= size) {
+            idx = this._pageIdx = size - 1;
         }
-        if (idx >= 0 && idx < getBook().getPages().size()) { //FIXME: null??
+        if (idx >= 0 && idx < size) { //FIXME: null??
             onPageIdx(canvas, idx, new CanvasBoox.OnLoadBitmapListener() {
                 @Override
                 public BitmapVector onLoadBitmap(int idx) {
@@ -330,7 +332,7 @@ public class BookActivity4Fragment extends Fragment {
     }
 
     private synchronized void savePage(final int pageIdx, Bitmap pageBmp, String vecJson) {
-        this.getBookIO().saveBitmap(this.getBook().getPage(pageIdx), pageBmp, vecJson, this.getBook(), getActivity());
+        this.getBookIO().saveBitmap(this.getBook().getPage(pageIdx), pageBmp, vecJson, this.getBook(), getActivity(), this._pageIdx);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -340,7 +342,7 @@ public class BookActivity4Fragment extends Fragment {
     }
 
     private void savePageInMain(int pageIdx, Bitmap pageBmp, String vecJson) {
-        this.getBookIO().saveBitmap(this.getBook().getPage(pageIdx), pageBmp, vecJson, this.getBook(), getActivity());
+        this.getBookIO().saveBitmap(this.getBook().getPage(pageIdx), pageBmp, vecJson, this.getBook(), getActivity(), this._pageIdx);
         this.set_book(this.getBook().assignNonEmpty(pageIdx));
     }
 
@@ -374,6 +376,9 @@ public class BookActivity4Fragment extends Fragment {
 
     private void ensureSave() {
         try {
+//            if (this.isDirty == false) {
+//                this.isDirty = true;  //FIXME:added
+//            }
             if (this.isDirty) {
                 this.isDirty = false;
                 this.savePageInMain(this.getPageIdx(), this.pageBmp, getVecJson(canvas));
@@ -505,7 +510,7 @@ public class BookActivity4Fragment extends Fragment {
                 canvas.version_index = -1;
             }
 
-            if (this.pageBmp != null) {
+            if (false && this.pageBmp != null) {
                 this.savePageInMain(this.pageNum - 1, this.pageBmp, getVecJson(canvas));
                 if (BookIO.USE_META_TXT) {
                     getBookIO().saveMeta(backText, this.dirUrlPath, String.format("%04d", this.pageNum - 1) + ".meta");
@@ -541,7 +546,7 @@ public class BookActivity4Fragment extends Fragment {
             if (this.emptyBmp != null) {
                 this.pageBmp = this.emptyBmp; //FIXME:???
             }
-            if (this.pageBmp != null) {
+            if (false && this.pageBmp != null) {
                 this.savePageInMain(this.pageNum - 1, this.pageBmp, getVecJson(canvas));
             }
             onPageIdxChange(false);
@@ -2215,6 +2220,8 @@ public class BookActivity4Fragment extends Fragment {
 
     private void init003(View rootView) {
         try {
+            _pageIdx = getBook().getLastPageIndex(); //FIXME:added
+            canvas.pageIdx = _pageIdx; //FIXME:added
             BookPage page = getBook().getPage(getPageIdx());
             BitmapVector result = getBookIO().loadBitmapOrNull(page);
             Bitmap initBmp = null;
@@ -2574,9 +2581,12 @@ public class BookActivity4Fragment extends Fragment {
 
 
     private void handlePageIdxArg(Bundle intent) {
-        int argPageIdx = intent.getInt(BookActivity4Utils.PAGE_IDX, -1);
-        if (argPageIdx != -1) {
-            this.initialPageIdx = argPageIdx;
+        //record in book, don't use this
+        if (false) {
+            int argPageIdx = intent.getInt(BookActivity4Utils.PAGE_IDX, -1);
+            if (argPageIdx != -1) {
+                this.initialPageIdx = argPageIdx;
+            }
         }
     }
 
@@ -2911,6 +2921,7 @@ public class BookActivity4Fragment extends Fragment {
                                 gotoGridPage();
                             }
                         } else {
+                            createWaitingProgressDialog();
                             view.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
@@ -2920,8 +2931,9 @@ public class BookActivity4Fragment extends Fragment {
                                             BookActivity4Fragment.this.dirUrlPath)
                                             .create();
                                     dialog.show();
+                                    cancelWaitingProgressDialog();
                                 }
-                            }, 100);
+                            }, 0);//100);
                         }
                     } else if (view.getId() == R.id.popButtonPrevPage) {
                         notifyForceSave(false);
@@ -3566,7 +3578,7 @@ public class BookActivity4Fragment extends Fragment {
         }
 
 
-        getBookIO().savePageOrder(page_old, _book);
+        getBookIO().savePageOrder(page_old, _book, this._pageIdx);
         //--------------
         this._book = null; //if _book == null, it will be reloaded from files
         set_book(getBook()); //FIXME:???重新加载
@@ -3611,7 +3623,7 @@ public class BookActivity4Fragment extends Fragment {
         }
 
 
-        getBookIO().savePageOrder(page_old, _book);
+        getBookIO().savePageOrder(page_old, _book, this._pageIdx);
         //--------------
         this._book = null; //if _book == null, it will be reloaded from files
         set_book(getBook()); //FIXME:???重新加载
@@ -3658,7 +3670,7 @@ public class BookActivity4Fragment extends Fragment {
         }
 
 
-        getBookIO().savePageOrder(page_old, _book);
+        getBookIO().savePageOrder(page_old, _book, this._pageIdx);
         //--------------
         this._book = null; //if _book == null, it will be reloaded from files
         set_book(getBook()); //FIXME:???重新加载

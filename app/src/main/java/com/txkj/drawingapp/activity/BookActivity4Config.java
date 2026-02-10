@@ -11,6 +11,7 @@ public class BookActivity4Config {
     public final static String USE_SKETCH_CONFIG = "sketch.meta";
     public final static String USE_SKETCH_CONFIG_DISPNAME = "dispName";
     public final static String USE_SKETCH_CONFIG_PAGEORDER = "pageOrder";
+    public final static String USE_SKETCH_CONFIG_LASTPAGEINDEX = "lastPageIndex";
     public final static String USE_SKETCH_CONFIG_MEETING_SUMMARY = "meetingSummary";
     public final static String USE_SKETCH_CONFIG_MEETING_DATE = "meetingDate";
     public final static String USE_SKETCH_CONFIG_MEETING_DURATION = "meetingDuration";

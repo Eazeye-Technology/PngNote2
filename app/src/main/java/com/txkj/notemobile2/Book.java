@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.txkj.drawingapp.activity.BookActivity4Config;
 import com.txkj.notemobile2.book.BookIO;
 import com.txkj.notemobile2.book.BookPage;
 import com.txkj.notemobile2.book.FastFile;
@@ -14,9 +15,10 @@ public class Book {
     private List<FastFile> pages;
     private FastFile bgImage;
 
-    public Book(FastFile bookDir, List<FastFile> pages, FastFile bgImage) {
+    public Book(FastFile bookDir, List<FastFile> pages, FastFile bgImage, int lastPageIndex) {
         this.bookDir = bookDir;
         this.pages = pages;
+        this.lastPageIndex = lastPageIndex;
         this.bgImage = bgImage;
         if (pages != null) {
             for (int i = 0; i < pages.size(); ++i) {
@@ -45,7 +47,7 @@ public class Book {
         FastFile pngFile = BookPage.createEmptyFile(this.bookDir, this.pages.size(), this);
         List<FastFile> result = new ArrayList<FastFile>(this.pages);
         result.add(pngFile);
-        return new Book(this.bookDir, result, this.bgImage);
+        return new Book(this.bookDir, result, this.bgImage, this.lastPageIndex);
     }
 
     public void reorderPage(List<FastFile> pages_, BookIO bookIO) {
@@ -141,7 +143,7 @@ public class Book {
         } catch (Throwable eee2) {
             eee2.printStackTrace();
         }
-        return new Book(this.bookDir, it, this.bgImage);
+        return new Book(this.bookDir, it, this.bgImage, this.lastPageIndex);
     }
 
     public String getName() {
@@ -157,5 +159,13 @@ public class Book {
     }
     public Map<Integer, String> getPagetNameMap() {
         return pageNameMap;
+    }
+    private int lastPageIndex;
+    private final static String LAST_PAGE_INDEX = BookActivity4Config.USE_SKETCH_CONFIG_LASTPAGEINDEX;
+    public int getLastPageIndex() {
+        //if (BookActivity4Config.USE_SKETCH_CONFIG_LASTPAGEINDEX) {
+        //record
+        //}
+        return this.lastPageIndex;
     }
 }

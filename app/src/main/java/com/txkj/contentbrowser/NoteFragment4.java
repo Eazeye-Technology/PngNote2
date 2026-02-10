@@ -444,7 +444,11 @@ class PreferencesKeys {
 //            view.findViewById(R.id.llTop).setVisibility(View.GONE);
 //            view.findViewById(R.id.tvLoading).setVisibility(View.GONE);
 //            view.findViewById(R.id.progressLoading1).setVisibility(View.VISIBLE);
-            progressLoading1.setVisibility(View.GONE);
+            if (true) {
+                progressLoading1.setVisibility(View.GONE);
+            } else {
+                progressLoading1.setVisibility(View.VISIBLE);
+            }
         } else {
             if (true) { //FIXME:小心，注释此处无法阻止监听器执行populate
                 onGridList();
@@ -856,21 +860,25 @@ class PreferencesKeys {
 //            throw new RuntimeException(e);
 //        }
 
-        if (recentNoteAdapter1.getItemCount() == 0 &&
-                recentNoteAdapter2.getItemCount() == 0 &&
-                recentNoteAdapter3.getItemCount() == 0) {
-            llEmpty1.setVisibility(View.VISIBLE);
-            scrollView1.setVisibility(View.GONE);
-            loadingContent1.setVisibility(View.VISIBLE);
-            tvEmpty1.setText(STR_NO_ITEMS);
+        if (isIntentNew) {
+            //skip
         } else {
-            llEmpty1.setVisibility(View.GONE);
-            scrollView1.setVisibility(View.VISIBLE);
-            loadingContent1.setVisibility(View.GONE);
-            tvEmpty1.setText(STR_NO_ITEMS);
-        }
+            if (recentNoteAdapter1.getItemCount() == 0 &&
+                    recentNoteAdapter2.getItemCount() == 0 &&
+                    recentNoteAdapter3.getItemCount() == 0) {
+                llEmpty1.setVisibility(View.VISIBLE);
+                scrollView1.setVisibility(View.GONE);
+                loadingContent1.setVisibility(View.VISIBLE);
+                tvEmpty1.setText(STR_NO_ITEMS);
+            } else {
+                llEmpty1.setVisibility(View.GONE);
+                scrollView1.setVisibility(View.VISIBLE);
+                loadingContent1.setVisibility(View.GONE);
+                tvEmpty1.setText(STR_NO_ITEMS);
+            }
 
-        progressLoading1.setVisibility(View.GONE);
+            progressLoading1.setVisibility(View.GONE);
+        }
     }
 
     private final TextWatcher filterTextWatcher = new TextWatcher() {

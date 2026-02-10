@@ -1326,7 +1326,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
     public int pageIdx;
     public void onPageIdx(int idx, CanvasBoox.OnLoadBitmapListener bitmapLoader, boolean forceReload) {
         if (bitmapLoader != null) {
-            if (forceReload || this.pageIdx != idx) {
+            if (true) { //if (forceReload || this.pageIdx != idx) {
                 this.pageIdx = idx;
 
                 // Clear path list/history
