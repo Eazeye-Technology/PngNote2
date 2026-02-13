@@ -20,6 +20,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -168,7 +169,7 @@ public class SVG {
                 path.appearance.stroke = path.appearance.fill = -1;
                 path.isClosed = element.getAttribute("d").toUpperCase().contains("Z");
                 // Points
-                path.points = parsePath(element.getAttribute("d"));
+                path.points = new CopyOnWriteArrayList(parsePath(element.getAttribute("d")));
                 // Fill/stroke
                 float fillOpacity = element.hasAttribute("fill-opacity") ? Float.parseFloat(element.getAttribute("fill-opacity")) : 1;
                 float strokeOpacity = element.hasAttribute("stroke-opacity") ? Float.parseFloat(element.getAttribute("stroke-opacity")) : 1;

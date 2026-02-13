@@ -45,6 +45,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import io.github.pastthepixels.freepaint.File.SVG;
 import io.github.pastthepixels.freepaint.File.VecJson;
@@ -65,7 +67,8 @@ public final class DrawCanvas extends View {
     // Stores previous "versions" of DrawCanvas.paths you can restore
     // You can move back and forth between this, but every time you create a new change
     // it removes everything after the current index (solving the grandfather paradox, btw)
-    public final ArrayList<LinkedList<DrawPath>> versions = new ArrayList<>();
+//    public final ArrayList<LinkedList<DrawPath>> versions = new ArrayList<>();
+    public final ArrayList<CopyOnWriteArrayList<DrawPath>> versions = new ArrayList<>();
     public final int MAX_VERSIONS = 256;
     public final Point documentSize = new Point(0, 0);
     private final PaintTool paintTool = new PaintTool(this);
@@ -74,7 +77,23 @@ public final class DrawCanvas extends View {
     private final SelectionTool selectionTool = new SelectionTool(this);
     private final SVG svgHelper = new SVG(this);
     private final VecJson vecJsonHelper = new VecJson(this);
-    public LinkedList<DrawPath> paths = new LinkedList<>();
+
+    // public void createJson() {
+    //for (DrawPath path : canvas.paths)
+    /*
+    FATAL EXCEPTION: Thread-115
+Process: com.txkj.drawingapp, PID: 16713
+java.util.ConcurrentModificationException
+	at java.util.LinkedList$ListItr.checkForComodification(LinkedList.java:970)
+	at java.util.LinkedList$ListItr.next(LinkedList.java:892)
+	at io.github.pastthepixels.freepaint.File.VecJson.createJson(VecJson.java:83)
+	at io.github.pastthepixels.freepaint.Graphics.DrawCanvas.getVecJson(DrawCanvas.java:186)
+	at com.txkj.drawingapp.activity.BookActivity4Fragment.getVecJson(BookActivity4Fragment.java:3927)
+	at com.txkj.drawingapp.activity.BookActivity4Fragment$3.run(BookActivity4Fragment.java:369)
+	at java.lang.Thread.run(Thread.java:1012)
+     */
+    //public LinkedList<DrawPath> paths = new LinkedList<>();
+    public CopyOnWriteArrayList<DrawPath> paths = new CopyOnWriteArrayList<>();
     public int documentColor = Color.WHITE;
     public/*private*/ int version_index = -1;
     public TOOLS tool = TOOLS.none;
@@ -182,11 +201,12 @@ public final class DrawCanvas extends View {
         svgHelper.createSVG();
         svgHelper.writeFile(Objects.requireNonNull(getContext().getContentResolver().openOutputStream(uri, "wt")));
     }
-    public String getVecJson() {
+    //synchronized is mainly for .createJson, for (DrawPath path : canvas.paths)
+    public synchronized String getVecJson() {
         vecJsonHelper.createJson();
         return vecJsonHelper.writeString();
     }
-    public void loadVecJson(String strVecJson) {
+    public synchronized void loadVecJson(String strVecJson) {
         vecJsonHelper.parseFile(strVecJson);
     }
 
@@ -465,6 +485,13 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
      */
     public LinkedList<DrawPath> cloneDrawPathList(LinkedList<DrawPath> listToClone) {
         LinkedList<DrawPath> list = new LinkedList<>();
+        for (DrawPath pathToClone : listToClone) {
+            list.add(pathToClone.clone());
+        }
+        return list;
+    }
+    public CopyOnWriteArrayList<DrawPath> cloneDrawPathList(CopyOnWriteArrayList<DrawPath> listToClone) {
+        CopyOnWriteArrayList<DrawPath> list = new CopyOnWriteArrayList<>();
         for (DrawPath pathToClone : listToClone) {
             list.add(pathToClone.clone());
         }

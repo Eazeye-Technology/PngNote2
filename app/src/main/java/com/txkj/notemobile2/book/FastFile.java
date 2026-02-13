@@ -1,9 +1,11 @@
 package com.txkj.notemobile2.book;
 
+import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
@@ -25,7 +27,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import com.txkj.contentbrowser.NoteFragment4;
 import com.txkj.drawingapp.activity.BookActivity4Config;
+import com.txkj.drawingapp.db.NoteItem;
+import com.txkj.drawingapp.db.SDNotesDatabase;
 import com.txkj.notemobile2.Book;
 
 import org.json.JSONObject;
@@ -529,7 +534,7 @@ public class FastFile {
         return "";
     }
 
-    public static void saveMetaText(File file, String json) {
+    public static void saveMetaText(File file, String json, Activity act) {
         OutputStream it = null;
         try {
             it = new FileOutputStream(file);
@@ -546,6 +551,36 @@ public class FastFile {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        }
+
+        if (BookActivity4Config.USE_RECORD_META_TO_NOTES_DB) {
+            try {
+                String dirPath = new File(Environment.getExternalStorageDirectory(), NoteFragment4.APPNAME_NEW).toString();
+                SDNotesDatabase mDatabase = new SDNotesDatabase(act, dirPath);
+                List<NoteItem> itemNoteFound = new ArrayList<>();
+                List<NoteItem> items = mDatabase.getAllItems();
+                String filePath = file.getAbsolutePath();
+                if (filePath.startsWith(dirPath + "/") && filePath.endsWith("/" + BookActivity4Config.USE_SKETCH_CONFIG)) {
+                    filePath = filePath.substring((dirPath + "/").length());
+                    filePath = filePath.substring(0, filePath.length() - ("/" + BookActivity4Config.USE_SKETCH_CONFIG).length());
+                }
+                for (NoteItem itemNote : items) {
+                    if (itemNote != null &&
+                            filePath != null &&
+                            itemNote.getNoteFilePath() != null &&
+                            itemNote.getNoteFilePath().equals(filePath)) {
+                        itemNoteFound.add(itemNote);
+                    }
+                }
+                if (itemNoteFound != null) {
+                    for (NoteItem item2 : itemNoteFound) {
+                        mDatabase.updateItemMeta(item2.getId(), json);
+                    }
+                }
+                mDatabase.close();
+            } catch (Throwable eee) {
+                eee.printStackTrace();
             }
         }
     }

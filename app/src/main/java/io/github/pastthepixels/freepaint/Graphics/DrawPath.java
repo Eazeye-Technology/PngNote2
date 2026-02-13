@@ -21,6 +21,7 @@ import com.txkj.drawingapp.activity.BookActivity4Fragment;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import dev.romainguy.graphics.path.PathIterator;
 import dev.romainguy.graphics.path.PathSegment;
@@ -44,7 +45,8 @@ public class DrawPath {
     /**
      * List of points
      */
-    public ArrayList<Point> points = new ArrayList<>();
+    //public ArrayList<Point> points = new ArrayList<>();
+    public CopyOnWriteArrayList<Point> points = new CopyOnWriteArrayList<>();
     //---------------------
     //added
     public final static int POINTS_TEXT_TYPE_NONE = 0;
@@ -390,7 +392,7 @@ public class DrawPath {
      * Simplifies points using the Ramer-Douglas-Peucker algorithm.
      * Adapted from the pseudocde from https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm
      */
-    private ArrayList<Point> simplify(ArrayList<Point> points, double epsilon) {
+    private CopyOnWriteArrayList<Point> simplify(CopyOnWriteArrayList<Point> points, double epsilon) {
         if (BookActivity4Config.USE_NO_POINT_SIMPLIFY) {
             if (epsilon == 0) {
                 return points;
@@ -406,12 +408,12 @@ public class DrawPath {
             }
         }
 
-        ArrayList<Point> simplified = new ArrayList<>();
+        CopyOnWriteArrayList<Point> simplified = new CopyOnWriteArrayList<>();
 
         if (max_distance > epsilon) {
             // Like merge sort
-            ArrayList<Point> leftHalf = simplify(new ArrayList<Point>(points.subList(0, index)), epsilon);
-            ArrayList<Point> rightHalf = simplify(new ArrayList<Point>(points.subList(index, points.size())), epsilon);
+            CopyOnWriteArrayList<Point> leftHalf = simplify(new CopyOnWriteArrayList<Point>(points.subList(0, index)), epsilon);
+            CopyOnWriteArrayList<Point> rightHalf = simplify(new CopyOnWriteArrayList<Point>(points.subList(index, points.size())), epsilon);
             Point point = rightHalf.get(0).clone().applySubtract(leftHalf.get(leftHalf.size() - 1));
             leftHalf.remove(leftHalf.size() - 1);
             simplified.addAll(leftHalf);

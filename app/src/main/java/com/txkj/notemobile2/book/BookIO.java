@@ -336,7 +336,7 @@ public class BookIO {
         }
     }
 
-    public void savePageOrder(BookPage page, Book book, int lastPageIndex) {
+    public void savePageOrder(BookPage page, Book book, int lastPageIndex, Activity act) {
         boolean isFailed = false;
         String folder = null;
         if (page.getFile().getFilePath() != null) {
@@ -359,7 +359,7 @@ public class BookIO {
                 }
                 item.put(BookActivity4Config.USE_SKETCH_CONFIG_PAGEORDER, pageOrderObj);
                 item.put(BookActivity4Config.USE_SKETCH_CONFIG_LASTPAGEINDEX, lastPageIndex);
-                FastFile.saveMetaText(file_2, item.toString());
+                FastFile.saveMetaText(file_2, item.toString(), act);
             } catch (JSONException e) {
                 e.printStackTrace();
                 isFailed = true;
@@ -430,7 +430,7 @@ public class BookIO {
             }
         }
         {
-            savePageOrder(page, book, lastPageIndex);
+            savePageOrder(page, book, lastPageIndex, act);
         }
 
 
@@ -600,7 +600,7 @@ public class BookIO {
         }
     }
 
-    public Book loadBook(FastFile bookDir) {
+    public Book loadBook(FastFile bookDir, Activity act) {
 //        val pageMap = bookDir.listFiles()
 //                .filter {file ->
 //                pageNamePat.matches(file.name)
@@ -693,7 +693,7 @@ public class BookIO {
                     }
                     lastPageIndex = item.optInt(BookActivity4Config.USE_SKETCH_CONFIG_LASTPAGEINDEX, 0);
                     item.put(BookActivity4Config.USE_SKETCH_CONFIG_PAGEORDER, pageOrderObj_);
-                    FastFile.saveMetaText(file_2, item.toString());
+                    FastFile.saveMetaText(file_2, item.toString(), act);
                 } catch (JSONException e) {
                     e.printStackTrace();
                     isFailed = true;

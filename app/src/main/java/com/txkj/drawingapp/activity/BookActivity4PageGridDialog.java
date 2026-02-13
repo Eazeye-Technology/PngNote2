@@ -449,7 +449,7 @@ public class BookActivity4PageGridDialog {
         if (this._book != null) {
             return this._book;
         } else {
-            this._book = getBookIO().loadBook(getBookDir());
+            this._book = getBookIO().loadBook(getBookDir(), mContext);
             return this._book;
         }
     }

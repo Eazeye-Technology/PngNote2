@@ -519,7 +519,7 @@ class PreferencesKeys {
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
-                FastFile.saveMetaText(file_2, item.toString());
+                FastFile.saveMetaText(file_2, item.toString(), getActivity());
             } finally {
 
             }

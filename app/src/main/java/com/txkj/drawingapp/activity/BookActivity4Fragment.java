@@ -1,5 +1,6 @@
 package com.txkj.drawingapp.activity;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -34,6 +35,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
@@ -99,6 +101,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
@@ -301,7 +304,7 @@ public class BookActivity4Fragment extends Fragment {
         if (this._book != null) {
             return this._book;
         } else {
-            Book it = this.getBookIO().loadBook(this.getBookDir());
+            Book it = this.getBookIO().loadBook(this.getBookDir(), getActivity());
             this.set_book(it);
             return it;
         }
@@ -415,6 +418,19 @@ public class BookActivity4Fragment extends Fragment {
         runNormalScreen(getActivity());
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        //runNormalScreen(getActivity());
+        //setNavBarTintColor(getActivity());
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        runFullScreen(getActivity());
+    }
+
     //FIXME: remove RequiresApi
     //@RequiresApi(26)
     private void share() {
@@ -453,6 +469,7 @@ public class BookActivity4Fragment extends Fragment {
         intent.putExtra("android.intent.extra.STREAM", (Parcelable)uri);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.setType("image/png");
+//        intent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);//FIXME:added, share
         this.startActivity(intent);
     }
 
@@ -1574,71 +1591,36 @@ public class BookActivity4Fragment extends Fragment {
                 }
             };
 
-            View.OnClickListener onClickListener = new View.OnClickListener() {
+            View.OnClickListener onClickListener_start = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (USE_RTASR) {
-                        if (false) {
-                            if (rtasrDialog == null) {
-                                rtasrDialog = new BookActivity4RTASRDialog(getActivity());
-                                rtasrDialog.onClick_audio();
-                                //startHandlerTask();
-                            } else {
-                                rtasrDialog.onClick_stop();
-                                rtasrDialog = null;
-                            }
-                        } else {
-                            if (g_rootView.findViewById(R.id.startRecord).getVisibility() == View.VISIBLE) {
-                                rootView.findViewById(R.id.rlTranscript).performClick(); //FIXME:added
-                                //isRecording
-                                if (rtasrDialog == null) {
-                                    rtasrDialog = new BookActivity4RTASRDialog(getActivity());
-                                    rtasrDialog.onClick_audio();
-                                    //startHandlerTask();
-                                }
-                            } else {
-                                if (rtasrDialog != null) {
-                                    rtasrDialog.onClick_stop();
-                                    rtasrDialog = null;
-                                }
-                            }
-                        }
-                    } else if (USE_LISTEN) {
-                        if (listenDialog == null) {
-                            listenDialog = new BookActivity4ListenDialog(getActivity(), "", "", null, _bookDir.getFilePath());
-                            listenDialog.onCreate();
-                        } else {
-                            listenDialog.onCancel();
-                            listenDialog = null;
-                        }
-                    } else {
-                        if (USE_RECORDING_FRAGMENT_TEST) {
-//                            RecordingFragment fragment = (RecordingFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.fragment_recording);
-//                            if (fragment != null && fragment.button1 != null) {
-//                                fragment.button1.performClick();
-//                                isRecording = !isRecording;
-//                            }
-//                            if (adapter != null) {
-//                                adapter.notifyDataSetChanged();
-//                            }
-//                            AppCompatImageView btnPanel = (AppCompatImageView) rootView.findViewById(R.id.btnPanel);
-//                            AnimationDrawable anim = (AnimationDrawable) btnPanel.getDrawable();
-//                            if (isRecording) { //FIXME: use var not good
-//                                anim.start();
-//                                rootView.findViewById(R.id.startRecord).setVisibility(View.GONE);
-//                                rootView.findViewById(R.id.stopRecord).setVisibility(View.VISIBLE);
-//                            } else {
-//                                anim.stop();
-//                                rootView.findViewById(R.id.startRecord).setVisibility(View.VISIBLE);
-//                                rootView.findViewById(R.id.stopRecord).setVisibility(View.GONE);
-//                            }
-//                            Toast.makeText(getActivity(), "total : " + adapter.getCount(), Toast.LENGTH_LONG).show();
-                        }
+                    g_rootView.findViewById(R.id.rlTranscript).performClick(); //FIXME:added
+                    //isRecording
+                    if (rtasrDialog == null) {
+                        rtasrDialog = new BookActivity4RTASRDialog(getActivity());
+                        rtasrDialog.onClick_audio();
+                        //startHandlerTask();
                     }
                 }
             };
-            rootView.findViewById(R.id.startRecord).setOnClickListener(onClickListener);
-            rootView.findViewById(R.id.stopRecord).setOnClickListener(onClickListener);
+            View.OnClickListener onClickListener_stop = new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Runnable runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            if (rtasrDialog != null) {
+                                rtasrDialog.onClick_stop();
+                                rtasrDialog = null;
+                            }
+                        }
+                    };
+                    AlertDialog dialogStopRecord = new BookActivity4StopRecordDialog(getActivity(), runnable).create();
+                    dialogStopRecord.show();
+                }
+            };
+            rootView.findViewById(R.id.startRecord).setOnClickListener(onClickListener_start);
+            rootView.findViewById(R.id.stopRecord).setOnClickListener(onClickListener_stop);
             rootView.findViewById(R.id.pauseRecordOff).setOnClickListener(onClickListenerPause);
             rootView.findViewById(R.id.pauseRecordOn).setOnClickListener(onClickListenerPause);
             ListView viewListViewBook = (ListView) rootView.findViewById(R.id.viewListViewBook);
@@ -1903,6 +1885,74 @@ public class BookActivity4Fragment extends Fragment {
             }
         });
         textViewPageInfo = (TextView) rootView.findViewById(R.id.textViewPageInfo);
+    }
+
+    private void startResmueRecord_old() {
+        if (USE_RTASR) {
+            if (false) {
+                if (rtasrDialog == null) {
+                    rtasrDialog = new BookActivity4RTASRDialog(getActivity());
+                    rtasrDialog.onClick_audio();
+                    //startHandlerTask();
+                } else {
+                    rtasrDialog.onClick_stop();
+                    rtasrDialog = null;
+                }
+            } else {
+                if (g_rootView.findViewById(R.id.startRecord).getVisibility() == View.VISIBLE) {
+                    g_rootView.findViewById(R.id.rlTranscript).performClick(); //FIXME:added
+                    //isRecording
+                    if (rtasrDialog == null) {
+                        rtasrDialog = new BookActivity4RTASRDialog(getActivity());
+                        rtasrDialog.onClick_audio();
+                        //startHandlerTask();
+                    }
+                } else {
+                    Runnable runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            if (rtasrDialog != null) {
+                                rtasrDialog.onClick_stop();
+                                rtasrDialog = null;
+                            }
+                        }
+                    };
+                    AlertDialog dialogStopRecord = new BookActivity4StopRecordDialog(getActivity(), runnable).create();
+                    dialogStopRecord.show();
+                }
+            }
+        } else if (USE_LISTEN) {
+            if (listenDialog == null) {
+                listenDialog = new BookActivity4ListenDialog(getActivity(), "", "", null, _bookDir.getFilePath());
+                listenDialog.onCreate();
+            } else {
+                listenDialog.onCancel();
+                listenDialog = null;
+            }
+        } else {
+            if (USE_RECORDING_FRAGMENT_TEST) {
+//                            RecordingFragment fragment = (RecordingFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.fragment_recording);
+//                            if (fragment != null && fragment.button1 != null) {
+//                                fragment.button1.performClick();
+//                                isRecording = !isRecording;
+//                            }
+//                            if (adapter != null) {
+//                                adapter.notifyDataSetChanged();
+//                            }
+//                            AppCompatImageView btnPanel = (AppCompatImageView) rootView.findViewById(R.id.btnPanel);
+//                            AnimationDrawable anim = (AnimationDrawable) btnPanel.getDrawable();
+//                            if (isRecording) { //FIXME: use var not good
+//                                anim.start();
+//                                rootView.findViewById(R.id.startRecord).setVisibility(View.GONE);
+//                                rootView.findViewById(R.id.stopRecord).setVisibility(View.VISIBLE);
+//                            } else {
+//                                anim.stop();
+//                                rootView.findViewById(R.id.startRecord).setVisibility(View.VISIBLE);
+//                                rootView.findViewById(R.id.stopRecord).setVisibility(View.GONE);
+//                            }
+//                            Toast.makeText(getActivity(), "total : " + adapter.getCount(), Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     private void init002(View rootView) {
@@ -2620,14 +2670,16 @@ public class BookActivity4Fragment extends Fragment {
             a.getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             a.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                a.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-                a.getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER;
-                a.getWindow().setAttributes(a.getWindow().getAttributes());
+            if (true) { //FIXME:???
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    a.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+                    a.getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER;
+                    a.getWindow().setAttributes(a.getWindow().getAttributes());
+                }
             }
 
             KeyboardsMod.hideNavigation(a);
-
+            //KeyboardsMod.hideNavigationOnCreate(a);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -2669,7 +2721,25 @@ public class BookActivity4Fragment extends Fragment {
             //FIXME:
             int color = 0xFFFCFCFC;
             a.getWindow().setNavigationBarColor(color);//TintUtil.color);
+            setStatusBarLightMode(a, true);
         }
+    }
+
+    @TargetApi(23)
+    public static boolean setStatusBarLightMode(Activity activity, boolean isFontColorDark) {
+//        Window window = activity.getWindow();
+//        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+//        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+//        window.setStatusBarColor(ContextCompat.getColor(activity, android.R.color.transparent));
+        if (isFontColorDark) {
+            //Status bar is Translucent
+            //View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+            activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        } else {
+            //Status bar not Translucent
+            activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+        }
+        return true;
     }
 
     public static void runNormalScreen(final Activity a) {
@@ -3076,7 +3146,7 @@ public class BookActivity4Fragment extends Fragment {
                 eee.printStackTrace();
             }
             item.put(BookActivity4Config.USE_SKETCH_CONFIG_DISPNAME, newName);
-            FastFile.saveMetaText(file_2, item.toString());
+            FastFile.saveMetaText(file_2, item.toString(), getActivity());
         } catch (JSONException e) {
             e.printStackTrace();
             isFailed = true;
@@ -3117,7 +3187,7 @@ public class BookActivity4Fragment extends Fragment {
             String str = FastFile.loadMetaText(file_2);
             JSONObject item = new JSONObject(str);
             item.put(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_DURATION, newSummary);
-            FastFile.saveMetaText(file_2, item.toString());
+            FastFile.saveMetaText(file_2, item.toString(), getActivity());
         } catch (JSONException e) {
             e.printStackTrace();
             isFailed = true;
@@ -3170,7 +3240,7 @@ public class BookActivity4Fragment extends Fragment {
             String str = FastFile.loadMetaText(file_2);
             JSONObject item = new JSONObject(str);
             item.put(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_SUMMARY, newSummary);
-            FastFile.saveMetaText(file_2, item.toString());
+            FastFile.saveMetaText(file_2, item.toString(), getActivity());
         } catch (JSONException e) {
             e.printStackTrace();
             isFailed = true;
@@ -3208,7 +3278,7 @@ public class BookActivity4Fragment extends Fragment {
             String str = FastFile.loadMetaText(file_2);
             JSONObject item = new JSONObject(str);
             item.put(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_DATE, dateVal);
-            FastFile.saveMetaText(file_2, item.toString());
+            FastFile.saveMetaText(file_2, item.toString(), getActivity());
         } catch (JSONException e) {
             e.printStackTrace();
             isFailed = true;
@@ -3578,7 +3648,7 @@ public class BookActivity4Fragment extends Fragment {
         }
 
 
-        getBookIO().savePageOrder(page_old, _book, this._pageIdx);
+        getBookIO().savePageOrder(page_old, _book, this._pageIdx, getActivity());
         //--------------
         this._book = null; //if _book == null, it will be reloaded from files
         set_book(getBook()); //FIXME:???重新加载
@@ -3623,7 +3693,7 @@ public class BookActivity4Fragment extends Fragment {
         }
 
 
-        getBookIO().savePageOrder(page_old, _book, this._pageIdx);
+        getBookIO().savePageOrder(page_old, _book, this._pageIdx, getActivity());
         //--------------
         this._book = null; //if _book == null, it will be reloaded from files
         set_book(getBook()); //FIXME:???重新加载
@@ -3670,7 +3740,7 @@ public class BookActivity4Fragment extends Fragment {
         }
 
 
-        getBookIO().savePageOrder(page_old, _book, this._pageIdx);
+        getBookIO().savePageOrder(page_old, _book, this._pageIdx, getActivity());
         //--------------
         this._book = null; //if _book == null, it will be reloaded from files
         set_book(getBook()); //FIXME:???重新加载
@@ -3973,7 +4043,7 @@ public class BookActivity4Fragment extends Fragment {
                     item.put("left_toolkit_item4_size", left_toolkit_item4_size);
                     item.put("left_toolkit_item5_size", left_toolkit_item5_size);
                     item.put("left_toolkit_item6_size", left_toolkit_item6_size);
-                    FastFile.saveMetaText(file_2, item.toString());
+                    FastFile.saveMetaText(file_2, item.toString(), getActivity());
                 } catch (JSONException e) {
                     e.printStackTrace();
                     isFailed = true;
@@ -4183,7 +4253,8 @@ public class BookActivity4Fragment extends Fragment {
             }
         }
     }
-    LinkedList<DrawPath> copyPaths = new LinkedList<>();
+//    LinkedList<DrawPath> copyPaths = new LinkedList<>();
+    CopyOnWriteArrayList<DrawPath> copyPaths = new CopyOnWriteArrayList<>();
 
     private void beforePageGrid() {
         notifyForceSave(false);

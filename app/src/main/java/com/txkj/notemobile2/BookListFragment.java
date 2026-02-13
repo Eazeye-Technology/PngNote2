@@ -580,7 +580,7 @@ public class BookListFragment extends Fragment {
                     File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
                     JSONObject item = new JSONObject();
                     item.put(BookActivity4Config.USE_SKETCH_CONFIG_DISPNAME, newBookName);
-                    FastFile.saveMetaText(file_2, item.toString());
+                    FastFile.saveMetaText(file_2, item.toString(), getActivity());
                 } else {
                     rootDir.createDirectory(newBookName);
                 }

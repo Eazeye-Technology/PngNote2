@@ -100,7 +100,7 @@ public class PageGridActivity extends AppCompatActivity {
         if (this._book != null) {
             return this._book;
         } else {
-            this._book = this.getBookIO().loadBook(this.getBookDir());
+            this._book = this.getBookIO().loadBook(this.getBookDir(), this);
             return _book;
         }
     }

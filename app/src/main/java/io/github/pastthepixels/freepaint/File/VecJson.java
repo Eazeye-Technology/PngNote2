@@ -17,6 +17,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 import io.github.pastthepixels.freepaint.Graphics.DrawCanvas;
@@ -197,7 +198,7 @@ public class VecJson {
                 path.appearance.stroke = path.appearance.fill = -1; //FIXME:???
                 path.isClosed = false; //FIXME:??? element.getString("d").toUpperCase().contains("Z");
                 // Points
-                path.points = new ArrayList<Point>();
+                path.points = new CopyOnWriteArrayList<Point>();
                 JSONArray arrPath = element.optJSONArray("path");
                 for (int j = 0; j < arrPath.length(); ++j) {
                     JSONObject objPoint = arrPath.optJSONObject(j);
