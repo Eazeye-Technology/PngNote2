@@ -29,7 +29,7 @@ public class BookActivity4RenameDialog {
         AlertDialog dialog = new MaterialAlertDialogBuilder(this.mContext, BookActivity4Utils.getCenteredTitleThemeOverlay())
                 //.setTitle(title)
                 .setView(R.layout.activity_book4_rename)
-                .setCancelable(true)
+                .setCancelable(false)
 //                .setPositiveButton("Done", new DialogInterface.OnClickListener() {
 //                    @Override
 //                    public void onClick(DialogInterface dialog, int which) {

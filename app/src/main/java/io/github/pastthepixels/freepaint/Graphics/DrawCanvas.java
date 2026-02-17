@@ -356,19 +356,23 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
             return false;
         } else {
             if (getTool().allowVersionBackup() && event.getAction() == MotionEvent.ACTION_UP) {
-                // Remove any edits after the current.
-                while (versions.size() > version_index + 1) {
-                    versions.remove(versions.size() - 1);
-                }
-                versions.add(cloneDrawPathList(paths)); // adds to the end ∴ newest changes are at the end of the list
-                System.out.println(versions + " " + versions.size());
-                if (versions.size() < MAX_VERSIONS - 1) version_index += 1;
-                if (versions.size() > MAX_VERSIONS)
-                    versions.remove(0); // delete the oldest change if the list has grown too much
+                versionBackup();
             }
             postInvalidate(); // Indicate view should be redrawn
             return true; // Indicate we've consumed the touch
         }
+    }
+
+    public void versionBackup() {
+        // Remove any edits after the current.
+        while (versions.size() > version_index + 1) {
+            versions.remove(versions.size() - 1);
+        }
+        versions.add(cloneDrawPathList(paths)); // adds to the end ∴ newest changes are at the end of the list
+        System.out.println(versions + " " + versions.size());
+        if (versions.size() < MAX_VERSIONS - 1) version_index += 1;
+        if (versions.size() > MAX_VERSIONS)
+            versions.remove(0); // delete the oldest change if the list has grown too much
     }
 
     //@SuppressLint("ClickableViewAccessibility")
@@ -457,15 +461,7 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
                 return false;
             } else {
                 if (getTool().allowVersionBackup() && event.getAction() == MotionEvent.ACTION_UP) {
-                    // Remove any edits after the current.
-                    while (versions.size() > version_index + 1) {
-                        versions.remove(versions.size() - 1);
-                    }
-                    versions.add(cloneDrawPathList(paths)); // adds to the end ∴ newest changes are at the end of the list
-                    System.out.println(versions + " " + versions.size());
-                    if (versions.size() < MAX_VERSIONS - 1) version_index += 1;
-                    if (versions.size() > MAX_VERSIONS)
-                        versions.remove(0); // delete the oldest change if the list has grown too much
+                    versionBackup();
                 }
                 postInvalidate(); // Indicate view should be redrawn
                 return true; // Indicate we've consumed the touch
@@ -514,6 +510,19 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
         postInvalidate();
         // Re-initialise tools
         if (tool == TOOLS.eraser) getTool().init();
+
+
+        //FIXME:added, unselect all
+        this.getSelectionTool().getSelectedPaths().clear();
+        this.getSelectionTool().currentPath.clear();
+    }
+
+    public void onUndo() {
+
+    }
+
+    public void onRedo() {
+
     }
 
     /**

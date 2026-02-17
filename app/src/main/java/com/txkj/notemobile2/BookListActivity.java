@@ -1,6 +1,7 @@
 package com.txkj.notemobile2;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -9,7 +10,6 @@ import android.os.Environment;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -27,6 +27,7 @@ import com.txkj.contentbrowser.NoteFragment4;
 import com.txkj.drawingapp.R;
 import com.txkj.drawingapp.activity.BookActivity4Fragment;
 import com.txkj.drawingapp.activity.BookActivity4Utils;
+import com.upgradetool.upgrade.UpgradeUtil;
 
 public class BookListActivity extends AppCompatActivity {
     private final static boolean D = true;
@@ -44,10 +45,15 @@ public class BookListActivity extends AppCompatActivity {
     public boolean isIntentNew = false;
     public boolean isIntentOpen = false;
 
+    public UpgradeUtil upgradeUtil;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_booklist_body);
+
+        upgradeUtil = new UpgradeUtil(this);
+        upgradeUtil.onCreate_upgrade();
 
         ActionBar topAppBar = getSupportActionBar();
         if (topAppBar != null) {
@@ -219,4 +225,25 @@ Android6.onRequestPermissionsResult(this, i, strArr, iArr);
             noteFragment4.refresh();
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        Dialog dialog = upgradeUtil.onCreateDailog_upgrade(id);
+        if (dialog != null) {
+            return dialog;
+        }
+        return super.onCreateDialog(id);
+    }
+
 }

@@ -97,18 +97,48 @@ public class EraserTool implements Tool {
      * Loops through all paths, calling <code>path.erase</code>.
      * See <code>DrawPath.erase</code> for how this handles erasing from strokes/filled shapes.
      */
-    public void eraseCurrentPath() {
-        for (DrawPath path : canvas.paths) {
-            if (USE_SIMPLE_IMPL) {
-                path.eraseSimple(currentPath);
-            } else {
-                path.erase(currentPath);
+    public boolean eraseCurrentPath() {
+        if (false) {
+//            for (DrawPath path : canvas.paths) {
+//                if (USE_SIMPLE_IMPL) {
+//                    path.eraseSimple(currentPath);
+//                } else {
+//                    path.erase(currentPath);
+//                }
+//                path.cachePath();
+//            }
+//            currentPath.clear();
+//            init();
+            return false;
+        } else {
+            boolean isHit = false;
+            for (DrawPath path : canvas.paths) {
+                boolean isHit_ = false;
+                if (USE_SIMPLE_IMPL) {
+                    isHit_ = path.eraseSimple(currentPath);
+                } else {
+                    path.erase(currentPath);
+                    isHit_ = false;
+                }
+                if (isHit_) {
+                    isHit = true;
+                }
+                path.cachePath();
             }
-            path.cachePath();
+            currentPath.clear();
+            init();
+            if (NO_ERASE_SAVE_HISTORY_WHEN_TOUCH_UP) {
+                if (isHit) {
+                    if (canvas != null) {
+                        canvas.versionBackup();
+                    }
+                }
+            }
+            return isHit;
         }
-        currentPath.clear();
-        init();
     }
+
+    private final static boolean NO_ERASE_SAVE_HISTORY_WHEN_TOUCH_UP = true; //don't save undo history when touch up
 
     /**
      * Initialises by building a list of DrawPaths which have their points highlighted
@@ -138,6 +168,9 @@ public class EraserTool implements Tool {
     }
 
     public boolean allowVersionBackup() {
+        if (NO_ERASE_SAVE_HISTORY_WHEN_TOUCH_UP) {
+            return false;
+        }
         return true;
     }
 

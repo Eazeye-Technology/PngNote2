@@ -2111,6 +2111,9 @@ public class BookActivity4Fragment extends Fragment {
                                                             false, false, false, 0,
                                                             0xFFFF0000, 18 * 5);
                                                 }
+                                                if (canvas != null) {
+                                                    canvas.versionBackup();
+                                                }
                                             }
                                             if (false) {
                                                 rootView.findViewById(R.id.top_toolkit_item1).performClick(); //返回绘画模式
@@ -2236,6 +2239,9 @@ public class BookActivity4Fragment extends Fragment {
                                         path.pointsText = drawPoint.getDrawText().getStr(drawPoint.getDrawText().getUseHtml());
                                     }
                                     path.tempHidden = false; //show again
+                                    if (canvas != null) {
+                                        canvas.versionBackup();
+                                    }
                                     canvas.invalidate();
                                 }
                             } else {
@@ -3835,6 +3841,10 @@ public class BookActivity4Fragment extends Fragment {
                             this.canvas.getSelectionTool().currentPath.addPoint(new Point(boundsTop.x, boundsBottom.y));
                             this.canvas.getSelectionTool().currentPath.appearance =
                                     this.canvas.getSelectionTool().APPEARANCE_SELECTED;
+
+                            if (this.canvas != null) {
+                                this.canvas.versionBackup();
+                            }
 
                             this.canvas.invalidate();
                         }

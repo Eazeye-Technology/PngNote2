@@ -707,10 +707,10 @@ public class DrawPath {
      *
      * @param path The path to erase.
      */
-    public void erase(DrawPath path) {
+    public boolean erase(DrawPath path) {
         // If there's no path to erase we can't do an erasing operation �
         if (getPath() == null) {
-            return;
+            return false;
         }
         if (isClosed) {
             Path erased = getPathOrGenerate();
@@ -719,6 +719,7 @@ public class DrawPath {
         } else {
             eraseFromStroke(path);
         }
+        return false;
     }
     public void erasePath() {
         this.clear();
@@ -729,10 +730,10 @@ public class DrawPath {
             this.pointsText = null;
         }
     }
-    public void eraseSimple(DrawPath path_) {
+    public boolean eraseSimple(DrawPath path_) {
         // If there's no path to erase we can't do an erasing operation �
         if (getPath() == null) {
-            return;
+            return false;
         }
         boolean isContain = false;
         if (false) {
@@ -862,6 +863,7 @@ public class DrawPath {
         if (isContain) {
             clear();
         }
+        return isContain;
     }
 
     /**

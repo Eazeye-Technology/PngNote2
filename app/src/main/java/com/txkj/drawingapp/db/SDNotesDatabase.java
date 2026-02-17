@@ -24,7 +24,8 @@ public class SDNotesDatabase extends SQLiteOpenHelper {
 	private Context mContext;
 
 	public static final String DATABASE_NAME = "notes.db";
-	private static final int DATABASE_VERSION = 2;
+	//if modify this version, please sync to contentbrowser2 and pngnote2
+	private static final int DATABASE_VERSION = 3; //don't modify this version
 
 	public static abstract class NoteDatabaseItem implements BaseColumns {
 		public static final String TABLE_NAME = "notes";
@@ -38,6 +39,17 @@ public class SDNotesDatabase extends SQLiteOpenHelper {
 		public static final String COLUMN_NAME_EXT_ID1 = "extId1";
 		public static final String COLUMN_NAME_EXT_ID2 = "extId2";
         public static final String COLUMN_NAME_NOTE_META = "noteMeta";
+
+        public static final String COLUMN_NAME_EXT_CONTENT1 = "extContent1";
+        public static final String COLUMN_NAME_EXT_CONTENT2 = "extContent2";
+        public static final String COLUMN_NAME_EXT_CONTENT3 = "extContent3";
+        public static final String COLUMN_NAME_EXT_CONTENT4 = "extContent4";
+        public static final String COLUMN_NAME_EXT_CONTENT5 = "extContent5";
+        public static final String COLUMN_NAME_EXT_CONTENT6 = "extContent6";
+        public static final String COLUMN_NAME_EXT_CONTENT7 = "extContent7";
+        public static final String COLUMN_NAME_EXT_CONTENT8 = "extContent8";
+        public static final String COLUMN_NAME_EXT_CONTENT9 = "extContent9";
+        public static final String COLUMN_NAME_EXT_CONTENT10 = "extContent10";
 	}
 
 	public interface OnDatabaseChangedListener {
@@ -59,7 +71,18 @@ public class SDNotesDatabase extends SQLiteOpenHelper {
 					NoteDatabaseItem.COLUMN_NAME_NOTE_CONTENT + TEXT_TYPE + COMMA_SEP +
 					NoteDatabaseItem.COLUMN_NAME_EXT_ID1 + TEXT_TYPE + COMMA_SEP +
 					NoteDatabaseItem.COLUMN_NAME_EXT_ID2 + TEXT_TYPE + COMMA_SEP +
-                    NoteDatabaseItem.COLUMN_NAME_NOTE_META + TEXT_TYPE +
+                    NoteDatabaseItem.COLUMN_NAME_NOTE_META + TEXT_TYPE + COMMA_SEP +
+
+                    NoteDatabaseItem.COLUMN_NAME_EXT_CONTENT1 + TEXT_TYPE + COMMA_SEP +
+                    NoteDatabaseItem.COLUMN_NAME_EXT_CONTENT2 + TEXT_TYPE + COMMA_SEP +
+                    NoteDatabaseItem.COLUMN_NAME_EXT_CONTENT3 + TEXT_TYPE + COMMA_SEP +
+                    NoteDatabaseItem.COLUMN_NAME_EXT_CONTENT4 + TEXT_TYPE + COMMA_SEP +
+                    NoteDatabaseItem.COLUMN_NAME_EXT_CONTENT5 + TEXT_TYPE + COMMA_SEP +
+                    NoteDatabaseItem.COLUMN_NAME_EXT_CONTENT6 + TEXT_TYPE + COMMA_SEP +
+                    NoteDatabaseItem.COLUMN_NAME_EXT_CONTENT7 + TEXT_TYPE + COMMA_SEP +
+                    NoteDatabaseItem.COLUMN_NAME_EXT_CONTENT8 + TEXT_TYPE + COMMA_SEP +
+                    NoteDatabaseItem.COLUMN_NAME_EXT_CONTENT9 + TEXT_TYPE + COMMA_SEP +
+                    NoteDatabaseItem.COLUMN_NAME_EXT_CONTENT10 + TEXT_TYPE +
                     ")";
 
 	@SuppressWarnings("unused")
@@ -361,6 +384,28 @@ public class SDNotesDatabase extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// onUpgrade(db, oldVersion, newVersion);
+        if (oldVersion < 3) {
+            db.execSQL("ALTER TABLE " + NoteDatabaseItem.TABLE_NAME + " ADD COLUMN " +
+                    NoteDatabaseItem.COLUMN_NAME_EXT_CONTENT1 + TEXT_TYPE + "");
+            db.execSQL("ALTER TABLE " + NoteDatabaseItem.TABLE_NAME + " ADD COLUMN " +
+                    NoteDatabaseItem.COLUMN_NAME_EXT_CONTENT2 + TEXT_TYPE + "");
+            db.execSQL("ALTER TABLE " + NoteDatabaseItem.TABLE_NAME + " ADD COLUMN " +
+                    NoteDatabaseItem.COLUMN_NAME_EXT_CONTENT3 + TEXT_TYPE + "");
+            db.execSQL("ALTER TABLE " + NoteDatabaseItem.TABLE_NAME + " ADD COLUMN " +
+                    NoteDatabaseItem.COLUMN_NAME_EXT_CONTENT4 + TEXT_TYPE + "");
+            db.execSQL("ALTER TABLE " + NoteDatabaseItem.TABLE_NAME + " ADD COLUMN " +
+                    NoteDatabaseItem.COLUMN_NAME_EXT_CONTENT5 + TEXT_TYPE + "");
+            db.execSQL("ALTER TABLE " + NoteDatabaseItem.TABLE_NAME + " ADD COLUMN " +
+                    NoteDatabaseItem.COLUMN_NAME_EXT_CONTENT6 + TEXT_TYPE + "");
+            db.execSQL("ALTER TABLE " + NoteDatabaseItem.TABLE_NAME + " ADD COLUMN " +
+                    NoteDatabaseItem.COLUMN_NAME_EXT_CONTENT7 + TEXT_TYPE + "");
+            db.execSQL("ALTER TABLE " + NoteDatabaseItem.TABLE_NAME + " ADD COLUMN " +
+                    NoteDatabaseItem.COLUMN_NAME_EXT_CONTENT8 + TEXT_TYPE + "");
+            db.execSQL("ALTER TABLE " + NoteDatabaseItem.TABLE_NAME + " ADD COLUMN " +
+                    NoteDatabaseItem.COLUMN_NAME_EXT_CONTENT9 + TEXT_TYPE + "");
+            db.execSQL("ALTER TABLE " + NoteDatabaseItem.TABLE_NAME + " ADD COLUMN " +
+                    NoteDatabaseItem.COLUMN_NAME_EXT_CONTENT10 + TEXT_TYPE + "");
+        }
         if (oldVersion < 2) {
             db.execSQL("ALTER TABLE " + NoteDatabaseItem.TABLE_NAME + " ADD COLUMN " +
                     NoteDatabaseItem.COLUMN_NAME_NOTE_META + TEXT_TYPE + "");
