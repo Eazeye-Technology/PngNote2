@@ -28,6 +28,7 @@ import android.os.Parcelable;
 import android.text.TextPaint;
 import android.util.Log;
 import android.util.SizeF;
+import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -40,6 +41,7 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -262,6 +264,7 @@ public class BookActivity4Fragment extends Fragment {
                     BitmapVector result_ = new BitmapVector();
                     result_.bitmap = pageBmp;
                     result_.strVecJson = result != null ? result.strVecJson : null;
+                    canvas.onVersionChanged();
                     return result_;
                 }
             }, forceReload);
@@ -525,6 +528,7 @@ public class BookActivity4Fragment extends Fragment {
                 canvas.paths.clear();
                 canvas.versions.clear();
                 canvas.version_index = -1;
+                canvas.onVersionChanged();
             }
 
             if (false && this.pageBmp != null) {
@@ -1960,6 +1964,7 @@ public class BookActivity4Fragment extends Fragment {
         canvas = (DrawCanvas) rootView.findViewById(R.id.canvas);
         canvas.initAct(getActivity());
         canvas.setPenType(DrawAppearance.PEN_TYPE_1);
+        canvas.onVersionChanged();
 //        dtView = (DrawTextView) rootView.findViewById(R.id.dtView);
 //        dtView.postDelayed(new Runnable() {
 //            @Override
@@ -3073,6 +3078,7 @@ public class BookActivity4Fragment extends Fragment {
                             canvas.paths.addAll(copyPaths);
                             canvas.versions.add(canvas.cloneDrawPathList(copyPaths));
                             canvas.version_index += 1;
+                            canvas.onVersionChanged();
                             copyPaths.clear();
                             canvas.invalidate();
                         }
@@ -3496,27 +3502,33 @@ public class BookActivity4Fragment extends Fragment {
     public int sizeType = SIZE_TYPE_NONE;
     private float editTextSize = 19;//28;
     public void setSizeType(int sizeType) {
+        float scale = 1.0f * canvas.getScaleFactor();
         this.sizeType = sizeType;
         if (this.getDtView(false) != null && this.getDtView(false).mEtTextEdit != null) {
             if (sizeType == SIZE_TYPE_NONE) {
                 //this.dtView.mEtTextEdit.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 32);
-                this.getDtView(false).mEtTextEdit.setTextSize(19);//28);
+                float textSize = 19 * scale;
+                this.getDtView(false).mEtTextEdit.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);//28);
                 this.editTextSize = 19;//28;
             } else if (sizeType == SIZE_TYPE_TITLE) {
                 //this.dtView.mEtTextEdit.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 48);
-                this.getDtView(false).mEtTextEdit.setTextSize(36);//39);//48);
+                float textSize = 36 * scale;
+                this.getDtView(false).mEtTextEdit.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);//39);//48);
                 this.editTextSize = 36;//39;//48;
             } else if (sizeType == SIZE_TYPE_H1) {
                 //this.dtView.mEtTextEdit.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 42);
-                this.getDtView(false).mEtTextEdit.setTextSize(32);//33);//42);
+                float textSize = 32 * scale;
+                this.getDtView(false).mEtTextEdit.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);//33);//42);
                 this.editTextSize = 32;//33;//42;
             } else if (sizeType == SIZE_TYPE_H2) {
                 //this.dtView.mEtTextEdit.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 38);
-                this.getDtView(false).mEtTextEdit.setTextSize(28);//29);//38);
+                float textSize = 28 * scale;
+                this.getDtView(false).mEtTextEdit.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);//29);//38);
                 this.editTextSize = 28;//29;//38;
             } else if (sizeType == SIZE_TYPE_H3) {
                 //this.dtView.mEtTextEdit.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 36);
-                this.getDtView(false).mEtTextEdit.setTextSize(24);//25);//34);
+                float textSize = 24 * scale;
+                this.getDtView(false).mEtTextEdit.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);//25);//34);
                 this.editTextSize = 24;//25;//34;
             }
         }
@@ -4293,5 +4305,27 @@ public class BookActivity4Fragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         refreshRunnable2 = null;
+    }
+
+    public void onVersionChanged(boolean isUndoActive, boolean isRedoActive) {
+        if (isUndoActive) {
+            //((ImageView)g_rootView.findViewById(R.id.ivTitleUndo)).setImageAlpha(255);
+            g_rootView.findViewById(R.id.llTitleUndo).setVisibility(View.VISIBLE);
+            g_rootView.findViewById(R.id.llTitleUndo2).setVisibility(View.INVISIBLE);
+        } else {
+            //((ImageView)g_rootView.findViewById(R.id.ivTitleUndo)).setImageAlpha(125);
+            g_rootView.findViewById(R.id.llTitleUndo).setVisibility(View.INVISIBLE);
+            g_rootView.findViewById(R.id.llTitleUndo2).setVisibility(View.VISIBLE);
+        }
+
+        if (isRedoActive) {
+            //((ImageView)g_rootView.findViewById(R.id.ivTitleRedo)).setImageAlpha(255);
+            g_rootView.findViewById(R.id.llTitleRedo).setVisibility(View.VISIBLE);
+            g_rootView.findViewById(R.id.llTitleRedo2).setVisibility(View.INVISIBLE);
+        } else {
+            //((ImageView)g_rootView.findViewById(R.id.ivTitleRedo)).setImageAlpha(125);
+            g_rootView.findViewById(R.id.llTitleRedo).setVisibility(View.INVISIBLE);
+            g_rootView.findViewById(R.id.llTitleRedo2).setVisibility(View.VISIBLE);
+        }
     }
 }

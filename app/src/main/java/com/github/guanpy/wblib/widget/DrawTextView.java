@@ -11,6 +11,7 @@ import android.text.Spannable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -25,6 +26,7 @@ import com.github.guanpy.wblib.bean.DrawPoint;
 import com.github.guanpy.wblib.bean.DrawTextPoint;
 import com.txkj.drawingapp.R;
 
+import io.github.pastthepixels.freepaint.Graphics.DrawCanvas;
 import io.github.pastthepixels.freepaint.Graphics.DrawPath;
 
 public class DrawTextView extends RelativeLayout implements
@@ -242,11 +244,7 @@ public class DrawTextView extends RelativeLayout implements
             if (strText == null) strText = "";
             if (isHtml) { //if (DrawPath.POINTS_TEXT_TYPE_RICH)
                 Log.e(TAG, "Html.fromHtml : " + strText);
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                    mEtTextEdit.setText(Html.fromHtml(strText, Html.FROM_HTML_MODE_COMPACT));//Html.FROM_HTML_MODE_LEGACY));
-                } else {
-                    mEtTextEdit.setText(Html.fromHtml(strText));
-                }
+                mEtTextEdit.setText(DrawCanvas.fromHtml(strText));
             } else {
                 mEtTextEdit.setText(strText);
             }
@@ -261,7 +259,8 @@ public class DrawTextView extends RelativeLayout implements
             } else {
                 mEtTextEdit.setTextColor(mDrawPoint.getDrawText().getColor());
                 //            mTvTextEdit.setTextColor(mDrawPoint.getDrawText().getColor());
-                mEtTextEdit.setTextSize(mDrawPoint.getDrawText().getTextSize());
+                float textSize = mDrawPoint.getDrawText().getTextSize();
+                mEtTextEdit.setTextSize(TypedValue.COMPLEX_UNIT_PX, textSize);
                 //            mTvTextEdit.setTextSize(mDrawPoint.getDrawText().getTextSize());
             }
             //        if (mDrawPoint.getDrawText().getIsUnderline()) {
@@ -381,10 +380,18 @@ public class DrawTextView extends RelativeLayout implements
                         mEtTextEdit.clearComposingText();
                         String htmlString = null;//Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL);
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                            htmlString = Html.toHtml(mEtTextEdit.getText(), Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE);
+                            //Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL);//
+                            //don't use Html.TO_HTML_PARAGRAPH_LINES_CONSECUTIVE);
+                            htmlString = Html.toHtml(mEtTextEdit.getText(), Html.TO_HTML_PARAGRAPH_LINES_INDIVIDUAL);
                         } else {
                             htmlString = Html.toHtml(mEtTextEdit.getText());
                         }
+//                        if (htmlString != null) {
+//                            htmlString = htmlString.replace("<p ", "<span ").replace("</span>", "</span><br>");
+//                        }
+//                        if (htmlString != null && htmlString.endsWith("<br>")) {
+//                            htmlString = htmlString.substring(0, htmlString.length() - "<br>".length());
+//                        }
                         Log.e(TAG, "htmlString : " + htmlString);
                         mDrawPoint.getDrawText().setStr(mEtTextEdit.getText().toString(), htmlString);
                     }

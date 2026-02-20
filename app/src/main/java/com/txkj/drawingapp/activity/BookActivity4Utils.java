@@ -214,6 +214,17 @@ public static boolean onBackPressed(Activity context) {
         return 0;
     }
 
+    public static void onVersionChanged(Activity context, boolean isUndoActive, boolean isRedoActive) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            FragmentManager fragmentManager = act.getSupportFragmentManager();
+            Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+            if (currentFragment instanceof BookActivity4Fragment) {
+                ((BookActivity4Fragment) currentFragment).onVersionChanged(isUndoActive, isRedoActive);
+            }
+        }
+    }
+
     public static void toggleFocusMode(Activity context) {
         if (context instanceof BookListActivity) {
             BookListActivity act = (BookListActivity) context;

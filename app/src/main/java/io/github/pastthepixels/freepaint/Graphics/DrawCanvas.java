@@ -17,6 +17,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.text.Html;
 import android.text.Layout;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.StaticLayout;
 import android.text.TextPaint;
@@ -38,6 +39,8 @@ import com.txkj.drawingapp.activity.BookActivity4Fragment;
 import com.txkj.drawingapp.activity.BookActivity4Utils;
 import com.txkj.notemobile2.colorpicker.FileMeta;
 import com.txkj.notemobile2.ui.CanvasBoox;
+
+import net.nightwhistler.htmlspanner.HtmlSpanner;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -235,6 +238,7 @@ java.util.ConcurrentModificationException
         // Save everything in the version history
         versions.add(cloneDrawPathList(paths));
         version_index += 1;
+        onVersionChanged();
     }
 
     boolean isPan = false;
@@ -370,9 +374,13 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
         }
         versions.add(cloneDrawPathList(paths)); // adds to the end ∴ newest changes are at the end of the list
         System.out.println(versions + " " + versions.size());
-        if (versions.size() < MAX_VERSIONS - 1) version_index += 1;
-        if (versions.size() > MAX_VERSIONS)
+        if (versions.size() < MAX_VERSIONS - 1) {
+            version_index += 1;
+        }
+        if (versions.size() > MAX_VERSIONS) {
             versions.remove(0); // delete the oldest change if the list has grown too much
+        }
+        onVersionChanged();
     }
 
     //@SuppressLint("ClickableViewAccessibility")
@@ -515,14 +523,25 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
         //FIXME:added, unselect all
         this.getSelectionTool().getSelectedPaths().clear();
         this.getSelectionTool().currentPath.clear();
+        onVersionChanged();
     }
 
-    public void onUndo() {
-
-    }
-
-    public void onRedo() {
-
+    public void onVersionChanged() {
+        boolean isUndoActive = true;
+        boolean isRedoActive = true;
+        if (version_index >= 0) {
+            isUndoActive = true;
+        } else {
+            isUndoActive = false;
+        }
+        if (!versions.isEmpty() && version_index < versions.size() - 1 && version_index > 0) {
+            isRedoActive = true;
+//        } else if (version_index <= 0 && !versions.isEmpty()) {
+//            isRedoActive = true;
+        } else {
+            isRedoActive = false;
+        }
+        BookActivity4Utils.onVersionChanged(mAct, isUndoActive, isRedoActive);
     }
 
     /**
@@ -539,7 +558,10 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
         // Force redraw
         postInvalidate();
         // Re-initialise tools
-        if (tool == TOOLS.eraser) getTool().init();
+        if (tool == TOOLS.eraser) {
+            getTool().init();
+        }
+        onVersionChanged();
     }
 
     /**
@@ -1123,6 +1145,28 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
         }
     }
 
+    public static Spanned fromHtml(String text) {
+        Spanned textViewText;
+        if (false) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                //Html.FROM_HTML_MODE_COMPACT));//
+                textViewText = (Html.fromHtml(text, Html.FROM_HTML_MODE_COMPACT));//Html.FROM_HTML_MODE_LEGACY));
+            } else {
+                textViewText = (Html.fromHtml(text));
+            }
+        } else {
+            //https://nightwhistler.net/HtmlSpanner/
+            textViewText = (new HtmlSpanner()).fromHtml(text);
+            SpannableStringBuilder builder = new SpannableStringBuilder(textViewText);
+            int length = builder.length();
+            if (length > 0 && builder.charAt(length - 1) == '\n') {
+                builder.delete(length - 1, length);
+            }
+            textViewText = builder;
+        }
+        return textViewText;
+    }
+
     private final static String SPLIT_REGXP = "\r\n|\n|\r";
     public static SizeF calculateTextSizes(String text, Paint p, int textType) {
         if (text == null) {
@@ -1134,11 +1178,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
             }
             Spanned textViewText = null;
             if (textType == DrawPath.POINTS_TEXT_TYPE_RICH) {
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                    textViewText = (Html.fromHtml(text, Html.FROM_HTML_MODE_COMPACT));//Html.FROM_HTML_MODE_LEGACY));
-                } else {
-                    textViewText = (Html.fromHtml(text));
-                }
+                textViewText = fromHtml(text);
             }
             TextPaint textPaint = new TextPaint(p);
             float lineSpacingExtra = 0F;
@@ -1209,11 +1249,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
 //            Log.e(TAG, "drawText == " + text);
             //BookActivity4Utils.USE_HTML_EDIT
             Spanned textViewText = null;
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                textViewText = (Html.fromHtml(text, Html.FROM_HTML_MODE_COMPACT));//Html.FROM_HTML_MODE_LEGACY));
-            } else {
-                textViewText = (Html.fromHtml(text));
-            }
+            textViewText = fromHtml(text);
             TextPaint textPaint = new TextPaint(p);
             float lineSpacingExtra = 0F;
             float lineSpacingMultiplier = 1.0F;
@@ -1383,6 +1419,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
                     centerDocument();
                 }
                 this.invalidate();
+                onVersionChanged();
             }
         }
     }

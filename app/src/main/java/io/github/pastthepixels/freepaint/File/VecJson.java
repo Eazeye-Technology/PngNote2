@@ -189,6 +189,7 @@ public class VecJson {
             // Clear path list/history
             canvas.versions.clear();
             canvas.version_index = -1;
+            canvas.onVersionChanged();
 
             JSONArray nodes = document.optJSONArray("paths");
             for (int i = 0; i < nodes.length(); i++) {
@@ -262,6 +263,7 @@ public class VecJson {
                 // Save everything in the version history
                 canvas.versions.add(canvas.cloneDrawPathList(canvas.paths));
                 canvas.version_index += 1;
+                canvas.onVersionChanged();
             }
         } catch (JSONException e) {
             throw new RuntimeException(e);
