@@ -52,8 +52,10 @@ public class BookListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_booklist_body);
 
-        upgradeUtil = new UpgradeUtil(this);
-        upgradeUtil.onCreate_upgrade();
+        if (UpgradeUtil.USE_UPGRADE) {
+            upgradeUtil = new UpgradeUtil(this);
+            upgradeUtil.onCreate_upgrade();
+        }
 
         ActionBar topAppBar = getSupportActionBar();
         if (topAppBar != null) {
@@ -86,7 +88,15 @@ public class BookListActivity extends AppCompatActivity {
         }
         if (stateStarted == 0) {
             checkPermission();
+
+            if (UpgradeUtil.USE_UPGRADE) {
+                if (upgradeUtil != null) {
+                    upgradeUtil.onCreateUpdateReceiver();
+                    upgradeUtil.checkVersion();
+                }
+            }
         }
+
 
 
 
@@ -239,11 +249,19 @@ Android6.onRequestPermissionsResult(this, i, strArr, iArr);
 
     @Override
     protected Dialog onCreateDialog(int id) {
-        Dialog dialog = upgradeUtil.onCreateDailog_upgrade(id);
-        if (dialog != null) {
-            return dialog;
+        if (UpgradeUtil.USE_UPGRADE) {
+            Dialog dialog = upgradeUtil.onCreateDailog_upgrade(id);
+            if (dialog != null) {
+                return dialog;
+            }
         }
         return super.onCreateDialog(id);
     }
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (UpgradeUtil.USE_UPGRADE && upgradeUtil != null) {
+            upgradeUtil.onDestroyUpdateReceiver();
+        }
+    }
 }

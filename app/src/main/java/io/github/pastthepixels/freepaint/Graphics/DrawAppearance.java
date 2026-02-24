@@ -2,9 +2,13 @@ package io.github.pastthepixels.freepaint.Graphics;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.BlendMode;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
@@ -84,6 +88,10 @@ public class DrawAppearance {
      */
     public void initialisePaint(Paint paint, float dpCorrection) {
         paint.setAntiAlias(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            //paint.setBlendMode(BlendMode.OVERLAY);
+        }
+        //paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP));
         if (penType == PEN_TYPE_3) {
             //highlight
             if (false) {
@@ -91,8 +99,10 @@ public class DrawAppearance {
             } else {
                 paint.setStrokeWidth(!useDP ? strokeSize * 1 : strokeSize * dpCorrection * 1); //default is 5
             }
-            paint.setStrokeJoin(Paint.Join.BEVEL);
-            paint.setStrokeCap(Paint.Cap.BUTT);
+            //paint.setStrokeJoin(Paint.Join.BEVEL);
+            paint.setStrokeJoin(Paint.Join.ROUND); //prevent white pixel at the end of the stroke
+            //paint.setStrokeCap(Paint.Cap.BUTT);
+            paint.setStrokeCap(Paint.Cap.SQUARE); //prevent white pixel at the end of the stroke
         } else {
             paint.setStrokeWidth(!useDP ? strokeSize : strokeSize * dpCorrection);
             paint.setStrokeJoin(Paint.Join.ROUND);

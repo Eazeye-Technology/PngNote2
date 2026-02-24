@@ -253,6 +253,13 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
 <!--                android:name="android.view.im"-->
 <!--                android:resource="@xml/method"/>-->
 <!--        </service>-->
+
+
+
+        <service
+            android:name="com.upgradetool.upgrade.UpdateService"
+            android:label="UpdateService"
+            android:process=":update" />
     </application>
 
 </manifest>

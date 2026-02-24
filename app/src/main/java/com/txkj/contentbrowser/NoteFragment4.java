@@ -123,6 +123,8 @@ class PreferencesKeys {
     NoteGridAdapter4 recentNoteAdapter2;
     private RecyclerView recentNoteView3;
     NoteGridAdapter4 recentNoteAdapter3;
+    private TextView tvrecentNoteView1;
+    private TextView tvrecentNoteView2;
 
 
 //    @Override
@@ -213,6 +215,7 @@ class PreferencesKeys {
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(DM);
 
         recentNoteList1 = new ArrayList<FileMeta>();
+        tvrecentNoteView1 = (TextView) view.findViewById(R.id.tv_notegridview_note1);
         recentNoteView1 = (RecyclerView) view.findViewById(R.id.notegridview_note1);
         LinearLayoutManager layoutManager1 = new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false);
         recentNoteView1.setLayoutManager(layoutManager1);
@@ -272,6 +275,7 @@ class PreferencesKeys {
 
 
         recentNoteList2 = new ArrayList<FileMeta>();
+        tvrecentNoteView2 = (TextView) view.findViewById(R.id.tv_notegridview_note2);
         recentNoteView2 = (RecyclerView) view.findViewById(R.id.notegridview_note2);
         LinearLayoutManager layoutManager2 = new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL, false);
         recentNoteView2.setLayoutManager(layoutManager2);
@@ -863,6 +867,22 @@ class PreferencesKeys {
         if (isIntentNew) {
             //skip
         } else {
+            if (recentNoteAdapter1.getItemCount() == 0) {
+                recentNoteView1.setVisibility(View.GONE);
+                tvrecentNoteView1.setVisibility(View.GONE);
+            } else {
+                recentNoteView1.setVisibility(View.VISIBLE);
+                tvrecentNoteView1.setVisibility(View.VISIBLE);
+            }
+            if (recentNoteAdapter2.getItemCount() == 0) {
+                recentNoteView2.setVisibility(View.GONE);
+                tvrecentNoteView2.setVisibility(View.GONE);
+            } else {
+                recentNoteView2.setVisibility(View.VISIBLE);
+                tvrecentNoteView2.setVisibility(View.VISIBLE);
+            }
+
+
             if (recentNoteAdapter1.getItemCount() == 0 &&
                     recentNoteAdapter2.getItemCount() == 0 &&
                     recentNoteAdapter3.getItemCount() == 0) {

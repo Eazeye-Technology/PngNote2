@@ -7,6 +7,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -37,6 +39,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class UpgradeUtil {
+    public final static boolean USE_UPGRADE = false;//true;
+
     private final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE_PERMISSION = 100; //FIXME:???
 
     private final static boolean D = false;
@@ -57,13 +61,10 @@ public class UpgradeUtil {
         if (requstInstallPacakgesPermission != PackageManager.PERMISSION_GRANTED) {
             AlertDialog dialog3 = new AlertDialog.Builder(mAct)
                     .setIcon(R.mipmap.ic_launcher_drawingapp)
-                    .setTitle("温馨提示")
+                    .setTitle("Permission request")
                     .setMessage(
-                            "　　　　请允许畅步出行司机版使用”存储”权限。\n" +
-                                    "　　　　为了方便自动更新升级本应用APP。" +
-                                    "我们需要获得您设备的存储权限。" +
-                                    "您还可以通过“设置-隐私设置”查看更多的权限说明和进行相应设置。" +
-                                    "不授权该权限不影响您使用App")
+                            "Please allow to use the storage permission"
+                    )
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             checkPermission2_next();
@@ -105,8 +106,8 @@ public class UpgradeUtil {
                 if (true) {
                     AlertDialog dialog2 = new AlertDialog.Builder(mAct)
                             .setIcon(R.mipmap.ic_launcher_drawingapp)
-                            .setTitle("温馨提示")
-                            .setMessage("安装应用需要打开未知来源权限，请去设置中开启权限")
+                            .setTitle("Permission request")
+                            .setMessage("Installing the application requires opening unknown source permissions. Please enable permissions in the settings")
                             .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -362,14 +363,14 @@ public class UpgradeUtil {
         switch (id) {
             case DIALOG_UPGRADE:
                 dialog3 = new AlertDialog.Builder(mAct)
-                        .setTitle("软件升级")
+                        .setTitle("Software upgrade")
                         .setMessage(
                                 (serverForceUpdate != null && serverForceUpdate.equals("1")) ?
-                                        "发现新版本,必须立即更新." :
-                                        "发现新版本,建议立即更新.")
-                        .setPositiveButton("更新", null)
-                        .setNeutralButton("浏览器更新", null)
-                        .setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                        "New version discovered, must be updated immediately." :
+                                        "New version discovered, it is recommended to update immediately.")
+                        .setPositiveButton("Update", null)
+                        .setNeutralButton("Browser Update", null)
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 if (serverForceUpdate != null && serverForceUpdate.equals("1")) {
                                     mAct.finish();
@@ -386,17 +387,17 @@ public class UpgradeUtil {
                     public void onShow(final DialogInterface arg0) {
                         String strNote = "";
                         if (serverNote != null && serverNote.length() > 0) {
-                            strNote = "\n" + "更新说明：" + serverNote;
+                            strNote = "\n" + "Update Notes：" + serverNote;
                         }
                         if (serverForceUpdate != null && serverForceUpdate.equals("1")) {
-                            dialog3.setMessage("发现新版本,强制立即更新，否则无法使用.\n" +
-                                    "版本号：" + (serverVersionStr != null ? serverVersionStr : "") +
+                            dialog3.setMessage("A new version is discovered, force an immediate update, otherwise it cannot be used.\n" +
+                                    "Version: " + (serverVersionStr != null ? serverVersionStr : "") +
                                     " (" + serverVersion + ")" +
                                     strNote
                             );
                         } else {
-                            dialog3.setMessage("发现新版本,建议立即更新.\n" +
-                                    "版本号：" + (serverVersionStr != null ? serverVersionStr : "") +
+                            dialog3.setMessage("New version discovered, it is recommended to update immediately.\n" +
+                                    "Version: " + (serverVersionStr != null ? serverVersionStr : "") +
                                     " (" + serverVersion + ")" +
                                     strNote
                             );
@@ -445,18 +446,18 @@ public class UpgradeUtil {
                                 mUpdatePath = getUpdatePath();
                                 if (mUpdatePath == null || mUpdatePath.length() == 0) {
                                     Toast.makeText(mAct,
-                                            "下载目录不存在，请重启设备后重试，或使用浏览器更新", Toast.LENGTH_SHORT).show();
+                                            "下The download directory does not exist. Please restart the device and try again, or update it using a browser", Toast.LENGTH_SHORT).show();
                                 } else {
                                     File updateParent = new File(mUpdatePath);
                                     updateParent.mkdirs();
                                     if (!updateParent.isDirectory()) {
                                         Toast.makeText(mAct,
-                                                "下载目录不存在，请重启设备后重试，或使用浏览器更新", Toast.LENGTH_SHORT).show();
+                                                "The download directory does not exist. Please restart the device and try again, or update it using a browser", Toast.LENGTH_SHORT).show();
                                     } else {
                                         String url = serverVersionUrl;//UpdateService.DOWNLOAD_URL;
                                         if (url == null || url.length() == 0) {
                                             Toast.makeText(mAct,
-                                                    "下载URL为空", Toast.LENGTH_SHORT).show();
+                                                    "Download URL is empty", Toast.LENGTH_SHORT).show();
                                         } else {
                                             String docName = getUrlFileName(url);
                                             File updateFileObj = new File(mUpdatePath, docName);
@@ -517,5 +518,72 @@ public class UpgradeUtil {
                 break;
         }
         return null;
+    }
+
+
+
+    private MyReceiver receiver;
+    public void onCreateUpdateReceiver() {
+        receiver = new MyReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ACTION_UPGRADE);
+        prepareInstall(filter);
+        ContextCompat.registerReceiver(this.mAct, receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
+    }
+    public void onDestroyUpdateReceiver() {
+        if (this.receiver != null) {
+            this.mAct.unregisterReceiver(receiver);
+        }
+    }
+
+    private class MyReceiver extends BroadcastReceiver {
+        private long lastTimer = 0;
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null) {
+                if (ACTION_UPGRADE.equals(intent.getAction())) {
+                    int progress = intent.getIntExtra(EXTRA_UPGRADE_PROGRESS, 0);
+                    int total = intent.getIntExtra(EXTRA_UPGRADE_TOTAL, 0);
+                    int status = intent.getIntExtra(EXTRA_UPGRADE_STATUS, 0);
+                    mAct.runOnUiThread(new UiUpdater(progress, total, status));
+                } else if (ACTION_UPGRADE_INSTALL.equals(intent.getAction())) {
+                    String path = intent.getStringExtra(EXTRA_UPGRADE_PATH);
+                    installApk(new File(path));
+                }
+            }
+        }
+    }
+    private class UiUpdater implements Runnable {
+        private int m_Progess;
+        private int m_Total;
+        private int m_Status;
+
+        public UiUpdater(int progress, int total, int status) {
+            this.m_Progess = progress;
+            this.m_Total = total;
+            this.m_Status = status;
+        }
+
+        @Override
+        public void run() {
+            if (dialog3 != null) {
+                if (m_Progess < 100 && m_Status == UPGRADE_STATUS_OK) {
+                    dialog3.setMessage("下载中：" + m_Progess + "%");
+                } else if (m_Status == UPGRADE_STATUS_ERROR) {
+                    dialog3.setMessage("下载失败，请检查网络后重试\n(url=" + serverVersionUrl + ")");
+                } else {
+//                    if (serverForceUpdate != null && serverForceUpdate.equals("1")) {
+//                        finish();
+//                    } else {
+                    try {
+                        dialog3.dismiss();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+//                    }
+                }
+            }
+        }
     }
 }

@@ -72,7 +72,7 @@ public final class DrawCanvas extends View {
     // it removes everything after the current index (solving the grandfather paradox, btw)
 //    public final ArrayList<LinkedList<DrawPath>> versions = new ArrayList<>();
     public final ArrayList<CopyOnWriteArrayList<DrawPath>> versions = new ArrayList<>();
-    public final int MAX_VERSIONS = 256;
+    public final static int MAX_VERSIONS = 17; //256;
     public final Point documentSize = new Point(0, 0);
     private final PaintTool paintTool = new PaintTool(this);
     private final EraserTool eraserTool = new EraserTool(this);

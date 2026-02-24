@@ -71,15 +71,15 @@ public class UpdateService extends Service {
 	public void createNotification(Intent intent, int flags, int startId) {
 		String url = intent.getStringExtra(EXTRA_DOWNLOAD_URL);
 		if (url == null || url.length() == 0) {
-			toast("链接为空");
+			toast("The link is empty");
 			return;
 		}
 		synchronized (idMapLock) {
 			if (idMap.containsValue(url)) {
-				toast("下载未完成");
+				toast("Download not completed");
 			}
 			if (idMap.size() > 1) {
-				toast("只能同时下载一个文件");
+				toast("Only one file can be downloaded simultaneously");
 			}
 		}
 		new DownloadTask(intent, flags, startId).execute();
@@ -118,7 +118,7 @@ public class UpdateService extends Service {
 			mNotification = new Notification();
 
 			mRemoteViews = new RemoteViews(getPackageName(), R.layout.notification_item);
-			mRemoteViews.setTextViewText(R.id.notificationTitle, "升级中...");
+			mRemoteViews.setTextViewText(R.id.notificationTitle, "Upgrading...");
 			mRemoteViews.setTextViewText(R.id.notificationPercent, "0%");
 			mRemoteViews.setProgressBar(R.id.notificationProgress, 100, 0, false);
 			
@@ -194,7 +194,7 @@ public class UpdateService extends Service {
 						//指定通知的标题内容
 						.setContentTitle(getText(R.string.app_name))
 						//设置通知的内容
-						.setContentText("升级中...")
+						.setContentText("Upgrading...")
 						//指定通知被创建的时间
 						.setWhen(System.currentTimeMillis())
 						//设置通知的小图标
@@ -272,7 +272,7 @@ public class UpdateService extends Service {
 								Intent intent = new Intent(Intent.ACTION_VIEW);
 								intent.setDataAndType(uri, "application/vnd.android.package-archive");
 								UriUtil.prepare(intent);
-								mPendingIntent = PendingIntent.getActivity(UpdateService.this, 0, intent, 0);
+								mPendingIntent = PendingIntent.getActivity(UpdateService.this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
 
 								//							mNotification.icon = android.R.drawable.stat_sys_download_done;
 								//							mNotification.flags = Notification.FLAG_AUTO_CANCEL;
@@ -280,7 +280,7 @@ public class UpdateService extends Service {
 								Notification.Builder builder = new Notification.Builder(UpdateService.this)
 										.setAutoCancel(true)
 										.setContentTitle(mAppName)
-										.setContentText("下载成功")
+										.setContentText("Download successful")
 										.setContentIntent(mPendingIntent)
 										.setSmallIcon(android.R.drawable.stat_sys_download_done)
 										.setWhen(System.currentTimeMillis())
@@ -305,7 +305,7 @@ public class UpdateService extends Service {
 	    			} else if (DOWN_ERROR.equals(what)) {
 						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 							UpdateService.this.stopForeground(true);
-							toast("下载失败");
+							toast("Download failed");
 						} else {
 							if (KEEP_NOTIFICATION) {
 								//		    				mNotification.icon = android.R.drawable.stat_sys_download_done;
@@ -314,7 +314,7 @@ public class UpdateService extends Service {
 								Notification.Builder builder = new Notification.Builder(UpdateService.this)
 										.setAutoCancel(true)
 										.setContentTitle(mAppName)
-										.setContentText("下载失败")
+										.setContentText("Download failed")
 										.setContentIntent(mPendingIntent)
 										.setSmallIcon(android.R.drawable.stat_sys_download_done)
 										.setWhen(System.currentTimeMillis())
@@ -324,7 +324,7 @@ public class UpdateService extends Service {
 								mNotificationManager.notify(mNotificationId, mNotification);
 							} else {
 								mNotificationManager.cancel(mNotificationId);
-								toast("下载失败");
+								toast("Download failed");
 							}
 						}
 	    				stopService(mUpdateIntent);
