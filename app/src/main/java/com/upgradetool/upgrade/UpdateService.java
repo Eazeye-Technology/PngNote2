@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -213,7 +214,11 @@ public class UpdateService extends Service {
 				//https://blog.csdn.net/qq_36607515/article/details/81393794
 				//https://blog.csdn.net/a2241076850/article/details/75668457
 
-				startForeground(UPDATE_SERVICE_ID, notification);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    startForeground(UPDATE_SERVICE_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE);
+                } else {
+                    startForeground(UPDATE_SERVICE_ID, notification);
+                }
 
 			} else {
 				mNotificationManager.notify(mNotificationId, mNotification);

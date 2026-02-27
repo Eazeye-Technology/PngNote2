@@ -40,6 +40,7 @@ import java.util.concurrent.Executors;
 
 public class UpgradeUtil {
     public final static boolean USE_UPGRADE = false;//true;
+    public final static boolean USE_UPGRADE_DEBUG_VERSION = false;//reverse version compare
 
     private final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE_PERMISSION = 100; //FIXME:???
 
@@ -339,8 +340,14 @@ public class UpgradeUtil {
             e.printStackTrace();
         }
         int localVersion = packageInfo.versionCode;
-        if (localVersion < serverVersion) {
-            mAct.showDialog(DIALOG_UPGRADE);
+        if (USE_UPGRADE_DEBUG_VERSION) {
+            if (localVersion > serverVersion) {
+                mAct.showDialog(DIALOG_UPGRADE);
+            }
+        } else {
+            if (localVersion < serverVersion) {
+                mAct.showDialog(DIALOG_UPGRADE);
+            }
         }
     }
 
