@@ -5,6 +5,8 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.util.Base64;
 
+import com.txkj.drawingapp.activity.BookActivity4Config;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -262,7 +264,9 @@ public class VecJson {
 
                 // Save everything in the version history
                 canvas.versions.add(canvas.cloneDrawPathList(canvas.paths));
-                canvas.version_index += 1;
+                if (!BookActivity4Config.LOAD_OLD_PAGE_NO_UNDO) {
+                    canvas.version_index += 1;
+                }
                 canvas.onVersionChanged();
             }
         } catch (JSONException e) {

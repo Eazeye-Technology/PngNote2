@@ -534,7 +534,7 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
         } else {
             isUndoActive = false;
         }
-        if (!versions.isEmpty() && version_index < versions.size() - 1 && version_index > 0) {
+        if (!versions.isEmpty() && version_index < versions.size() - 1 && version_index >= -1) {
             isRedoActive = true;
 //        } else if (version_index <= 0 && !versions.isEmpty()) {
 //            isRedoActive = true;

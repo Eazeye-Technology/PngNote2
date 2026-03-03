@@ -36,6 +36,8 @@ public class BookActivity4Utils {
     public static String APP_OPEN;
     public static String APP_FILE;
 
+    public static boolean canPushFragment = true;
+
     public static void editText(Activity context, DrawPath path) {
         if (context instanceof BookListActivity) {
             BookListActivity act = (BookListActivity) context;
@@ -128,7 +130,8 @@ public static boolean onBackPressed(Activity context) {
                                   Integer pageIdx, String backText,
                                   boolean isClearTop, boolean isFinish) {
         if (USE_FRAGMENT) {
-            if (context instanceof BookListActivity) {
+            if (context instanceof BookListActivity && BookActivity4Utils.canPushFragment == true) {
+                BookActivity4Utils.canPushFragment = false;
                 BookListActivity act = (BookListActivity) context;
                 FragmentManager fragmentManager = act.getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -165,6 +168,16 @@ public static boolean onBackPressed(Activity context) {
                         fragmentTransaction.add(R.id.content_layout, fragment);
                         fragmentTransaction.addToBackStack(tag);
                         fragmentTransaction.commit();
+                        if (false) {
+                            if (BookActivity4Utils.canPushFragment) {
+                                //this code is used to test re-enter
+                            }
+                            try {
+                                Thread.sleep(5 * 1000L);
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
                     } else {
                         //stop starting repeat fragment
                     }

@@ -27,7 +27,7 @@ public class PaidanRestClient {
 //        String SITE_PATH = "http://192.168.0.114:8007";
 //        String SITE_PATH = "http://42.192.233.179:8007";
 //        String SITE_PATH = "http://192.168.1.6:8007";
-        String SITE_PATH = "http://cbcx-sj.jmtxkj.cn"; //"http://www.jmtxkj.cn";
+        String SITE_PATH = UpgradeUtil.USE_UPGRADE_URL1; //"http://www.jmtxkj.cn";
 //        String SITE_PATH = "http://10.0.2.2:8007";
 
 
@@ -58,10 +58,12 @@ public class PaidanRestClient {
     private long lastLoginTime = 0; //测试用，不需要缓存
     private boolean isCheckedNoSpace = false; //检查是否够空间，不需要缓存
 
-    private final static String VERSION_LIST_URL = "/dri/getApkVersion"; //最新版本
-    private final static String UPDATE_LOCATION = "/dri/updateLocation"; //更新坐标信息
-    private final static String GET_WS_TOKEN_BY_PHONE = "/dri/getWsTokenByPhone"; //获取令牌
-    private final static String SECOND_PUSH = "/dri/secondPush"; //第二推送方案
+    //https://cbcx-sj.jmtxkj.cn/dri/getApkVersion
+    //private final static String VERSION_LIST_URL = "/dri/getApkVersion"; //最新版本
+    private final static String VERSION_LIST_URL = UpgradeUtil.USE_UPGRADE_URL2; //最新版本
+    private final static String UPDATE_LOCATION = "/xxxx/updateLocation"; //更新坐标信息
+    private final static String GET_WS_TOKEN_BY_PHONE = "/xxxx/getWsTokenByPhone"; //获取令牌
+    private final static String SECOND_PUSH = "/xxxx/secondPush"; //第二推送方案
 
     private static PaidanRestClient mInstance = null;
     private SyncHttpClient client;

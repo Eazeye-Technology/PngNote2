@@ -39,10 +39,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class UpgradeUtil {
-    public final static boolean USE_UPGRADE = false;//true;
-    public final static boolean USE_UPGRADE_DEBUG_VERSION = false;//reverse version compare
+    public final static boolean USE_UPGRADE = true;//true;
+    public final static String USE_UPGRADE_URL1 = "http://cbcx-sj.jmtxkj.cn";
+    public final static String USE_UPGRADE_URL2 = "/mdown/txkjnote2/";
+
 
     private final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE_PERMISSION = 100; //FIXME:???
+    //don't modify this
+    public final static boolean USE_UPGRADE_DEBUG_VERSION = false;//reverse version compare
+    private final static boolean USE_UPGRADE_NEWDIALOG = true;
 
     private final static boolean D = false;
     private final static String TAG = "UpgradeUtil";
@@ -237,9 +242,16 @@ public class UpgradeUtil {
     }
     public class CheckVersionTask extends AsyncTask<Void, Void, Void> {
         private boolean isSuccess = false;
-
+        private String localPackageName = null;
         public CheckVersionTask() {
-
+            try {
+                PackageInfo packageInfo = null;
+                packageInfo = mAct.getApplicationContext().getPackageManager()
+                        .getPackageInfo(mAct.getPackageName(), 0);
+                localPackageName = packageInfo.packageName;
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
@@ -274,26 +286,31 @@ public class UpgradeUtil {
                                                 String cdate = JSONUtil.optString(softItem, "cdate");
                                                 String note = JSONUtil.optString(softItem, "note");
                                                 String forceUpdate = JSONUtil.optString(softItem, "forceUpdate");
-                                                if (status == 1) {
-                                                    //保留最大版本号
-                                                    if (D) {
-                                                        Log.e(TAG, "LoginActivity.CheckVersionTask success serverVersion == " + serverVersion);
-                                                        Log.e(TAG, "LoginActivity.CheckVersionTask success vint == " + vint);
-                                                        Log.e(TAG, "LoginActivity.CheckVersionTask success vstr == " + vstr);
-                                                    }
-                                                    if (vint > serverVersion) {
-                                                        serverVersion = vint;
-                                                        serverVersionStr = vstr;
-                                                        serverNote = note;
-                                                        serverForceUpdate = forceUpdate;
-                                                        String baseUrl = PaidanRestClient
-                                                                .getInstance(mAct)
-                                                                .getBaseUrl(mAct);
-                                                        String absUrl = PaidanRestClient
-                                                                .getInstance(mAct)
-                                                                .getDocURLShort(baseUrl, path);
-                                                        serverVersionUrl = absUrl;
-                                                        serverPathPage = pathPage;
+                                                String packageName = JSONUtil.optString(softItem, "packageName");
+
+                                                if (localPackageName != null && packageName != null &&
+                                                        localPackageName.equals(packageName)) {
+                                                    if (status == 1) {
+                                                        //保留最大版本号
+                                                        if (D) {
+                                                            Log.e(TAG, "LoginActivity.CheckVersionTask success serverVersion == " + serverVersion);
+                                                            Log.e(TAG, "LoginActivity.CheckVersionTask success vint == " + vint);
+                                                            Log.e(TAG, "LoginActivity.CheckVersionTask success vstr == " + vstr);
+                                                        }
+                                                        if (vint > serverVersion) {
+                                                            serverVersion = vint;
+                                                            serverVersionStr = vstr;
+                                                            serverNote = note;
+                                                            serverForceUpdate = forceUpdate;
+                                                            String baseUrl = PaidanRestClient
+                                                                    .getInstance(mAct)
+                                                                    .getBaseUrl(mAct);
+                                                            String absUrl = PaidanRestClient
+                                                                    .getInstance(mAct)
+                                                                    .getDocURLShort(baseUrl, path);
+                                                            serverVersionUrl = absUrl;
+                                                            serverPathPage = pathPage;
+                                                        }
                                                     }
                                                 }
                                             }
@@ -363,165 +380,192 @@ public class UpgradeUtil {
     }
 
     private AlertDialog dialog3;
+    private androidx.appcompat.app.AlertDialog dialog4;
     //@Override
     public Dialog onCreateDailog_upgrade(int id) {
         ProgressDialog dialog;
         Dialog dialog2;
         switch (id) {
             case DIALOG_UPGRADE:
-                dialog3 = new AlertDialog.Builder(mAct)
-                        .setTitle("Software upgrade")
-                        .setMessage(
-                                (serverForceUpdate != null && serverForceUpdate.equals("1")) ?
-                                        "New version discovered, must be updated immediately." :
-                                        "New version discovered, it is recommended to update immediately.")
-                        .setPositiveButton("Update", null)
-                        .setNeutralButton("Browser Update", null)
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (serverForceUpdate != null && serverForceUpdate.equals("1")) {
-                                    mAct.finish();
-                                } else {
-                                    dialog.dismiss();
+                if (USE_UPGRADE_NEWDIALOG) {
+                    Runnable runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            String url = serverVersionUrl;
+                            //浏览器打开，如果有pathPage，优先用这个
+                            if (serverPathPage != null && serverPathPage.length() > 0) {
+                                url = serverPathPage;
+                            }
+                            Uri uri = Uri.parse(url);
+                            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                            mAct.startActivity(intent);
+
+                            if (serverForceUpdate != null && serverForceUpdate.equals("1")) {
+                                mAct.finish();
+                            } else {
+                                if (dialog3 != null && dialog3.isShowing()) {
+                                    dialog3.dismiss();
                                 }
                             }
-                        })
-                        .create();
-                dialog3.setCanceledOnTouchOutside(false);
-                dialog3.setCancelable(false);
-                dialog3.setOnShowListener(new DialogInterface.OnShowListener() {
-                    @Override
-                    public void onShow(final DialogInterface arg0) {
-                        String strNote = "";
-                        if (serverNote != null && serverNote.length() > 0) {
-                            strNote = "\n" + "Update Notes：" + serverNote;
                         }
-                        if (serverForceUpdate != null && serverForceUpdate.equals("1")) {
-                            dialog3.setMessage("A new version is discovered, force an immediate update, otherwise it cannot be used.\n" +
-                                    "Version: " + (serverVersionStr != null ? serverVersionStr : "") +
-                                    " (" + serverVersion + ")" +
-                                    strNote
-                            );
-                        } else {
-                            dialog3.setMessage("New version discovered, it is recommended to update immediately.\n" +
-                                    "Version: " + (serverVersionStr != null ? serverVersionStr : "") +
-                                    " (" + serverVersion + ")" +
-                                    strNote
-                            );
-                        }
-                        final Button b2 = dialog3.getButton(AlertDialog.BUTTON_NEUTRAL);
-                        b2.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View arg0) {
-                                String url = serverVersionUrl;
-                                //浏览器打开，如果有pathPage，优先用这个
-                                if (serverPathPage != null && serverPathPage.length() > 0) {
-                                    url = serverPathPage;
-                                }
-                                Uri uri = Uri.parse(url);
-                                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                                mAct.startActivity(intent);
-
-                                if (serverForceUpdate != null && serverForceUpdate.equals("1")) {
-                                    mAct.finish();
-                                } else {
-                                    if (dialog3 != null && dialog3.isShowing()) {
-                                        dialog3.dismiss();
+                    };
+                    dialog4 = new ActivityUpgradeDialog(mAct, runnable).create();
+                    dialog4.show();
+                } else {
+                    dialog3 = new AlertDialog.Builder(mAct)
+                            .setTitle("Software upgrade")
+                            .setMessage(
+                                    (serverForceUpdate != null && serverForceUpdate.equals("1")) ?
+                                            "New version discovered, must be updated immediately." :
+                                            "New version discovered, it is recommended to update immediately.")
+                            .setPositiveButton("Update", null)
+                            .setNeutralButton("Browser Update", null)
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if (serverForceUpdate != null && serverForceUpdate.equals("1")) {
+                                        mAct.finish();
+                                    } else {
+                                        dialog.dismiss();
                                     }
                                 }
+                            })
+                            .create();
+                    dialog3.setCanceledOnTouchOutside(false);
+                    dialog3.setCancelable(false);
+                    dialog3.setOnShowListener(new DialogInterface.OnShowListener() {
+                        @Override
+                        public void onShow(final DialogInterface arg0) {
+                            String strNote = "";
+                            if (serverNote != null && serverNote.length() > 0) {
+                                strNote = "\n" + "Update Notes：" + serverNote;
                             }
-                        });
-
-                        if (serverForceUpdate != null && serverForceUpdate.equals("1")) {
-                            final Button b3 = dialog3.getButton(AlertDialog.BUTTON_POSITIVE);
-                            b3.setOnClickListener(new View.OnClickListener() {
+                            if (serverForceUpdate != null && serverForceUpdate.equals("1")) {
+                                dialog3.setMessage("A new version is discovered, force an immediate update, otherwise it cannot be used.\n" +
+                                        "Version: " + (serverVersionStr != null ? serverVersionStr : "") +
+                                        " (" + serverVersion + ")" +
+                                        strNote
+                                );
+                            } else {
+                                dialog3.setMessage("New version discovered, it is recommended to update immediately.\n" +
+                                        "Version: " + (serverVersionStr != null ? serverVersionStr : "") +
+                                        " (" + serverVersion + ")" +
+                                        strNote
+                                );
+                            }
+                            final Button b2 = dialog3.getButton(AlertDialog.BUTTON_NEUTRAL);
+                            b2.setOnClickListener(new View.OnClickListener() {
                                 @Override
-                                public void onClick(View view) {
-                                    mAct.finish();
+                                public void onClick(View arg0) {
+                                    String url = serverVersionUrl;
+                                    //浏览器打开，如果有pathPage，优先用这个
+                                    if (serverPathPage != null && serverPathPage.length() > 0) {
+                                        url = serverPathPage;
+                                    }
+                                    Uri uri = Uri.parse(url);
+                                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                                    mAct.startActivity(intent);
+
+                                    if (serverForceUpdate != null && serverForceUpdate.equals("1")) {
+                                        mAct.finish();
+                                    } else {
+                                        if (dialog3 != null && dialog3.isShowing()) {
+                                            dialog3.dismiss();
+                                        }
+                                    }
                                 }
                             });
-                        }
 
-                        final Button b = dialog3.getButton(AlertDialog.BUTTON_POSITIVE);
-                        b.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                b.setEnabled(false);
-//		                	String appName = getResources().getString(R.string.mtmobile__app_name);
-//							File updateDir = new File(Environment.getExternalStorageDirectory() + "/mtmobile/update");
-//							String updateFilePath = updateDir + "/" + appName + ".apk";
-                                mUpdatePath = getUpdatePath();
-                                if (mUpdatePath == null || mUpdatePath.length() == 0) {
-                                    Toast.makeText(mAct,
-                                            "下The download directory does not exist. Please restart the device and try again, or update it using a browser", Toast.LENGTH_SHORT).show();
-                                } else {
-                                    File updateParent = new File(mUpdatePath);
-                                    updateParent.mkdirs();
-                                    if (!updateParent.isDirectory()) {
+                            if (serverForceUpdate != null && serverForceUpdate.equals("1")) {
+                                final Button b3 = dialog3.getButton(AlertDialog.BUTTON_POSITIVE);
+                                b3.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        mAct.finish();
+                                    }
+                                });
+                            }
+
+                            final Button b = dialog3.getButton(AlertDialog.BUTTON_POSITIVE);
+                            b.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    b.setEnabled(false);
+                                    //		                	String appName = getResources().getString(R.string.mtmobile__app_name);
+                                    //							File updateDir = new File(Environment.getExternalStorageDirectory() + "/mtmobile/update");
+                                    //							String updateFilePath = updateDir + "/" + appName + ".apk";
+                                    mUpdatePath = getUpdatePath();
+                                    if (mUpdatePath == null || mUpdatePath.length() == 0) {
                                         Toast.makeText(mAct,
-                                                "The download directory does not exist. Please restart the device and try again, or update it using a browser", Toast.LENGTH_SHORT).show();
+                                                "下The download directory does not exist. Please restart the device and try again, or update it using a browser", Toast.LENGTH_SHORT).show();
                                     } else {
-                                        String url = serverVersionUrl;//UpdateService.DOWNLOAD_URL;
-                                        if (url == null || url.length() == 0) {
+                                        File updateParent = new File(mUpdatePath);
+                                        updateParent.mkdirs();
+                                        if (!updateParent.isDirectory()) {
                                             Toast.makeText(mAct,
-                                                    "Download URL is empty", Toast.LENGTH_SHORT).show();
+                                                    "The download directory does not exist. Please restart the device and try again, or update it using a browser", Toast.LENGTH_SHORT).show();
                                         } else {
-                                            String docName = getUrlFileName(url);
-                                            File updateFileObj = new File(mUpdatePath, docName);
-                                            String updateFilePath = updateFileObj.getAbsolutePath();
-                                            if (updateFileObj.isFile() && updateFileObj.canRead()) {
-                                                if (false) {
-                                                    //文件已存在，不需要再下载
-                                                    //Uri uri = Uri.fromFile(updateFileObj); //
-                                                    Uri uri = UriUtil.fromFile(mAct, updateFileObj);
-                                                    Intent intent2 = new Intent(Intent.ACTION_VIEW);
-                                                    intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                                    intent2.setDataAndType(uri, "application/vnd.android.package-archive");
-                                                    UriUtil.prepare(intent2);
-                                                    //dismissDialog(DIALOG_UPGRADE);
-                                                    try {
-//                                                        if (serverForceUpdate != null && serverForceUpdate.equals("1")) {
-//                                                            finish();
-//                                                        } else {
-                                                        if (arg0 != null) {
-                                                            arg0.dismiss();
-                                                        }
-//                                                        }
-                                                    } catch (Throwable e) {
-                                                        e.printStackTrace();
-                                                    }
-                                                    try {
-                                                        mAct.startActivity(intent2);
-                                                    } catch (Throwable e) {
-                                                        e.printStackTrace();
-                                                    }
-                                                } else {
-                                                    m_apk = updateFileObj;
-                                                    installProcess();
-                                                }
+                                            String url = serverVersionUrl;//UpdateService.DOWNLOAD_URL;
+                                            if (url == null || url.length() == 0) {
+                                                Toast.makeText(mAct,
+                                                        "Download URL is empty", Toast.LENGTH_SHORT).show();
                                             } else {
-                                                //20151208：偷懒，删除更新目录下的所有文件
-                                                String updatePath = getUpdatePath();
-                                                FileUtil.deleteFolder(updatePath);
-
-                                                Intent intent = new Intent(mAct, UpdateService.class);
-                                                intent.putExtra(UpdateService.EXTRA_APP_NAME, "");
-                                                intent.putExtra(UpdateService.EXTRA_DOWNLOAD_URL, url);
-                                                intent.putExtra(UpdateService.EXTRA_DOWNLOAD_PATH, updateFilePath);
-                                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                                    mAct.startForegroundService(intent);
+                                                String docName = getUrlFileName(url);
+                                                File updateFileObj = new File(mUpdatePath, docName);
+                                                String updateFilePath = updateFileObj.getAbsolutePath();
+                                                if (updateFileObj.isFile() && updateFileObj.canRead()) {
+                                                    if (false) {
+                                                        //文件已存在，不需要再下载
+                                                        //Uri uri = Uri.fromFile(updateFileObj); //
+                                                        Uri uri = UriUtil.fromFile(mAct, updateFileObj);
+                                                        Intent intent2 = new Intent(Intent.ACTION_VIEW);
+                                                        intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                                        intent2.setDataAndType(uri, "application/vnd.android.package-archive");
+                                                        UriUtil.prepare(intent2);
+                                                        //dismissDialog(DIALOG_UPGRADE);
+                                                        try {
+                                                            //                                                        if (serverForceUpdate != null && serverForceUpdate.equals("1")) {
+                                                            //                                                            finish();
+                                                            //                                                        } else {
+                                                            if (arg0 != null) {
+                                                                arg0.dismiss();
+                                                            }
+                                                            //                                                        }
+                                                        } catch (Throwable e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                        try {
+                                                            mAct.startActivity(intent2);
+                                                        } catch (Throwable e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    } else {
+                                                        m_apk = updateFileObj;
+                                                        installProcess();
+                                                    }
                                                 } else {
-                                                    mAct.startService(intent);
+                                                    //20151208：偷懒，删除更新目录下的所有文件
+                                                    String updatePath = getUpdatePath();
+                                                    FileUtil.deleteFolder(updatePath);
+
+                                                    Intent intent = new Intent(mAct, UpdateService.class);
+                                                    intent.putExtra(UpdateService.EXTRA_APP_NAME, "");
+                                                    intent.putExtra(UpdateService.EXTRA_DOWNLOAD_URL, url);
+                                                    intent.putExtra(UpdateService.EXTRA_DOWNLOAD_PATH, updateFilePath);
+                                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                                        mAct.startForegroundService(intent);
+                                                    } else {
+                                                        mAct.startService(intent);
+                                                    }
                                                 }
                                             }
                                         }
                                     }
                                 }
-                            }
-                        });
-                    }
-                });
-                dialog3.show();
+                            });
+                        }
+                    });
+                    dialog3.show();
+                }
                 break;
         }
         return null;

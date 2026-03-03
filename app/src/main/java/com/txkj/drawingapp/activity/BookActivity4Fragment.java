@@ -260,6 +260,7 @@ public class BookActivity4Fragment extends Fragment {
                     } catch (Throwable eee) {
                         eee.printStackTrace();
                     }
+                    setBackText(canvas, backText); //FIXME:added
                     isDirty = false;
                     BitmapVector result_ = new BitmapVector();
                     result_.bitmap = pageBmp;
@@ -1333,12 +1334,18 @@ public class BookActivity4Fragment extends Fragment {
         rootView.findViewById(R.id.btnEnterFullscreen).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                rootView.findViewById(R.id.llTab).setVisibility(View.GONE);
-                rootView.findViewById(R.id.llTopBar).setVisibility(View.GONE);
-                //findViewById(R.id.llFullscreen).setVisibility(View.VISIBLE);
-                rootView.findViewById(R.id.llFullscreen2).setVisibility(View.VISIBLE);
-                rootView.findViewById(R.id.llFullscreen2_demo).setVisibility(View.VISIBLE);
-                rootView.findViewById(R.id.left_toolkit_global).setVisibility(View.GONE);
+                if (getFocusModeDemo()) {
+                    toggleFocusMode();
+                } else {
+                    setFocusModeDemo(true);
+                    //show focus mode demo
+                    rootView.findViewById(R.id.llTab).setVisibility(View.GONE);
+                    rootView.findViewById(R.id.llTopBar).setVisibility(View.GONE);
+                    //findViewById(R.id.llFullscreen).setVisibility(View.VISIBLE);
+                    rootView.findViewById(R.id.llFullscreen2).setVisibility(View.VISIBLE);
+                    rootView.findViewById(R.id.llFullscreen2_demo).setVisibility(View.VISIBLE);
+                    rootView.findViewById(R.id.left_toolkit_global).setVisibility(View.GONE);
+                }
             }
         });
         //not used this exit button
@@ -3541,6 +3548,18 @@ public class BookActivity4Fragment extends Fragment {
         }
     }
 
+    private final static String FOCUS_PREF_NAME = "FocusModePrefs";
+    private final static String FOCUS_PREF_ITEM_NAME = "focusModeDemo1";
+    private void setFocusModeDemo(boolean used){
+        SharedPreferences.Editor prefs = this.getActivity().getSharedPreferences(FOCUS_PREF_NAME, Activity.MODE_PRIVATE).edit();
+        prefs.putBoolean(FOCUS_PREF_ITEM_NAME, used);
+        prefs.apply();
+    }
+    private boolean getFocusModeDemo(){
+        SharedPreferences prefs = this.getActivity().getSharedPreferences(FOCUS_PREF_NAME, Activity.MODE_PRIVATE);
+        return prefs.getBoolean(FOCUS_PREF_ITEM_NAME, false);
+    }
+
     public void toggleFocusMode() { //focus mode, fullscreen
         if (g_rootView.findViewById(R.id.llTab).getVisibility() == View.VISIBLE) {
             //enter fullscreen
@@ -4305,6 +4324,7 @@ public class BookActivity4Fragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         refreshRunnable2 = null;
+        BookActivity4Utils.canPushFragment = true;
     }
 
     public void onVersionChanged(boolean isUndoActive, boolean isRedoActive) {
