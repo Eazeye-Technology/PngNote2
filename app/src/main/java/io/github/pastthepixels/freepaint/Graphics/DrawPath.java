@@ -10,6 +10,7 @@ import android.graphics.Path;
 import android.graphics.PathMeasure;
 import android.graphics.PointF;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.util.Log;
 import android.util.SizeF;
@@ -349,41 +350,43 @@ public class DrawPath {
      */
     public void finalise() {
         // Simplifies the path.
-        points = simplify(points, simplificationAmount);
+        points = simplify(points, simplificationAmount, true);
         // Generates handles for each point.
-        for (int i = 0; i < points.size(); i++) {
-            try {
-                Point point = points.get(i);
-                if (i == 0) {
-                    if (i + 1 >= 0 && i + 1 < points.size()) {
-                        Point next = points.get(i + 1);
-                        point.setRightHandle(new Point(
-                                ((next.x - point.x) / 3),
-                                ((next.y - point.y) / 3)
-                        ));
-                    }
-                } else if (i != points.size() - 1) {
-                    if (i - 1 >= 0 && i - 1 < points.size() &&
-                            i + 1 >= 0 && i + 1 < points.size()) {
-                        Point prev = points.get(i - 1);
-                        Point next = points.get(i + 1);
-                        // Set handles (left handle is mirrored; hermite splines!
-                        Point rightHandle = new Point(
-                                ((next.x - prev.x) / 6),
-                                ((next.y - prev.y) / 6)
-                        );
-                        point.setRightHandle(rightHandle);
-                        point.setLeftHandle(rightHandle.multiply(-1));
-                        // If the angles between the current point and the next point/current and previous are acute/right, make the corner sharp.
-                        double angle = Utils.angleBetweenVectors(prev.subtract(point), point.subtract(next));
-                        if (Math.abs(angle) >= Math.PI / 2) { // idk how this works but it does. it shouldn't be this way.
-                            point.setLeftHandle(new Point(0, 0));
-                            point.setRightHandle(new Point(0, 0));
+        if (true) {
+            for (int i = 0; i < points.size(); i++) {
+                try {
+                    Point point = points.get(i);
+                    if (i == 0) {
+                        if (i + 1 >= 0 && i + 1 < points.size()) {
+                            Point next = points.get(i + 1);
+                            point.setRightHandle(new Point(
+                                    ((next.x - point.x) / 3),
+                                    ((next.y - point.y) / 3)
+                            ));
+                        }
+                    } else if (i != points.size() - 1) {
+                        if (i - 1 >= 0 && i - 1 < points.size() &&
+                                i + 1 >= 0 && i + 1 < points.size()) {
+                            Point prev = points.get(i - 1);
+                            Point next = points.get(i + 1);
+                            // Set handles (left handle is mirrored; hermite splines!
+                            Point rightHandle = new Point(
+                                    ((next.x - prev.x) / 6),
+                                    ((next.y - prev.y) / 6)
+                            );
+                            point.setRightHandle(rightHandle);
+                            point.setLeftHandle(rightHandle.multiply(-1));
+                            // If the angles between the current point and the next point/current and previous are acute/right, make the corner sharp.
+                            double angle = Utils.angleBetweenVectors(prev.subtract(point), point.subtract(next));
+                            if (Math.abs(angle) >= Math.PI / 2) { // idk how this works but it does. it shouldn't be this way.
+                                point.setLeftHandle(new Point(0, 0));
+                                point.setRightHandle(new Point(0, 0));
+                            }
                         }
                     }
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
                 }
-            } catch (Throwable eee) {
-                eee.printStackTrace();
             }
         }
     }
@@ -392,7 +395,7 @@ public class DrawPath {
      * Simplifies points using the Ramer-Douglas-Peucker algorithm.
      * Adapted from the pseudocde from https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm
      */
-    private CopyOnWriteArrayList<Point> simplify(CopyOnWriteArrayList<Point> points, double epsilon) {
+    private CopyOnWriteArrayList<Point> simplify(CopyOnWriteArrayList<Point> points, double epsilon, boolean isTop) {
         if (BookActivity4Config.USE_NO_POINT_SIMPLIFY) {
             if (epsilon == 0) {
                 return points;
@@ -412,12 +415,18 @@ public class DrawPath {
 
         if (max_distance > epsilon) {
             // Like merge sort
-            CopyOnWriteArrayList<Point> leftHalf = simplify(new CopyOnWriteArrayList<Point>(points.subList(0, index)), epsilon);
-            CopyOnWriteArrayList<Point> rightHalf = simplify(new CopyOnWriteArrayList<Point>(points.subList(index, points.size())), epsilon);
+            CopyOnWriteArrayList<Point> leftHalf = simplify(new CopyOnWriteArrayList<Point>(points.subList(0, index)), epsilon, false);
+            CopyOnWriteArrayList<Point> rightHalf = simplify(new CopyOnWriteArrayList<Point>(points.subList(index, points.size())), epsilon, false);
             Point point = rightHalf.get(0).clone().applySubtract(leftHalf.get(leftHalf.size() - 1));
             leftHalf.remove(leftHalf.size() - 1);
+            if (isTop) {
+                simplified.add(points.get(0)); //FIXME: added
+            }
             simplified.addAll(leftHalf);
             simplified.addAll(rightHalf);
+            if (isTop) {
+                simplified.add(points.get(points.size() - 1)); //FIXME: added
+            }
         } else {
             if (points.size() > 0) {
                 simplified.add(points.get(0));
@@ -1013,7 +1022,11 @@ public class DrawPath {
         } else {
             //pointPath.addCircle(point.x, point.y, 5, Path.Direction.CW);
         }
-        pointPath.op(getPathOrGenerate(), Path.Op.DIFFERENCE);
+        Path path_g = getPathOrGenerate();
+        pointPath.op(path_g, Path.Op.DIFFERENCE);
+        RectF bounds = new RectF();
+        path_g.computeBounds(bounds, false);
+        boolean result0 = bounds.contains(point.x, point.y);
         boolean result1 = pointPath.isEmpty();
         boolean result2 = false;
         if (this.points != null) {
@@ -1028,7 +1041,7 @@ public class DrawPath {
                 }
             }
         }
-        return result1 || result2;
+        return result0 || result1 || result2;
     }
 
     public boolean containsRect(Point point1, Point point2) {

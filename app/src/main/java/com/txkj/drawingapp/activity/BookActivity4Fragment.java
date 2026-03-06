@@ -528,6 +528,7 @@ public class BookActivity4Fragment extends Fragment {
                 // Clear path list/history
                 canvas.paths.clear();
                 canvas.versions.clear();
+                canvas.oldVersionsSize = canvas.versions.size();
                 canvas.version_index = -1;
                 canvas.onVersionChanged();
             }

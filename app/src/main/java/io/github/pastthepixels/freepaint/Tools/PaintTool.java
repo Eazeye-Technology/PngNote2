@@ -100,7 +100,7 @@ public class PaintTool implements Tool {
             //skip
         }
         if (appearance.penType == DrawAppearance.PEN_TYPE_6) {
-            currentPath.simplificationAmount = 100;
+            currentPath.simplificationAmount = 100; //shape pen
         } else {
             currentPath.simplificationAmount = 0;
         }

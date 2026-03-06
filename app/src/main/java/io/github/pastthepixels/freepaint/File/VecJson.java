@@ -261,14 +261,14 @@ public class VecJson {
                 // Done!!
                 path.cachePath();
                 canvas.paths.add(path);
-
-                // Save everything in the version history
-                canvas.versions.add(canvas.cloneDrawPathList(canvas.paths));
-                if (!BookActivity4Config.LOAD_OLD_PAGE_NO_UNDO) {
-                    canvas.version_index += 1;
-                }
-                canvas.onVersionChanged();
             }
+            canvas.versions.add(canvas.cloneDrawPathList(canvas.paths));
+            // Save everything in the version history
+            if (!BookActivity4Config.LOAD_OLD_PAGE_NO_UNDO) {
+                canvas.version_index += 1;
+            }
+            canvas.oldVersionsSize = canvas.versions.size();
+            canvas.onVersionChanged();
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }

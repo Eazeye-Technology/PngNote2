@@ -111,24 +111,28 @@ public class PanTool implements Tool {
         private static final int MIN_VELOCITY = 10;
         @Override
         public boolean onFling(@Nullable MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
-            if (e1.getY() - e2.getY() > VERTICAL_MIN_DISTANCE && Math.abs(velocityY) > MIN_VELOCITY) {
-                //flip up
-                BookActivity4Utils.flipUp(canvas.mAct);
-                flipTime = System.currentTimeMillis();
-                useFlip = true;
-                return true;
-            } else if (e1.getX() - e2.getX() > VERTICAL_MIN_DISTANCE && Math.abs(velocityX) > MIN_VELOCITY) {
-                //flip left
-                BookActivity4Utils.previousPage(canvas.mAct);
-                flipTime = System.currentTimeMillis();
-                useFlip = true;
-                return true;
-            } else if (e2.getX() - e1.getX() > VERTICAL_MIN_DISTANCE && Math.abs(velocityX) > MIN_VELOCITY) {
-                //flip right
-                BookActivity4Utils.nextPage(canvas.mAct);
-                flipTime = System.currentTimeMillis();
-                useFlip = true;
-                return true;
+            try {
+                if (e1.getY() - e2.getY() > VERTICAL_MIN_DISTANCE && Math.abs(velocityY) > MIN_VELOCITY) {
+                    //flip up
+                    BookActivity4Utils.flipUp(canvas.mAct);
+                    flipTime = System.currentTimeMillis();
+                    useFlip = true;
+                    return true;
+                } else if (e1.getX() - e2.getX() > VERTICAL_MIN_DISTANCE && Math.abs(velocityX) > MIN_VELOCITY) {
+                    //flip left
+                    BookActivity4Utils.previousPage(canvas.mAct);
+                    flipTime = System.currentTimeMillis();
+                    useFlip = true;
+                    return true;
+                } else if (e2.getX() - e1.getX() > VERTICAL_MIN_DISTANCE && Math.abs(velocityX) > MIN_VELOCITY) {
+                    //flip right
+                    BookActivity4Utils.nextPage(canvas.mAct);
+                    flipTime = System.currentTimeMillis();
+                    useFlip = true;
+                    return true;
+                }
+            } catch (Throwable eee) {
+                eee.printStackTrace(); //e2 == null
             }
             return super.onFling(e1, e2, velocityX, velocityY);
         }

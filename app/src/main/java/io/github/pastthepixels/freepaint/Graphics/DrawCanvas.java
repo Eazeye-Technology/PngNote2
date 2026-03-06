@@ -72,6 +72,7 @@ public final class DrawCanvas extends View {
     // it removes everything after the current index (solving the grandfather paradox, btw)
 //    public final ArrayList<LinkedList<DrawPath>> versions = new ArrayList<>();
     public final ArrayList<CopyOnWriteArrayList<DrawPath>> versions = new ArrayList<>();
+    public int oldVersionsSize = 0;
     public final static int MAX_VERSIONS = 17; //256;
     public final Point documentSize = new Point(0, 0);
     private final PaintTool paintTool = new PaintTool(this);
@@ -237,6 +238,7 @@ java.util.ConcurrentModificationException
         editor.apply();
         // Save everything in the version history
         versions.add(cloneDrawPathList(paths));
+        oldVersionsSize = versions.size();
         version_index += 1;
         onVersionChanged();
     }
@@ -248,17 +250,20 @@ java.util.ConcurrentModificationException
     public boolean gScaleBegin = false;
     private ScaleGestureDetector scaleDetector;
     private ScaleGestureDetector.SimpleOnScaleGestureListener scaleListener = new ScaleGestureDetector.SimpleOnScaleGestureListener() {
-        @Override
-        public boolean onScaleBegin(@NonNull ScaleGestureDetector detector) {
-            //Toast.makeText(getContext(), "onScaleBegin", Toast.LENGTH_LONG).show();
-            gScaleBegin = true;
-            return super.onScaleBegin(detector);
-        }
 //        @Override
-//        public boolean onScale(@NonNull ScaleGestureDetector detector) {
-//            Toast.makeText(getContext(), "onScale", Toast.LENGTH_LONG).show();
-//            return super.onScale(detector);
+//        public boolean onScaleBegin(@NonNull ScaleGestureDetector detector) {
+//            //Toast.makeText(getContext(), "onScaleBegin", Toast.LENGTH_LONG).show();
+//            gScaleBegin = true; //don't use this method, easy to trigger
+//            return super.onScaleBegin(detector);
 //        }
+        @Override
+        public boolean onScale(@NonNull ScaleGestureDetector detector) {
+            //Toast.makeText(getContext(), "onScale", Toast.LENGTH_LONG).show();
+            if (detector != null && detector.getScaleFactor() > 2.0f) {
+                gScaleBegin = true;
+            }
+            return super.onScale(detector);
+        }
     };
     private GestureDetector gestureDetector;
     private GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
@@ -369,15 +374,15 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
 
     public void versionBackup() {
         // Remove any edits after the current.
-        while (versions.size() > version_index + 1) {
+        while (versions.size() > version_index + 1 + oldVersionsSize) {
             versions.remove(versions.size() - 1);
         }
         versions.add(cloneDrawPathList(paths)); // adds to the end ∴ newest changes are at the end of the list
         System.out.println(versions + " " + versions.size());
-        if (versions.size() < MAX_VERSIONS - 1) {
+        if (versions.size() < MAX_VERSIONS - 1 + oldVersionsSize) {
             version_index += 1;
         }
-        if (versions.size() > MAX_VERSIONS) {
+        if (versions.size() > MAX_VERSIONS + oldVersionsSize) {
             versions.remove(0); // delete the oldest change if the list has grown too much
         }
         onVersionChanged();
@@ -506,13 +511,18 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
      * Undoes an operation by resetting DrawCanvas.paths to what it looked like after the previous operation.
      */
     public void undo() {
-        if (version_index > 0) {
-            System.out.println(versions.toString() + (version_index - 1));
+        if (oldVersionsSize + version_index > 0) {
+            System.out.println(versions.toString() + (oldVersionsSize + version_index - 1));
             version_index -= 1;
-            paths = cloneDrawPathList(versions.get(version_index));
+            paths = cloneDrawPathList(versions.get(oldVersionsSize + version_index));
         } else {
-            version_index = -1;
-            paths.clear();
+            if (oldVersionsSize == 0) { //if no history, clear
+                version_index = -1;
+                paths.clear();
+            } else {
+                //if history exists
+                //FIXME: not clear
+            }
         }
         // Force redraw
         postInvalidate();
@@ -534,7 +544,8 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
         } else {
             isUndoActive = false;
         }
-        if (!versions.isEmpty() && version_index < versions.size() - 1 && version_index >= -1) {
+        // - oldVersionsSize
+        if (versions.size() > oldVersionsSize && version_index < versions.size() - 1 && version_index >= -1) {
             isRedoActive = true;
 //        } else if (version_index <= 0 && !versions.isEmpty()) {
 //            isRedoActive = true;
@@ -1404,6 +1415,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
                 // Clear path list/history
                 paths.clear();
                 versions.clear();
+                oldVersionsSize = versions.size();
                 version_index = -1;
 
                 BitmapVector result = bitmapLoader.onLoadBitmap(idx);

@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SDRecordingsDatabase extends SQLiteOpenHelper {
+    private final static boolean USE_WAL = true;
+
     private final static boolean USE_MEMDB = true; //if delay saved?
 
     private final static boolean USE_CACHE_ONLY_TEST = false;
@@ -76,6 +78,7 @@ public class SDRecordingsDatabase extends SQLiteOpenHelper {
     private void loadMemDB() {
         try {
             SQLiteDatabase db = getReadableDatabase();
+            if (USE_WAL) db.enableWriteAheadLogging();
 
             String[] projection = {
                     RecordingDatabaseItem._ID,
@@ -146,6 +149,7 @@ public class SDRecordingsDatabase extends SQLiteOpenHelper {
         } else {
             try {
                 SQLiteDatabase db = getWritableDatabase();
+                if (USE_WAL) db.enableWriteAheadLogging();
                 ContentValues values = new ContentValues();
                 values.put(RecordingDatabaseItem.COLUMN_NAME_RECORDING_NAME, recordingName);
                 values.put(RecordingDatabaseItem.COLUMN_NAME_RECORDING_FILE_PATH, filePath);
@@ -182,6 +186,7 @@ public class SDRecordingsDatabase extends SQLiteOpenHelper {
         }
         SQLiteDatabase db = getWritableDatabase();
         try{
+            if (USE_WAL) db.enableWriteAheadLogging();
             db.beginTransaction();
             //insert huge data
             //get pre-compiled SQLiteStatement object
@@ -224,6 +229,7 @@ public class SDRecordingsDatabase extends SQLiteOpenHelper {
         } else {
             try {
                 SQLiteDatabase db = getReadableDatabase();
+                if (USE_WAL) db.enableWriteAheadLogging();
 
                 String[] projection = {
                         RecordingDatabaseItem._ID,
@@ -296,6 +302,7 @@ public class SDRecordingsDatabase extends SQLiteOpenHelper {
         } else {
             try {
                 SQLiteDatabase db = getWritableDatabase();
+                if (USE_WAL) db.enableWriteAheadLogging();
                 String[] whereArgs = {String.valueOf(id), meetingId};
                 db.delete(RecordingDatabaseItem.TABLE_NAME,
                         "_id=? and " + RecordingDatabaseItem.COLUMN_NAME_MEETING_ID + " = ?",
@@ -317,6 +324,7 @@ public class SDRecordingsDatabase extends SQLiteOpenHelper {
         } else {
             try {
                 SQLiteDatabase db = getReadableDatabase();
+                if (USE_WAL) db.enableWriteAheadLogging();
                 String[] projection = {RecordingDatabaseItem._ID};
                 Cursor c = db.query(RecordingDatabaseItem.TABLE_NAME, projection,
                         RecordingDatabaseItem.COLUMN_NAME_MEETING_ID + " = ?",
@@ -433,6 +441,7 @@ public class SDRecordingsDatabase extends SQLiteOpenHelper {
                 }
 
                 SQLiteDatabase db = getWritableDatabase();
+                if (USE_WAL) db.enableWriteAheadLogging();
 
                 ContentValues values = new ContentValues();
                 values.put(RecordingDatabaseItem.COLUMN_NAME_REC_CONTENT, content);

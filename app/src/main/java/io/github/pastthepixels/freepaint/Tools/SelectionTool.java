@@ -26,6 +26,7 @@ import io.github.pastthepixels.freepaint.Graphics.DrawAppearance;
 import io.github.pastthepixels.freepaint.Graphics.DrawCanvas;
 import io.github.pastthepixels.freepaint.Graphics.DrawPath;
 import io.github.pastthepixels.freepaint.Graphics.Point;
+import io.github.pastthepixels.freepaint.Utils;
 
 public class SelectionTool implements Tool {
     //可变，需要用clone
@@ -779,15 +780,25 @@ public class SelectionTool implements Tool {
                 RectF rect2 = new RectF(pointsRect2[0], pointsRect2[1], pointsRect2[2], pointsRect2[3]);
                 RectF rect3 = new RectF();
                 if (originalPoint != null && previousPoint != null) {
-                    rect3 = new RectF(originalPoint.x, originalPoint.y, previousPoint.x, previousPoint.y);
+                    if (false) {
+                        rect3 = new RectF(originalPoint.x, originalPoint.y, previousPoint.x, previousPoint.y);
+                    } else {
+                        rect3 = new RectF(
+                                Math.min(originalPoint.x, previousPoint.x),
+                                Math.min(originalPoint.y, previousPoint.y),
+                                Math.max(originalPoint.x, previousPoint.x),
+                                Math.max(originalPoint.y, previousPoint.y)
+                        );
+                    }
                 } else if (originalPoint != null && previousPoint == null) {
                     rect3 = new RectF(originalPoint.x, originalPoint.y, originalPoint.x + 1, originalPoint.y + 1);
                 }
                 boolean isSelected = false;
-                if (rect2.intersect(rect3)) {
+                if (Utils.isIntersects(rect2, rect3)) {  //BE CAREFUL:rect2 is changed
                     isSelected = true;
                 }
 
+                RectF bounds2 = new RectF();
                 if (path.pointsType == DrawPath.POINTS_TYPE_IMAGE ||
                         path.pointsType == DrawPath.POINTS_TYPE_TEXT) {
                     Path p = new Path();
@@ -803,16 +814,53 @@ public class SelectionTool implements Tool {
                         }
                     }
                     p.close();
+                    p.computeBounds(bounds2, false); //改用路径外框选中
                     region.setPath(p, clip);
                 } else {
-                    region.setPath(path.getPath(), clip);
+                    if (path.getPath() != null) {
+                        //FIXME:added, because region.op(currentPathRegion, Region.Op.INTERSECT) not good
+                        path.getPath().computeBounds(bounds2, false); //改用路径外框选中
+                        Path p = new Path();
+                        if (true) {
+                            p.moveTo(bounds2.left, bounds2.top);
+                            p.lineTo(bounds2.right, bounds2.top);
+                            p.lineTo(bounds2.right, bounds2.bottom);
+                            p.lineTo(bounds2.left, bounds2.bottom);
+                        } else {
+                            //don't use this, just begin and end point
+                            if (path.points.size() > 0) {
+                                Point p1 = path.points.get(0);
+                                Point p2 = path.points.get(path.points.size() - 1);
+                                p.moveTo(p1.x, p1.y);
+                                p.lineTo(p2.x, p1.y);
+                                p.lineTo(p2.x, p2.y);
+                                p.lineTo(p1.x, p2.y);
+                            }
+                        }
+                        p.close();
+                        region.setPath(p, clip);
+
+                        if (Utils.isIntersects(bounds2, rect3)) {  //BE CAREFUL:bounds2 is changed
+                            isSelected = true;
+                        }
+                    } else {
+                        //region.setPath(path.getPath(), clip);
+                    }
                 }
-                Rect bounds = region.getBounds();
+                Rect bounds = region.getBounds();//BE CAREFUL:if empty, (x, y) = (0, 0), not good
+                if (bounds.height() == 0 || bounds.width() == 0) { //bounds == (0, 0, 0, 0)
+                    bounds = new Rect(
+                            (int)bounds2.left,
+                            (int)bounds2.top,
+                            (int)bounds2.right,
+                            (int)bounds2.bottom);
+                }
 
-
-
-                if (isSelected ||
-                        (!region.quickReject(currentPathRegion) && region.op(currentPathRegion, Region.Op.INTERSECT))) {
+                /*
+                 ||
+                        (!region.quickReject(currentPathRegion) && region.op(currentPathRegion, Region.Op.INTERSECT))
+                 */
+                if (isSelected) {
                     selectedPaths.add(path);
                     // Checks to see if the bounding box for all selections can be expanded.
                     // Speaking of expanding things, you should click the minimise button the left for each if statement.
