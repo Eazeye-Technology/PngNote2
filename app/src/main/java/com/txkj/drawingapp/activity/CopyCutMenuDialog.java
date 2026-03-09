@@ -14,6 +14,7 @@ public class CopyCutMenuDialog {
     private static final int POPUP_OFFSET_X = 0;//30;
     private static final int POPUP_OFFSET_Y = 0;//30;
 
+    public static boolean isOpen = false;
     private static View.OnClickListener mListener = null;
     private static PopupWindow popup;
     public static void show(Context context, View anchor, int pageIndex, int pageNum, final View.OnClickListener listener) {
@@ -68,8 +69,14 @@ public class CopyCutMenuDialog {
         popup = new PopupWindow(layout,
                 300/*ViewGroup.LayoutParams.WRAP_CONTENT*/, ViewGroup.LayoutParams.WRAP_CONTENT);
         popup.setFocusable(true);
+        popup.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                isOpen = false;
+            }
+        });
 
-        //  now show the popup
+                //  now show the popup
         popup.showAsDropDown(anchor, POPUP_OFFSET_X, POPUP_OFFSET_Y, Gravity.RIGHT);
     }
 //    public interface WidthChangedListener {

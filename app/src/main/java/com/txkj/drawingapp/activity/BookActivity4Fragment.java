@@ -14,6 +14,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
@@ -98,15 +99,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import io.github.pastthepixels.freepaint.Graphics.BitmapVector;
 import io.github.pastthepixels.freepaint.Graphics.DrawAppearance;
@@ -130,6 +136,9 @@ public class BookActivity4Fragment extends Fragment {
     private final static boolean USE_BOTTOM_IME_TOOLBAR = true;
 
     private final static boolean TIMER_AUTOSAVE = true; //定时器存档
+    public final static boolean SAVING_ASYNC_MULTI = true; //允许多个异步保存
+    private final static int SAVING_ASYNC_MULTI_TIMEOUT = 6; //6sec
+    private final ReentrantLock saveLock = new ReentrantLock();
     private final static long DELAY_TIME2 = 10 * 1000L;
 
     BookActivity4FragmentBottom1 mBottom1;
@@ -266,6 +275,7 @@ public class BookActivity4Fragment extends Fragment {
                     result_.bitmap = pageBmp;
                     result_.strVecJson = result != null ? result.strVecJson : null;
                     canvas.onVersionChanged();
+                    if (false) clearRestorePages();
                     return result_;
                 }
             }, forceReload);
@@ -402,6 +412,7 @@ public class BookActivity4Fragment extends Fragment {
 
     @Override
     public void onStop() {
+        recordDuration();
         if (USE_RTASR) {
             if (rtasrDialog != null) {
                 rtasrDialog.onClick_stop();
@@ -531,6 +542,7 @@ public class BookActivity4Fragment extends Fragment {
                 canvas.oldVersionsSize = canvas.versions.size();
                 canvas.version_index = -1;
                 canvas.onVersionChanged();
+                clearRestorePages();
             }
 
             if (false && this.pageBmp != null) {
@@ -1068,6 +1080,7 @@ public class BookActivity4Fragment extends Fragment {
             rootView.findViewById(R.id.left_toolkit1).setVisibility(View.GONE);
             rootView.findViewById(R.id.left_toolkit2).setVisibility(View.GONE);
             rootView.findViewById(R.id.left_toolkit4).setVisibility(View.GONE);
+            updateRecordButtonStatus();
         } else if (id == R.id.top_toolkit_item4) {
             //Selection
             dtViewBottom.setVisibility(View.GONE);
@@ -1150,6 +1163,7 @@ public class BookActivity4Fragment extends Fragment {
         runFullScreen(getActivity());
         long t7 = System.currentTimeMillis();
         Log.e(TAG, "oncreateview, t7== " + (t7 - t6));
+
         if (TIMER_AUTOSAVE) {
             startHandlerTask2();
         }
@@ -1563,10 +1577,15 @@ public class BookActivity4Fragment extends Fragment {
                 return;
             }
             if (SAVING_ASYNC) {
-                if (task == null) {
+                if (!SAVING_ASYNC_MULTI) {
+                    if (task == null) {
+                        task = new SavingTask(false, true);
+                        task.executeOnExecutor(newFixedThreadPool);
+                        Log.e(TAG, "startHandlerTask2 MyRunnable " + System.currentTimeMillis());
+                    }
+                } else {
                     task = new SavingTask(false, true);
                     task.executeOnExecutor(newFixedThreadPool);
-                    Log.e(TAG, "startHandlerTask2 MyRunnable " + System.currentTimeMillis());
                 }
             }
             if (refreshRunnable2 == null || refreshRunnable2 != this) {
@@ -1586,6 +1605,20 @@ public class BookActivity4Fragment extends Fragment {
         Log.e(TAG, "startHandlerTask2 " + System.currentTimeMillis());
     }
 
+    private Date lastRecordTime = null;
+    private void recordDuration() {
+        if (lastRecordTime != null) {
+            Date now = new Date();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(now);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            long diff = calendar.getTime().getTime() - lastRecordTime.getTime();
+            long diffMinutes = diff / (60 * 1000);
+            editMeetingDuration("" + diffMinutes);
+            lastRecordTime = null;
+        }
+    }
     private void init001(View rootView) {
         {
             View.OnClickListener onClickListenerPause = new View.OnClickListener() {
@@ -1606,6 +1639,25 @@ public class BookActivity4Fragment extends Fragment {
             View.OnClickListener onClickListener_start = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    if (!enableRecordButton) {
+                        return; //disable record button
+                    }
+                    {
+                        Date now = new Date();
+                        Date today = beginOfDay(now);
+                        SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+                        String dateStr_ = sdf.format(today);
+                        editMeetingDate(dateStr_, today.getTime());
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTime(now);
+                        calendar.set(Calendar.SECOND, 0);
+                        calendar.set(Calendar.MILLISECOND, 0);
+                        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                        int minute = calendar.get(Calendar.MINUTE);
+                        editMeetingTime(hour, minute);
+                        lastRecordTime = calendar.getTime();
+                    }
+
                     g_rootView.findViewById(R.id.rlTranscript).performClick(); //FIXME:added
                     //isRecording
                     if (rtasrDialog == null) {
@@ -1618,6 +1670,8 @@ public class BookActivity4Fragment extends Fragment {
             View.OnClickListener onClickListener_stop = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    recordDuration();
+
                     Runnable runnable = new Runnable() {
                         @Override
                         public void run() {
@@ -1629,6 +1683,7 @@ public class BookActivity4Fragment extends Fragment {
                     };
                     AlertDialog dialogStopRecord = new BookActivity4StopRecordDialog(getActivity(), runnable).create();
                     dialogStopRecord.show();
+                    updateRecordButtonStatus();
                 }
             };
             rootView.findViewById(R.id.startRecord).setOnClickListener(onClickListener_start);
@@ -1843,7 +1898,12 @@ public class BookActivity4Fragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (SAVING_ASYNC) {
-                    if (task == null) {
+                    if (!SAVING_ASYNC_MULTI) {
+                        if (task == null) {
+                            task = new SavingTask(false, false);
+                            task.executeOnExecutor(newFixedThreadPool);
+                        }
+                    } else {
                         task = new SavingTask(false, false);
                         task.executeOnExecutor(newFixedThreadPool);
                     }
@@ -1973,6 +2033,7 @@ public class BookActivity4Fragment extends Fragment {
         canvas.initAct(getActivity());
         canvas.setPenType(DrawAppearance.PEN_TYPE_1);
         canvas.onVersionChanged();
+        clearRestorePages();
 //        dtView = (DrawTextView) rootView.findViewById(R.id.dtView);
 //        dtView.postDelayed(new Runnable() {
 //            @Override
@@ -2364,13 +2425,45 @@ public class BookActivity4Fragment extends Fragment {
         rootView.findViewById(R.id.llMeetingDate).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*Dialog dialog = */new BookActivity4MeetingDateDialog(getActivity(), getMeetingDate())
-                        .create();
+                if (DATE_READONLY) {
+                    return;
+                } else {
+                    /*Dialog dialog = */
+                    new BookActivity4MeetingDateDialog(getActivity(), getMeetingDate())
+                            .create();
 //                if (dialog != null) {
 //                    dialog.show();
 //                }
+                }
             }
         });
+
+        TextView tvMeetingTime = rootView.findViewById(R.id.tvMeetingTime);
+        Integer meetingHour = getMeetingHour();
+        Integer meetingMinute = getMeetingMinute();
+        if (meetingHour != null && meetingMinute != null) {
+            String dateStr_ = String.format("%02d:%02d", meetingHour, meetingMinute);
+            tvMeetingTime.setText(dateStr_);
+        } else {
+            tvMeetingTime.setText("");
+        }
+        rootView.findViewById(R.id.llMeetingTime).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (DATE_READONLY) {
+                    return;
+                } else {
+                    /*Dialog dialog = */
+                    new BookActivity4MeetingTimeDialog(getActivity(),
+                            getMeetingHour(), getMeetingMinute())
+                            .create();
+//                if (dialog != null) {
+//                    dialog.show();
+//                }
+                }
+            }
+        });
+
         TextView tvMeetingDuration = rootView.findViewById(R.id.tvMeetingDuration);
         try {
             String duration = getMeetingDuration();
@@ -2393,10 +2486,14 @@ public class BookActivity4Fragment extends Fragment {
         rootView.findViewById(R.id.llMeetingDuration).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialog dialog = new BookActivity4MeetingDurationDialog(getActivity(), getMeetingDuration())
-                        .create();
-                if (dialog != null) {
-                    dialog.show();
+                if (DATE_READONLY) {
+                    return;
+                } else {
+                    AlertDialog dialog = new BookActivity4MeetingDurationDialog(getActivity(), getMeetingDuration())
+                            .create();
+                    if (dialog != null) {
+                        dialog.show();
+                    }
                 }
             }
         });
@@ -2447,7 +2544,12 @@ public class BookActivity4Fragment extends Fragment {
             onRedo();
         } else if (item.getItemId() == R.id.grid) {
             if (SAVING_ASYNC) {
-                if (task == null) {
+                if (!SAVING_ASYNC_MULTI) {
+                    if (task == null) {
+                        task = new SavingTask(false, false);
+                        task.executeOnExecutor(newFixedThreadPool);
+                    }
+                } else {
                     task = new SavingTask(false, false);
                     task.executeOnExecutor(newFixedThreadPool);
                 }
@@ -2631,7 +2733,19 @@ public class BookActivity4Fragment extends Fragment {
 
     private void onUndo() {
         undoCount = undoCount + 1;
-        canvas.undo();
+        if (isCanRestorePages()) {
+            createWaitingProgressDialog();
+            g_rootView.findViewById(R.id.buttonUndo).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    undoAndRestorePages();
+                    canvas.undo(true);
+                    cancelWaitingProgressDialog();
+                }
+            }, 0);//100);
+        } else {
+            canvas.undo(false);
+        }
     }
     private void onRedo() {
         redoCount = redoCount + 1;
@@ -2802,6 +2916,7 @@ public class BookActivity4Fragment extends Fragment {
     public class SavingTask extends AsyncTask<Void, Void, Void> {
         private boolean mIsBack = true;
         private boolean mDoNothing = true;
+        private long mTime = 0;
         public SavingTask(boolean isBack, boolean doNothing) {
             if (isBack || doNothing) {
                 //TODO:
@@ -2818,20 +2933,44 @@ public class BookActivity4Fragment extends Fragment {
             } else {
                 createWaitingProgressDialog();
             }
+            if (SAVING_ASYNC_MULTI) {
+                if (D) {
+                    Log.e(TAG, "SAVING_ASYNC_MULTI SavingTask");
+                    mTime = System.currentTimeMillis();
+                }
+            }
         }
 
         @Override
         protected Void doInBackground(Void... params) {
+            boolean locked = false;
             try {
-                savePageInMain(getPageIdx(), pageBmp, getVecJson(canvas));
+                if (SAVING_ASYNC_MULTI) {
+                    locked = saveLock.tryLock(SAVING_ASYNC_MULTI_TIMEOUT, TimeUnit.SECONDS);
+                    if (locked) {
+                        savePageInMain(getPageIdx(), pageBmp, getVecJson(canvas));
+                    }
+                } else {
+                    savePageInMain(getPageIdx(), pageBmp, getVecJson(canvas));
+                }
             } catch (Throwable eee) {
                 eee.printStackTrace();
+            } finally {
+                if (locked) {
+                    saveLock.unlock(); // 释放锁
+                }
             }
             return null;
         }
 
         @Override
         protected void onPostExecute(Void result){
+            if (SAVING_ASYNC_MULTI) {
+                if (D) {
+                    //about 2164ms
+                    Log.e(TAG, "SAVING_ASYNC_MULTI onPostExecute " + (System.currentTimeMillis() - mTime));
+                }
+            }
             task = null;
             if (this.mDoNothing) {
                 //skip
@@ -2994,133 +3133,142 @@ public class BookActivity4Fragment extends Fragment {
 
     private void showPopupMenu(View rootView, View view) {
         //see LineWidthDialog
-        CopyCutMenuDialog.show(getActivity(), view, (getPageIdx() + 1), pageNum, new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (view != null) {
-                    if (view.getId() == R.id.popButtonGrid) {
-                        if (false) {
-                            notifyForceSave(false);
-                            if (SAVING_ASYNC) {
-                                if (task == null) {
-                                    task = new SavingTask(false, false);
-                                    task.executeOnExecutor(newFixedThreadPool);
+        if (CopyCutMenuDialog.isOpen == false) {
+            CopyCutMenuDialog.isOpen = true;
+            CopyCutMenuDialog.show(getActivity(), view, (getPageIdx() + 1), pageNum, new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (view != null) {
+                        if (view.getId() == R.id.popButtonGrid) {
+                            if (false) {
+                                notifyForceSave(false);
+                                if (SAVING_ASYNC) {
+                                    if (!SAVING_ASYNC_MULTI) {
+                                        if (task == null) {
+                                            task = new SavingTask(false, false);
+                                            task.executeOnExecutor(newFixedThreadPool);
+                                        }
+                                    } else {
+                                        task = new SavingTask(false, false);
+                                        task.executeOnExecutor(newFixedThreadPool);
+                                    }
+                                } else {
+                                    gotoGridPage();
                                 }
                             } else {
-                                gotoGridPage();
+                                createWaitingProgressDialog();
+                                view.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        beforePageGrid();
+                                        AlertDialog dialog = new BookActivity4PageGridDialog(getActivity(),
+                                                BookActivity4Fragment.this.dirUrl,
+                                                BookActivity4Fragment.this.dirUrlPath)
+                                                .create();
+                                        dialog.show();
+                                        cancelWaitingProgressDialog();
+                                    }
+                                }, 0);//100);
                             }
-                        } else {
-                            createWaitingProgressDialog();
-                            view.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    beforePageGrid();
-                                    AlertDialog dialog = new BookActivity4PageGridDialog(getActivity(),
-                                            BookActivity4Fragment.this.dirUrl,
-                                            BookActivity4Fragment.this.dirUrlPath)
-                                            .create();
-                                    dialog.show();
-                                    cancelWaitingProgressDialog();
-                                }
-                            }, 0);//100);
-                        }
-                    } else if (view.getId() == R.id.popButtonPrevPage) {
-                        notifyForceSave(false);
-                        gotoPrevPage();
-                    } else if (view.getId() == R.id.popButtonNextPage) {
-                        notifyForceSave(false);
-                        gotoNextPage();
-                    } else if (view.getId() == R.id.popButtonRemovePage) {
-                        notifyForceSave(false);
-                        removeCurrentPageAndGo();
-                    } else if (view.getId() == R.id.popButtonAddPage) {
-                        notifyForceSave(false);
-                        //addNewPageAndGo(true);
-                        addNewPageAndGo(false);
-                    } else if (view.getId() == R.id.popButtonPan) {
-                        if (canvas != null) {
-                            canvas.setTool(DrawCanvas.TOOLS.pan);
-                        }
-                    } else if (view.getId() == R.id.popButtonShare) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            notifyForceSave(true);
-                            //isDrawBG == true, because I want to draw lined bg
-                            share();
-                        } else {
-                            AlertDialog dialog = new MaterialAlertDialogBuilder(getActivity(), BookActivity4Utils.getCenteredTitleThemeOverlay())
-                                    .setTitle("Error")
-                                    .setMessage("Sharing failed. Requires Android 8.0 or above.")
-                                    .setCancelable(true)
-                                    .setPositiveButton("OK", null)
-                                    .show();
-                        }
-                    } else if (view.getId() == R.id.popTextViewInsertImage) {
-                        if (false) {
-                            loadFileDemo();
-                        } else {
+                        } else if (view.getId() == R.id.popButtonPrevPage) {
+                            notifyForceSave(false);
+                            gotoPrevPage();
+                        } else if (view.getId() == R.id.popButtonNextPage) {
+                            notifyForceSave(false);
+                            gotoNextPage();
+                        } else if (view.getId() == R.id.popButtonRemovePage) {
+                            notifyForceSave(false);
+                            removeCurrentPageAndGo();
+                        } else if (view.getId() == R.id.popButtonAddPage) {
+                            notifyForceSave(false);
+                            //addNewPageAndGo(true);
+                            addNewPageAndGo(false);
+                        } else if (view.getId() == R.id.popButtonPan) {
                             if (canvas != null) {
-                                canvas.disableCenter = true;
+                                canvas.setTool(DrawCanvas.TOOLS.pan);
                             }
-                            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                            intent.addCategory(Intent.CATEGORY_OPENABLE);
-                            intent.setType("image/*");
-                            intent.putExtra(Intent.EXTRA_TITLE, "input.png");
-                            intent = Intent.createChooser(intent, "Load image file");
-                            activityResultLauncherLoad.launch(intent);
-                        }
-                    } else if (view.getId() == R.id.popButtonShortcut) {
-                        AlertDialog dialog = new BookActivity4TipsDialog(getActivity()).create();
-                        dialog.show();
-                    } else if (view.getId() == R.id.popTextViewCopy) {
-                        if (canvas != null) {
-                            copyPaths.clear();
-                            LinkedList<DrawPath> selectedPaths = canvas.getSelectionTool().getSelectedPaths();
-                            for (DrawPath drawPath : selectedPaths) {
-                                copyPaths.add(drawPath.clone());
+                        } else if (view.getId() == R.id.popButtonShare) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                notifyForceSave(true);
+                                //isDrawBG == true, because I want to draw lined bg
+                                share();
+                            } else {
+                                AlertDialog dialog = new MaterialAlertDialogBuilder(getActivity(), BookActivity4Utils.getCenteredTitleThemeOverlay())
+                                        .setTitle("Error")
+                                        .setMessage("Sharing failed. Requires Android 8.0 or above.")
+                                        .setCancelable(true)
+                                        .setPositiveButton("OK", null)
+                                        .show();
                             }
-                            canvas.getSelectionTool().exitSelect();
-                            canvas.invalidate();
-                        }
-                    } else if (view.getId() == R.id.popTextViewPaste) {
-                        if (canvas != null) {
-                            canvas.paths.addAll(copyPaths);
-                            canvas.versions.add(canvas.cloneDrawPathList(copyPaths));
-                            canvas.version_index += 1;
-                            canvas.onVersionChanged();
-                            copyPaths.clear();
-                            canvas.invalidate();
-                        }
-                    } else if (view.getId() == R.id.popTextViewCut) {
-                        if (canvas != null) {
-                            LinkedList<DrawPath> selectedPaths = canvas.getSelectionTool().getSelectedPaths();
-                            copyPaths.clear();
-                            for (DrawPath drawPath : selectedPaths) {
-                                copyPaths.add(drawPath.clone());
-                                drawPath.clear();
+                        } else if (view.getId() == R.id.popTextViewInsertImage) {
+                            if (false) {
+                                loadFileDemo();
+                            } else {
+                                if (canvas != null) {
+                                    canvas.disableCenter = true;
+                                }
+                                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                                intent.setType("image/*");
+                                intent.putExtra(Intent.EXTRA_TITLE, "input.png");
+                                intent = Intent.createChooser(intent, "Load image file");
+                                activityResultLauncherLoad.launch(intent);
                             }
-                            canvas.getSelectionTool().exitSelect();
-                            canvas.invalidate();
-                        }
-                    } else if (view.getId() == R.id.popTextViewRenameFile) {
-                        AlertDialog dialog = new BookActivity4RenameDialog(getActivity(), _bookDir.getDisplayName())
-                                .create();
-                        if (dialog != null) {
+                        } else if (view.getId() == R.id.popButtonShortcut) {
+                            AlertDialog dialog = new BookActivity4TipsDialog(getActivity()).create();
                             dialog.show();
-                        }
-                    } else if (view.getId() == R.id.popTextViewPageBackground) {
-                        String backgroundMode = null;//-1;
-                        if (canvas != null) {
-                            backgroundMode = canvas.getBackgroundMode();
-                        }
-                        AlertDialog dialog = new BookActivity4BackgroundDialog(getActivity(), backgroundMode)
-                                .create();
-                        if (dialog != null) {
-                            dialog.show();
+                        } else if (view.getId() == R.id.popTextViewCopy) {
+                            if (canvas != null) {
+                                copyPaths.clear();
+                                LinkedList<DrawPath> selectedPaths = canvas.getSelectionTool().getSelectedPaths();
+                                for (DrawPath drawPath : selectedPaths) {
+                                    copyPaths.add(drawPath.clone());
+                                }
+                                canvas.getSelectionTool().exitSelect();
+                                canvas.invalidate();
+                            }
+                        } else if (view.getId() == R.id.popTextViewPaste) {
+                            if (canvas != null) {
+                                canvas.paths.addAll(copyPaths);
+                                canvas.versions.add(canvas.cloneDrawPathList(copyPaths));
+                                canvas.version_index += 1;
+                                canvas.onVersionChanged();
+                                clearRestorePages();
+                                copyPaths.clear();
+                                canvas.invalidate();
+                            }
+                        } else if (view.getId() == R.id.popTextViewCut) {
+                            if (canvas != null) {
+                                LinkedList<DrawPath> selectedPaths = canvas.getSelectionTool().getSelectedPaths();
+                                copyPaths.clear();
+                                for (DrawPath drawPath : selectedPaths) {
+                                    copyPaths.add(drawPath.clone());
+                                    drawPath.clear();
+                                }
+                                canvas.getSelectionTool().exitSelect();
+                                canvas.invalidate();
+                            }
+                        } else if (view.getId() == R.id.popTextViewRenameFile) {
+                            AlertDialog dialog = new BookActivity4RenameDialog(getActivity(), _bookDir.getDisplayName())
+                                    .create();
+                            if (dialog != null) {
+                                dialog.show();
+                            }
+                        } else if (view.getId() == R.id.popTextViewPageBackground) {
+                            String backgroundMode = null;//-1;
+                            if (canvas != null) {
+                                backgroundMode = canvas.getBackgroundMode();
+                            }
+                            AlertDialog dialog = new BookActivity4BackgroundDialog(getActivity(), backgroundMode)
+                                    .create();
+                            if (dialog != null) {
+                                dialog.show();
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
+        }
     }
 
     public void setBookBackText(String backText_) {
@@ -3190,7 +3338,7 @@ public class BookActivity4Fragment extends Fragment {
         }
     }
 
-    public void editMeetingDuration(String newSummary) {
+    public void editMeetingDuration(String newDuration) {
         boolean isFailed = false;
         if (_bookDir == null || _bookDir.getName() == null ||!_bookDir.getName().startsWith(BookActivity4Config.USE_SKETCH_PREFIX)) {
             isFailed = true;
@@ -3206,7 +3354,7 @@ public class BookActivity4Fragment extends Fragment {
             File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
             String str = FastFile.loadMetaText(file_2);
             JSONObject item = new JSONObject(str);
-            item.put(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_DURATION, newSummary);
+            item.put(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_DURATION, newDuration);
             FastFile.saveMetaText(file_2, item.toString(), getActivity());
         } catch (JSONException e) {
             e.printStackTrace();
@@ -3240,6 +3388,7 @@ public class BookActivity4Fragment extends Fragment {
             } catch (Throwable eee) {
                 eee.printStackTrace();
             }
+            updateRecordButtonStatus();
         }
     }
 
@@ -3324,6 +3473,55 @@ public class BookActivity4Fragment extends Fragment {
             } catch (Throwable eee) {
                 eee.printStackTrace();
             }
+            updateRecordButtonStatus();
+        }
+    }
+
+    public void editMeetingTime(int hour, int minute) {
+        boolean isFailed = false;
+        if (_bookDir == null || _bookDir.getName() == null ||!_bookDir.getName().startsWith(BookActivity4Config.USE_SKETCH_PREFIX)) {
+            isFailed = true;
+        }
+        String folder = _bookDir.getFilePath();
+        if (folder == null ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).exists() ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).canWrite()
+        ) {
+            isFailed = true;
+        }
+        try {
+            File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
+            String str = FastFile.loadMetaText(file_2);
+            JSONObject item = new JSONObject(str);
+            item.put(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_HOUR, hour);
+            item.put(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_MINUTE, minute);
+            FastFile.saveMetaText(file_2, item.toString(), getActivity());
+        } catch (JSONException e) {
+            e.printStackTrace();
+            isFailed = true;
+        }
+        if (isFailed) {
+            new MaterialAlertDialogBuilder(getActivity(), BookActivity4Utils.getCenteredTitleThemeOverlay())
+                    .setTitle("Error")
+                    .setMessage("Edit meeting time failed")
+                    .setPositiveButton("OK", null)
+                    .show();
+        } else {
+            onCreateAct(g_rootView);
+            try {
+                Integer newDateHour = getMeetingHour();
+                Integer newDateMinute = getMeetingMinute();
+                String dateStr_ = "";
+                if (newDateHour != null && newDateMinute != null) {
+                    dateStr_ = String.format("%02d:%02d", newDateHour, newDateMinute);
+                    ((TextView) g_rootView.findViewById(R.id.tvMeetingTime)).setText(dateStr_);
+                } else {
+                    ((TextView) g_rootView.findViewById(R.id.tvMeetingTime)).setText(dateStr_);
+                }
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+            }
+            updateRecordButtonStatus();
         }
     }
 
@@ -3400,6 +3598,56 @@ public class BookActivity4Fragment extends Fragment {
             isFailed = true;
         }
         return newDate > 0 ? newDate : null;
+    }
+
+    public Integer getMeetingHour() {
+        int newDate = 0;
+        boolean isFailed = false;
+        if (_bookDir == null || _bookDir.getName() == null ||!_bookDir.getName().startsWith(BookActivity4Config.USE_SKETCH_PREFIX)) {
+            isFailed = true;
+        }
+        String folder = _bookDir.getFilePath();
+        if (folder == null ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).exists() ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).canWrite()
+        ) {
+            isFailed = true;
+        }
+        try {
+            File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
+            String str = FastFile.loadMetaText(file_2);
+            JSONObject item = new JSONObject(str);
+            newDate = item.optInt(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_HOUR, -1);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            isFailed = true;
+        }
+        return (newDate >= 0 && newDate <= 23) ? newDate : null;
+    }
+
+    public Integer getMeetingMinute() {
+        int newDate = 0;
+        boolean isFailed = false;
+        if (_bookDir == null || _bookDir.getName() == null ||!_bookDir.getName().startsWith(BookActivity4Config.USE_SKETCH_PREFIX)) {
+            isFailed = true;
+        }
+        String folder = _bookDir.getFilePath();
+        if (folder == null ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).exists() ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).canWrite()
+        ) {
+            isFailed = true;
+        }
+        try {
+            File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
+            String str = FastFile.loadMetaText(file_2);
+            JSONObject item = new JSONObject(str);
+            newDate = item.optInt(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_MINUTE, -1);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            isFailed = true;
+        }
+        return (newDate >= 0 && newDate < 59) ? newDate : null;
     }
 
     //isDrawBG is false, unless I want to share
@@ -3638,6 +3886,17 @@ public class BookActivity4Fragment extends Fragment {
             }
         }
         int gotoPage = _pageIdx;
+        //----------------------------
+        //backup pageIdx and pages
+        if (getBook() != null) {
+            //Note, need deep copy
+            if (pages_old == null) {
+                _pageIdx_old = _pageIdx;
+                pages_old = new ArrayList<FastFile>(getBook().getPages());
+                pages_NameMap_old = new HashMap<>(getBook().getPagetNameMap());
+            }
+        }
+        //----------------------------
         int gotoPage_2 = -1;
         for (int i = gotoPage; i >= 0; --i) {
             boolean isDeleted = false;
@@ -3706,6 +3965,44 @@ public class BookActivity4Fragment extends Fragment {
                     dialog.show();
                 }
             });
+        }
+        if (canvas != null) {
+            canvas.onVersionChanged();
+        }
+    }
+
+    //see public final ArrayList<CopyOnWriteArrayList<DrawPath>> versions = new ArrayList<>();
+    private Integer _pageIdx_old;
+    private List<FastFile> pages_old;
+    private Map<Integer, String> pages_NameMap_old;
+    public final static boolean REMOVE_PAGE_FILE = false; //don't remove page file
+    public boolean isCanRestorePages() {
+        return pages_old != null && pages_NameMap_old != null && _pageIdx_old != null;
+    }
+    public void clearRestorePages() {
+        _pageIdx_old = null;
+        pages_old = null;
+        pages_NameMap_old = null;
+    }
+    public void undoAndRestorePages() {
+        if (pages_old != null && pages_NameMap_old != null && _pageIdx_old != null) {
+            this.getBook().restorePages(pages_old, pages_NameMap_old);
+            int gotoPage = _pageIdx_old;
+            clearRestorePages();
+//--------------
+//need to save _book to the files to reload
+            BookPage page_old = _book.getPage(_pageIdx);
+            getBookIO().savePageOrder(page_old, _book, this._pageIdx, getActivity());
+//--------------
+            //reload
+            this._book = null; //if _book == null, it will be reloaded from files
+            set_book(getBook()); //FIXME:???重新加载
+//--------------
+//--------------
+//gotoFirstPage();
+            this.ensureSave();
+            this._pageIdx = gotoPage;
+            onPageIdxChange(true);
         }
     }
 
@@ -4307,7 +4604,12 @@ public class BookActivity4Fragment extends Fragment {
     public void onBackPressed() {
         //FIXME:退出立即保存
         if (SAVING_ASYNC) {
-            if (task == null) {
+            if (!SAVING_ASYNC_MULTI) {
+                if (task == null) {
+                    task = new SavingTask(true, false);
+                    task.executeOnExecutor(newFixedThreadPool);
+                }
+            } else {
                 task = new SavingTask(true, false);
                 task.executeOnExecutor(newFixedThreadPool);
             }
@@ -4329,7 +4631,7 @@ public class BookActivity4Fragment extends Fragment {
     }
 
     public void onVersionChanged(boolean isUndoActive, boolean isRedoActive) {
-        if (isUndoActive) {
+        if (isUndoActive || isCanRestorePages()) {
             //((ImageView)g_rootView.findViewById(R.id.ivTitleUndo)).setImageAlpha(255);
             g_rootView.findViewById(R.id.llTitleUndo).setVisibility(View.VISIBLE);
             g_rootView.findViewById(R.id.llTitleUndo2).setVisibility(View.INVISIBLE);
@@ -4348,5 +4650,111 @@ public class BookActivity4Fragment extends Fragment {
             g_rootView.findViewById(R.id.llTitleRedo).setVisibility(View.INVISIBLE);
             g_rootView.findViewById(R.id.llTitleRedo2).setVisibility(View.VISIBLE);
         }
+    }
+
+    public final static boolean DATE_READONLY = true;
+    private boolean enableRecordButton = false;
+    private void updateRecordButtonStatus() {
+        String duration = getMeetingDuration();
+        Integer durationVal = null;
+        try {
+            durationVal = Integer.parseInt(duration);
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+        }
+        Long date = getMeetingDate();
+        Integer hour = getMeetingHour();
+        Integer minute = getMeetingMinute();
+        Date startTime = null;
+        if (date != null && hour != null && minute != null) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(new Date(date));
+            cal.set(Calendar.HOUR_OF_DAY, hour);
+            cal.set(Calendar.MINUTE, minute);
+            cal.set(Calendar.SECOND, 0);
+            cal.set(Calendar.MILLISECOND, 0);
+            startTime = cal.getTime();
+        }
+        if (durationVal != null && startTime != null) {
+            //===============
+            //Comment below, If the user modifies the system time, he still can't record again
+//            if (durationVal > 0) {
+//                Date endTime = addMinute(startTime, durationVal);
+//                if (endTime != null) {
+//                    Date now = new Date();
+//                    if (now.after(startTime) && now.before(endTime)) {
+//                        enableRecordButton = true;
+//                    } else {
+//                        enableRecordButton = false;
+//                    }
+//                } else {
+//                    enableRecordButton = false;
+//                }
+//            } else {
+//                enableRecordButton = false;
+//            }
+            //===============
+            enableRecordButton = false;
+        } else {
+            enableRecordButton = true;
+        }
+
+        if (date == null) {
+            g_rootView.findViewById(R.id.llMeetingDate).setVisibility(View.GONE);
+        } else {
+            g_rootView.findViewById(R.id.llMeetingDate).setVisibility(View.VISIBLE);
+        }
+        if (hour == null || minute == null) {
+            g_rootView.findViewById(R.id.llMeetingTime).setVisibility(View.GONE);
+        } else {
+            g_rootView.findViewById(R.id.llMeetingTime).setVisibility(View.VISIBLE);
+        }
+        if (duration == null) {
+            g_rootView.findViewById(R.id.llMeetingDuration).setVisibility(View.GONE);
+        } else {
+            g_rootView.findViewById(R.id.llMeetingDuration).setVisibility(View.VISIBLE);
+        }
+
+        AppCompatImageView ivStartRecord = (AppCompatImageView) g_rootView.findViewById(R.id.ivStartRecord);
+        TextView tvStartRecord = (TextView) g_rootView.findViewById(R.id.tvStartRecord);
+        if (enableRecordButton) {
+            ivStartRecord.setColorFilter(null);
+            tvStartRecord.setTextColor(Color.BLACK);
+        } else {
+            ivStartRecord.setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+            tvStartRecord.setTextColor(Color.LTGRAY);
+        }
+    }
+
+    //https://github.com/avesha/android.fba.toolkit/blob/master/engine/src/main/java/ru/profi1c/engine/util/DateHelper.java
+    private static Date beginOfDay(Date dt) {
+        //package cn.hutool.core.date;
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(dt);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTime();
+    }
+
+    public static Date addDays(Date date, int count) {
+        Calendar cal = getEmptyCalendar();
+        cal.setTime(date);
+        cal.add(Calendar.DATE, count);
+        return cal.getTime();
+    }
+
+    public static Calendar getEmptyCalendar() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(0);
+        return cal;
+    }
+
+    public static Date addMinute(Date date, int count) {
+        Calendar cal = getEmptyCalendar();
+        cal.setTime(date);
+        cal.add(Calendar.MINUTE, count);
+        return cal.getTime();
     }
 }

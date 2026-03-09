@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.txkj.drawingapp.activity.BookActivity4Config;
+import com.txkj.drawingapp.activity.BookActivity4Fragment;
 import com.txkj.notemobile2.book.BookIO;
 import com.txkj.notemobile2.book.BookPage;
 import com.txkj.notemobile2.book.FastFile;
@@ -87,8 +88,15 @@ public class Book {
                     }
                 }
             }
-            page_.removeBookFile(bookIO, this);
+            if (BookActivity4Fragment.REMOVE_PAGE_FILE) {
+                page_.removeBookFile(bookIO, this);
+            }
         }
+    }
+
+    public void restorePages(List<FastFile> pages_old, Map<Integer, String> pages_NameMap_old) {
+        this.pages = pages_old;
+        this.pageNameMap = pages_NameMap_old;
     }
 
     public void copyPage(FastFile page_, BookIO bookIO) {

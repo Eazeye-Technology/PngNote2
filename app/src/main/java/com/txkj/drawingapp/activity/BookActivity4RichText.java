@@ -34,6 +34,9 @@ h4: 与默认字体大小相同 (1em)。
 h5: 略小于默认字体大小 (0.83em)。
 h6: 更小 (0.67em)。
      */
+
+    private final static boolean USE_RELATIVE_SIZE_SPAN = true;
+
     public static void initButtons(BookActivity4Fragment fragment) {
         //https://www.cnblogs.com/conglingkaishi/p/9502241.html
         //https://github.com/gzu-liyujiang/SpanTextBuilder
@@ -185,22 +188,42 @@ h6: 更小 (0.67em)。
         View.OnClickListener l_h1 = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EditText editText = fragment.getDtView(true).mEtTextEdit;
-                Editable text = editText.getText();
-                int start = editText.getSelectionStart();
-                int end = editText.getSelectionEnd();
+                if (!USE_RELATIVE_SIZE_SPAN) {
+                    EditText editText = fragment.getDtView(true).mEtTextEdit;
+                    Editable text = editText.getText();
+                    int start = editText.getSelectionStart();
+                    int end = editText.getSelectionEnd();
 
-                //RelativeSizeSpan
-                AbsoluteSizeSpan[] old = text.getSpans(start, end, AbsoluteSizeSpan.class);
-                if (old != null && old.length > 0) {
-                    for (AbsoluteSizeSpan del : old) {
-                        text.removeSpan(del);
+                    //RelativeSizeSpan
+                    AbsoluteSizeSpan[] old = text.getSpans(start, end, AbsoluteSizeSpan.class);
+                    if (old != null && old.length > 0) {
+                        for (AbsoluteSizeSpan del : old) {
+                            text.removeSpan(del);
+                        }
+                        //editText.setText(text);
+                    } else {
+                        AbsoluteSizeSpan underlineSpan = new AbsoluteSizeSpan(32);
+                        text.setSpan(underlineSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        //editText.setText(text);
                     }
-                    //editText.setText(text);
                 } else {
-                    AbsoluteSizeSpan underlineSpan = new AbsoluteSizeSpan(32);
-                    text.setSpan(underlineSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    //editText.setText(text);
+                    EditText editText = fragment.getDtView(true).mEtTextEdit;
+                    Editable text = editText.getText();
+                    int start = editText.getSelectionStart();
+                    int end = editText.getSelectionEnd();
+
+                    //RelativeSizeSpan
+                    RelativeSizeSpan[] old = text.getSpans(start, end, RelativeSizeSpan.class);
+                    if (old != null && old.length > 0) {
+                        for (RelativeSizeSpan del : old) {
+                            text.removeSpan(del);
+                        }
+                        //editText.setText(text);
+                    } else {
+                        RelativeSizeSpan underlineSpan = new RelativeSizeSpan(4.0f);
+                        text.setSpan(underlineSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        //editText.setText(text);
+                    }
                 }
                 //Log.d("RichText", "onSetSelectedBold: " + Html.toHtml(text));
             }
@@ -210,21 +233,41 @@ h6: 更小 (0.67em)。
         View.OnClickListener l_h2 = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EditText editText = fragment.getDtView(true).mEtTextEdit;
-                Editable text = editText.getText();
-                int start = editText.getSelectionStart();
-                int end = editText.getSelectionEnd();
+                if (!USE_RELATIVE_SIZE_SPAN) {
+                    EditText editText = fragment.getDtView(true).mEtTextEdit;
+                    Editable text = editText.getText();
+                    int start = editText.getSelectionStart();
+                    int end = editText.getSelectionEnd();
 
-                AbsoluteSizeSpan[] old = text.getSpans(start, end, AbsoluteSizeSpan.class);
-                if (old != null && old.length > 0) {
-                    for (AbsoluteSizeSpan del : old) {
-                        text.removeSpan(del);
+                    AbsoluteSizeSpan[] old = text.getSpans(start, end, AbsoluteSizeSpan.class);
+                    if (old != null && old.length > 0) {
+                        for (AbsoluteSizeSpan del : old) {
+                            text.removeSpan(del);
+                        }
+                        //editText.setText(text);
+                    } else {
+                        AbsoluteSizeSpan underlineSpan = new AbsoluteSizeSpan(28);
+                        text.setSpan(underlineSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        //editText.setText(text);
                     }
-                    //editText.setText(text);
                 } else {
-                    AbsoluteSizeSpan underlineSpan = new AbsoluteSizeSpan(28);
-                    text.setSpan(underlineSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    //editText.setText(text);
+                    EditText editText = fragment.getDtView(true).mEtTextEdit;
+                    Editable text = editText.getText();
+                    int start = editText.getSelectionStart();
+                    int end = editText.getSelectionEnd();
+
+                    //RelativeSizeSpan
+                    RelativeSizeSpan[] old = text.getSpans(start, end, RelativeSizeSpan.class);
+                    if (old != null && old.length > 0) {
+                        for (RelativeSizeSpan del : old) {
+                            text.removeSpan(del);
+                        }
+                        //editText.setText(text);
+                    } else {
+                        RelativeSizeSpan underlineSpan = new RelativeSizeSpan(3.0f);
+                        text.setSpan(underlineSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        //editText.setText(text);
+                    }
                 }
                 //Log.d("RichText", "onSetSelectedBold: " + Html.toHtml(text));
             }
@@ -234,21 +277,41 @@ h6: 更小 (0.67em)。
         View.OnClickListener l_h3 = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EditText editText = fragment.getDtView(true).mEtTextEdit;
-                Editable text = editText.getText();
-                int start = editText.getSelectionStart();
-                int end = editText.getSelectionEnd();
+                if (!USE_RELATIVE_SIZE_SPAN) {
+                    EditText editText = fragment.getDtView(true).mEtTextEdit;
+                    Editable text = editText.getText();
+                    int start = editText.getSelectionStart();
+                    int end = editText.getSelectionEnd();
 
-                AbsoluteSizeSpan[] old = text.getSpans(start, end, AbsoluteSizeSpan.class);
-                if (old != null && old.length > 0) {
-                    for (AbsoluteSizeSpan del : old) {
-                        text.removeSpan(del);
+                    AbsoluteSizeSpan[] old = text.getSpans(start, end, AbsoluteSizeSpan.class);
+                    if (old != null && old.length > 0) {
+                        for (AbsoluteSizeSpan del : old) {
+                            text.removeSpan(del);
+                        }
+                        //editText.setText(text);
+                    } else {
+                        AbsoluteSizeSpan underlineSpan = new AbsoluteSizeSpan(24);
+                        text.setSpan(underlineSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        //editText.setText(text);
                     }
-                    //editText.setText(text);
                 } else {
-                    AbsoluteSizeSpan underlineSpan = new AbsoluteSizeSpan(24);
-                    text.setSpan(underlineSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    //editText.setText(text);
+                    EditText editText = fragment.getDtView(true).mEtTextEdit;
+                    Editable text = editText.getText();
+                    int start = editText.getSelectionStart();
+                    int end = editText.getSelectionEnd();
+
+                    //RelativeSizeSpan
+                    RelativeSizeSpan[] old = text.getSpans(start, end, RelativeSizeSpan.class);
+                    if (old != null && old.length > 0) {
+                        for (RelativeSizeSpan del : old) {
+                            text.removeSpan(del);
+                        }
+                        //editText.setText(text);
+                    } else {
+                        RelativeSizeSpan underlineSpan = new RelativeSizeSpan(2.0f);
+                        text.setSpan(underlineSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        //editText.setText(text);
+                    }
                 }
                 //Log.d("RichText", "onSetSelectedBold: " + Html.toHtml(text));
             }

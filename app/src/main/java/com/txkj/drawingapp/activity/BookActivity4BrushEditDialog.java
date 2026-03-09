@@ -219,6 +219,11 @@ public class BookActivity4BrushEditDialog {
 
     private void setupPenSize(AlertDialog dialog) {
         Slider slider = (Slider) dialog.findViewById(R.id.slider);
+        if (mBrushId == R.id.left_toolkit_item3) {
+            slider.setValueTo(5.0f * 5); //highlighter
+        } else {
+            slider.setValueTo(5.0f); //not highlighter
+        }
         slider.setValue(outputBrushSize);
         slider.addOnChangeListener(new Slider.OnChangeListener() {
             @Override

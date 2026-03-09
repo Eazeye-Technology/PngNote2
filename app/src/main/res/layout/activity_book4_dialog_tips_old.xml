@@ -1,0 +1,480 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <LinearLayout
+            android:layout_width="630px"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="0px"
+            android:layout_marginTop="0px">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|center_vertical"
+                app:cardBackgroundColor="#F1EDEC"
+                app:cardCornerRadius="10px"
+                app:cardElevation="1px">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20px">
+<!--android:padding="24px"-->
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center|center_vertical"
+                        android:layout_margin="0px"
+                        app:cardBackgroundColor="#00585858"
+                        app:cardCornerRadius="0px"
+                        app:cardElevation="0px">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="20px"
+                                android:orientation="horizontal"
+                                android:padding="1px">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="27px"
+                                    android:layout_gravity="center"
+                                    android:layout_marginLeft="0px"
+                                    android:layout_marginRight="10px"
+                                    android:gravity="center"
+                                    android:text="Gesture list"
+                                    android:textColor="#000000"
+                                    android:textSize="24px"
+                                    android:visibility="visible" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:padding="0px">
+
+                                <androidx.cardview.widget.CardView
+                                    android:layout_width="38px"
+                                    android:layout_height="38px"
+                                    app:cardBackgroundColor="#FFF"
+                                    app:cardCornerRadius="5px"
+                                    app:cardElevation="0px">
+
+                                    <ImageView
+                                        android:layout_width="30px"
+                                        android:layout_height="30px"
+                                        android:src="@drawable/ic_my_tip_001"
+                                        android:layout_gravity="center_vertical|center"
+                                        android:background="#00000000"
+                                        />
+                                </androidx.cardview.widget.CardView>
+
+                                <TextView
+                                    android:layout_width="330px"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="left|center_vertical"
+                                    android:layout_marginLeft="15px"
+                                    android:layout_marginRight="0px"
+                                    android:gravity="left|center_vertical"
+                                    android:text="Double tap with three fingers"
+                                    android:textColor="#000000"
+                                    android:textSize="14px"
+                                    android:visibility="visible" />
+
+                                <TextView
+                                    android:layout_width="200px"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="left|center_vertical"
+                                    android:layout_marginLeft="0px"
+                                    android:layout_marginRight="0px"
+                                    android:gravity="left|center_vertical"
+                                    android:text="Toggle focus mode"
+                                    android:textColor="#000000"
+                                    android:textSize="14px"
+                                    android:visibility="visible" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="18px"
+                                android:orientation="horizontal"
+                                android:padding="0px">
+
+                                <androidx.cardview.widget.CardView
+                                    android:layout_width="38px"
+                                    android:layout_height="38px"
+                                    app:cardBackgroundColor="#FFF"
+                                    app:cardCornerRadius="5px"
+                                    app:cardElevation="0px">
+
+                                    <ImageView
+                                        android:layout_width="30px"
+                                        android:layout_height="30px"
+                                        android:layout_gravity="center_vertical|center"
+                                        android:src="@drawable/ic_my_tip_002"
+                                        android:background="#00000000"
+                                        />
+                                </androidx.cardview.widget.CardView>
+
+                                <TextView
+                                    android:layout_width="330px"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="left|center_vertical"
+                                    android:layout_marginLeft="15px"
+                                    android:layout_marginRight="0px"
+                                    android:gravity="left|center_vertical"
+                                    android:text="Swipe right on the right side of canvas"
+                                    android:textColor="#000000"
+                                    android:textSize="14px"
+                                    android:visibility="visible" />
+
+                                <TextView
+                                    android:layout_width="200px"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="left|center_vertical"
+                                    android:layout_marginLeft="0px"
+                                    android:layout_marginRight="0px"
+                                    android:gravity="left|center_vertical"
+                                    android:text="Next page"
+                                    android:textColor="#000000"
+                                    android:textSize="14px"
+                                    android:visibility="visible" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:padding="0px"
+                                android:layout_marginTop="18px"
+                                >
+
+                                <androidx.cardview.widget.CardView
+                                    android:layout_width="38px"
+                                    android:layout_height="38px"
+                                    app:cardBackgroundColor="#FFF"
+                                    app:cardCornerRadius="5px"
+                                    app:cardElevation="0px">
+
+                                    <ImageView
+                                        android:layout_width="30px"
+                                        android:layout_height="30px"
+                                        android:src="@drawable/ic_my_tip_003"
+                                        android:layout_gravity="center_vertical|center"
+                                        android:background="#00000000"
+                                        />
+                                </androidx.cardview.widget.CardView>
+
+                                <TextView
+                                    android:layout_width="330px"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="left|center_vertical"
+                                    android:layout_marginLeft="15px"
+                                    android:layout_marginRight="0px"
+                                    android:gravity="left|center_vertical"
+                                    android:text="Swipe left on the left side of canvas"
+                                    android:textColor="#000000"
+                                    android:textSize="14px"
+                                    android:visibility="visible" />
+
+                                <TextView
+                                    android:layout_width="200px"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="left|center_vertical"
+                                    android:layout_marginLeft="0px"
+                                    android:layout_marginRight="0px"
+                                    android:gravity="left|center_vertical"
+                                    android:text="Previous page"
+                                    android:textColor="#000000"
+                                    android:textSize="14px"
+                                    android:visibility="visible" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:padding="0px"
+                                android:layout_marginTop="18px"
+                                >
+
+                                <androidx.cardview.widget.CardView
+                                    android:layout_width="38px"
+                                    android:layout_height="38px"
+                                    app:cardBackgroundColor="#FFF"
+                                    app:cardCornerRadius="5px"
+                                    app:cardElevation="0px">
+
+                                    <ImageView
+                                        android:layout_width="30px"
+                                        android:layout_height="30px"
+                                        android:src="@drawable/ic_my_tip_004"
+                                        android:layout_gravity="center_vertical|center"
+                                        android:background="#00000000"
+                                        />
+                                </androidx.cardview.widget.CardView>
+
+                                <TextView
+                                    android:layout_width="330px"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="left|center_vertical"
+                                    android:layout_marginLeft="15px"
+                                    android:layout_marginRight="0px"
+                                    android:gravity="left|center_vertical"
+                                    android:text="Pinch and rotate with two fingers"
+                                    android:textColor="#000000"
+                                    android:textSize="14px"
+                                    android:visibility="visible" />
+
+                                <TextView
+                                    android:layout_width="200px"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="left|center_vertical"
+                                    android:layout_marginLeft="0px"
+                                    android:layout_marginRight="0px"
+                                    android:gravity="left|center_vertical"
+                                    android:text="Rotate element or canvas"
+                                    android:textColor="#000000"
+                                    android:textSize="14px"
+                                    android:visibility="visible" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:padding="0px"
+                                android:layout_marginTop="18px"
+                                >
+
+                                <androidx.cardview.widget.CardView
+                                    android:layout_width="38px"
+                                    android:layout_height="38px"
+                                    app:cardBackgroundColor="#FFF"
+                                    app:cardCornerRadius="5px"
+                                    app:cardElevation="0px">
+
+                                    <ImageView
+                                        android:layout_width="30px"
+                                        android:layout_height="30px"
+                                        android:src="@drawable/ic_my_tip_005"
+                                        android:layout_gravity="center_vertical|center"
+                                        android:background="#00000000"
+                                        />
+                                </androidx.cardview.widget.CardView>
+
+                                <TextView
+                                    android:layout_width="330px"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="left|center_vertical"
+                                    android:layout_marginLeft="15px"
+                                    android:layout_marginRight="0px"
+                                    android:gravity="left|center_vertical"
+                                    android:text="Two finger pinch out"
+                                    android:textColor="#000000"
+                                    android:textSize="14px"
+                                    android:visibility="visible" />
+
+                                <TextView
+                                    android:layout_width="200px"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="left|center_vertical"
+                                    android:layout_marginLeft="0px"
+                                    android:layout_marginRight="0px"
+                                    android:gravity="left|center_vertical"
+                                    android:text="Zoom out"
+                                    android:textColor="#000000"
+                                    android:textSize="14px"
+                                    android:visibility="visible" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:padding="0px"
+                                android:layout_marginTop="18px"
+                                >
+
+                                <androidx.cardview.widget.CardView
+                                    android:layout_width="38px"
+                                    android:layout_height="38px"
+                                    app:cardBackgroundColor="#FFF"
+                                    app:cardCornerRadius="5px"
+                                    app:cardElevation="0px">
+
+                                    <ImageView
+                                        android:layout_width="30px"
+                                        android:layout_height="30px"
+                                        android:src="@drawable/ic_my_tip_006"
+                                        android:layout_gravity="center_vertical|center"
+                                        android:background="#00000000"
+                                        />
+                                </androidx.cardview.widget.CardView>
+
+                                <TextView
+                                    android:layout_width="330px"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="left|center_vertical"
+                                    android:layout_marginLeft="15px"
+                                    android:layout_marginRight="0px"
+                                    android:gravity="left|center_vertical"
+                                    android:text="Two finger pinch in"
+                                    android:textColor="#000000"
+                                    android:textSize="14px"
+                                    android:visibility="visible" />
+
+                                <TextView
+                                    android:layout_width="200px"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="left|center_vertical"
+                                    android:layout_marginLeft="0px"
+                                    android:layout_marginRight="0px"
+                                    android:gravity="left|center_vertical"
+                                    android:text="Zoom in"
+                                    android:textColor="#000000"
+                                    android:textSize="14px"
+                                    android:visibility="visible" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:padding="0px"
+                                android:layout_marginTop="18px"
+                                >
+
+                                <androidx.cardview.widget.CardView
+                                    android:layout_width="38px"
+                                    android:layout_height="38px"
+                                    app:cardBackgroundColor="#FFF"
+                                    app:cardCornerRadius="5px"
+                                    app:cardElevation="0px">
+
+                                    <ImageView
+                                        android:layout_width="30px"
+                                        android:layout_height="30px"
+                                        android:src="@drawable/ic_my_tip_007"
+                                        android:layout_gravity="center_vertical|center"
+                                        android:background="#00000000"
+                                        />
+                                </androidx.cardview.widget.CardView>
+
+                                <TextView
+                                    android:layout_width="330px"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="left|center_vertical"
+                                    android:layout_marginLeft="15px"
+                                    android:layout_marginRight="0px"
+                                    android:gravity="left|center_vertical"
+                                    android:text="Swipe up from bottom of screen"
+                                    android:textColor="#000000"
+                                    android:textSize="14px"
+                                    android:visibility="visible" />
+
+                                <TextView
+                                    android:layout_width="200px"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="left|center_vertical"
+                                    android:layout_marginLeft="0px"
+                                    android:layout_marginRight="0px"
+                                    android:gravity="left|center_vertical"
+                                    android:text="Open navigation panel"
+                                    android:textColor="#000000"
+                                    android:textSize="14px"
+                                    android:visibility="visible" />
+                            </LinearLayout>
+
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="right"
+                                android:orientation="horizontal"
+                                android:padding="1px"
+                                android:visibility="gone">
+
+                                <Button
+                                    style="@style/Widget.Material3.Button.TextButton.Icon"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Cancel"
+                                    android:textSize="15px"
+                                    android:textStyle="bold"
+                                    app:icon="@null"
+                                    android:textColor="#000000"
+                                    />
+
+                                <Button
+                                    style="@style/Widget.Material3.Button.TextButton.Icon"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Done"
+                                    android:textSize="15px"
+                                    android:textStyle="bold"
+                                    app:icon="@null"
+                                    android:textColor="#000000"
+                                    />
+                            </LinearLayout>
+
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="right"
+                        android:layout_marginTop="16px"
+                        android:layout_marginRight="-10px"
+                        >
+                        <Button
+                            style="@style/Widget.Material3.Button.TextButton.Icon"
+                            android:layout_width="76px"
+                            android:layout_height="40px"
+                            android:text="Cancel"
+                            android:textSize="14px"
+                            app:icon="@null"
+                            android:id="@+id/btnCancel"
+                            android:padding="0px"
+                            android:visibility="gone"
+                            android:textColor="#000000"
+                            />
+                        <Button
+                            style="@style/Widget.Material3.Button.TextButton.Icon"
+                            android:layout_width="76px"
+                            android:layout_height="40px"
+                            android:text="Close"
+                            android:textSize="14px"
+                            app:icon="@null"
+                            android:id="@+id/btnSave"
+                            android:padding="0px"
+                            android:textColor="#000000"
+                            />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+    </RelativeLayout>
+</LinearLayout>

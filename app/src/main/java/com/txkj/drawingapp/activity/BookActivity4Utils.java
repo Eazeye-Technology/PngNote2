@@ -238,6 +238,17 @@ public static boolean onBackPressed(Activity context) {
         }
     }
 
+    public static void clearRestorePages(Activity context) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            FragmentManager fragmentManager = act.getSupportFragmentManager();
+            Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+            if (currentFragment instanceof BookActivity4Fragment) {
+                ((BookActivity4Fragment) currentFragment).clearRestorePages();
+            }
+        }
+    }
+
     public static void toggleFocusMode(Activity context) {
         if (context instanceof BookListActivity) {
             BookListActivity act = (BookListActivity) context;
@@ -354,6 +365,20 @@ public static boolean onBackPressed(Activity context) {
                 Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 2);// - 1);
                 if (currentFragment instanceof BookActivity4Fragment) {
                     ((BookActivity4Fragment) currentFragment).editMeetingDate(newName, dateVal);
+                }
+            }
+        }
+    }
+
+    public static void editMeetingTime(Activity context, int hour, int minute) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            FragmentManager fragmentManager = act.getSupportFragmentManager();
+            //FIXME:use -2
+            if (fragmentManager.getFragments().size() - 2 >= 0) {
+                Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 2);// - 1);
+                if (currentFragment instanceof BookActivity4Fragment) {
+                    ((BookActivity4Fragment) currentFragment).editMeetingTime(hour, minute);
                 }
             }
         }

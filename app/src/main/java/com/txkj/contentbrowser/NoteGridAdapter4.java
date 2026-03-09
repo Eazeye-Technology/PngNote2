@@ -88,17 +88,25 @@ public class NoteGridAdapter4 extends RecyclerView.Adapter<NoteGridAdapter4.Grid
         gridholder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mItemClick != null) {
-                    mItemClick.onItemClick(null, view, gridholder.getBindingAdapterPosition(), 0L);
+                try {
+                    if (mItemClick != null) {
+                        mItemClick.onItemClick(null, view, gridholder.getBindingAdapterPosition(), 0L);
+                    }
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
                 }
             }
         });
         gridholder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                if (mLongClick != null) {
-                    mLongClick.onItemLongClick(null, view, gridholder.getBindingAdapterPosition(), 0L);
-                    return true;
+                try {
+                    if (mLongClick != null) {
+                        mLongClick.onItemLongClick(null, view, gridholder.getBindingAdapterPosition(), 0L);
+                        return true;
+                    }
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
                 }
                 return false;
             }

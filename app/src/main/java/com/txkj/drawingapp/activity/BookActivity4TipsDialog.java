@@ -3,6 +3,7 @@ package com.txkj.drawingapp.activity;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -55,7 +56,8 @@ public class BookActivity4TipsDialog {
         try {
             Window window = dialog.getWindow();
             if (window != null) {
-                window.setLayout(WIN_WIDTH, WindowManager.LayoutParams.WRAP_CONTENT);
+                //window.setLayout(WIN_WIDTH, WindowManager.LayoutParams.WRAP_CONTENT);
+                window.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             }
         } catch (Throwable eee) {
             eee.printStackTrace();

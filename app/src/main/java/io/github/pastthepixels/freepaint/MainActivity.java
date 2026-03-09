@@ -275,7 +275,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (id == R.id.action_undo) {
-            drawCanvas.undo();
+            drawCanvas.undo(false);
         }
 
         if (id == R.id.action_redo) {

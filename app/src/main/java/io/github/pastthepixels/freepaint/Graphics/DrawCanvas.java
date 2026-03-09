@@ -386,6 +386,7 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
             versions.remove(0); // delete the oldest change if the list has grown too much
         }
         onVersionChanged();
+        BookActivity4Utils.clearRestorePages(mAct);
     }
 
     //@SuppressLint("ClickableViewAccessibility")
@@ -510,18 +511,20 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
     /**
      * Undoes an operation by resetting DrawCanvas.paths to what it looked like after the previous operation.
      */
-    public void undo() {
-        if (oldVersionsSize + version_index > 0) {
-            System.out.println(versions.toString() + (oldVersionsSize + version_index - 1));
-            version_index -= 1;
-            paths = cloneDrawPathList(versions.get(oldVersionsSize + version_index));
-        } else {
-            if (oldVersionsSize == 0) { //if no history, clear
-                version_index = -1;
-                paths.clear();
+    public void undo(boolean skipVersionUndo) {
+        if (!skipVersionUndo) {
+            if (oldVersionsSize + version_index > 0) {
+                System.out.println(versions.toString() + (oldVersionsSize + version_index - 1));
+                version_index -= 1;
+                paths = cloneDrawPathList(versions.get(oldVersionsSize + version_index));
             } else {
-                //if history exists
-                //FIXME: not clear
+                if (oldVersionsSize == 0) { //if no history, clear
+                    version_index = -1;
+                    paths.clear();
+                } else {
+                    //if history exists
+                    //FIXME: not clear
+                }
             }
         }
         // Force redraw
@@ -534,6 +537,7 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
         this.getSelectionTool().getSelectedPaths().clear();
         this.getSelectionTool().currentPath.clear();
         onVersionChanged();
+        BookActivity4Utils.clearRestorePages(mAct);
     }
 
     public void onVersionChanged() {
@@ -573,6 +577,7 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
             getTool().init();
         }
         onVersionChanged();
+        BookActivity4Utils.clearRestorePages(mAct);
     }
 
     /**
@@ -1432,6 +1437,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
                 }
                 this.invalidate();
                 onVersionChanged();
+                if (false) BookActivity4Utils.clearRestorePages(mAct);
             }
         }
     }
