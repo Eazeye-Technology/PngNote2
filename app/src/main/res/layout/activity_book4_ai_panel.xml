@@ -296,6 +296,7 @@
                             android:paddingLeft="20px"
                             >
                             <androidx.appcompat.widget.AppCompatImageView
+                                android:id="@+id/ivPauseRecordOff"
                                 android:layout_width="20px"
                                 android:layout_height="20px"
                                 android:layout_centerVertical="true"
@@ -310,6 +311,7 @@
                                 android:layout_margin="10px"
                                 />
                             <TextView
+                                android:id="@+id/tvPauseRecordOff"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textSize="14px"
@@ -340,6 +342,7 @@
                                 android:paddingLeft="20px"
                                 >
                                 <androidx.appcompat.widget.AppCompatImageView
+                                    android:id="@+id/ivPauseRecordOn"
                                     android:layout_width="20px"
                                     android:layout_height="20px"
                                     android:layout_centerVertical="true"
@@ -354,6 +357,7 @@
                                     android:layout_margin="10px"
                                     />
                                 <TextView
+                                    android:id="@+id/tvPauseRecordOn"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:textSize="14px"

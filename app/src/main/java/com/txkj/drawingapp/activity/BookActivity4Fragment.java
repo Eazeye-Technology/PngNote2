@@ -1252,7 +1252,9 @@ public class BookActivity4Fragment extends Fragment {
                 @Override
                 public boolean onLongClick(View view) {
                     onLongClickSubmenu1(id, true);
+                    onClickSubmenu1(rootView, id, true, true);
                     return true;
+                    //return false;
                 }
             });
         }
@@ -1624,6 +1626,9 @@ public class BookActivity4Fragment extends Fragment {
             View.OnClickListener onClickListenerPause = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    if (!enableRecordButton) {
+                        return; //disable record button
+                    }
                     if (g_rootView.findViewById(R.id.stopRecord).getVisibility() == View.VISIBLE) {
                         if (g_rootView.findViewById(R.id.pauseRecordOff).getVisibility() == View.VISIBLE) {
                             g_rootView.findViewById(R.id.pauseRecordOff).setVisibility(View.GONE);
@@ -1670,11 +1675,10 @@ public class BookActivity4Fragment extends Fragment {
             View.OnClickListener onClickListener_stop = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    recordDuration();
-
                     Runnable runnable = new Runnable() {
                         @Override
                         public void run() {
+                            recordDuration();
                             if (rtasrDialog != null) {
                                 rtasrDialog.onClick_stop();
                                 rtasrDialog = null;
@@ -4717,12 +4721,26 @@ public class BookActivity4Fragment extends Fragment {
 
         AppCompatImageView ivStartRecord = (AppCompatImageView) g_rootView.findViewById(R.id.ivStartRecord);
         TextView tvStartRecord = (TextView) g_rootView.findViewById(R.id.tvStartRecord);
+
+        AppCompatImageView ivPauseRecordOff = (AppCompatImageView) g_rootView.findViewById(R.id.ivPauseRecordOff);
+        TextView tvPauseRecordOff = (TextView) g_rootView.findViewById(R.id.tvPauseRecordOff);
+        AppCompatImageView ivPauseRecordOn = (AppCompatImageView) g_rootView.findViewById(R.id.ivPauseRecordOn);
+        TextView tvPauseRecordOn = (TextView) g_rootView.findViewById(R.id.tvPauseRecordOn);
+
         if (enableRecordButton) {
             ivStartRecord.setColorFilter(null);
             tvStartRecord.setTextColor(Color.BLACK);
+            ivPauseRecordOff.setColorFilter(null);
+            tvPauseRecordOff.setTextColor(Color.BLACK);
+            ivPauseRecordOn.setColorFilter(null);
+            tvPauseRecordOn.setTextColor(Color.BLACK);
         } else {
             ivStartRecord.setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
             tvStartRecord.setTextColor(Color.LTGRAY);
+            ivPauseRecordOff.setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+            tvPauseRecordOff.setTextColor(Color.LTGRAY);
+            ivPauseRecordOn.setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+            tvPauseRecordOn.setTextColor(Color.LTGRAY);
         }
     }
 
