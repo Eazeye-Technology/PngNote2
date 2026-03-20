@@ -40,7 +40,7 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
         android:largeHeap="true"
         android:vmSafeMode="false"
         android:name="com.sys.speech.app.SpeechApp"
-        android:theme="@style/AppTheme.HighContrast"
+        android:theme="@style/AppTheme"
         >
 
         <!--

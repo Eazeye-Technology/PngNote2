@@ -1,6 +1,7 @@
 <resources>
-    <string name="app_name">DrawingApp</string>
+    <string name="app_name">Note taking app</string>
     <!--PngNote-->
+    <!--DrawingApp-->
 
     <string name="reflow_button">REFLOW</string>
     <string name="highlight_button">HIGHLIGHT</string>

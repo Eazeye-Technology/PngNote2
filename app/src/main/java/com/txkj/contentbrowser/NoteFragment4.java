@@ -2,6 +2,7 @@ package com.txkj.contentbrowser;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -25,9 +26,12 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -938,6 +942,8 @@ class PreferencesKeys {
 
     MenuItem deleteMenu;
     MenuItem cancelmenu;
+    MenuItem saveingtestmenu;
+    MenuItem infomenu;
     public void showPopupMenuNoteFragment2(View view) {
         PopupMenu popupMenu = new PopupMenu(getActivity(), view);
         popupMenu.getMenuInflater().inflate(R.menu.popup_menu_note2, popupMenu.getMenu());
@@ -1066,6 +1072,88 @@ class PreferencesKeys {
                     updateList3();
                 }
                 return true;
+            }
+        });
+        saveingtestmenu = menu.findItem(R.id.savingtestmenu);
+        saveingtestmenu.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(@NonNull MenuItem menuItem) {
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                String savingTest = preferences.getString(BookActivity4Config.CONFIG_SAVING_TEST, null);
+                SharedPreferences.Editor editor = preferences.edit();
+                if (savingTest != null && savingTest.length() > 0) {
+                    editor.putString(BookActivity4Config.CONFIG_SAVING_TEST, "");
+                } else {
+                    editor.putString(BookActivity4Config.CONFIG_SAVING_TEST, "1");
+                }
+                editor.apply();
+                return false;
+            }
+        });
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String savingTest = preferences.getString(BookActivity4Config.CONFIG_SAVING_TEST, null);
+        if (savingTest != null && savingTest.equals("1")) {
+            saveingtestmenu.setChecked(true);
+        } else {
+            saveingtestmenu.setChecked(false);
+        }
+        infomenu = menu.findItem(R.id.infomenu);
+        infomenu.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(@NonNull MenuItem menuItem) {
+                List<FileMeta> sels = new ArrayList<>();
+                for (FileMeta meta : recentNoteList1) {
+                    if (meta.checkShow && meta.checkSelect) {
+                        sels.add(meta);
+                    }
+                }
+                for (FileMeta meta : recentNoteList2) {
+                    if (meta.checkShow && meta.checkSelect) {
+                        sels.add(meta);
+                    }
+                }
+                for (FileMeta meta : recentNoteList3) {
+                    if (meta != null) {
+                        if (meta.checkShow && meta.checkSelect) {
+                            sels.add(meta);
+                        }
+                    }
+                }
+                FileMeta meta = null;
+                if (sels.size() > 0) {
+                    meta = sels.get(0);
+                }
+                if (meta == null) {
+                    return false;
+                }
+                String APP_FILE = meta.getPathTxt();
+                if (APP_FILE == null) {
+                    return false;
+                }
+                String rootPath = new File(Environment.getExternalStorageDirectory(), APPNAME_NEW).toString();
+                File dirPath = new File(rootPath, APP_FILE);
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            if (dirPath != null) {
+                                new File(dirPath, BookActivity4Config.USE_SKETCH_CONFIG).delete();
+                                Toast.makeText(getActivity(),
+                                        "Delete sketch.meta success",
+                                                Toast.LENGTH_SHORT)
+                                        .show();
+                            }
+                        } catch (Throwable eee) {
+                            eee.printStackTrace();
+                        }
+                    }
+                };
+                AlertDialog dialog = new NoteFragment4InformationDialog(getActivity(),
+                        dirPath.getAbsolutePath(),
+                        runnable)
+                        .create();
+                dialog.show();
+                return false;
             }
         });
         popupMenu.show();

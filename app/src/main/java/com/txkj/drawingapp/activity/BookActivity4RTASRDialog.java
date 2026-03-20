@@ -165,6 +165,15 @@ public class BookActivity4RTASRDialog implements AudioRecorderManager.AudioDataC
                             btn_file_start_setEnabled(true);
                         }
                     });
+                } else {
+                    mAct.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            btn_audio_start_setText("麦克风识别");
+                            btn_audio_start_setEnabled(true);
+                            btn_file_start_setEnabled(true);
+                        }
+                    });
                 }
             }
         }).start();

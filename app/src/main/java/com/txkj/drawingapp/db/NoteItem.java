@@ -14,6 +14,7 @@ public class NoteItem implements Parcelable {
 	private String mExtId2;
 	private String mUpdateTime;
 	private String mNoteContent;
+    private String mNoteMeta;
 
 	public NoteItem() {
 
@@ -29,6 +30,7 @@ public class NoteItem implements Parcelable {
 		mExtId2 = in.readString();
 		mUpdateTime = in.readString();
 		mNoteContent = in.readString();
+        mNoteMeta = in.readString();
 	}
 
 	public String getNoteFilePath() {
@@ -103,7 +105,15 @@ public class NoteItem implements Parcelable {
 		this.mNoteContent = noteContent;
 	}
 
-	public static final Creator<NoteItem> CREATOR = new Creator<NoteItem>() {
+    public String getNoteMeta() {
+        return mNoteMeta;
+    }
+
+    public void setNoteMeta(String mNoteMeta) {
+        this.mNoteMeta = mNoteMeta;
+    }
+
+    public static final Creator<NoteItem> CREATOR = new Creator<NoteItem>() {
 		public NoteItem createFromParcel(Parcel in) {
 			return new NoteItem(in);
 		}
@@ -124,6 +134,7 @@ public class NoteItem implements Parcelable {
 		dest.writeString(mExtId2);
 		dest.writeString(mUpdateTime);
 		dest.writeString(mNoteContent);
+        dest.writeString(mNoteMeta);
 	}
 
 	@Override

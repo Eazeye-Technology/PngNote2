@@ -179,7 +179,8 @@ public class SDNotesDatabase extends SQLiteOpenHelper {
                     NoteDatabaseItem.COLUMN_NAME_UPDATE_TIME,
                     NoteDatabaseItem.COLUMN_NAME_NOTE_CONTENT,
                     NoteDatabaseItem.COLUMN_NAME_EXT_ID1,
-                    NoteDatabaseItem.COLUMN_NAME_EXT_ID2
+                    NoteDatabaseItem.COLUMN_NAME_EXT_ID2,
+                    NoteDatabaseItem.COLUMN_NAME_NOTE_META,
             };
 
             String orderBy = NoteDatabaseItem._ID + " ASC";
@@ -213,6 +214,7 @@ public class SDNotesDatabase extends SQLiteOpenHelper {
                     item.setNoteContent(c.getString(c.getColumnIndex(NoteDatabaseItem.COLUMN_NAME_NOTE_CONTENT)));
                     item.setExtId1(c.getString(c.getColumnIndex(NoteDatabaseItem.COLUMN_NAME_EXT_ID1)));
                     item.setExtId2(c.getString(c.getColumnIndex(NoteDatabaseItem.COLUMN_NAME_EXT_ID2)));
+                    item.setNoteMeta(c.getString(c.getColumnIndex(NoteDatabaseItem.COLUMN_NAME_NOTE_META)));
 
                     if (item.getNoteFilePath() != null) {
                         if (nameResult.get(item.getNoteFilePath()) == null) {
@@ -288,7 +290,8 @@ public class SDNotesDatabase extends SQLiteOpenHelper {
                     NoteDatabaseItem.COLUMN_NAME_UPDATE_TIME,
                     NoteDatabaseItem.COLUMN_NAME_NOTE_CONTENT,
                     NoteDatabaseItem.COLUMN_NAME_EXT_ID1,
-                    NoteDatabaseItem.COLUMN_NAME_EXT_ID2
+                    NoteDatabaseItem.COLUMN_NAME_EXT_ID2,
+                    NoteDatabaseItem.COLUMN_NAME_NOTE_META,
             };
 
             String orderBy = NoteDatabaseItem._ID + " ASC";
@@ -323,6 +326,7 @@ public class SDNotesDatabase extends SQLiteOpenHelper {
                     item.setNoteContent(c.getString(c.getColumnIndex(NoteDatabaseItem.COLUMN_NAME_NOTE_CONTENT)));
                     item.setExtId1(c.getString(c.getColumnIndex(NoteDatabaseItem.COLUMN_NAME_EXT_ID1)));
                     item.setExtId2(c.getString(c.getColumnIndex(NoteDatabaseItem.COLUMN_NAME_EXT_ID2)));
+                    item.setNoteMeta(c.getString(c.getColumnIndex(NoteDatabaseItem.COLUMN_NAME_NOTE_META)));
                     c.close();
                     return item;
                 }

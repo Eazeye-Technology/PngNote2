@@ -24,6 +24,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Parcelable;
 import android.text.TextPaint;
@@ -76,7 +77,10 @@ import com.sys.speech.db.SDRecordingsDatabase;
 import com.sys.speech.dialog.PlayerDialog;
 import com.sys.speech.dialog.RecognizeDialog;
 import com.sys.speech.pojo.RecordingItem;
+import com.txkj.contentbrowser.NoteFragment4;
 import com.txkj.drawingapp.R;
+import com.txkj.drawingapp.db.NoteItem;
+import com.txkj.drawingapp.db.SDNotesDatabase;
 import com.txkj.notemobile2.Book;
 import com.txkj.notemobile2.PageGridActivity;
 import com.txkj.notemobile2.book.BookIO;
@@ -93,10 +97,14 @@ import com.txkj.notemobile2.ui.Page;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -110,6 +118,7 @@ import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -131,6 +140,8 @@ import io.material.catalog.windowpreferences.WindowPreferencesManager;
 //isDirty = true; //FIXME: force save
 //TODO:notifyForceSave, when view onSizeChanged or other events, need call it
 public class BookActivity4Fragment extends Fragment {
+    private final static boolean NO_PEN_BOTTOM_POPUP = true; //don't show brush bottom popup
+
     private final static boolean USE_FIRST_HIDE_EDITTEXT = true;
     private final static boolean USE_FLOAT_IME_TOOLBAR = false;
     private final static boolean USE_BOTTOM_IME_TOOLBAR = true;
@@ -674,8 +685,10 @@ public class BookActivity4Fragment extends Fragment {
             canvas.gScaleBegin = false;
         }
         boolean isShowBottom = false;
-        if (this.currentTabIdSubmenu1 == id && !noShowBottom) {
-            isShowBottom = true;
+        if (!NO_PEN_BOTTOM_POPUP) {
+            if (this.currentTabIdSubmenu1 == id && !noShowBottom) {
+                isShowBottom = true;
+            }
         }
         this.currentTabIdSubmenu1 = id;
         View view = rootView.findViewById(id);
@@ -1166,6 +1179,12 @@ public class BookActivity4Fragment extends Fragment {
 
         if (TIMER_AUTOSAVE) {
             startHandlerTask2();
+
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String savingTest = preferences.getString(BookActivity4Config.CONFIG_SAVING_TEST, null);
+            if (savingTest != null && savingTest.equals("1")) {
+                startHandlerTask3();
+            }
         }
         return rootView;
     }
@@ -1202,6 +1221,7 @@ public class BookActivity4Fragment extends Fragment {
 //                ((TextView) rootView.findViewById(R.id.newTitle)).setText(getBookNameNG(this.dirUrlPath));
 //            }
 //        }
+        checkSketchMetaFile();
         onCreateAct(rootView);
         loadBrushPreset();
 
@@ -1209,6 +1229,89 @@ public class BookActivity4Fragment extends Fragment {
             if (isInitBackText && backText != null) {
                 //如果是创建的才会走这里
                 getBookIO().saveMeta(backText, this.dirUrlPath, "0000.meta");
+            }
+        }
+    }
+    private void checkSketchMetaFile() {
+        //this.dirUrl==file:///storage/emulated/0/txkjnote2/SKETCH_fa5d355e-ba40-40ff-b751-a39b1170661d
+        //this.dirUrlPath==/storage/emulated/0/txkjnote2/SKETCH_fa5d355e-ba40-40ff-b751-a39b1170661d
+        if (this.dirUrlPath != null) {
+            boolean checkResult = false;
+            try {
+                String file_ = this.dirUrlPath;
+                File file_2 = new File(file_, BookActivity4Config.USE_SKETCH_CONFIG);
+                if (file_2.exists() && file_2.canRead()) {
+                    String metaTxt = FastFile.loadMetaText(file_2);
+                    JSONObject item = new JSONObject(metaTxt);
+                    String dispMetaName = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_DISPNAME);
+                    checkResult = true;
+                }
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+                checkResult = false;
+            }
+            if (checkResult == false) {
+                //recover data
+                try {
+                    if (BookActivity4Config.USE_RECORD_META_TO_NOTES_DB) {
+                        try {
+                            String dirPath = new File(Environment.getExternalStorageDirectory(), NoteFragment4.APPNAME_NEW).toString();
+                            SDNotesDatabase mDatabase = new SDNotesDatabase(getActivity(), dirPath);
+                            List<NoteItem> itemNoteFound = new ArrayList<>();
+                            List<NoteItem> items = mDatabase.getAllItems();
+                            String filePath = new File(this.dirUrlPath, BookActivity4Config.USE_SKETCH_CONFIG).getAbsolutePath();
+                            String fullFilePath = filePath;
+                            if (filePath.startsWith(dirPath + "/") && filePath.endsWith("/" + BookActivity4Config.USE_SKETCH_CONFIG)) {
+                                filePath = filePath.substring((dirPath + "/").length());
+                                filePath = filePath.substring(0, filePath.length() - ("/" + BookActivity4Config.USE_SKETCH_CONFIG).length());
+                            }
+                            for (NoteItem itemNote : items) {
+                                if (itemNote != null &&
+                                        filePath != null &&
+                                        itemNote.getNoteFilePath() != null &&
+                                        itemNote.getNoteFilePath().equals(filePath)) {
+                                    itemNoteFound.add(itemNote);
+                                }
+                            }
+                            String noteMeta = null;
+                            if (itemNoteFound != null) {
+                                for (NoteItem item2 : itemNoteFound) {
+                                    noteMeta = item2.getNoteMeta();
+                                    if (noteMeta != null) {
+                                        break;
+                                    }
+                                }
+                            }
+                            mDatabase.close();
+
+                            //!!!!begin to recover data!!!
+                            if (noteMeta != null && noteMeta.length() > 0) {
+                                OutputStream it = null;
+                                try {
+                                    it = new FileOutputStream(fullFilePath);
+                                    OutputStreamWriter outputStreamWriter = new OutputStreamWriter(it, StandardCharsets.UTF_8);
+                                    BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
+                                    bufferedWriter.write(noteMeta);
+                                    bufferedWriter.flush();
+                                } catch (Throwable e) {
+                                    e.printStackTrace();
+                                } finally {
+                                    try {
+                                        if (it != null) {
+                                            it.close();
+                                        }
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        } catch (Throwable eee) {
+                            eee.printStackTrace();
+                        }
+                    }
+                } catch (Throwable ee) {
+                    ee.printStackTrace();
+                }
             }
         }
     }
@@ -1606,6 +1709,47 @@ public class BookActivity4Fragment extends Fragment {
         handler2.postDelayed(refreshRunnable2, DELAY_TIME2);
         Log.e(TAG, "startHandlerTask2 " + System.currentTimeMillis());
     }
+    private MyRunnable3 refreshRunnable3;
+    Handler handler3 = new Handler();
+    class MyRunnable3 implements Runnable {
+        private boolean isStop = false;
+        public void stop() {
+            isStop = true;
+        }
+        @Override
+        public void run() {
+            if (isStop) {
+                return;
+            }
+            if (SAVING_ASYNC) {
+                if (!SAVING_ASYNC_MULTI) {
+                    if (task == null) {
+                        task = new SavingTask(false, true);
+                        task.executeOnExecutor(newFixedThreadPool);
+                        Log.e(TAG, "startHandlerTask3 MyRunnable3 " + System.currentTimeMillis());
+                    }
+                } else {
+                    task = new SavingTask(false, true);
+                    task.executeOnExecutor(newFixedThreadPool);
+                }
+            }
+            if (refreshRunnable3 == null || refreshRunnable3 != this) {
+                return;
+            }
+            if (!BookActivity4Fragment.this.isDetached()) {
+                handler3.postDelayed(this, DELAY_TIME2);
+            }
+        }
+    }
+    private void startHandlerTask3() {
+        if (refreshRunnable3 != null) {
+            refreshRunnable3.stop();
+        }
+        refreshRunnable3 = new MyRunnable3();
+        handler3.postDelayed(refreshRunnable3, DELAY_TIME2);
+        Log.e(TAG, "startHandlerTask3 " + System.currentTimeMillis());
+    }
+
 
     private Date lastRecordTime = null;
     private void recordDuration() {
@@ -1633,9 +1777,14 @@ public class BookActivity4Fragment extends Fragment {
                         if (g_rootView.findViewById(R.id.pauseRecordOff).getVisibility() == View.VISIBLE) {
                             g_rootView.findViewById(R.id.pauseRecordOff).setVisibility(View.GONE);
                             g_rootView.findViewById(R.id.pauseRecordOn).setVisibility(View.VISIBLE);
+                            AnimationDrawable anim2 = (AnimationDrawable) btnPanel2.getDrawable();
+                            anim2.stop();
+                            anim2.selectDrawable(0);
                         } else {
                             g_rootView.findViewById(R.id.pauseRecordOff).setVisibility(View.VISIBLE);
                             g_rootView.findViewById(R.id.pauseRecordOn).setVisibility(View.GONE);
+                            AnimationDrawable anim2 = (AnimationDrawable) btnPanel2.getDrawable();
+                            anim2.start();
                         }
                     }
                 }
@@ -1647,25 +1796,24 @@ public class BookActivity4Fragment extends Fragment {
                     if (!enableRecordButton) {
                         return; //disable record button
                     }
-                    {
-                        Date now = new Date();
-                        Date today = beginOfDay(now);
-                        SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
-                        String dateStr_ = sdf.format(today);
-                        editMeetingDate(dateStr_, today.getTime());
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.setTime(now);
-                        calendar.set(Calendar.SECOND, 0);
-                        calendar.set(Calendar.MILLISECOND, 0);
-                        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-                        int minute = calendar.get(Calendar.MINUTE);
-                        editMeetingTime(hour, minute);
-                        lastRecordTime = calendar.getTime();
-                    }
-
                     g_rootView.findViewById(R.id.rlTranscript).performClick(); //FIXME:added
                     //isRecording
                     if (rtasrDialog == null) {
+                        {
+                            Date now = new Date();
+                            Date today = beginOfDay(now);
+                            SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+                            String dateStr_ = sdf.format(today);
+                            editMeetingDate(dateStr_, today.getTime());
+                            Calendar calendar = Calendar.getInstance();
+                            calendar.setTime(now);
+                            calendar.set(Calendar.SECOND, 0);
+                            calendar.set(Calendar.MILLISECOND, 0);
+                            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                            int minute = calendar.get(Calendar.MINUTE);
+                            editMeetingTime(hour, minute);
+                            lastRecordTime = calendar.getTime();
+                        }
                         rtasrDialog = new BookActivity4RTASRDialog(getActivity());
                         rtasrDialog.onClick_audio();
                         //startHandlerTask();
@@ -1682,6 +1830,8 @@ public class BookActivity4Fragment extends Fragment {
                             if (rtasrDialog != null) {
                                 rtasrDialog.onClick_stop();
                                 rtasrDialog = null;
+                            } else {
+                                btn_audio_start_setEnabled (true);
                             }
                         }
                     };
@@ -4733,7 +4883,7 @@ public class BookActivity4Fragment extends Fragment {
             ivPauseRecordOff.setColorFilter(null);
             tvPauseRecordOff.setTextColor(Color.BLACK);
             ivPauseRecordOn.setColorFilter(null);
-            tvPauseRecordOn.setTextColor(Color.BLACK);
+            tvPauseRecordOn.setTextColor(Color.WHITE);
         } else {
             ivStartRecord.setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
             tvStartRecord.setTextColor(Color.LTGRAY);
