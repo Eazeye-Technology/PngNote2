@@ -519,4 +519,18 @@ public static boolean onBackPressed(Activity context) {
             }
         }
     }
+
+    public static void createWaitingProgressDialog(Context context) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            act.createWaitingProgressDialog();
+        }
+    }
+
+    public static void cancelWaitingProgressDialog(Context context) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            act.cancelWaitingProgressDialog();
+        }
+    }
 }

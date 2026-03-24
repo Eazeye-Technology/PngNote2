@@ -140,6 +140,7 @@ import io.material.catalog.windowpreferences.WindowPreferencesManager;
 //isDirty = true; //FIXME: force save
 //TODO:notifyForceSave, when view onSizeChanged or other events, need call it
 public class BookActivity4Fragment extends Fragment {
+    private final static boolean INIT_EMPTY_BACK_TEXT_WHEN_ADD_PAGE = false; //empty back texture when adding new page
     private final static boolean NO_PEN_BOTTOM_POPUP = true; //don't show brush bottom popup
 
     private final static boolean USE_FIRST_HIDE_EDITTEXT = true;
@@ -274,11 +275,15 @@ public class BookActivity4Fragment extends Fragment {
                         String metaTxt = bookIO.loadMetaPng(page.getFile());
                         JSONObject item = new JSONObject(metaTxt);
                         if (item != null) {
-                            curPattern = item.optString("pattern");
+                            curPattern = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_PATTERN);
                             backText = curPattern; //FIXME:added
                         }
                     } catch (Throwable eee) {
                         eee.printStackTrace();
+                        if (INIT_EMPTY_BACK_TEXT_WHEN_ADD_PAGE) {
+                            curPattern = FileMeta.NONE;
+                            backText = curPattern;
+                        }
                     }
                     setBackText(canvas, backText); //FIXME:added
                     isDirty = false;
@@ -441,6 +446,7 @@ public class BookActivity4Fragment extends Fragment {
             mDatabase.saveAll();
         }
         super.onStop();
+        cancelWaitingProgressDialog();
         runNormalScreen(getActivity());
     }
 
@@ -1802,7 +1808,7 @@ public class BookActivity4Fragment extends Fragment {
                         {
                             Date now = new Date();
                             Date today = beginOfDay(now);
-                            SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+                            SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.getDefault());//Locale.ENGLISH);
                             String dateStr_ = sdf.format(today);
                             editMeetingDate(dateStr_, today.getTime());
                             Calendar calendar = Calendar.getInstance();
@@ -2522,11 +2528,15 @@ public class BookActivity4Fragment extends Fragment {
                 String metaTxt = getBookIO().loadMetaPng(page.getFile());
                 if (metaTxt != null && metaTxt.length() > 0) {
                     JSONObject item = new JSONObject(metaTxt);
-                    curPattern = item.optString("pattern");
+                    curPattern = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_PATTERN);
                     backText = curPattern;
                 }
             } catch (Throwable eee) {
                 eee.printStackTrace();
+                if (INIT_EMPTY_BACK_TEXT_WHEN_ADD_PAGE) {
+                    curPattern = FileMeta.NONE;
+                    backText = curPattern;
+                }
             }
             init(canvas, initBmp, bgBmp, initialPageIdx, getActivity());
             setBackText(canvas, backText);
@@ -2569,7 +2579,7 @@ public class BookActivity4Fragment extends Fragment {
         if (meetingDate != null) {
             if (meetingDate > 0) {
                 Date newDate = new Date(meetingDate);
-                SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+                SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.getDefault());//Locale.ENGLISH);
                 String dateStr_ = sdf.format(newDate);
                 if (dateStr_ != null) {
                     tvMeetingDate.setText(dateStr_);
@@ -3129,7 +3139,11 @@ public class BookActivity4Fragment extends Fragment {
             if (this.mDoNothing) {
                 //skip
             } else {
-                cancelWaitingProgressDialog();
+                if (false) {
+                    cancelWaitingProgressDialog();
+                } else {
+                    //move to onStop()
+                }
                 if (this.mIsBack) {
                     BookActivity4Utils.finish(getActivity(), true);
                 } else {
@@ -3141,22 +3155,24 @@ public class BookActivity4Fragment extends Fragment {
 
     private SavingTask task = null;
     private ExecutorService newFixedThreadPool;
-    private ProgressDialog mProgressDialog = null; // 对话框对象
+//    private ProgressDialog mProgressDialog = null; // 对话框对象
     protected void createWaitingProgressDialog() {
-        if (mProgressDialog == null || !mProgressDialog.isShowing()) {
-            mProgressDialog = new ProgressDialog(getActivity());
-            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            mProgressDialog.setTitle("");
-            mProgressDialog.setMessage("Saving, please wait...");
-            mProgressDialog.setCancelable(false);
-            mProgressDialog.show();
-        }
+//        if (mProgressDialog == null || !mProgressDialog.isShowing()) {
+//            mProgressDialog = new ProgressDialog(getActivity());
+//            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+//            mProgressDialog.setTitle("");
+//            mProgressDialog.setMessage("Saving, please wait...");
+//            mProgressDialog.setCancelable(false);
+//            mProgressDialog.show();
+//        }
+        BookActivity4Utils.createWaitingProgressDialog(getActivity());
     }
     protected void cancelWaitingProgressDialog() {
-        if (mProgressDialog != null && mProgressDialog.isShowing()) {
-            mProgressDialog.dismiss();
-            mProgressDialog = null;
-        }
+//        if (mProgressDialog != null && mProgressDialog.isShowing()) {
+//            mProgressDialog.dismiss();
+//            mProgressDialog = null;
+//        }
+        BookActivity4Utils.cancelWaitingProgressDialog(getActivity());
     }
 
 
@@ -3618,7 +3634,7 @@ public class BookActivity4Fragment extends Fragment {
                 long newDateVal = getMeetingDate();
                 if (newDateVal > 0) {
                     Date newDate = new Date(newDateVal);
-                    SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+                    SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.getDefault());//Locale.ENGLISH);
                     String dateStr_ = sdf.format(newDate);
                     ((TextView) g_rootView.findViewById(R.id.tvMeetingDate)).setText(dateStr_);
                 } else {

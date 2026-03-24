@@ -15,7 +15,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.txkj.drawingapp.R;
 
 public class BookActivity4MeetingSummaryDialog {
-    private final static int WIN_WIDTH = 312 + 24 * 2;//312;
+    private final static int WIN_WIDTH = (312 * 2) + 24 * 2;//312;
 
     private Activity mContext;
     private String mOldName;

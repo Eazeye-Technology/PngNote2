@@ -320,7 +320,7 @@ public class BookIO {
             if (oldContent != null && oldContent.length() > 0){
                 item = new JSONObject(oldContent);
             }
-            item.put("pattern", pattern);
+            item.put(BookActivity4Config.USE_SKETCH_CONFIG_PATTERN, pattern);
             bufferedWriter.write(item.toString());
             bufferedWriter.flush();
         } catch (Throwable e) {
@@ -454,7 +454,7 @@ public class BookIO {
                         String metaTxt = loadMetaPng(page.getFile());
                         if (metaTxt != null && !metaTxt.isEmpty()) {
                             JSONObject item = new JSONObject(metaTxt);
-                            pattern = item.optString("pattern");
+                            pattern = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_PATTERN);
                         }
                         if (pattern != null) {
                             Bitmap emptyBmp = Bitmap.createBitmap(bitmap.getWidth(),
@@ -488,7 +488,7 @@ public class BookIO {
                         String metaTxt = loadMetaParent(page.getFile());
                         JSONObject item = new JSONObject(metaTxt);
                         if (item != null) {
-                            pattern = item.optString("pattern");
+                            pattern = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_PATTERN);
                         }
                         if (pattern != null) {//注意！！！！！！！不走这里
                             Bitmap emptyBmp = Bitmap.createBitmap(thumbnailBitmap.getWidth(),

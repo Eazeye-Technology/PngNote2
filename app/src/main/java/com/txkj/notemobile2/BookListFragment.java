@@ -244,7 +244,7 @@ public class BookListFragment extends Fragment {
                                 if (metaTxt != null && metaTxt.length() > 0) {
                                     JSONObject item = new JSONObject(metaTxt);
                                     if (item != null) {
-                                        pattern = item.optString("pattern");
+                                        pattern = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_PATTERN);
                                     }
                                     if (pattern != null) {
                                         Bitmap emptyBmp = Bitmap.createBitmap(thumbnailBitmap.getWidth(),

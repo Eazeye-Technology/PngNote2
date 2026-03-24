@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.txkj.drawingapp.activity.BookActivity4Config;
 import com.txkj.drawingapp.activity.BookActivity4Utils;
 import com.txkj.notemobile2.book.FastFile;
 import com.txkj.notemobile2.book.BookIO;
@@ -130,7 +131,7 @@ public class PageGridActivity extends AppCompatActivity {
                             String metaTxt = getBookIO().loadMetaPng(bmpFile);
                             JSONObject item = new JSONObject(metaTxt);
                             if (item != null) {
-                                pattern = item.optString("pattern");
+                                pattern = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_PATTERN);
                             }
                             if (pattern != null) {
                                 Bitmap emptyBmp = Bitmap.createBitmap(bitmap.getWidth(),

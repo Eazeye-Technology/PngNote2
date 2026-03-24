@@ -2,6 +2,7 @@ package com.txkj.notemobile2;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -262,6 +263,24 @@ Android6.onRequestPermissionsResult(this, i, strArr, iArr);
         super.onDestroy();
         if (UpgradeUtil.USE_UPGRADE && upgradeUtil != null) {
             upgradeUtil.onDestroyUpdateReceiver();
+        }
+    }
+
+    private ProgressDialog mProgressDialog = null; // 对话框对象
+    public void createWaitingProgressDialog() {
+        if (mProgressDialog == null || !mProgressDialog.isShowing()) {
+            mProgressDialog = new ProgressDialog(this);
+            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            mProgressDialog.setTitle("");
+            mProgressDialog.setMessage("Saving, please wait...");
+            mProgressDialog.setCancelable(false);
+            mProgressDialog.show();
+        }
+    }
+    public void cancelWaitingProgressDialog() {
+        if (mProgressDialog != null && mProgressDialog.isShowing()) {
+            mProgressDialog.dismiss();
+            mProgressDialog = null;
         }
     }
 }

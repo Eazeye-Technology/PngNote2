@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="624px"
+    android:layout_width="312px"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="24px"
@@ -63,8 +63,8 @@
                             android:imeOptions="flagNoExtractUi"
                             android:hint="Meeting summary"
                             android:textSize="16px"
-                            android:lines="8"
-                            android:minLines="8"
+                            android:lines="4"
+                            android:minLines="4"
                             android:gravity="top|left"
                             />
                         <!--android:hint="My first note"

@@ -786,7 +786,11 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
                                 Point pt = path.points.get(i);
                                 Drawable drawable = null;
                                 if (i == SelectionTool.deleteIcon_index) {
-                                    drawable = getSelectionTool().deleteIcon;
+                                    if (SelectionTool.HIDE_DELETE_BUTTON) {
+                                        //hide this button
+                                    } else {
+                                        drawable = getSelectionTool().deleteIcon;
+                                    }
                                 } else if (i == SelectionTool.doneIcon_index) {
                                     drawable = getSelectionTool().doneIcon;
                                 } else if (i == SelectionTool.zoomIcon_index) {

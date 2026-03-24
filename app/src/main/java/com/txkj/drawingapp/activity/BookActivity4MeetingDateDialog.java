@@ -11,6 +11,7 @@ import com.txkj.notemobile2.BookListActivity;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 public class BookActivity4MeetingDateDialog {
     private FragmentActivity mAct;
@@ -34,7 +35,9 @@ public class BookActivity4MeetingDateDialog {
                 String dateStr = null;
                 if (selection != null) {
                     Date date = new Date(selection);
-                    SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+                    SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.getDefault());//Locale.ENGLISH);
+                    //FIXME:MaterialDatePicker always returns UTC timezone ???
+                    sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
                     dateStr = sdf.format(date);
                 }
                 if (dateStr != null) {

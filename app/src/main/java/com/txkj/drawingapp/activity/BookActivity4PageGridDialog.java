@@ -365,7 +365,7 @@ public class BookActivity4PageGridDialog {
                             String metaTxt = getBookIO().loadMetaPng(bmpFile);
                             JSONObject item = new JSONObject(metaTxt);
                             if (item != null) {
-                                pattern = item.optString("pattern");
+                                pattern = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_PATTERN);
                             }
                             if (pattern != null) {
                                 Bitmap emptyBmp = Bitmap.createBitmap(bitmap.getWidth(),

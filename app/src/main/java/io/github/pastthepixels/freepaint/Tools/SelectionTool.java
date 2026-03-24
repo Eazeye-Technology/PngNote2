@@ -29,6 +29,10 @@ import io.github.pastthepixels.freepaint.Graphics.Point;
 import io.github.pastthepixels.freepaint.Utils;
 
 public class SelectionTool implements Tool {
+    public final static boolean HIDE_DELETE_BUTTON = true;
+    private final static boolean SELECT_REGION_NO_CLIP = true;
+    //stop text being deleted, see also region.setPath(p, null);
+
     //可变，需要用clone
     private final DrawAppearance APPEARANCE = new DrawAppearance(Color.GRAY, Color.argb(32, 64, 64, 64));
 
@@ -131,10 +135,14 @@ public class SelectionTool implements Tool {
                     int icon = findCurrentIconTouched(originalPoint.x, originalPoint.y);
                     if (icon == deleteIcon_index) { //
                         //Toast.makeText(canvas.getContext(), "deleteIcon", Toast.LENGTH_SHORT).show();
-                        for (DrawPath path : selectedPaths) {
-                            path.erasePath();
+                        if (HIDE_DELETE_BUTTON) {
+
+                        } else {
+                            for (DrawPath path : selectedPaths) {
+                                path.erasePath();
+                            }
+                            currentPath.clear();
                         }
-                        currentPath.clear();
                         break;
                     } else if (icon == doneIcon_index) {
                         currentPath.appearance = APPEARANCE.clone();
@@ -815,7 +823,13 @@ public class SelectionTool implements Tool {
                     }
                     p.close();
                     p.computeBounds(bounds2, false); //改用路径外框选中
-                    region.setPath(p, clip);
+                    if (!SELECT_REGION_NO_CLIP) {
+                        region.setPath(p, clip);
+                    } else {
+                        Rect rectRound = new Rect();
+                        bounds2.roundOut(rectRound);
+                        region.set(rectRound); //20260321, image and text don't be clipped by screen
+                    }
                 } else {
                     if (path.getPath() != null) {
                         //FIXME:added, because region.op(currentPathRegion, Region.Op.INTERSECT) not good
@@ -838,7 +852,13 @@ public class SelectionTool implements Tool {
                             }
                         }
                         p.close();
-                        region.setPath(p, clip);
+                        if (!SELECT_REGION_NO_CLIP) {
+                            region.setPath(p, clip);
+                        } else {
+                            Rect rectRound = new Rect();
+                            bounds2.roundOut(rectRound);
+                            region.set(rectRound); //20260321, image and text don't be clipped by screen
+                        }
 
                         if (Utils.isIntersects(bounds2, rect3)) {  //BE CAREFUL:bounds2 is changed
                             isSelected = true;
