@@ -12,7 +12,13 @@ import androidx.annotation.Nullable;
  */
 public class FileMeta {
     public boolean checkShow = false;
-    public boolean checkSelect = false;
+    private boolean checkSelect = false;
+    public void setCheckSelect(boolean checkSelect) {
+        this.checkSelect = checkSelect;
+    }
+    public boolean getCheckSelect() {
+        return this.checkSelect;
+    }
 
     private String path;
     private String title;

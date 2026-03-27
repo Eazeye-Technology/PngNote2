@@ -172,8 +172,10 @@ public class BookActivity4Fragment extends Fragment {
     private final static boolean USE_BOTTOM_SHEET = false;
     private final static boolean USE_RECORDING_FRAGMENT_TEST = false; //need open id/fragment_recording
 
-    private final static boolean USE_RTASR = true;
+    private final static boolean USE_RTASR = false;
+    private final static boolean USE_VOSK = true;
     BookActivity4RTASRDialog rtasrDialog = null;
+    BookActivity4VoskDialog voskDialog = null;
     private final static boolean USE_LISTEN = false; //listen or recording?
     BookActivity4ListenDialog listenDialog;
 
@@ -433,6 +435,11 @@ public class BookActivity4Fragment extends Fragment {
             if (rtasrDialog != null) {
                 rtasrDialog.onClick_stop();
                 rtasrDialog = null;
+            }
+        } else if (USE_VOSK) {
+            if (voskDialog != null) {
+                voskDialog.onClick_stop();
+                voskDialog = null;
             }
         }
         if (true) {
@@ -1804,25 +1811,48 @@ public class BookActivity4Fragment extends Fragment {
                     }
                     g_rootView.findViewById(R.id.rlTranscript).performClick(); //FIXME:added
                     //isRecording
-                    if (rtasrDialog == null) {
-                        {
-                            Date now = new Date();
-                            Date today = beginOfDay(now);
-                            SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.getDefault());//Locale.ENGLISH);
-                            String dateStr_ = sdf.format(today);
-                            editMeetingDate(dateStr_, today.getTime());
-                            Calendar calendar = Calendar.getInstance();
-                            calendar.setTime(now);
-                            calendar.set(Calendar.SECOND, 0);
-                            calendar.set(Calendar.MILLISECOND, 0);
-                            int hour = calendar.get(Calendar.HOUR_OF_DAY);
-                            int minute = calendar.get(Calendar.MINUTE);
-                            editMeetingTime(hour, minute);
-                            lastRecordTime = calendar.getTime();
+                    if (USE_RTASR) {
+                        if (rtasrDialog == null) {
+                            {
+                                Date now = new Date();
+                                Date today = beginOfDay(now);
+                                SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.getDefault());//Locale.ENGLISH);
+                                String dateStr_ = sdf.format(today);
+                                editMeetingDate(dateStr_, today.getTime());
+                                Calendar calendar = Calendar.getInstance();
+                                calendar.setTime(now);
+                                calendar.set(Calendar.SECOND, 0);
+                                calendar.set(Calendar.MILLISECOND, 0);
+                                int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                                int minute = calendar.get(Calendar.MINUTE);
+                                editMeetingTime(hour, minute);
+                                lastRecordTime = calendar.getTime();
+                            }
+                            rtasrDialog = new BookActivity4RTASRDialog(getActivity());
+                            rtasrDialog.onClick_audio();
+                            //startHandlerTask();
                         }
-                        rtasrDialog = new BookActivity4RTASRDialog(getActivity());
-                        rtasrDialog.onClick_audio();
-                        //startHandlerTask();
+                    } else if (USE_VOSK) {
+                        if (voskDialog == null) {
+                            {
+                                Date now = new Date();
+                                Date today = beginOfDay(now);
+                                SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.getDefault());//Locale.ENGLISH);
+                                String dateStr_ = sdf.format(today);
+                                editMeetingDate(dateStr_, today.getTime());
+                                Calendar calendar = Calendar.getInstance();
+                                calendar.setTime(now);
+                                calendar.set(Calendar.SECOND, 0);
+                                calendar.set(Calendar.MILLISECOND, 0);
+                                int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                                int minute = calendar.get(Calendar.MINUTE);
+                                editMeetingTime(hour, minute);
+                                lastRecordTime = calendar.getTime();
+                            }
+                            voskDialog = new BookActivity4VoskDialog(getActivity());
+                            voskDialog.onClick_audio();
+                            //startHandlerTask();
+                        }
                     }
                 }
             };
@@ -1833,11 +1863,20 @@ public class BookActivity4Fragment extends Fragment {
                         @Override
                         public void run() {
                             recordDuration();
-                            if (rtasrDialog != null) {
-                                rtasrDialog.onClick_stop();
-                                rtasrDialog = null;
-                            } else {
-                                btn_audio_start_setEnabled (true);
+                            if (USE_RTASR) {
+                                if (rtasrDialog != null) {
+                                    rtasrDialog.onClick_stop();
+                                    rtasrDialog = null;
+                                } else {
+                                    btn_audio_start_setEnabled(true);
+                                }
+                            } else if (USE_VOSK) {
+                                if (voskDialog != null) {
+                                    voskDialog.onClick_stop();
+                                    voskDialog = null;
+                                } else {
+                                    btn_audio_start_setEnabled(true);
+                                }
                             }
                         }
                     };
@@ -2120,7 +2159,9 @@ public class BookActivity4Fragment extends Fragment {
     }
 
     private void startResmueRecord_old() {
-        if (USE_RTASR) {
+        if (USE_VOSK) {
+            //skip
+        } else if (USE_RTASR) {
             if (false) {
                 if (rtasrDialog == null) {
                     rtasrDialog = new BookActivity4RTASRDialog(getActivity());
@@ -4800,25 +4841,29 @@ public class BookActivity4Fragment extends Fragment {
         BookActivity4Utils.canPushFragment = true;
     }
 
-    public void onVersionChanged(boolean isUndoActive, boolean isRedoActive) {
+    public void onVersionChanged(boolean isUndoActive, boolean isRedoActive, int numUndo, int numRedo) {
         if (isUndoActive || isCanRestorePages()) {
             //((ImageView)g_rootView.findViewById(R.id.ivTitleUndo)).setImageAlpha(255);
             g_rootView.findViewById(R.id.llTitleUndo).setVisibility(View.VISIBLE);
             g_rootView.findViewById(R.id.llTitleUndo2).setVisibility(View.INVISIBLE);
+            ((TextView)g_rootView.findViewById(R.id.tvTitleUndoNum)).setText("" + numUndo);
         } else {
             //((ImageView)g_rootView.findViewById(R.id.ivTitleUndo)).setImageAlpha(125);
             g_rootView.findViewById(R.id.llTitleUndo).setVisibility(View.INVISIBLE);
             g_rootView.findViewById(R.id.llTitleUndo2).setVisibility(View.VISIBLE);
+            ((TextView)g_rootView.findViewById(R.id.tvTitleUndoNum)).setText("");
         }
 
         if (isRedoActive) {
             //((ImageView)g_rootView.findViewById(R.id.ivTitleRedo)).setImageAlpha(255);
             g_rootView.findViewById(R.id.llTitleRedo).setVisibility(View.VISIBLE);
             g_rootView.findViewById(R.id.llTitleRedo2).setVisibility(View.INVISIBLE);
+            ((TextView)g_rootView.findViewById(R.id.tvTitleRedoNum)).setText("" + numRedo);
         } else {
             //((ImageView)g_rootView.findViewById(R.id.ivTitleRedo)).setImageAlpha(125);
             g_rootView.findViewById(R.id.llTitleRedo).setVisibility(View.INVISIBLE);
             g_rootView.findViewById(R.id.llTitleRedo2).setVisibility(View.VISIBLE);
+            ((TextView)g_rootView.findViewById(R.id.tvTitleRedoNum)).setText("");
         }
     }
 

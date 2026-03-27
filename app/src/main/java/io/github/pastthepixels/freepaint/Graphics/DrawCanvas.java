@@ -549,23 +549,26 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
             isUndoActive = false;
         }
         // - oldVersionsSize
-        if (versions.size() > oldVersionsSize && version_index < versions.size() - 1 && version_index >= -1) {
+        if (versions.size() > oldVersionsSize && version_index < versions.size() - 1 - oldVersionsSize && version_index >= -1 /* + oldVersionsSize*/) {
             isRedoActive = true;
 //        } else if (version_index <= 0 && !versions.isEmpty()) {
 //            isRedoActive = true;
         } else {
             isRedoActive = false;
         }
-        BookActivity4Utils.onVersionChanged(mAct, isUndoActive, isRedoActive);
+        BookActivity4Utils.onVersionChanged(mAct, isUndoActive, isRedoActive,
+                ((version_index) - (-1)),
+                ((versions.size() - 1 - oldVersionsSize) - (version_index))
+                );
     }
 
     /**
      * Redoes an operation by setting DrawCanvas.paths to what it looked like after an operation you undid to.
      */
     public void redo() {
-        if (version_index < versions.size() - 1) {
+        if (version_index < versions.size() - 1 - oldVersionsSize) {
             version_index += 1;
-            paths = cloneDrawPathList(versions.get(version_index));
+            paths = cloneDrawPathList(versions.get(version_index + oldVersionsSize));
         } else if (version_index <= 0 && !versions.isEmpty()) {
             version_index = 0;
             paths = cloneDrawPathList(versions.get(0));

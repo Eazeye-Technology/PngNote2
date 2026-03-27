@@ -210,7 +210,7 @@ public class NoteGridAdapter3 extends BaseAdapter {
         } else {
             holder.checkBox.setVisibility(View.GONE);
         }
-        if (fileMeta.checkSelect) {
+        if (fileMeta.getCheckSelect()) {
             holder.checkBox.setChecked(true);
         } else {
             holder.checkBox.setChecked(false);

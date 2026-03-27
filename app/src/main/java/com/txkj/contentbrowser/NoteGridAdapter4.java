@@ -222,7 +222,7 @@ return position;
         } else {
             holder.checkBox.setVisibility(View.GONE);
         }
-        if (fileMeta.checkSelect) {
+        if (fileMeta.getCheckSelect()) {
             holder.checkBox.setChecked(true);
         } else {
             holder.checkBox.setChecked(false);

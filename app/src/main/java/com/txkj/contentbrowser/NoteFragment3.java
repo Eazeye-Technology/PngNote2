@@ -236,7 +236,7 @@ class PreferencesKeys {
                 for (FileMeta meta : recentNoteList1) {
                     if (meta != null) {
                         meta.checkShow = true;
-                        meta.checkSelect = false;
+                        meta.setCheckSelect(false);
                     }
                 }
                 if (!isCheckMode1) {
@@ -252,7 +252,7 @@ class PreferencesKeys {
                 if (isCheckMode1) {
                     FileMeta meta = recentNoteList1.get(position);
                     if (meta != null) {
-                        meta.checkSelect = !meta.checkSelect;
+                        meta.setCheckSelect(!meta.getCheckSelect());
                     }
                     updateList1();
                 } else {
@@ -289,7 +289,7 @@ class PreferencesKeys {
                 for (FileMeta meta : recentNoteList2) {
                     if (meta != null) {
                         meta.checkShow = true;
-                        meta.checkSelect = false;
+                        meta.setCheckSelect(false);
                     }
                 }
                 if (!isCheckMode2) {
@@ -305,7 +305,7 @@ class PreferencesKeys {
                 if (isCheckMode2) {
                     FileMeta meta = recentNoteList2.get(position);
                     if (meta != null) {
-                        meta.checkSelect = !meta.checkSelect;
+                        meta.setCheckSelect(!meta.getCheckSelect());
                     }
                     updateList2();
                 } else {
@@ -342,7 +342,7 @@ class PreferencesKeys {
                 for (FileMeta meta : recentNoteList3) {
                     if (meta != null) {
                         meta.checkShow = true;
-                        meta.checkSelect = false;
+                        meta.setCheckSelect(false);
                     }
                 }
                 if (!isCheckMode3) {
@@ -358,7 +358,7 @@ class PreferencesKeys {
                 if (isCheckMode3) {
                     FileMeta meta = recentNoteList3.get(position);
                     if (meta != null) {
-                        meta.checkSelect = !meta.checkSelect;
+                        meta.setCheckSelect(!meta.getCheckSelect());
                     }
                     updateList3();
                 } else {
@@ -887,7 +887,7 @@ class PreferencesKeys {
                     if (isCheckMode1) {
                         List<String> arrPaths = new ArrayList<>();
                         for (FileMeta meta : recentNoteList1) {
-                            if (meta != null && meta.checkShow && meta.checkSelect) {
+                            if (meta != null && meta.checkShow && meta.getCheckSelect()) {
                                 String path = meta.getPathTxt();
                                 //Toast.makeText(getActivity(), "path : " + path, Toast.LENGTH_LONG).show();
                                 String rootPath = new File(Environment.getExternalStorageDirectory(), APPNAME_NEW).toString();
@@ -900,7 +900,7 @@ class PreferencesKeys {
                     for (FileMeta meta : recentNoteList1) {
                         if (meta != null) {
                             meta.checkShow = false;
-                            meta.checkSelect = false;
+                            meta.setCheckSelect(false);
                         }
                     }
                     if (isCheckMode1) {
@@ -912,7 +912,7 @@ class PreferencesKeys {
                     if (isCheckMode2) {
                         List<String> arrPaths = new ArrayList<>();
                         for (FileMeta meta : recentNoteList2) {
-                            if (meta != null && meta.checkShow && meta.checkSelect) {
+                            if (meta != null && meta.checkShow && meta.getCheckSelect()) {
                                 String path = meta.getPathTxt();
                                 //Toast.makeText(getActivity(), "path : " + path, Toast.LENGTH_LONG).show();
                                 String rootPath = new File(Environment.getExternalStorageDirectory(), APPNAME_NEW).toString();
@@ -925,7 +925,7 @@ class PreferencesKeys {
                     for (FileMeta meta : recentNoteList2) {
                         if (meta != null) {
                             meta.checkShow = false;
-                            meta.checkSelect = false;
+                            meta.setCheckSelect(false);
                         }
                     }
                     if (isCheckMode2) {
@@ -937,7 +937,7 @@ class PreferencesKeys {
                     if (isCheckMode3) {
                         List<String> arrPaths = new ArrayList<>();
                         for (FileMeta meta : recentNoteList3) {
-                            if (meta != null && meta.checkShow && meta.checkSelect) {
+                            if (meta != null && meta.checkShow && meta.getCheckSelect()) {
                                 String path = meta.getPathTxt();
                                 //Toast.makeText(getActivity(), "path : " + path, Toast.LENGTH_LONG).show();
                                 String rootPath = new File(Environment.getExternalStorageDirectory(), APPNAME_NEW).toString();
@@ -950,7 +950,7 @@ class PreferencesKeys {
                     for (FileMeta meta : recentNoteList3) {
                         if (meta != null) {
                             meta.checkShow = false;
-                            meta.checkSelect = false;
+                            meta.setCheckSelect(false);
                         }
                     }
                     if (isCheckMode3) {
@@ -970,7 +970,7 @@ class PreferencesKeys {
                     for (FileMeta meta : recentNoteList1) {
                         if (meta != null) {
                             meta.checkShow = false;
-                            meta.checkSelect = false;
+                            meta.setCheckSelect(false);
                         }
                     }
                     if (isCheckMode1) {
@@ -982,7 +982,7 @@ class PreferencesKeys {
                     for (FileMeta meta : recentNoteList2) {
                         if (meta != null) {
                             meta.checkShow = false;
-                            meta.checkSelect = false;
+                            meta.setCheckSelect(false);
                         }
                     }
                     if (isCheckMode2) {
@@ -994,7 +994,7 @@ class PreferencesKeys {
                     for (FileMeta meta : recentNoteList3) {
                         if (meta != null) {
                             meta.checkShow = false;
-                            meta.checkSelect = false;
+                            meta.setCheckSelect(false);
                         }
                     }
                     if (isCheckMode3) {

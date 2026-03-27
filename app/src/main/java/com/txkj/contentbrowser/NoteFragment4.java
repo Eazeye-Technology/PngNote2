@@ -235,20 +235,16 @@ class PreferencesKeys {
         recentNoteAdapter1.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView_, View view_, int i, long l_) {
-                for (FileMeta meta : recentNoteList1) {
-                    if (meta != null) {
-                        meta.checkShow = true;
-                        meta.checkSelect = false;
-                    }
-                }
-                if (!isCheckMode1) {
-                    isCheckMode1 = true;
-                }
-                FileMeta meta2 = recentNoteList2.get(i);
+                enterCheckMode1();
+                enterCheckMode2();
+                enterCheckMode3();
+                FileMeta meta2 = recentNoteList1.get(i);
                 if (meta2 != null) {
-                    meta2.checkSelect = !meta2.checkSelect;
+                    meta2.setCheckSelect(!meta2.getCheckSelect());
                 }
                 updateList1();
+                updateList2();
+                updateList3();
                 return true;
             }
         });
@@ -258,7 +254,7 @@ class PreferencesKeys {
                 if (isCheckMode1) {
                     FileMeta meta = recentNoteList1.get(position);
                     if (meta != null) {
-                        meta.checkSelect = !meta.checkSelect;
+                        meta.setCheckSelect(!meta.getCheckSelect());
                     }
                     updateList1();
                 } else {
@@ -295,20 +291,16 @@ class PreferencesKeys {
         recentNoteAdapter2.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                for (FileMeta meta : recentNoteList2) {
-                    if (meta != null) {
-                        meta.checkShow = true;
-                        meta.checkSelect = false;
-                    }
-                }
-                if (!isCheckMode2) {
-                    isCheckMode2 = true;
-                }
+                enterCheckMode1();
+                enterCheckMode2();
+                enterCheckMode3();
                 FileMeta meta2 = recentNoteList2.get(i);
                 if (meta2 != null) {
-                    meta2.checkSelect = !meta2.checkSelect;
+                    meta2.setCheckSelect(!meta2.getCheckSelect());
                 }
+                updateList1();
                 updateList2();
+                updateList3();
                 return true;
             }
         });
@@ -318,7 +310,7 @@ class PreferencesKeys {
                 if (isCheckMode2) {
                     FileMeta meta = recentNoteList2.get(position);
                     if (meta != null) {
-                        meta.checkSelect = !meta.checkSelect;
+                        meta.setCheckSelect(!meta.getCheckSelect());
                     }
                     updateList2();
                 } else {
@@ -354,19 +346,15 @@ class PreferencesKeys {
         recentNoteAdapter3.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                for (FileMeta meta : recentNoteList3) {
-                    if (meta != null) {
-                        meta.checkShow = true;
-                        meta.checkSelect = false;
-                    }
-                }
-                if (!isCheckMode3) {
-                    isCheckMode3 = true;
-                }
-                FileMeta meta2 = recentNoteList2.get(i);
+                enterCheckMode1();
+                enterCheckMode2();
+                enterCheckMode3();
+                FileMeta meta2 = recentNoteList3.get(i);
                 if (meta2 != null) {
-                    meta2.checkSelect = !meta2.checkSelect;
+                    meta2.setCheckSelect(!meta2.getCheckSelect());
                 }
+                updateList1();
+                updateList2();
                 updateList3();
                 return true;
             }
@@ -377,7 +365,7 @@ class PreferencesKeys {
                 if (isCheckMode3) {
                     FileMeta meta = recentNoteList3.get(position);
                     if (meta != null) {
-                        meta.checkSelect = !meta.checkSelect;
+                        meta.setCheckSelect(!meta.getCheckSelect());
                     }
                     updateList3();
                 } else {
@@ -952,82 +940,89 @@ class PreferencesKeys {
         deleteMenu.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(@NonNull MenuItem menuItem) {
-                {
-                    if (isCheckMode1) {
-                        List<String> arrPaths = new ArrayList<>();
-                        for (FileMeta meta : recentNoteList1) {
-                            if (meta != null && meta.checkShow && meta.checkSelect) {
-                                String path = meta.getPathTxt();
-                                //Toast.makeText(getActivity(), "path : " + path, Toast.LENGTH_LONG).show();
-                                String rootPath = new File(Environment.getExternalStorageDirectory(), APPNAME_NEW).toString();
-                                FileTransactions.DeleteRecursive(new File(rootPath, path));
-                                arrPaths.add(path);
+                Runnable r = new Runnable() {
+                    @Override
+                    public void run() {
+                        {
+                            if (isCheckMode1) {
+                                List<String> arrPaths = new ArrayList<>();
+                                for (FileMeta meta : recentNoteList1) {
+                                    if (meta != null && meta.checkShow && meta.getCheckSelect()) {
+                                        String path = meta.getPathTxt();
+                                        //Toast.makeText(getActivity(), "path : " + path, Toast.LENGTH_LONG).show();
+                                        String rootPath = new File(Environment.getExternalStorageDirectory(), APPNAME_NEW).toString();
+                                        FileTransactions.DeleteRecursive(new File(rootPath, path));
+                                        arrPaths.add(path);
+                                    }
+                                }
+                                removeRecent(arrPaths);
                             }
-                        }
-                        removeRecent(arrPaths);
-                    }
-                    for (FileMeta meta : recentNoteList1) {
-                        if (meta != null) {
-                            meta.checkShow = false;
-                            meta.checkSelect = false;
-                        }
-                    }
-                    if (isCheckMode1) {
-                        isCheckMode1 = false;
-                    }
-                    updateList1();
-                }
-                {
-                    if (isCheckMode2) {
-                        List<String> arrPaths = new ArrayList<>();
-                        for (FileMeta meta : recentNoteList2) {
-                            if (meta != null && meta.checkShow && meta.checkSelect) {
-                                String path = meta.getPathTxt();
-                                //Toast.makeText(getActivity(), "path : " + path, Toast.LENGTH_LONG).show();
-                                String rootPath = new File(Environment.getExternalStorageDirectory(), APPNAME_NEW).toString();
-                                FileTransactions.DeleteRecursive(new File(rootPath, path));
-                                arrPaths.add(path);
+                            for (FileMeta meta : recentNoteList1) {
+                                if (meta != null) {
+                                    meta.checkShow = false;
+                                    meta.setCheckSelect(false);
+                                }
                             }
-                        }
-                        removeRecent(arrPaths);
-                    }
-                    for (FileMeta meta : recentNoteList2) {
-                        if (meta != null) {
-                            meta.checkShow = false;
-                            meta.checkSelect = false;
-                        }
-                    }
-                    if (isCheckMode2) {
-                        isCheckMode2 = false;
-                    }
-                    updateList2();
-                }
-                {
-                    if (isCheckMode3) {
-                        List<String> arrPaths = new ArrayList<>();
-                        for (FileMeta meta : recentNoteList3) {
-                            if (meta != null && meta.checkShow && meta.checkSelect) {
-                                String path = meta.getPathTxt();
-                                //Toast.makeText(getActivity(), "path : " + path, Toast.LENGTH_LONG).show();
-                                String rootPath = new File(Environment.getExternalStorageDirectory(), APPNAME_NEW).toString();
-                                FileTransactions.DeleteRecursive(new File(rootPath, path));
-                                arrPaths.add(path);
+                            if (isCheckMode1) {
+                                isCheckMode1 = false;
                             }
+                            updateList1();
                         }
-                        removeRecent(arrPaths);
-                    }
-                    for (FileMeta meta : recentNoteList3) {
-                        if (meta != null) {
-                            meta.checkShow = false;
-                            meta.checkSelect = false;
+                        {
+                            if (isCheckMode2) {
+                                List<String> arrPaths = new ArrayList<>();
+                                for (FileMeta meta : recentNoteList2) {
+                                    if (meta != null && meta.checkShow && meta.getCheckSelect()) {
+                                        String path = meta.getPathTxt();
+                                        //Toast.makeText(getActivity(), "path : " + path, Toast.LENGTH_LONG).show();
+                                        String rootPath = new File(Environment.getExternalStorageDirectory(), APPNAME_NEW).toString();
+                                        FileTransactions.DeleteRecursive(new File(rootPath, path));
+                                        arrPaths.add(path);
+                                    }
+                                }
+                                removeRecent(arrPaths);
+                            }
+                            for (FileMeta meta : recentNoteList2) {
+                                if (meta != null) {
+                                    meta.checkShow = false;
+                                    meta.setCheckSelect(false);
+                                }
+                            }
+                            if (isCheckMode2) {
+                                isCheckMode2 = false;
+                            }
+                            updateList2();
                         }
+                        {
+                            if (isCheckMode3) {
+                                List<String> arrPaths = new ArrayList<>();
+                                for (FileMeta meta : recentNoteList3) {
+                                    if (meta != null && meta.checkShow && meta.getCheckSelect()) {
+                                        String path = meta.getPathTxt();
+                                        //Toast.makeText(getActivity(), "path : " + path, Toast.LENGTH_LONG).show();
+                                        String rootPath = new File(Environment.getExternalStorageDirectory(), APPNAME_NEW).toString();
+                                        FileTransactions.DeleteRecursive(new File(rootPath, path));
+                                        arrPaths.add(path);
+                                    }
+                                }
+                                removeRecent(arrPaths);
+                            }
+                            for (FileMeta meta : recentNoteList3) {
+                                if (meta != null) {
+                                    meta.checkShow = false;
+                                    meta.setCheckSelect(false);
+                                }
+                            }
+                            if (isCheckMode3) {
+                                isCheckMode3 = false;
+                            }
+                            updateList3();
+                        }
+                        populate();
                     }
-                    if (isCheckMode3) {
-                        isCheckMode3 = false;
-                    }
-                    updateList3();
-                }
-                populate();
+                };
+                androidx.appcompat.app.AlertDialog dialog = new NoteFragment4DeleteDialog(getActivity(), r).create();
+                dialog.show();
                 return true;
             }
         });
@@ -1039,7 +1034,7 @@ class PreferencesKeys {
                     for (FileMeta meta : recentNoteList1) {
                         if (meta != null) {
                             meta.checkShow = false;
-                            meta.checkSelect = false;
+                            meta.setCheckSelect(false);
                         }
                     }
                     if (isCheckMode1) {
@@ -1051,7 +1046,7 @@ class PreferencesKeys {
                     for (FileMeta meta : recentNoteList2) {
                         if (meta != null) {
                             meta.checkShow = false;
-                            meta.checkSelect = false;
+                            meta.setCheckSelect(false);
                         }
                     }
                     if (isCheckMode2) {
@@ -1063,7 +1058,7 @@ class PreferencesKeys {
                     for (FileMeta meta : recentNoteList3) {
                         if (meta != null) {
                             meta.checkShow = false;
-                            meta.checkSelect = false;
+                            meta.setCheckSelect(false);
                         }
                     }
                     if (isCheckMode3) {
@@ -1103,18 +1098,18 @@ class PreferencesKeys {
             public boolean onMenuItemClick(@NonNull MenuItem menuItem) {
                 List<FileMeta> sels = new ArrayList<>();
                 for (FileMeta meta : recentNoteList1) {
-                    if (meta.checkShow && meta.checkSelect) {
+                    if (meta.checkShow && meta.getCheckSelect()) {
                         sels.add(meta);
                     }
                 }
                 for (FileMeta meta : recentNoteList2) {
-                    if (meta.checkShow && meta.checkSelect) {
+                    if (meta.checkShow && meta.getCheckSelect()) {
                         sels.add(meta);
                     }
                 }
                 for (FileMeta meta : recentNoteList3) {
                     if (meta != null) {
-                        if (meta.checkShow && meta.checkSelect) {
+                        if (meta.checkShow && meta.getCheckSelect()) {
                             sels.add(meta);
                         }
                     }
@@ -1229,6 +1224,42 @@ class PreferencesKeys {
             recentNoteView3.setLayoutParams(params);
         } else {
             recentNoteView3.setMinimumHeight(gridviewHeight);
+        }
+    }
+
+    private void enterCheckMode1() {
+        for (FileMeta meta : recentNoteList1) {
+            if (meta != null) {
+                meta.checkShow = true;
+                meta.setCheckSelect(false);
+            }
+        }
+        if (!isCheckMode1) {
+            isCheckMode1 = true;
+        }
+    }
+
+    private void enterCheckMode2() {
+        for (FileMeta meta : recentNoteList2) {
+            if (meta != null) {
+                meta.checkShow = true;
+                meta.setCheckSelect(false);
+            }
+        }
+        if (!isCheckMode2) {
+            isCheckMode2 = true;
+        }
+    }
+
+    private void enterCheckMode3() {
+        for (FileMeta meta : recentNoteList3) {
+            if (meta != null) {
+                meta.checkShow = true;
+                meta.setCheckSelect(false);
+            }
+        }
+        if (!isCheckMode3) {
+            isCheckMode3 = true;
         }
     }
 

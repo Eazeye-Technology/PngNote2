@@ -1347,6 +1347,16 @@
                                     android:src="@drawable/ic_my_bar_undo_007"
                                     android:id="@+id/ivTitleUndo"
                                     />
+                                <TextView
+                                    android:id="@+id/tvTitleUndoNum"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=""
+                                    android:textColor="@color/black"
+                                    android:textSize="12px"
+                                    android:layout_alignParentBottom="true"
+                                    android:layout_centerHorizontal="true"
+                                    />
                             </RelativeLayout>
                         </androidx.cardview.widget.CardView>
                         <LinearLayout
@@ -1401,6 +1411,16 @@
                                     android:layout_centerHorizontal="true"
                                     android:src="@drawable/ic_my_bar_redo_008"
                                     android:id="@+id/ivTitleRedo"
+                                    />
+                                <TextView
+                                    android:id="@+id/tvTitleRedoNum"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=""
+                                    android:textColor="@color/black"
+                                    android:textSize="12px"
+                                    android:layout_alignParentBottom="true"
+                                    android:layout_centerHorizontal="true"
                                     />
                             </RelativeLayout>
                         </androidx.cardview.widget.CardView>

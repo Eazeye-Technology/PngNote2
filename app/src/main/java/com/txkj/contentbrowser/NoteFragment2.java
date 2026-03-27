@@ -231,7 +231,7 @@ class PreferencesKeys {
                 for (FileMeta meta : recentNoteList) {
                     if (meta != null) {
                         meta.checkShow = true;
-                        meta.checkSelect = false;
+                        meta.setCheckSelect(false);
                     }
                 }
                 if (!isCheckMode) {
@@ -248,7 +248,7 @@ class PreferencesKeys {
                 if (isCheckMode) {
                     FileMeta meta = recentNoteList.get(position);
                     if (meta != null) {
-                        meta.checkSelect = !meta.checkSelect;
+                        meta.setCheckSelect(!meta.getCheckSelect());
                     }
                     recentNoteAdapter.notifyDataSetChanged();
                 } else {
@@ -704,7 +704,7 @@ class PreferencesKeys {
                 if (isCheckMode) {
                     List<String> arrPaths = new ArrayList<>();
                     for (FileMeta meta : recentNoteList) {
-                        if (meta != null && meta.checkShow && meta.checkSelect) {
+                        if (meta != null && meta.checkShow && meta.getCheckSelect()) {
                             String path = meta.getPathTxt();
                             //Toast.makeText(getActivity(), "path : " + path, Toast.LENGTH_LONG).show();
                             String rootPath = new File(Environment.getExternalStorageDirectory(), APPNAME_NEW).toString();
@@ -717,7 +717,7 @@ class PreferencesKeys {
                 for (FileMeta meta : recentNoteList) {
                     if (meta != null) {
                         meta.checkShow = false;
-                        meta.checkSelect = false;
+                        meta.setCheckSelect(false);
                     }
                 }
                 if (isCheckMode) {
@@ -735,7 +735,7 @@ class PreferencesKeys {
                 for (FileMeta meta : recentNoteList) {
                     if (meta != null) {
                         meta.checkShow = false;
-                        meta.checkSelect = false;
+                        meta.setCheckSelect(false);
                     }
                 }
                 if (isCheckMode) {

@@ -91,7 +91,7 @@ public class BookActivity4RTASRDialog implements AudioRecorderManager.AudioDataC
     public void tv_transResult_setText(String str) {}
     public void btn_audio_start_setText(String str) {}
     public void btn_audio_start_setEnabled(boolean enable) {
-        BookActivity4Utils.btn_audio_start_setEnabled (mAct, enable);
+        BookActivity4Utils.btn_audio_start_setEnabled(mAct, enable);
     }
     public void btn_file_start_setEnabled(boolean enable) {}
     private Activity mAct;

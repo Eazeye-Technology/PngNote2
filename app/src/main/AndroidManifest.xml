@@ -260,6 +260,14 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
             android:name="com.upgradetool.upgrade.UpdateService"
             android:label="UpdateService"
             android:process=":update" />
+
+
+
+        <activity
+            android:name="org.vosk.demo.VoskActivity"
+            android:exported="true">
+            <!--main, main-->
+        </activity>
     </application>
 
 </manifest>
