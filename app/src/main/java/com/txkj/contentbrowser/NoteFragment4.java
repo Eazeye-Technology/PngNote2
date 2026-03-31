@@ -15,6 +15,7 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
@@ -384,6 +385,35 @@ class PreferencesKeys {
             }
         });
 
+        //cancel select with touch event on empty area
+        RecyclerView.OnItemTouchListener cancelListener = new RecyclerView.OnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                    View child = rv.findChildViewUnder(e.getX(), e.getY());
+                    if (child == null) {
+                        //Log.d("RecyclerView", "Click on empty space");
+                        cancelSelect();
+                    } else {
+
+                    }
+                }
+                return false;
+            }
+
+            @Override
+            public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+
+            }
+
+            @Override
+            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
+            }
+        };
+        recentNoteView1.addOnItemTouchListener(cancelListener);
+        recentNoteView2.addOnItemTouchListener(cancelListener);
+        recentNoteView3.addOnItemTouchListener(cancelListener);
 
 //        recentNoteView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 //            @Override
@@ -1030,42 +1060,7 @@ class PreferencesKeys {
         cancelmenu.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(@NonNull MenuItem menuItem) {
-                {
-                    for (FileMeta meta : recentNoteList1) {
-                        if (meta != null) {
-                            meta.checkShow = false;
-                            meta.setCheckSelect(false);
-                        }
-                    }
-                    if (isCheckMode1) {
-                        isCheckMode1 = false;
-                    }
-                    updateList1();
-                }
-                {
-                    for (FileMeta meta : recentNoteList2) {
-                        if (meta != null) {
-                            meta.checkShow = false;
-                            meta.setCheckSelect(false);
-                        }
-                    }
-                    if (isCheckMode2) {
-                        isCheckMode2 = false;
-                    }
-                    updateList2();
-                }
-                {
-                    for (FileMeta meta : recentNoteList3) {
-                        if (meta != null) {
-                            meta.checkShow = false;
-                            meta.setCheckSelect(false);
-                        }
-                    }
-                    if (isCheckMode3) {
-                        isCheckMode3 = false;
-                    }
-                    updateList3();
-                }
+                cancelSelect();
                 return true;
             }
         });
@@ -1152,6 +1147,45 @@ class PreferencesKeys {
             }
         });
         popupMenu.show();
+    }
+
+    private void cancelSelect() {
+        {
+            for (FileMeta meta : recentNoteList1) {
+                if (meta != null) {
+                    meta.checkShow = false;
+                    meta.setCheckSelect(false);
+                }
+            }
+            if (isCheckMode1) {
+                isCheckMode1 = false;
+            }
+            updateList1();
+        }
+        {
+            for (FileMeta meta : recentNoteList2) {
+                if (meta != null) {
+                    meta.checkShow = false;
+                    meta.setCheckSelect(false);
+                }
+            }
+            if (isCheckMode2) {
+                isCheckMode2 = false;
+            }
+            updateList2();
+        }
+        {
+            for (FileMeta meta : recentNoteList3) {
+                if (meta != null) {
+                    meta.checkShow = false;
+                    meta.setCheckSelect(false);
+                }
+            }
+            if (isCheckMode3) {
+                isCheckMode3 = false;
+            }
+            updateList3();
+        }
     }
 
     public void updateList1() {

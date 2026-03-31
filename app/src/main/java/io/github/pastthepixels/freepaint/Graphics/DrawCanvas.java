@@ -379,10 +379,10 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
         }
         versions.add(cloneDrawPathList(paths)); // adds to the end ∴ newest changes are at the end of the list
         System.out.println(versions + " " + versions.size());
-        if (versions.size() < MAX_VERSIONS - 1 + oldVersionsSize) {
+        if (versions.size() < (MAX_VERSIONS + 2) - 1 + oldVersionsSize) {
             version_index += 1;
         }
-        if (versions.size() > MAX_VERSIONS + oldVersionsSize) {
+        if (versions.size() >= (MAX_VERSIONS + 2) - 1 + oldVersionsSize) {
             versions.remove(0); // delete the oldest change if the list has grown too much
         }
         onVersionChanged();

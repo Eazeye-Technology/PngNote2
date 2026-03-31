@@ -448,26 +448,59 @@ public class BookActivity4Fragment extends Fragment {
             this.savePageInMain(this.getPageIdx(), this.pageBmp, getVecJson(canvas));
         }
         saveBrushPreset();
-        SDRecordingsDatabase mDatabase = this.adapter.getDB(); //new SDRecordingsDatabase(getActivity(), _bookDir.getFilePath());
-        if (mDatabase != null) {
-            mDatabase.saveAll();
+        if (this.isBackPressed) {
+            SDRecordingsDatabase mDatabase = this.adapter.getDB(); //new SDRecordingsDatabase(getActivity(), _bookDir.getFilePath());
+            if (mDatabase != null) {
+                mDatabase.saveAll();
+            }
         }
         super.onStop();
         cancelWaitingProgressDialog();
         runNormalScreen(getActivity());
+        if (this.isBackPressed) {
+            try {
+                if (refreshRunnable2 != null) {
+                    refreshRunnable2.stop();
+                }
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+            }
+            try {
+                if (refreshRunnable3 != null) {
+                    refreshRunnable3.stop();
+                }
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+            }
+            try {
+                newFixedThreadPool.shutdown();
+                try {
+                    if (!newFixedThreadPool.awaitTermination(1, TimeUnit.SECONDS)) {
+                        newFixedThreadPool.shutdownNow();
+                    }
+                } catch (InterruptedException e) {
+                    newFixedThreadPool.shutdownNow();
+                }
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+            }
+        }
     }
 
+    boolean isPause = false;
     @Override
     public void onPause() {
         super.onPause();
         //runNormalScreen(getActivity());
         //setNavBarTintColor(getActivity());
+        isPause = true;
     }
 
     @Override
     public void onResume() {
         super.onResume();
         runFullScreen(getActivity());
+        isPause = false;
     }
 
     //FIXME: remove RequiresApi
@@ -1695,15 +1728,19 @@ public class BookActivity4Fragment extends Fragment {
                 return;
             }
             if (SAVING_ASYNC) {
-                if (!SAVING_ASYNC_MULTI) {
-                    if (task == null) {
+                try {
+                    if (!SAVING_ASYNC_MULTI) {
+                        if (task == null) {
+                            task = new SavingTask(false, true);
+                            task.executeOnExecutor(newFixedThreadPool);
+                            Log.e(TAG, "startHandlerTask2 MyRunnable " + System.currentTimeMillis());
+                        }
+                    } else {
                         task = new SavingTask(false, true);
                         task.executeOnExecutor(newFixedThreadPool);
-                        Log.e(TAG, "startHandlerTask2 MyRunnable " + System.currentTimeMillis());
                     }
-                } else {
-                    task = new SavingTask(false, true);
-                    task.executeOnExecutor(newFixedThreadPool);
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
                 }
             }
             if (refreshRunnable2 == null || refreshRunnable2 != this) {
@@ -1735,15 +1772,19 @@ public class BookActivity4Fragment extends Fragment {
                 return;
             }
             if (SAVING_ASYNC) {
-                if (!SAVING_ASYNC_MULTI) {
-                    if (task == null) {
+                try {
+                    if (!SAVING_ASYNC_MULTI) {
+                        if (task == null) {
+                            task = new SavingTask(false, true);
+                            task.executeOnExecutor(newFixedThreadPool);
+                            Log.e(TAG, "startHandlerTask3 MyRunnable3 " + System.currentTimeMillis());
+                        }
+                    } else {
                         task = new SavingTask(false, true);
                         task.executeOnExecutor(newFixedThreadPool);
-                        Log.e(TAG, "startHandlerTask3 MyRunnable3 " + System.currentTimeMillis());
                     }
-                } else {
-                    task = new SavingTask(false, true);
-                    task.executeOnExecutor(newFixedThreadPool);
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
                 }
             }
             if (refreshRunnable3 == null || refreshRunnable3 != this) {
@@ -2097,14 +2138,18 @@ public class BookActivity4Fragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (SAVING_ASYNC) {
-                    if (!SAVING_ASYNC_MULTI) {
-                        if (task == null) {
+                    try {
+                        if (!SAVING_ASYNC_MULTI) {
+                            if (task == null) {
+                                task = new SavingTask(false, false);
+                                task.executeOnExecutor(newFixedThreadPool);
+                            }
+                        } else {
                             task = new SavingTask(false, false);
                             task.executeOnExecutor(newFixedThreadPool);
                         }
-                    } else {
-                        task = new SavingTask(false, false);
-                        task.executeOnExecutor(newFixedThreadPool);
+                    } catch (Throwable eee) {
+                        eee.printStackTrace();
                     }
                 } else {
                     gotoGridPage();
@@ -2749,14 +2794,18 @@ public class BookActivity4Fragment extends Fragment {
             onRedo();
         } else if (item.getItemId() == R.id.grid) {
             if (SAVING_ASYNC) {
-                if (!SAVING_ASYNC_MULTI) {
-                    if (task == null) {
+                try {
+                    if (!SAVING_ASYNC_MULTI) {
+                        if (task == null) {
+                            task = new SavingTask(false, false);
+                            task.executeOnExecutor(newFixedThreadPool);
+                        }
+                    } else {
                         task = new SavingTask(false, false);
                         task.executeOnExecutor(newFixedThreadPool);
                     }
-                } else {
-                    task = new SavingTask(false, false);
-                    task.executeOnExecutor(newFixedThreadPool);
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
                 }
             } else {
                 gotoGridPage();
@@ -3354,14 +3403,18 @@ public class BookActivity4Fragment extends Fragment {
                             if (false) {
                                 notifyForceSave(false);
                                 if (SAVING_ASYNC) {
-                                    if (!SAVING_ASYNC_MULTI) {
-                                        if (task == null) {
+                                    try {
+                                        if (!SAVING_ASYNC_MULTI) {
+                                            if (task == null) {
+                                                task = new SavingTask(false, false);
+                                                task.executeOnExecutor(newFixedThreadPool);
+                                            }
+                                        } else {
                                             task = new SavingTask(false, false);
                                             task.executeOnExecutor(newFixedThreadPool);
                                         }
-                                    } else {
-                                        task = new SavingTask(false, false);
-                                        task.executeOnExecutor(newFixedThreadPool);
+                                    } catch (Throwable eee) {
+                                        eee.printStackTrace();
                                     }
                                 } else {
                                     gotoGridPage();
@@ -4812,17 +4865,23 @@ public class BookActivity4Fragment extends Fragment {
         onPageIdxChange(true);
     }
 
+    private boolean isBackPressed = false;
     public void onBackPressed() {
+        isBackPressed = true;
         //FIXME:退出立即保存
         if (SAVING_ASYNC) {
-            if (!SAVING_ASYNC_MULTI) {
-                if (task == null) {
+            try {
+                if (!SAVING_ASYNC_MULTI) {
+                    if (task == null) {
+                        task = new SavingTask(true, false);
+                        task.executeOnExecutor(newFixedThreadPool);
+                    }
+                } else {
                     task = new SavingTask(true, false);
                     task.executeOnExecutor(newFixedThreadPool);
                 }
-            } else {
-                task = new SavingTask(true, false);
-                task.executeOnExecutor(newFixedThreadPool);
+            } catch (Throwable eee) {
+                eee.printStackTrace();
             }
         } else {
             if (false) {
