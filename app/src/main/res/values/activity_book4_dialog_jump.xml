@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="activity_dialog_jump_btn_width_reorder">114px</dimen>
+    <dimen name="activity_dialog_jump_btn_height_reorder">40px</dimen>
+
+    <dimen name="activity_dialog_jump_btn_width_select">134px</dimen>
+    <dimen name="activity_dialog_jump_btn_height_select">40px</dimen>
+
+    <dimen name="activity_dialog_jump_btn_width_duplicate">134px</dimen>
+    <dimen name="activity_dialog_jump_btn_height_duplicate">40px</dimen>
+
+    <dimen name="activity_dialog_jump_btn_width_delete">101px</dimen>
+    <dimen name="activity_dialog_jump_btn_height_delete">40px</dimen>
+    <dimen name="activity_dialog_jump_btn_width_delete_iv">20px</dimen>
+</resources>

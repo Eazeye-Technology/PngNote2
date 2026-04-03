@@ -48,8 +48,8 @@ public class BookActivity4PageGridDialog {
     public final static boolean HIDE_BUTTONS = true;
 
     public final static boolean NO_REOPEN_DIALOG = true;
-    private final static int WIN_WIDTH = 633;
-    private final static int WIN_HEIGHT = 750;//600;//646;
+    //private final static int WIN_WIDTH = 633;
+    //private final static int WIN_HEIGHT = 750;//600;//646;
     private AlertDialog mDialog;
     public BookActivity4PageGridDialog(Activity ctx, Uri dirUrl_, String dirUrlPath_) {
         onCreateAct(ctx, dirUrl_, dirUrlPath_);
@@ -263,7 +263,9 @@ public class BookActivity4PageGridDialog {
             Window window = dialog.getWindow();
             if (window != null) {
 //                window.setLayout(WindowManager.LayoutParams.WRAP_CONTENT, 800);
-                  window.setLayout(
+                int WIN_WIDTH = mContext.getResources().getDimensionPixelSize(R.dimen.activity_dialog_upgrade_min_width_page_grid);
+                int WIN_HEIGHT = mContext.getResources().getDimensionPixelSize(R.dimen.activity_dialog_upgrade_min_height_page_grid);
+                window.setLayout(
                         WIN_WIDTH,
                         WIN_HEIGHT
                   );

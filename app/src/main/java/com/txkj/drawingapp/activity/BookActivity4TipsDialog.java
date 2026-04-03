@@ -15,7 +15,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.txkj.drawingapp.R;
 
 public class BookActivity4TipsDialog {
-    private final static int WIN_WIDTH = 630;// + 24 * 2;
+    //private final static int WIN_WIDTH = 630;// + 24 * 2;
 
     private Activity mAct;
 
@@ -56,6 +56,7 @@ public class BookActivity4TipsDialog {
         try {
             Window window = dialog.getWindow();
             if (window != null) {
+                int WIN_WIDTH = mAct.getResources().getDimensionPixelSize(R.dimen.activity_dialog_upgrade_min_width_page_tips);
                 //window.setLayout(WIN_WIDTH, WindowManager.LayoutParams.WRAP_CONTENT);
                 window.setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             }

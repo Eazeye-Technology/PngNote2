@@ -18,7 +18,7 @@ import com.txkj.notemobile2.book.BookIO;
 import com.txkj.notemobile2.colorpicker.FileMeta;
 
 public class BookActivity4BackgroundDialog {
-    private final static int WIN_WIDTH = 670 + 24 * 2;//312;
+    //private final static int WIN_WIDTH = 718;//670 + 24 * 2;//312;
 
     private Activity mContext;
     private String mBackgroundMode = null;//-1;
@@ -133,6 +133,7 @@ public class BookActivity4BackgroundDialog {
         try {
             Window window = dialog.getWindow();
             if (window != null) {
+                int WIN_WIDTH = mContext.getResources().getDimensionPixelSize(R.dimen.activity_dialog_bg_min_width);
                 window.setLayout(WIN_WIDTH, WindowManager.LayoutParams.WRAP_CONTENT);
             }
         } catch (Throwable eee) {

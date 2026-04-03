@@ -25,7 +25,7 @@ import com.txkj.drawingapp.R;
 
 //popupwindow_pen_style.xml
 public class BookActivity4BrushEditDialog {
-    private final static int WIN_WIDTH = 544 + 24 * 2;
+    //private final static int WIN_WIDTH = 544 + 24 * 2;
 
     public BookActivity4BrushEditDialog(Activity ctx, int brushId) {
         onCreateAct(ctx, brushId);
@@ -59,6 +59,7 @@ public class BookActivity4BrushEditDialog {
         try {
             Window window = dialog.getWindow();
             if (window != null) {
+                int WIN_WIDTH = mContext.getResources().getDimensionPixelSize(R.dimen.activity_dialog_upgrade_min_width_brush_edit);
                 window.setLayout(WIN_WIDTH, WindowManager.LayoutParams.WRAP_CONTENT);
             }
         } catch (Throwable eee) {

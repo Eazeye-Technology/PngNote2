@@ -13,7 +13,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.txkj.drawingapp.R;
 
 public class BookActivity4StopRecordDialog {
-    private final static int WIN_WIDTH = 312 + 24 * 2;//312;
+    //private final static int WIN_WIDTH = 312 + 24 * 2;//312;
 
     private Activity mContext;
     private Runnable mRunnable;
@@ -68,6 +68,7 @@ public class BookActivity4StopRecordDialog {
         try {
             Window window = dialog.getWindow();
             if (window != null) {
+                int WIN_WIDTH = mContext.getResources().getDimensionPixelSize(R.dimen.activity_dialog_upgrade_min_width);
                 window.setLayout(WIN_WIDTH, WindowManager.LayoutParams.WRAP_CONTENT);
             }
         } catch (Throwable eee) {

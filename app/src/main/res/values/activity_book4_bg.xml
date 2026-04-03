@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="activity_dialog_bg_text_size1">24px</dimen>
+
+    <dimen name="activity_dialog_bg_min_width">718px</dimen>
+    <dimen name="activity_dialog_bg_padding">24px</dimen>
+
+    <dimen name="activity_dialog_bg_grid_height">285px</dimen>
+    <dimen name="activity_dialog_bg_grid_text_size">15px</dimen>
+    <dimen name="activity_dialog_bg_table_height">478px</dimen>
+
+    <!--544+24*2=592-->
+    <dimen name="activity_dialog_upgrade_min_width_brush_edit">592px</dimen>
+    <!--633-->
+    <dimen name="activity_dialog_upgrade_min_width_page_grid">633px</dimen>
+    <dimen name="activity_dialog_upgrade_min_height_page_grid">750px</dimen>
+    <dimen name="activity_dialog_upgrade_min_height_page_grid2">600px</dimen>
+    <dimen name="activity_dialog_upgrade_min_height_page_grid2_grid_height">200px</dimen>
+    <dimen name="activity_dialog_upgrade_min_height_page_grid2_text_size">12px</dimen>
+    <dimen name="activity_dialog_upgrade_min_height_page_grid2_text_width">24px</dimen>
+    <dimen name="activity_dialog_upgrade_min_height_page_grid2_text_height">23px</dimen>
+    <!--630-->
+    <dimen name="activity_dialog_upgrade_min_width_page_tips">630px</dimen>
+</resources>

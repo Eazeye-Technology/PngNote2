@@ -15,6 +15,7 @@ public class BookActivity4Config {
     public final static String USE_SKETCH_CONFIG_MEETING_SUMMARY = "meetingSummary";
     public final static String USE_SKETCH_CONFIG_MEETING_DATE = "meetingDate";
     public final static String USE_SKETCH_CONFIG_MEETING_DURATION = "meetingDuration";
+    public final static String USE_SKETCH_CONFIG_MEETING_DURATION_TEMP = "meetingDurationTemp";
     public final static String USE_SKETCH_CONFIG_MEETING_HOUR = "meetingHour";
     public final static String USE_SKETCH_CONFIG_MEETING_MINUTE = "meetingMinute";
     public final static String USE_SKETCH_CONFIG_PATTERN = "pattern";

@@ -430,16 +430,19 @@ public class BookActivity4Fragment extends Fragment {
 
     @Override
     public void onStop() {
-        recordDuration();
-        if (USE_RTASR) {
-            if (rtasrDialog != null) {
-                rtasrDialog.onClick_stop();
-                rtasrDialog = null;
-            }
-        } else if (USE_VOSK) {
-            if (voskDialog != null) {
-                voskDialog.onClick_stop();
-                voskDialog = null;
+        recordTempDuration();
+        if (this.isBackPressed) {
+            recordDuration();
+            if (USE_RTASR) {
+                if (rtasrDialog != null) {
+                    rtasrDialog.onClick_stop();
+                    rtasrDialog = null;
+                }
+            } else if (USE_VOSK) {
+                if (voskDialog != null) {
+                    voskDialog.onClick_stop();
+                    voskDialog = null;
+                }
             }
         }
         if (true) {
@@ -1805,6 +1808,18 @@ public class BookActivity4Fragment extends Fragment {
     }
 
 
+    private void recordTempDuration() {
+        if (lastRecordTime != null) {
+            Date now = new Date();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(now);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            long diff = calendar.getTime().getTime() - lastRecordTime.getTime();
+            long diffMinutes = diff / (60 * 1000);
+            editMeetingDurationTemp("" + diffMinutes);
+        }
+    }
     private Date lastRecordTime = null;
     private void recordDuration() {
         if (lastRecordTime != null) {
@@ -2717,6 +2732,12 @@ public class BookActivity4Fragment extends Fragment {
         TextView tvMeetingDuration = rootView.findViewById(R.id.tvMeetingDuration);
         try {
             String duration = getMeetingDuration();
+            if (duration == null || duration.length() == 0) {
+                duration = getMeetingDurationTemp();
+                if (duration != null && duration.length() > 0) {
+                    editMeetingDuration(duration);
+                }
+            }
             if (duration != null && duration.length() > 0) {
                 int durationVal = -1;
                 try {
@@ -3602,6 +3623,36 @@ public class BookActivity4Fragment extends Fragment {
         }
     }
 
+    public void editMeetingDurationTemp(String newDuration) {
+        boolean isFailed = false;
+        if (_bookDir == null || _bookDir.getName() == null ||!_bookDir.getName().startsWith(BookActivity4Config.USE_SKETCH_PREFIX)) {
+            isFailed = true;
+        }
+        String folder = _bookDir.getFilePath();
+        if (folder == null ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).exists() ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).canWrite()
+        ) {
+            isFailed = true;
+        }
+        try {
+            File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
+            String str = FastFile.loadMetaText(file_2);
+            JSONObject item = new JSONObject(str);
+            item.put(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_DURATION_TEMP, newDuration);
+            FastFile.saveMetaText(file_2, item.toString(), getActivity());
+        } catch (JSONException e) {
+            e.printStackTrace();
+            isFailed = true;
+        }
+        if (isFailed) {
+            //failed
+        } else {
+            //success
+        }
+    }
+
+
     public void editMeetingDuration(String newDuration) {
         boolean isFailed = false;
         if (_bookDir == null || _bookDir.getName() == null ||!_bookDir.getName().startsWith(BookActivity4Config.USE_SKETCH_PREFIX)) {
@@ -3627,7 +3678,7 @@ public class BookActivity4Fragment extends Fragment {
         if (isFailed) {
             new MaterialAlertDialogBuilder(getActivity(), BookActivity4Utils.getCenteredTitleThemeOverlay())
                     .setTitle("Error")
-                    .setMessage("Edit meeting summary failed")
+                    .setMessage("Edit meeting duration failed")
                     .setPositiveButton("OK", null)
                     .show();
         } else {
@@ -3832,6 +3883,31 @@ public class BookActivity4Fragment extends Fragment {
             String str = FastFile.loadMetaText(file_2);
             JSONObject item = new JSONObject(str);
             newSummary = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_DURATION, "");
+        } catch (JSONException e) {
+            e.printStackTrace();
+            isFailed = true;
+        }
+        return newSummary;
+    }
+
+    public String getMeetingDurationTemp() {
+        String newSummary = "";
+        boolean isFailed = false;
+        if (_bookDir == null || _bookDir.getName() == null ||!_bookDir.getName().startsWith(BookActivity4Config.USE_SKETCH_PREFIX)) {
+            isFailed = true;
+        }
+        String folder = _bookDir.getFilePath();
+        if (folder == null ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).exists() ||
+                !new File(folder, BookActivity4Config.USE_SKETCH_CONFIG).canWrite()
+        ) {
+            isFailed = true;
+        }
+        try {
+            File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
+            String str = FastFile.loadMetaText(file_2);
+            JSONObject item = new JSONObject(str);
+            newSummary = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_DURATION_TEMP, "");
         } catch (JSONException e) {
             e.printStackTrace();
             isFailed = true;
