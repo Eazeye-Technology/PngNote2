@@ -31,19 +31,19 @@ android:background="#f6f3f2"
                 >
                 <ImageButton
                     android:id="@+id/imageButtonBack"
-                    android:layout_width="@dimen/mtmobile__treefontsize5"
-                    android:layout_height="@dimen/mtmobile__treefontsize5"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:paddingLeft="5px"
-                    android:paddingRight="5px"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
                     android:scaleType="fitCenter"
                     android:text="@string/reflow_button"
                     android:textAllCaps="true"
                     android:textColor="@color/black"
                     android:textSize="11sp"
-                    android:layout_marginLeft="5px"
-                    android:layout_marginRight="5px"
+                    android:layout_marginLeft="0dp"
+                    android:layout_marginRight="0dp"
                     android:src="@drawable/ic_baseline_arrow_back_24"
                     android:foreground="?android:attr/selectableItemBackground"
                     android:background="@null"
@@ -62,13 +62,13 @@ android:background="#f6f3f2"
 
                 <ImageButton
                     android:id="@+id/buttonListNewBook"
-                    android:layout_width="@dimen/mtmobile__treefontsize5"
-                    android:layout_height="@dimen/mtmobile__treefontsize5"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:layout_centerVertical="true"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:paddingLeft="5px"
-                    android:paddingRight="5px"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_baseline_add_24"
                     android:text="NEW BOOK"
@@ -103,21 +103,25 @@ android:background="#f6f3f2"
 
                 <ImageButton
                     android:id="@+id/buttonMore"
-                    android:layout_width="@dimen/mtmobile__treefontsize5"
-                    android:layout_height="@dimen/mtmobile__treefontsize5"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
                     android:layout_centerVertical="true"
                     android:layout_gravity="center"
-                    android:background="@drawable/toolbar_button"
                     android:gravity="center"
-                    android:paddingLeft="5px"
-                    android:paddingRight="5px"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_my_bar_more_006"
                     android:text="MORE"
                     android:textAllCaps="true"
                     android:textColor="@color/black"
-                    android:textSize="11sp" />
-
+                    android:textSize="11sp"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    android:background="@null"
+                    />
+<!--
+android:background="@drawable/toolbar_button"
+                    -->
                 <TextView
                     android:id="@+id/close_buttontxt"
                     android:layout_width="wrap_content"
@@ -136,13 +140,13 @@ android:background="#f6f3f2"
 
         <TextView
             android:layout_width="match_parent"
-            android:layout_height="60px"
+            android:layout_height="60dp"
             android:text="Note List"
             android:layout_gravity="left|center_vertical"
             android:gravity="left|center_vertical"
             android:textStyle="bold"
-            android:textSize="40px"
-            android:layout_marginLeft="5px"
+            android:textSize="40dp"
+            android:layout_marginLeft="10dp"
             >
         </TextView>
     </LinearLayout>
@@ -281,13 +285,14 @@ android:background="#f6f3f2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+                android:padding="10dp"
                 >
                 <TextView
                     android:id="@+id/tv_notegridview_note1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Today"
-                    android:textSize="12px"
+                    android:textSize="12dp"
                     />
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/notegridview_note1"
@@ -302,7 +307,7 @@ android:background="#f6f3f2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="This week"
-                    android:textSize="12px"
+                    android:textSize="12dp"
                     />
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/notegridview_note2"
@@ -316,7 +321,7 @@ android:background="#f6f3f2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Earlier"
-                    android:textSize="12px"
+                    android:textSize="12dp"
                     />
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/notegridview_note3"

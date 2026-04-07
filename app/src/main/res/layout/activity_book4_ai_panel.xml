@@ -176,9 +176,9 @@
                     android:layout_height="60px"
                     android:orientation="horizontal"
                     >
-                    <FrameLayout
+                    <RelativeLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_gravity="center_vertical|center"
                         android:layout_marginLeft="24px"
                         >
@@ -192,6 +192,7 @@
                             android:layout_margin="5px"
                             android:id="@+id/stopRecord"
                             android:visibility="gone"
+                            android:layout_centerInParent="true"
                             >
                             <LinearLayout
                                 android:layout_width="wrap_content"
@@ -235,6 +236,7 @@
                             android:layout_marginLeft="5px"
                             android:id="@+id/startRecord"
                             android:visibility="visible"
+                            android:layout_centerInParent="true"
                             >
                             <LinearLayout
                                 android:layout_width="wrap_content"
@@ -271,11 +273,11 @@
                                     />
                             </LinearLayout>
                         </androidx.cardview.widget.CardView>
-                    </FrameLayout>
+                    </RelativeLayout>
 
-                    <FrameLayout
+                    <RelativeLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_gravity="center_vertical|center"
                         android:layout_marginLeft="0px"
                         >
@@ -289,6 +291,7 @@
                             android:layout_margin="5px"
                             android:layout_marginLeft="5px"
                             android:visibility="visible"
+                            android:layout_centerInParent="true"
                             >
                             <LinearLayout
                             android:layout_width="wrap_content"
@@ -335,6 +338,7 @@
                             android:layout_margin="5px"
                             android:layout_marginLeft="5px"
                             android:visibility="gone"
+                            android:layout_centerInParent="true"
                             >
                             <LinearLayout
                                 android:layout_width="wrap_content"
@@ -371,7 +375,7 @@
                                     />
                             </LinearLayout>
                         </androidx.cardview.widget.CardView>
-                    </FrameLayout>
+                    </RelativeLayout>
 
                 </LinearLayout>
             </LinearLayout>
