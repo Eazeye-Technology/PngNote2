@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.txkj.drawingapp.R;
+import com.txkj.drawingapp.activity.BookActivity4Utils;
 
 public class ActivityUpgradeDialog {
     public static int getCenteredTitleThemeOverlay() {
@@ -47,6 +48,8 @@ public class ActivityUpgradeDialog {
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialogInterface) {
+                BookActivity4Utils.runFullScreen(mContext);
+
                 AlertDialog dialog = (AlertDialog) dialogInterface;
                 RelativeLayout btnSave = (RelativeLayout) dialog.findViewById(R.id.btnSave);
 //                Button btnCancel = (Button) dialog.findViewById(R.id.btnCancel);

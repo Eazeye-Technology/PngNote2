@@ -69,6 +69,8 @@ public class BookActivity4PageGridDialog {
         mDialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialogInterface) {
+                BookActivity4Utils.runFullScreen(mContext);
+
                 AlertDialog dialog = (AlertDialog)dialogInterface;
                 LinearLayout llTopJump = (LinearLayout) dialog.findViewById(R.id.llTopJump);
                 onshow(mDialog);

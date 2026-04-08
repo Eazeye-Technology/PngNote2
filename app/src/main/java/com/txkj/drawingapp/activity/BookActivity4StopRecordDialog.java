@@ -41,6 +41,8 @@ public class BookActivity4StopRecordDialog {
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialogInterface) {
+                BookActivity4Utils.runFullScreen(mContext);
+
                 AlertDialog dialog = (AlertDialog) dialogInterface;
                 Button btnSave = (Button) dialog.findViewById(R.id.btnSave);
                 Button btnCancel = (Button) dialog.findViewById(R.id.btnCancel);

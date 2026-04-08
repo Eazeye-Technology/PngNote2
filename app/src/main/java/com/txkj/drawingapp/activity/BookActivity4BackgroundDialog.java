@@ -44,6 +44,8 @@ public class BookActivity4BackgroundDialog {
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialogInterface) {
+                BookActivity4Utils.runFullScreen(mContext);
+
                 AlertDialog dialog = (AlertDialog) dialogInterface;
 
                 Button btnSave = (Button) dialog.findViewById(R.id.btnSave);

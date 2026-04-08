@@ -41,11 +41,14 @@ import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -172,10 +175,15 @@ public class BookActivity4Fragment extends Fragment {
     private final static boolean USE_BOTTOM_SHEET = false;
     private final static boolean USE_RECORDING_FRAGMENT_TEST = false; //need open id/fragment_recording
 
-    private final static boolean USE_RTASR = false;
-    private final static boolean USE_VOSK = true;
+    private int type = TYPE_USE_SHERPA; //TYPE_USE_VOSK;
+    public final static int TYPE_USE_RTASR = 0;
+    public final static int TYPE_USE_VOSK = 1;
+    public final static int TYPE_USE_SHERPA = 2;
+    public final static int TYPE_USE_SHERPA_KROKO = 3;
+
     BookActivity4RTASRDialog rtasrDialog = null;
     BookActivity4VoskDialog voskDialog = null;
+    BookActivity4SherpaOnnxDialog sherpaOnnxDialog = null;
     private final static boolean USE_LISTEN = false; //listen or recording?
     BookActivity4ListenDialog listenDialog;
 
@@ -433,15 +441,21 @@ public class BookActivity4Fragment extends Fragment {
         recordTempDuration();
         if (this.isBackPressed) {
             recordDuration();
-            if (USE_RTASR) {
+            if (type == TYPE_USE_RTASR) {
                 if (rtasrDialog != null) {
                     rtasrDialog.onClick_stop();
                     rtasrDialog = null;
                 }
-            } else if (USE_VOSK) {
+            } else if (type == TYPE_USE_VOSK) {
                 if (voskDialog != null) {
                     voskDialog.onClick_stop();
                     voskDialog = null;
+                }
+            } else if (type == TYPE_USE_SHERPA ||
+                    type == TYPE_USE_SHERPA_KROKO) {
+                if (sherpaOnnxDialog != null) {
+                    sherpaOnnxDialog.onclick_Stop();
+                    sherpaOnnxDialog = null;
                 }
             }
         }
@@ -807,6 +821,8 @@ public class BookActivity4Fragment extends Fragment {
                     dialog.setOnShowListener(new DialogInterface.OnShowListener() {
                         @Override
                         public void onShow(DialogInterface dialogInterface) {
+                            BookActivity4Utils.runFullScreen(getActivity());
+
                             View llEdit = ((AlertDialog) dialogInterface).findViewById(R.id.llEdit);
                             llEdit.setOnClickListener(new View.OnClickListener() {
                                 @Override
@@ -1865,9 +1881,21 @@ public class BookActivity4Fragment extends Fragment {
                     if (!enableRecordButton) {
                         return; //disable record button
                     }
+                    RadioButton rbASR1 = (RadioButton) g_rootView.findViewById(R.id.rbASR1);
+                    RadioButton rbASR2 = (RadioButton) g_rootView.findViewById(R.id.rbASR2);
+                    RadioButton rbASR3 = (RadioButton) g_rootView.findViewById(R.id.rbASR3);
+                    if (rbASR2.isChecked()) {
+                        type = TYPE_USE_SHERPA;
+                    } else if (rbASR3.isChecked()) {
+                        type = TYPE_USE_SHERPA_KROKO;
+                    } else {
+                        type = TYPE_USE_VOSK;
+                    }
+                    setTypeASRTest();
+
                     g_rootView.findViewById(R.id.rlTranscript).performClick(); //FIXME:added
                     //isRecording
-                    if (USE_RTASR) {
+                    if (type == TYPE_USE_RTASR) {
                         if (rtasrDialog == null) {
                             {
                                 Date now = new Date();
@@ -1888,7 +1916,7 @@ public class BookActivity4Fragment extends Fragment {
                             rtasrDialog.onClick_audio();
                             //startHandlerTask();
                         }
-                    } else if (USE_VOSK) {
+                    } else if (type == TYPE_USE_VOSK) {
                         if (voskDialog == null) {
                             {
                                 Date now = new Date();
@@ -1909,7 +1937,35 @@ public class BookActivity4Fragment extends Fragment {
                             voskDialog.onClick_audio();
                             //startHandlerTask();
                         }
+                    } else if (type == TYPE_USE_SHERPA || type == TYPE_USE_SHERPA_KROKO) {
+                        if (sherpaOnnxDialog == null) {
+                            {
+                                Date now = new Date();
+                                Date today = beginOfDay(now);
+                                SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.getDefault());//Locale.ENGLISH);
+                                String dateStr_ = sdf.format(today);
+                                editMeetingDate(dateStr_, today.getTime());
+                                Calendar calendar = Calendar.getInstance();
+                                calendar.setTime(now);
+                                calendar.set(Calendar.SECOND, 0);
+                                calendar.set(Calendar.MILLISECOND, 0);
+                                int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                                int minute = calendar.get(Calendar.MINUTE);
+                                editMeetingTime(hour, minute);
+                                lastRecordTime = calendar.getTime();
+                            }
+                            sherpaOnnxDialog = new BookActivity4SherpaOnnxDialog(getActivity(),
+                                    type == TYPE_USE_SHERPA_KROKO ? 21 : 10);
+                            //startHandlerTask();
+                        }
                     }
+
+//                    RadioButton rbASR1 = (RadioButton) g_rootView.findViewById(R.id.rbASR1);
+//                    RadioButton rbASR2 = (RadioButton) g_rootView.findViewById(R.id.rbASR2);
+//                    RadioButton rbASR3 = (RadioButton) g_rootView.findViewById(R.id.rbASR3);
+                    rbASR1.setEnabled(false);
+                    rbASR2.setEnabled(false);
+                    rbASR3.setEnabled(false);
                 }
             };
             View.OnClickListener onClickListener_stop = new View.OnClickListener() {
@@ -1919,17 +1975,24 @@ public class BookActivity4Fragment extends Fragment {
                         @Override
                         public void run() {
                             recordDuration();
-                            if (USE_RTASR) {
+                            if (type == TYPE_USE_RTASR) {
                                 if (rtasrDialog != null) {
                                     rtasrDialog.onClick_stop();
                                     rtasrDialog = null;
                                 } else {
                                     btn_audio_start_setEnabled(true);
                                 }
-                            } else if (USE_VOSK) {
+                            } else if (type == TYPE_USE_VOSK) {
                                 if (voskDialog != null) {
                                     voskDialog.onClick_stop();
                                     voskDialog = null;
+                                } else {
+                                    btn_audio_start_setEnabled(true);
+                                }
+                            } else if (type == TYPE_USE_SHERPA || type == TYPE_USE_SHERPA_KROKO) {
+                                if (sherpaOnnxDialog != null) {
+                                    sherpaOnnxDialog.onclick_Stop();
+                                    sherpaOnnxDialog = null;
                                 } else {
                                     btn_audio_start_setEnabled(true);
                                 }
@@ -2219,9 +2282,11 @@ public class BookActivity4Fragment extends Fragment {
     }
 
     private void startResmueRecord_old() {
-        if (USE_VOSK) {
+        if (type == TYPE_USE_VOSK ||
+                type == TYPE_USE_SHERPA ||
+                type == TYPE_USE_SHERPA_KROKO) {
             //skip
-        } else if (USE_RTASR) {
+        } else if (type == TYPE_USE_RTASR) {
             if (false) {
                 if (rtasrDialog == null) {
                     rtasrDialog = new BookActivity4RTASRDialog(getActivity());
@@ -2768,6 +2833,49 @@ public class BookActivity4Fragment extends Fragment {
                 }
             }
         });
+
+
+        RadioButton rbASR1 = (RadioButton) g_rootView.findViewById(R.id.rbASR1);
+        RadioButton rbASR2 = (RadioButton) g_rootView.findViewById(R.id.rbASR2);
+        RadioButton rbASR3 = (RadioButton) g_rootView.findViewById(R.id.rbASR3);
+        RadioGroup rgASR = (RadioGroup) g_rootView.findViewById(R.id.rgASR);
+        int lastASRType = getTypeASRTest();
+        if (lastASRType == TYPE_USE_SHERPA) {
+            rbASR2.setChecked(true);
+        } else if (lastASRType == TYPE_USE_SHERPA_KROKO) {
+            rbASR3.setChecked(true);
+        } else {
+            rbASR1.setChecked(true);
+        }
+        //don't use rbASR1.setOnCheckedChangeListener();
+        RadioGroup.OnCheckedChangeListener onCheckedChangeListener = new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
+                if (checkedId == R.id.rbASR2) {// rbASR2.isChecked()) {
+                    type = TYPE_USE_SHERPA;
+                } else if (checkedId == R.id.rbASR3) { //rbASR3.isChecked()) {
+                    type = TYPE_USE_SHERPA_KROKO;
+                } else {
+                    type = TYPE_USE_VOSK;
+                }
+                setTypeASRTest();
+            }
+        };
+        rgASR.setOnCheckedChangeListener(onCheckedChangeListener);
+    }
+
+    public void setTypeASRTest() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+//        String savingTest = preferences.getString(BookActivity4Config.CONFIG_SAVING_TEST, null);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt(BookActivity4Config.CONFIG_TYPE_ASR_TEST, type);
+        editor.apply();
+    }
+
+    public int getTypeASRTest() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        int result = preferences.getInt(BookActivity4Config.CONFIG_TYPE_ASR_TEST, TYPE_USE_VOSK);
+        return result;
     }
 
     public static int sp2px(Context context, float spValue) {
@@ -2874,7 +2982,7 @@ public class BookActivity4Fragment extends Fragment {
             dialog.setOnShowListener(new DialogInterface.OnShowListener() {
                 @Override
                 public void onShow(DialogInterface dialogInterface) {
-
+                    BookActivity4Utils.runFullScreen(getActivity());
                 }
             });
             dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -5073,6 +5181,12 @@ public class BookActivity4Fragment extends Fragment {
         AppCompatImageView ivPauseRecordOn = (AppCompatImageView) g_rootView.findViewById(R.id.ivPauseRecordOn);
         TextView tvPauseRecordOn = (TextView) g_rootView.findViewById(R.id.tvPauseRecordOn);
 
+
+        RadioButton rbASR1 = (RadioButton) g_rootView.findViewById(R.id.rbASR1);
+        RadioButton rbASR2 = (RadioButton) g_rootView.findViewById(R.id.rbASR2);
+        RadioButton rbASR3 = (RadioButton) g_rootView.findViewById(R.id.rbASR3);
+
+
         if (enableRecordButton) {
             ivStartRecord.setColorFilter(null);
             tvStartRecord.setTextColor(Color.BLACK);
@@ -5080,6 +5194,10 @@ public class BookActivity4Fragment extends Fragment {
             tvPauseRecordOff.setTextColor(Color.BLACK);
             ivPauseRecordOn.setColorFilter(null);
             tvPauseRecordOn.setTextColor(Color.WHITE);
+
+            rbASR1.setEnabled(true);
+            rbASR2.setEnabled(true);
+            rbASR3.setEnabled(true);
         } else {
             ivStartRecord.setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
             tvStartRecord.setTextColor(Color.LTGRAY);
@@ -5087,6 +5205,10 @@ public class BookActivity4Fragment extends Fragment {
             tvPauseRecordOff.setTextColor(Color.LTGRAY);
             ivPauseRecordOn.setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
             tvPauseRecordOn.setTextColor(Color.LTGRAY);
+
+            rbASR1.setEnabled(false);
+            rbASR2.setEnabled(false);
+            rbASR3.setEnabled(false);
         }
     }
 

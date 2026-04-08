@@ -44,6 +44,8 @@ public class BookActivity4DeleteDialog {
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialogInterface) {
+                BookActivity4Utils.runFullScreen(mContext);
+
                 AlertDialog dialog = (AlertDialog) dialogInterface;
                 RelativeLayout btnSave = (RelativeLayout) dialog.findViewById(R.id.btnSave);
                 Button btnCancel = (Button) dialog.findViewById(R.id.btnCancel);

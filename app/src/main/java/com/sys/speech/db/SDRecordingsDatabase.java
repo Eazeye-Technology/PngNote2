@@ -13,6 +13,7 @@ import com.sys.speech.pojo.RecordingItem;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SDRecordingsDatabase extends SQLiteOpenHelper {
     private final static boolean USE_WAL = true;
@@ -72,8 +73,8 @@ public class SDRecordingsDatabase extends SQLiteOpenHelper {
             loadMemDB();
         }
 	}
-    private List<RecordingItem> memdb = new ArrayList<>();
-    private List<RecordingItem> memdbAppend = new ArrayList<>();
+    private List<RecordingItem> memdb = new CopyOnWriteArrayList<>();
+    private List<RecordingItem> memdbAppend = new CopyOnWriteArrayList<>();
     @SuppressLint("Range")
     private void loadMemDB() {
         try {

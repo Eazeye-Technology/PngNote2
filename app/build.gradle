@@ -12,8 +12,8 @@ android {
         applicationId "com.txkj.drawingapp"
         minSdk 21 //23 //24 //onyx need 24 //24//
         targetSdk 35//36 //35 //
-        versionCode 16032
-        versionName "1.60.32"
+        versionCode 16033
+        versionName "1.60.33"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 

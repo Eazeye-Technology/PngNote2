@@ -509,6 +509,16 @@ public static boolean onBackPressed(Activity context) {
         }
     }
 
+    public static void runFullScreen(Context context) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            FragmentManager fragmentManager = act.getSupportFragmentManager();
+            Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+            if (currentFragment instanceof BookActivity4Fragment) {
+                ((BookActivity4Fragment) currentFragment).runFullScreen(act);
+            }
+        }
+    }
     public static void onLongClickSubmenu1_after(Context context, BookActivity4BrushEditDialog dialog, int mBrushId) {
         if (context instanceof BookListActivity) {
             BookListActivity act = (BookListActivity) context;

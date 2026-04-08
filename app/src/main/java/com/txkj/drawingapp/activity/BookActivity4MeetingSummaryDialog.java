@@ -43,6 +43,8 @@ public class BookActivity4MeetingSummaryDialog {
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialogInterface) {
+                BookActivity4Utils.runFullScreen(mContext);
+
 //                                TextView tvDialogTitle = ((AlertDialog) dialog).findViewById(R.id.tvDialogTitle);
 //                                tvDialogTitle.setText("Rename note");
                 AlertDialog dialog = (AlertDialog) dialogInterface;

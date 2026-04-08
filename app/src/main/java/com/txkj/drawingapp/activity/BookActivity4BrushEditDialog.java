@@ -53,6 +53,8 @@ public class BookActivity4BrushEditDialog {
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialogInterface) {
+                BookActivity4Utils.runFullScreen(mContext);
+
                 onShowDialog(dialog);
             }
         });

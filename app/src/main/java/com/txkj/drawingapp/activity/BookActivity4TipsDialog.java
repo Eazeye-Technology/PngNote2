@@ -39,6 +39,8 @@ public class BookActivity4TipsDialog {
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface dialogInterface) {
+                BookActivity4Utils.runFullScreen(mAct);
+
                 AlertDialog dialog = (AlertDialog) dialogInterface;
                 //TextInputEditText input = dialog.findViewById(R.id.textState);
                 Button btnSave = (Button) dialog.findViewById(R.id.btnSave); //Close

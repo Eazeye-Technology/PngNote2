@@ -25,5 +25,5 @@ public class BookActivity4Config {
     public final static boolean LOAD_OLD_PAGE_NO_UNDO = true;
 
     public final static String CONFIG_SAVING_TEST = "configSavingTest"; //1:yes; other:no;
-
+    public final static String CONFIG_TYPE_ASR_TEST = "configTypeASRTest";
 }

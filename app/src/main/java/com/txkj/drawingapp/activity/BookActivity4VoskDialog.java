@@ -87,6 +87,8 @@ public class BookActivity4VoskDialog implements RecognitionListener {
                     }
                     if(all){
                         initModel();
+                    } else {
+                        BookActivity4Utils.btn_audio_start_setEnabled(mAct, true);
                     }
                 }
 
@@ -98,6 +100,7 @@ public class BookActivity4VoskDialog implements RecognitionListener {
                     }else{
                         Log.e(TAG,"onDenied:permission failed");
                     }
+                    BookActivity4Utils.btn_audio_start_setEnabled(mAct, true);
                 }
             });
         }
