@@ -175,7 +175,8 @@ public class BookActivity4Fragment extends Fragment {
     private final static boolean USE_BOTTOM_SHEET = false;
     private final static boolean USE_RECORDING_FRAGMENT_TEST = false; //need open id/fragment_recording
 
-    private int type = TYPE_USE_SHERPA; //TYPE_USE_VOSK;
+    private final static boolean TYPE_NO_CHOOSE = true;
+    private int type = TYPE_USE_SHERPA_KROKO; //TYPE_USE_VOSK;
     public final static int TYPE_USE_RTASR = 0;
     public final static int TYPE_USE_VOSK = 1;
     public final static int TYPE_USE_SHERPA = 2;
@@ -1884,14 +1885,18 @@ public class BookActivity4Fragment extends Fragment {
                     RadioButton rbASR1 = (RadioButton) g_rootView.findViewById(R.id.rbASR1);
                     RadioButton rbASR2 = (RadioButton) g_rootView.findViewById(R.id.rbASR2);
                     RadioButton rbASR3 = (RadioButton) g_rootView.findViewById(R.id.rbASR3);
-                    if (rbASR2.isChecked()) {
-                        type = TYPE_USE_SHERPA;
-                    } else if (rbASR3.isChecked()) {
-                        type = TYPE_USE_SHERPA_KROKO;
+                    if (TYPE_NO_CHOOSE) {
+                        //skip
                     } else {
-                        type = TYPE_USE_VOSK;
+                        if (rbASR2.isChecked()) {
+                            type = TYPE_USE_SHERPA;
+                        } else if (rbASR3.isChecked()) {
+                            type = TYPE_USE_SHERPA_KROKO;
+                        } else {
+                            type = TYPE_USE_VOSK;
+                        }
+                        setTypeASRTest();
                     }
-                    setTypeASRTest();
 
                     g_rootView.findViewById(R.id.rlTranscript).performClick(); //FIXME:added
                     //isRecording
@@ -1963,9 +1968,13 @@ public class BookActivity4Fragment extends Fragment {
 //                    RadioButton rbASR1 = (RadioButton) g_rootView.findViewById(R.id.rbASR1);
 //                    RadioButton rbASR2 = (RadioButton) g_rootView.findViewById(R.id.rbASR2);
 //                    RadioButton rbASR3 = (RadioButton) g_rootView.findViewById(R.id.rbASR3);
-                    rbASR1.setEnabled(false);
-                    rbASR2.setEnabled(false);
-                    rbASR3.setEnabled(false);
+                    if (TYPE_NO_CHOOSE) {
+                        //sktip
+                    } else {
+                        rbASR1.setEnabled(false);
+                        rbASR2.setEnabled(false);
+                        rbASR3.setEnabled(false);
+                    }
                 }
             };
             View.OnClickListener onClickListener_stop = new View.OnClickListener() {
@@ -2839,29 +2848,33 @@ public class BookActivity4Fragment extends Fragment {
         RadioButton rbASR2 = (RadioButton) g_rootView.findViewById(R.id.rbASR2);
         RadioButton rbASR3 = (RadioButton) g_rootView.findViewById(R.id.rbASR3);
         RadioGroup rgASR = (RadioGroup) g_rootView.findViewById(R.id.rgASR);
-        int lastASRType = getTypeASRTest();
-        if (lastASRType == TYPE_USE_SHERPA) {
-            rbASR2.setChecked(true);
-        } else if (lastASRType == TYPE_USE_SHERPA_KROKO) {
-            rbASR3.setChecked(true);
+        if (TYPE_NO_CHOOSE) {
+            rgASR.setVisibility(View.GONE);
         } else {
-            rbASR1.setChecked(true);
-        }
-        //don't use rbASR1.setOnCheckedChangeListener();
-        RadioGroup.OnCheckedChangeListener onCheckedChangeListener = new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
-                if (checkedId == R.id.rbASR2) {// rbASR2.isChecked()) {
-                    type = TYPE_USE_SHERPA;
-                } else if (checkedId == R.id.rbASR3) { //rbASR3.isChecked()) {
-                    type = TYPE_USE_SHERPA_KROKO;
-                } else {
-                    type = TYPE_USE_VOSK;
-                }
-                setTypeASRTest();
+            int lastASRType = getTypeASRTest();
+            if (lastASRType == TYPE_USE_SHERPA) {
+                rbASR2.setChecked(true);
+            } else if (lastASRType == TYPE_USE_SHERPA_KROKO) {
+                rbASR3.setChecked(true);
+            } else {
+                rbASR1.setChecked(true);
             }
-        };
-        rgASR.setOnCheckedChangeListener(onCheckedChangeListener);
+            //don't use rbASR1.setOnCheckedChangeListener();
+            RadioGroup.OnCheckedChangeListener onCheckedChangeListener = new RadioGroup.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
+                    if (checkedId == R.id.rbASR2) {// rbASR2.isChecked()) {
+                        type = TYPE_USE_SHERPA;
+                    } else if (checkedId == R.id.rbASR3) { //rbASR3.isChecked()) {
+                        type = TYPE_USE_SHERPA_KROKO;
+                    } else {
+                        type = TYPE_USE_VOSK;
+                    }
+                    setTypeASRTest();
+                }
+            };
+            rgASR.setOnCheckedChangeListener(onCheckedChangeListener);
+        }
     }
 
     public void setTypeASRTest() {

@@ -42,5 +42,5 @@ google-services.json
 # Android Profiling
 *.hprof
 
-/vendor
-/app/vendor
+#/vendor
+#/app/vendor

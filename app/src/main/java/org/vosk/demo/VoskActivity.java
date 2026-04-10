@@ -83,7 +83,7 @@ public class VoskActivity extends Activity implements
     }
 
     private void initModel() {
-        StorageService.unpack(this, "model-en-us", "model",
+        StorageService.unpack(this, "vendor/assets/model-en-us", "model",
                 (model) -> {
                     this.model = model;
                     setUiState(STATE_READY);

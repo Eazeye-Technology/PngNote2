@@ -141,11 +141,14 @@ android:textColor="#FFFFFFFF"
                             <RelativeLayout
                                 android:layout_width="@dimen/activity_dialog_jump_btn_width_delete"
                                 android:layout_height="@dimen/activity_dialog_jump_btn_height_delete"
-                                android:background="@drawable/button_outline"
+                                android:background="@drawable/button_outline_right_round"
                                 android:padding="0px"
                                 android:id="@+id/btnDelete"
                                 android:gravity="center|center_vertical"
                                 >
+                                <!--
+                                android:background="@drawable/button_outline"
+                                -->
                                 <ImageView
                                     android:layout_width="@dimen/activity_dialog_jump_btn_width_delete_iv"
                                     android:layout_height="@dimen/activity_dialog_jump_btn_width_delete_iv"
@@ -160,14 +163,15 @@ android:textColor="#FFFFFFFF"
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="center_vertical|left"
                                     android:layout_toRightOf="@+id/btnDeleteTextIcon"
-                                    android:background="@android:color/transparent"
                                     android:drawableTint="#FFCCCCCC"
+                                    android:background="@android:color/transparent"
                                     android:text="Delete"
                                     android:textAllCaps="false"
                                     android:textColor="#CCC"
                                     android:textSize="@dimen/activity_dialog_upgrade_text_size3"
                                     app:iconPadding="0px"
-                                    android:layout_marginLeft="@dimen/activity_dialog_upgrade_btn_margin_left_delete2"/>
+                                    android:layout_marginLeft="@dimen/activity_dialog_upgrade_btn_margin_left_delete2"
+                                    />
                             </RelativeLayout>
                             <!--app:icon-->
                         </LinearLayout>

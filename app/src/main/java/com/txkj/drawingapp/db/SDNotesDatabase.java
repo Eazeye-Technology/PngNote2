@@ -23,6 +23,8 @@ import java.util.Map;
 
 public class SDNotesDatabase extends SQLiteOpenHelper {
     private static final String TAG = "SDNDb";
+    //getWritableDatabase singleton
+    //https://github.com/frostwire/frostwire/blob/f6c6314da944182b5c7f34346d7dcc91c9531949/android/apollo/src/com/andrew/apollo/provider/FavoritesStore.java#L54
     private final static boolean USE_WAL = true;
 
 	private Context mContext;

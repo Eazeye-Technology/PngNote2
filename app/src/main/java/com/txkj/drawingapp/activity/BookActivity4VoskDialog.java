@@ -3,25 +3,13 @@ package com.txkj.drawingapp.activity;
 import android.Manifest;
 import android.app.Activity;
 import android.content.pm.PackageManager;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.ToggleButton;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.example.sparkchaindemo.utils.AudioRecorderManager;
 import com.hjq.permissions.OnPermission;
 import com.hjq.permissions.XXPermissions;
-import com.iflytek.sparkchain.core.LogLvl;
-import com.iflytek.sparkchain.core.SparkChain;
-import com.iflytek.sparkchain.core.SparkChainConfig;
-import com.iflytek.sparkchain.core.rtasr.RTASR;
-import com.iflytek.sparkchain.core.rtasr.RTASRCallbacks;
-import com.txkj.drawingapp.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,12 +22,8 @@ import org.vosk.android.SpeechService;
 import org.vosk.android.SpeechStreamService;
 import org.vosk.android.StorageService;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BookActivity4VoskDialog implements RecognitionListener {
     private static final String TAG = "Vosk";
@@ -108,7 +92,7 @@ public class BookActivity4VoskDialog implements RecognitionListener {
 
 
     private void initModel() {
-        StorageService.unpack(mAct, "model-en-us", "model",
+        StorageService.unpack(mAct, "vendor/assets/model-en-us", "model",
                 (model) -> {
                     this.model = model;
                     setUiState(STATE_READY);

@@ -11,5 +11,6 @@
 
     <dimen name="activity_dialog_jump_btn_width_delete">101px</dimen>
     <dimen name="activity_dialog_jump_btn_height_delete">40px</dimen>
+    <dimen name="activity_dialog_jump_btn_height_delete_half">20px</dimen>
     <dimen name="activity_dialog_jump_btn_width_delete_iv">20px</dimen>
 </resources>

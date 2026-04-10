@@ -295,7 +295,7 @@ public class BookActivity4PageGridDialog {
 
                 btnDeleteText.setTextColor(0xFF000000);
                 btnDeleteTextIcon.setBackgroundTintList(ColorStateList.valueOf(0xFF000000));
-                btnDelete.setBackgroundResource(R.drawable.button_outline);
+                btnDelete.setBackgroundResource(R.drawable.button_outline_right_round);
 
                 btnSelectText.setTextColor(0xFFFFFFFF);
                 btnSelect.setBackgroundResource(R.drawable.button_outline_black);
@@ -308,7 +308,7 @@ public class BookActivity4PageGridDialog {
 
                 btnDeleteText.setTextColor(0xFF908E8E);
                 btnDeleteTextIcon.setBackgroundTintList(ColorStateList.valueOf(0xFF908E8E));
-                btnDelete.setBackgroundResource(R.drawable.button_outline_gray);
+                btnDelete.setBackgroundResource(R.drawable.button_outline_gray_right_round);
 
                 btnSelectText.setTextColor(0xFF000000);
                 btnSelect.setBackgroundResource(R.drawable.button_outline);
@@ -321,7 +321,7 @@ public class BookActivity4PageGridDialog {
 
                 btnDeleteText.setTextColor(0xFF908E8E);
                 btnDeleteTextIcon.setBackgroundTintList(ColorStateList.valueOf(0xFF908E8E));
-                btnDelete.setBackgroundResource(R.drawable.button_outline_gray);
+                btnDelete.setBackgroundResource(R.drawable.button_outline_gray_right_round);
 
                 btnSelectText.setTextColor(0xFF000000);
                 btnSelect.setBackgroundResource(R.drawable.button_outline);

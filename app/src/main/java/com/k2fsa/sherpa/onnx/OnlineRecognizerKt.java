@@ -48,7 +48,7 @@ public final class OnlineRecognizerKt {
                 modelDir = "sherpa-onnx-streaming-zipformer-zh-14M-2023-02-23";
                 return new OnlineModelConfig(new OnlineTransducerModelConfig(modelDir + "/encoder-epoch-99-avg-1.int8.onnx", modelDir + "/decoder-epoch-99-avg-1.onnx", modelDir + "/joiner-epoch-99-avg-1.int8.onnx"), (OnlineParaformerModelConfig)null, (OnlineZipformer2CtcModelConfig)null, (OnlineNeMoCtcModelConfig)null, (OnlineToneCtcModelConfig)null, modelDir + "/tokens.txt", 0, false, (String)null, "zipformer", (String)null, (String)null, 3550, (DefaultConstructorMarker)null);
             case 10:
-                modelDir = "sherpa-onnx-streaming-zipformer-en-20M-2023-02-17";
+                modelDir = "vendor/assets/sherpa-onnx-streaming-zipformer-en-20M-2023-02-17";
                 return new OnlineModelConfig(new OnlineTransducerModelConfig(modelDir + "/encoder-epoch-99-avg-1.int8.onnx", modelDir + "/decoder-epoch-99-avg-1.onnx", modelDir + "/joiner-epoch-99-avg-1.int8.onnx"), (OnlineParaformerModelConfig)null, (OnlineZipformer2CtcModelConfig)null, (OnlineNeMoCtcModelConfig)null, (OnlineToneCtcModelConfig)null, modelDir + "/tokens.txt", 0, false, (String)null, "zipformer", (String)null, (String)null, 3550, (DefaultConstructorMarker)null);
             case 11:
                 modelDir = "sherpa-onnx-nemo-streaming-fast-conformer-ctc-en-80ms";
