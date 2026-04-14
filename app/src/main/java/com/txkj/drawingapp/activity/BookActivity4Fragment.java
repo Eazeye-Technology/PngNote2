@@ -3673,7 +3673,7 @@ public class BookActivity4Fragment extends Fragment {
                         }
                     }
                 }
-            });
+            }, this.copyPaths != null && !this.copyPaths.isEmpty());
         }
     }
 

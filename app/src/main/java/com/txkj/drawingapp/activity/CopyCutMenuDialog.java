@@ -1,10 +1,13 @@
 package com.txkj.drawingapp.activity;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
@@ -17,7 +20,7 @@ public class CopyCutMenuDialog {
     public static boolean isOpen = false;
     private static View.OnClickListener mListener = null;
     private static PopupWindow popup;
-    public static void show(Context context, View anchor, int pageIndex, int pageNum, final View.OnClickListener listener) {
+    public static void show(Context context, View anchor, int pageIndex, int pageNum, final View.OnClickListener listener, boolean isEnablePaste) {
         //View layout = View.inflate(context, R.layout.activity_main_menu1, null);
         View layout = View.inflate(context, R.layout.activity_book4_popup_menu, null);
         //View wv = layout.findViewById(R.id.wheel);
@@ -63,6 +66,18 @@ public class CopyCutMenuDialog {
         if (popTextViewPageInfo != null) {
             //textViewPageInfo.setText("" + (getPageIdx() + 1) + "/" + pageNum);
             popTextViewPageInfo.setText("" + pageIndex + "/" + pageNum);
+        }
+
+        //20260410: paste gray color
+        ImageView ivMenuPaste = (ImageView) layout.findViewById(R.id.ivMenuPaste);
+        TextView tvMenuPaste = (TextView) layout.findViewById(R.id.tvMenuPaste);
+        //this.copyPaths.isEmpty()
+        if (isEnablePaste) {
+            ivMenuPaste.clearColorFilter();
+            tvMenuPaste.setTextColor(Color.BLACK);
+        } else {
+            ivMenuPaste.setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
+            tvMenuPaste.setTextColor(Color.LTGRAY);
         }
 
         //  make a popup window
