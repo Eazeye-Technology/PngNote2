@@ -720,12 +720,12 @@ public class BookActivity4Fragment extends Fragment {
 
     //--------------------------
     private final static int iconsSubmenu1[] = {
-            R.id.left_toolkit_item1, //1 pen
+            R.id.left_toolkit_item1, //1 pen //PEN_TYPE_1
             R.id.left_toolkit_item2,
-            R.id.left_toolkit_item3, //2 highlight
-            R.id.left_toolkit_item4, //3 pencil
+            R.id.left_toolkit_item3, //2 highlight //PEN_TYPE_3
+            R.id.left_toolkit_item4, //3 pencil //hidden
             R.id.left_toolkit_item5,
-            R.id.left_toolkit_item6, //6 shape
+            R.id.left_toolkit_item6, //6 shape //hidden
     };
     public int getActiveIconIdSubmenu1(int id, boolean isActive) {
         if (id == R.id.left_toolkit_item1) {

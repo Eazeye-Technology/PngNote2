@@ -209,23 +209,23 @@
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="60px"
+                    android:layout_height="@dimen/activity_book4_ai_panel_rec_btn_height"
                     android:orientation="horizontal"
                     >
                     <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:layout_gravity="center_vertical|center"
-                        android:layout_marginLeft="24px"
+                        android:layout_marginLeft="@dimen/activity_book4_ai_panel_rec_btn1_margin_left"
                         >
                         <androidx.cardview.widget.CardView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             app:cardBackgroundColor="#585858"
-                            app:cardCornerRadius="30px"
+                            app:cardCornerRadius="@dimen/activity_book4_ai_panel_rec_btn1_corner"
                             app:cardElevation="0px"
                             android:layout_gravity="center|center_vertical"
-                            android:layout_margin="5px"
+                            android:layout_margin="@dimen/activity_book4_ai_panel_rec_btn1_margin"
                             android:id="@+id/stopRecord"
                             android:visibility="gone"
                             android:layout_centerInParent="true"
@@ -233,11 +233,11 @@
                             <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:paddingLeft="20px"
+                                android:paddingLeft="@dimen/activity_book4_ai_panel_rec_btn1_padding_left"
                                 >
                                 <androidx.appcompat.widget.AppCompatImageView
-                                    android:layout_width="20px"
-                                    android:layout_height="20px"
+                                    android:layout_width="@dimen/activity_book4_ai_panel_rec_btn1_iv_height"
+                                    android:layout_height="@dimen/activity_book4_ai_panel_rec_btn1_iv_height"
                                     android:layout_centerVertical="true"
                                     android:scaleType="fitCenter"
                                     android:textSize="11px"
@@ -247,18 +247,18 @@
                                     android:layout_gravity="center"
                                     android:gravity="center"
                                     android:tag="binding_1"
-                                    android:layout_margin="10px"
+                                    android:layout_margin="@dimen/activity_book4_ai_panel_rec_btn1_iv_margin"
                                     />
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:textSize="14px"
+                                    android:textSize="@dimen/activity_book4_ai_panel_rec_btn1_tv_text_size"
                                     android:text="Stop Recording"
                                     android:textColor="#ffffff"
                                     android:textStyle="bold"
                                     android:layout_gravity="center"
                                     android:gravity="center"
-                                    android:layout_marginRight="30px"
+                                    android:layout_marginRight="@dimen/activity_book4_ai_panel_rec_btn1_tv_margin_right"
                                     android:visibility="visible"
                                     />
                             </LinearLayout>
@@ -267,9 +267,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             app:cardBackgroundColor="#F6F3F2"
-                            app:cardCornerRadius="30px"
+                            app:cardCornerRadius="@dimen/activity_book4_ai_panel_rec_btn1_corner"
                             android:layout_gravity="center|center_vertical"
-                            android:layout_marginLeft="5px"
+                            android:layout_marginLeft="@dimen/activity_book4_ai_panel_rec_btn1_margin"
                             android:id="@+id/startRecord"
                             android:visibility="visible"
                             android:layout_centerInParent="true"
@@ -277,12 +277,12 @@
                             <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:paddingLeft="20px"
+                                android:paddingLeft="@dimen/activity_book4_ai_panel_rec_btn1_padding_left"
                                 >
                                 <androidx.appcompat.widget.AppCompatImageView
                                     android:id="@+id/ivStartRecord"
-                                    android:layout_width="20px"
-                                    android:layout_height="20px"
+                                    android:layout_width="@dimen/activity_book4_ai_panel_rec_btn1_iv_height"
+                                    android:layout_height="@dimen/activity_book4_ai_panel_rec_btn1_iv_height"
                                     android:layout_centerVertical="true"
                                     android:scaleType="fitCenter"
                                     android:textSize="11px"
@@ -292,19 +292,19 @@
                                     android:layout_gravity="center"
                                     android:gravity="center"
                                     android:tag="binding_1"
-                                    android:layout_margin="10px"
+                                    android:layout_margin="@dimen/activity_book4_ai_panel_rec_btn1_iv_margin"
                                     />
                                 <TextView
                                     android:id="@+id/tvStartRecord"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:textSize="14px"
+                                    android:textSize="@dimen/activity_book4_ai_panel_rec_btn1_tv_text_size"
                                     android:text="Start Record"
                                     android:textColor="#000000"
                                     android:textStyle="bold"
                                     android:layout_gravity="center"
                                     android:gravity="center"
-                                    android:layout_marginRight="30px"
+                                    android:layout_marginRight="@dimen/activity_book4_ai_panel_rec_btn1_tv_margin_right"
                                     android:visibility="visible"
                                     />
                             </LinearLayout>
@@ -322,22 +322,22 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             app:cardBackgroundColor="#F6F3F2"
-                            app:cardCornerRadius="30px"
+                            app:cardCornerRadius="@dimen/activity_book4_ai_panel_rec_btn1_corner"
                             android:layout_gravity="center|center_vertical"
-                            android:layout_margin="5px"
-                            android:layout_marginLeft="5px"
+                            android:layout_margin="@dimen/activity_book4_ai_panel_rec_btn1_margin"
+                            android:layout_marginLeft="@dimen/activity_book4_ai_panel_rec_btn1_margin"
                             android:visibility="visible"
                             android:layout_centerInParent="true"
                             >
                             <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:paddingLeft="20px"
+                            android:paddingLeft="@dimen/activity_book4_ai_panel_rec_btn1_padding_left"
                             >
                             <androidx.appcompat.widget.AppCompatImageView
                                 android:id="@+id/ivPauseRecordOff"
-                                android:layout_width="20px"
-                                android:layout_height="20px"
+                                android:layout_width="@dimen/activity_book4_ai_panel_rec_btn1_iv_height"
+                                android:layout_height="@dimen/activity_book4_ai_panel_rec_btn1_iv_height"
                                 android:layout_centerVertical="true"
                                 android:scaleType="fitCenter"
                                 android:textSize="11px"
@@ -347,19 +347,19 @@
                                 android:layout_gravity="center"
                                 android:gravity="center"
                                 android:tag="binding_1"
-                                android:layout_margin="10px"
+                                android:layout_margin="@dimen/activity_book4_ai_panel_rec_btn1_iv_margin"
                                 />
                             <TextView
                                 android:id="@+id/tvPauseRecordOff"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textSize="14px"
+                                android:textSize="@dimen/activity_book4_ai_panel_rec_btn1_tv_text_size"
                                 android:text="Pause"
                                 android:textColor="#000000"
                                 android:textStyle="bold"
                                 android:layout_gravity="center"
                                 android:gravity="center"
-                                android:layout_marginRight="30px"
+                                android:layout_marginRight="@dimen/activity_book4_ai_panel_rec_btn1_tv_margin_right"
                                 android:visibility="visible"
                                 />
                         </LinearLayout>
@@ -369,22 +369,22 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             app:cardBackgroundColor="#585858"
-                            app:cardCornerRadius="30px"
+                            app:cardCornerRadius="@dimen/activity_book4_ai_panel_rec_btn1_corner"
                             android:layout_gravity="center|center_vertical"
-                            android:layout_margin="5px"
-                            android:layout_marginLeft="5px"
+                            android:layout_margin="@dimen/activity_book4_ai_panel_rec_btn1_margin"
+                            android:layout_marginLeft="@dimen/activity_book4_ai_panel_rec_btn1_margin"
                             android:visibility="gone"
                             android:layout_centerInParent="true"
                             >
                             <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:paddingLeft="20px"
+                                android:paddingLeft="@dimen/activity_book4_ai_panel_rec_btn1_padding_left"
                                 >
                                 <androidx.appcompat.widget.AppCompatImageView
                                     android:id="@+id/ivPauseRecordOn"
-                                    android:layout_width="20px"
-                                    android:layout_height="20px"
+                                    android:layout_width="@dimen/activity_book4_ai_panel_rec_btn1_iv_height"
+                                    android:layout_height="@dimen/activity_book4_ai_panel_rec_btn1_iv_height"
                                     android:layout_centerVertical="true"
                                     android:scaleType="fitCenter"
                                     android:textSize="11px"
@@ -394,19 +394,19 @@
                                     android:layout_gravity="center"
                                     android:gravity="center"
                                     android:tag="binding_1"
-                                    android:layout_margin="10px"
+                                    android:layout_margin="@dimen/activity_book4_ai_panel_rec_btn1_iv_margin"
                                     />
                                 <TextView
                                     android:id="@+id/tvPauseRecordOn"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:textSize="14px"
+                                    android:textSize="@dimen/activity_book4_ai_panel_rec_btn1_tv_text_size"
                                     android:text="Resume"
                                     android:textColor="#FFFFFF"
                                     android:textStyle="bold"
                                     android:layout_gravity="center"
                                     android:gravity="center"
-                                    android:layout_marginRight="30px"
+                                    android:layout_marginRight="@dimen/activity_book4_ai_panel_rec_btn1_tv_margin_right"
                                     android:visibility="visible"
                                     />
                             </LinearLayout>

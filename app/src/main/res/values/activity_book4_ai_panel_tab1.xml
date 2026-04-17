@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="activity_book4_ai_panel_tab1_text_size1">16px</dimen>
+    <dimen name="activity_book4_ai_panel_tab1_text_size2">14px</dimen>
+</resources>

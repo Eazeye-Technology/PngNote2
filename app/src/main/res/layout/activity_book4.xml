@@ -213,6 +213,7 @@
                             android:layout_gravity="center|center_vertical"
                             android:layout_margin="5px"
                             android:id="@+id/left_toolkit_item4"
+                            android:visibility="gone"
                             >
                             <LinearLayout
                                 android:layout_width="wrap_content"
@@ -812,11 +813,11 @@
 
                 <LinearLayout
                     android:id="@+id/llPanel"
-                    android:layout_width="400px"
+                    android:layout_width="@dimen/activity_book4_ai_panel_width"
                     android:layout_height="match_parent"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentBottom="true"
-                    android:layout_marginTop="120px"
+                    android:layout_marginTop="@dimen/activity_book4_ai_panel_margin_top"
                     android:layout_marginBottom="0px"
                     android:visibility="visible">
 
@@ -1223,7 +1224,7 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="64px"
+                    android:layout_height="@dimen/activity_book4_title_height"
                     android:layout_weight="1"
                     android:orientation="horizontal"
                     android:gravity="left"
@@ -1240,19 +1241,19 @@
                             android:foreground="?android:attr/selectableItemBackground"
                             android:clickable="false"
                             android:focusable="true"
-                            android:layout_width="48px"
-                            android:layout_height="48px"
-                            app:cardCornerRadius="25px"
+                            android:layout_width="@dimen/activity_book4_title_btn_cv_height"
+                            android:layout_height="@dimen/activity_book4_title_btn_cv_height"
+                            app:cardCornerRadius="@dimen/activity_book4_title_btn_cv_corner"
                             app:cardElevation="0px"
                             app:cardBackgroundColor="#00000000"
                             >
                             <RelativeLayout
-                                android:layout_width="48px"
-                                android:layout_height="48px">
+                                android:layout_width="@dimen/activity_book4_title_btn_cv_height"
+                                android:layout_height="@dimen/activity_book4_title_btn_cv_height">
 
                                 <ImageView
-                                    android:layout_width="24px"
-                                    android:layout_height="24px"
+                                    android:layout_width="@dimen/activity_book4_title_btn_cv_iv_height"
+                                    android:layout_height="@dimen/activity_book4_title_btn_cv_iv_height"
                                     android:layout_centerInParent="true"
                                     android:src="@drawable/ic_baseline_arrow_back_24" />
                             </RelativeLayout>
@@ -1266,8 +1267,8 @@
                         android:textStyle="bold"
                         android:layout_gravity="center_vertical"
                         android:id="@+id/newTitle"
-                        android:layout_marginLeft="4px"
-                        android:textSize="22px"
+                        android:layout_marginLeft="@dimen/activity_book4_title_margin_left"
+                        android:textSize="@dimen/activity_book4_title_font_size"
                         />
                 </LinearLayout>
 
@@ -1288,8 +1289,8 @@
 
                     <RelativeLayout
                         android:orientation="vertical"
-                        android:layout_width="50px"
-                        android:layout_height="50px"
+                        android:layout_width="@dimen/activity_book4_title_right_menu_cv_height"
+                        android:layout_height="@dimen/activity_book4_title_right_menu_cv_height"
                         android:padding="0px"
                         android:clickable="true"
                         >
@@ -1299,7 +1300,7 @@
                             android:focusable="true"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            app:cardCornerRadius="25px"
+                            app:cardCornerRadius="@dimen/activity_book4_title_btn_cv_corner"
                             app:cardElevation="0px"
                             app:cardBackgroundColor="#00000000"
                             android:id="@+id/btnMore"
@@ -1308,8 +1309,8 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent">
                                 <ImageView
-                                    android:layout_width="24px"
-                                    android:layout_height="24px"
+                                    android:layout_width="@dimen/activity_book4_title_btn_cv_iv_height"
+                                    android:layout_height="@dimen/activity_book4_title_btn_cv_iv_height"
                                     android:layout_centerVertical="true"
                                     android:layout_centerHorizontal="true"
                                     android:src="@drawable/ic_my_bar_more_006"
@@ -1320,8 +1321,8 @@
 
                     <RelativeLayout
                         android:orientation="vertical"
-                        android:layout_width="50px"
-                        android:layout_height="50px"
+                        android:layout_width="@dimen/activity_book4_title_right_menu_cv_height"
+                        android:layout_height="@dimen/activity_book4_title_right_menu_cv_height"
                         android:padding="0px"
                         android:id="@+id/btnTitleUndo"
                         >
@@ -1331,7 +1332,7 @@
                             android:focusable="true"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            app:cardCornerRadius="25px"
+                            app:cardCornerRadius="@dimen/activity_book4_title_btn_cv_corner"
                             app:cardElevation="0px"
                             app:cardBackgroundColor="#00000000"
                             android:id="@+id/llTitleUndo"
@@ -1340,8 +1341,8 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent">
                                 <ImageView
-                                    android:layout_width="24px"
-                                    android:layout_height="24px"
+                                    android:layout_width="@dimen/activity_book4_title_btn_cv_iv_height"
+                                    android:layout_height="@dimen/activity_book4_title_btn_cv_iv_height"
                                     android:layout_centerVertical="true"
                                     android:layout_centerHorizontal="true"
                                     android:src="@drawable/ic_my_bar_undo_007"
@@ -1353,7 +1354,7 @@
                                     android:layout_height="wrap_content"
                                     android:text=""
                                     android:textColor="@color/black"
-                                    android:textSize="12px"
+                                    android:textSize="@dimen/activity_book4_title_btn_cv_tv_font_size"
                                     android:layout_alignParentBottom="true"
                                     android:layout_centerHorizontal="true"
                                     />
@@ -1372,8 +1373,8 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent">
                                 <ImageView
-                                    android:layout_width="24px"
-                                    android:layout_height="24px"
+                                    android:layout_width="@dimen/activity_book4_title_btn_cv_iv_height"
+                                    android:layout_height="@dimen/activity_book4_title_btn_cv_iv_height"
                                     android:layout_centerVertical="true"
                                     android:layout_centerHorizontal="true"
                                     android:src="@drawable/ic_my_bar_undo_007_g"
@@ -1385,8 +1386,8 @@
 
                     <RelativeLayout
                         android:orientation="vertical"
-                        android:layout_width="50px"
-                        android:layout_height="50px"
+                        android:layout_width="@dimen/activity_book4_title_right_menu_cv_height"
+                        android:layout_height="@dimen/activity_book4_title_right_menu_cv_height"
                         android:padding="0px"
                         android:id="@+id/btnTitleRedo"
                         >
@@ -1396,7 +1397,7 @@
                             android:focusable="true"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            app:cardCornerRadius="25px"
+                            app:cardCornerRadius="@dimen/activity_book4_title_btn_cv_corner"
                             app:cardElevation="0px"
                             app:cardBackgroundColor="#00000000"
                             android:id="@+id/llTitleRedo"
@@ -1405,8 +1406,8 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent">
                                 <ImageView
-                                    android:layout_width="24px"
-                                    android:layout_height="24px"
+                                    android:layout_width="@dimen/activity_book4_title_btn_cv_iv_height"
+                                    android:layout_height="@dimen/activity_book4_title_btn_cv_iv_height"
                                     android:layout_centerVertical="true"
                                     android:layout_centerHorizontal="true"
                                     android:src="@drawable/ic_my_bar_redo_008"
@@ -1418,7 +1419,7 @@
                                     android:layout_height="wrap_content"
                                     android:text=""
                                     android:textColor="@color/black"
-                                    android:textSize="12px"
+                                    android:textSize="@dimen/activity_book4_title_btn_cv_tv_font_size"
                                     android:layout_alignParentBottom="true"
                                     android:layout_centerHorizontal="true"
                                     />
@@ -1437,8 +1438,8 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent">
                                 <ImageView
-                                    android:layout_width="24px"
-                                    android:layout_height="24px"
+                                    android:layout_width="@dimen/activity_book4_title_btn_cv_iv_height"
+                                    android:layout_height="@dimen/activity_book4_title_btn_cv_iv_height"
                                     android:layout_centerVertical="true"
                                     android:layout_centerHorizontal="true"
                                     android:src="@drawable/ic_my_bar_redo_008_g"
@@ -1474,7 +1475,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             app:cardBackgroundColor="#000000"
-                            app:cardCornerRadius="10px"
+                            app:cardCornerRadius="@dimen/activity_book4_tab_cv_corner"
                             app:cardElevation="0px"
                             android:layout_gravity="center"
                             android:id="@+id/top_toolkit_item1"
@@ -1482,15 +1483,15 @@
                             <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:padding="10px"
+                                android:padding="@dimen/activity_book4_tab_cv_padding"
                                 >
                                 <androidx.appcompat.widget.AppCompatImageView
-                                    android:layout_width="20px"
-                                    android:layout_height="20px"
+                                    android:layout_width="@dimen/activity_book4_tab_cv_iv_height"
+                                    android:layout_height="@dimen/activity_book4_tab_cv_iv_height"
                                     android:layout_centerVertical="true"
                                     android:scaleType="fitCenter"
-                                    android:paddingLeft="5px"
-                                    android:paddingRight="5px"
+                                    android:paddingLeft="@dimen/activity_book4_tab_cv_iv_padding"
+                                    android:paddingRight="@dimen/activity_book4_tab_cv_iv_padding"
                                     android:textSize="11px"
                                     android:textAllCaps="true"
                                     android:background="@drawable/ic_my_bar_draw_001_w"
@@ -1502,13 +1503,13 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:textSize="14px"
+                                    android:textSize="@dimen/activity_book4_tab_cv_tv_font_size"
                                     android:text="Drawing"
                                     android:textColor="#ffffff"
                                     android:layout_gravity="center"
                                     android:gravity="center"
-                                    android:layout_marginLeft="10px"
-                                    android:layout_marginRight="10px"
+                                    android:layout_marginLeft="@dimen/activity_book4_tab_cv_tv_margin"
+                                    android:layout_marginRight="@dimen/activity_book4_tab_cv_tv_margin"
                                     android:visibility="visible"
                                     android:tag="binding_5"
                                     />
@@ -1528,7 +1529,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             app:cardBackgroundColor="#00000000"
-                            app:cardCornerRadius="10px"
+                            app:cardCornerRadius="@dimen/activity_book4_tab_cv_corner"
                             app:cardElevation="0px"
                             android:layout_gravity="center"
                             android:id="@+id/top_toolkit_item2"
@@ -1536,15 +1537,15 @@
                             <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:padding="10px"
+                                android:padding="@dimen/activity_book4_tab_cv_padding"
                                 >
                                 <androidx.appcompat.widget.AppCompatImageView
-                                    android:layout_width="20px"
-                                    android:layout_height="20px"
+                                    android:layout_width="@dimen/activity_book4_tab_cv_iv_height"
+                                    android:layout_height="@dimen/activity_book4_tab_cv_iv_height"
                                     android:layout_centerVertical="true"
                                     android:scaleType="fitCenter"
-                                    android:paddingLeft="5px"
-                                    android:paddingRight="5px"
+                                    android:paddingLeft="@dimen/activity_book4_tab_cv_iv_padding"
+                                    android:paddingRight="@dimen/activity_book4_tab_cv_iv_padding"
                                     android:textSize="11px"
                                     android:textAllCaps="true"
                                     android:background="@drawable/ic_my_bar_typing_002"
@@ -1556,13 +1557,13 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:textSize="14px"
+                                    android:textSize="@dimen/activity_book4_tab_cv_tv_font_size"
                                     android:text="Typing"
                                     android:textColor="#000000"
                                     android:layout_gravity="center"
                                     android:gravity="center"
-                                    android:layout_marginLeft="10px"
-                                    android:layout_marginRight="10px"
+                                    android:layout_marginLeft="@dimen/activity_book4_tab_cv_tv_margin"
+                                    android:layout_marginRight="@dimen/activity_book4_tab_cv_tv_margin"
                                     android:visibility="visible"
                                     android:tag="binding_5"
                                     />
@@ -1582,7 +1583,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             app:cardBackgroundColor="#00000000"
-                            app:cardCornerRadius="10px"
+                            app:cardCornerRadius="@dimen/activity_book4_tab_cv_corner"
                             app:cardElevation="0px"
                             android:layout_gravity="center"
                             android:id="@+id/top_toolkit_item3"
@@ -1597,17 +1598,17 @@
                                     android:layout_gravity="center|center_vertical"
                                     >
                                     <RelativeLayout
-                                        android:layout_width="40px"
-                                        android:layout_height="40px"
+                                        android:layout_width="@dimen/activity_book4_tab_cv_rv_height"
+                                        android:layout_height="@dimen/activity_book4_tab_cv_rv_height"
                                         android:id="@+id/rlAIIcon"
                                         >
                                         <androidx.appcompat.widget.AppCompatImageView
-                                            android:layout_width="20px"
-                                            android:layout_height="20px"
+                                            android:layout_width="@dimen/activity_book4_tab_cv_iv_height"
+                                            android:layout_height="@dimen/activity_book4_tab_cv_iv_height"
                                             android:layout_centerVertical="true"
                                             android:scaleType="fitCenter"
-                                            android:paddingLeft="5px"
-                                            android:paddingRight="5px"
+                                            android:paddingLeft="@dimen/activity_book4_tab_cv_iv_padding"
+                                            android:paddingRight="@dimen/activity_book4_tab_cv_iv_padding"
                                             android:textSize="11px"
                                             android:textAllCaps="true"
                                             android:background="@drawable/ic_my_bar_ai_003"
@@ -1621,8 +1622,8 @@
                                     </RelativeLayout>
                                     <androidx.appcompat.widget.AppCompatImageView
                                         android:id="@+id/btnPanel2"
-                                        android:layout_width="40px"
-                                        android:layout_height="40px"
+                                        android:layout_width="@dimen/activity_book4_tab_cv_rv_height"
+                                        android:layout_height="@dimen/activity_book4_tab_cv_rv_height"
                                         android:layout_centerVertical="true"
                                         android:layout_gravity="center"
                                         android:gravity="center"
@@ -1637,13 +1638,13 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:textSize="14px"
+                                    android:textSize="@dimen/activity_book4_tab_cv_tv_font_size"
                                     android:text="AI Note Talking"
                                     android:textColor="#000000"
                                     android:layout_gravity="center"
                                     android:gravity="center"
-                                    android:layout_marginLeft="10px"
-                                    android:layout_marginRight="10px"
+                                    android:layout_marginLeft="@dimen/activity_book4_tab_cv_tv_margin"
+                                    android:layout_marginRight="@dimen/activity_book4_tab_cv_tv_margin"
                                     android:visibility="visible"
                                     android:tag="binding_5"
                                     />
@@ -1663,7 +1664,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             app:cardBackgroundColor="#00000000"
-                            app:cardCornerRadius="10px"
+                            app:cardCornerRadius="@dimen/activity_book4_tab_cv_corner"
                             app:cardElevation="0px"
                             android:layout_gravity="center"
                             android:id="@+id/top_toolkit_item4"
@@ -1671,15 +1672,15 @@
                             <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:padding="10px"
+                                android:padding="@dimen/activity_book4_tab_cv_padding"
                                 >
                                 <androidx.appcompat.widget.AppCompatImageView
-                                    android:layout_width="20px"
-                                    android:layout_height="20px"
+                                    android:layout_width="@dimen/activity_book4_tab_cv_iv_height"
+                                    android:layout_height="@dimen/activity_book4_tab_cv_iv_height"
                                     android:layout_centerVertical="true"
                                     android:scaleType="fitCenter"
-                                    android:paddingLeft="5px"
-                                    android:paddingRight="5px"
+                                    android:paddingLeft="@dimen/activity_book4_tab_cv_iv_padding"
+                                    android:paddingRight="@dimen/activity_book4_tab_cv_iv_padding"
                                     android:textSize="11px"
                                     android:textAllCaps="true"
                                     android:background="@drawable/ic_my_bar_select_004"
@@ -1691,13 +1692,13 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:textSize="14px"
+                                    android:textSize="@dimen/activity_book4_tab_cv_tv_font_size"
                                     android:text="Selection"
                                     android:textColor="#000000"
                                     android:layout_gravity="center"
                                     android:gravity="center"
-                                    android:layout_marginLeft="10px"
-                                    android:layout_marginRight="10px"
+                                    android:layout_marginLeft="@dimen/activity_book4_tab_cv_tv_margin"
+                                    android:layout_marginRight="@dimen/activity_book4_tab_cv_tv_margin"
                                     android:visibility="visible"
                                     android:tag="binding_5"
                                     />
@@ -1719,7 +1720,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         app:cardBackgroundColor="#000000"
-                        app:cardCornerRadius="20px"
+                        app:cardCornerRadius="@dimen/activity_book4_tab_cv_corner2"
                         app:cardElevation="0px"
                         android:layout_gravity="center|center_vertical"
                         android:id="@+id/btnEnterFullscreen"
@@ -1732,14 +1733,14 @@
                             >
 
                             <androidx.appcompat.widget.AppCompatImageView
-                                android:layout_width="40px"
-                                android:layout_height="40px"
+                                android:layout_width="@dimen/activity_book4_tab_cv_iv_height2"
+                                android:layout_height="@dimen/activity_book4_tab_cv_iv_height2"
                                 android:layout_centerVertical="true"
                                 android:layout_gravity="center"
                                 android:background="@drawable/ic_baseline_keyboard_arrow_up_24_white"
                                 android:gravity="center"
-                                android:paddingLeft="5px"
-                                android:paddingRight="5px"
+                                android:paddingLeft="@dimen/activity_book4_tab_cv_iv_padding"
+                                android:paddingRight="@dimen/activity_book4_tab_cv_iv_padding"
                                 android:scaleType="fitCenter"
                                 android:text="PEN"
                                 android:textAllCaps="true"

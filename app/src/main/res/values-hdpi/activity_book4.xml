@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="activity_book4_title_height">128px</dimen>
+
+    <dimen name="activity_book4_title_btn_cv_height">96px</dimen>
+    <dimen name="activity_book4_title_btn_cv_corner">50px</dimen>
+    <dimen name="activity_book4_title_btn_cv_iv_height">48px</dimen>
+    <dimen name="activity_book4_title_btn_cv_tv_font_size">24px</dimen>
+
+    <dimen name="activity_book4_title_right_menu_cv_height">100px</dimen>
+
+    <dimen name="activity_book4_title_margin_left">8px</dimen>
+    <dimen name="activity_book4_title_font_size">44px</dimen>
+
+
+
+
+    <dimen name="activity_book4_tab_cv_corner">20px</dimen>
+    <dimen name="activity_book4_tab_cv_padding">20px</dimen>
+    <dimen name="activity_book4_tab_cv_iv_height">40px</dimen>
+    <dimen name="activity_book4_tab_cv_iv_padding">10px</dimen>
+    <dimen name="activity_book4_tab_cv_rv_height">80px</dimen>
+
+    <dimen name="activity_book4_tab_cv_tv_font_size">28px</dimen>
+    <dimen name="activity_book4_tab_cv_tv_margin">20px</dimen>
+
+    <dimen name="activity_book4_tab_cv_corner2">40px</dimen>
+    <dimen name="activity_book4_tab_cv_iv_height2">80px</dimen>
+
+
+
+    <!--impl-->
+    <dimen name="activity_book4_ai_panel_margin_top">225px</dimen>
+    <dimen name="activity_book4_ai_panel_width">800px</dimen>
+</resources>
