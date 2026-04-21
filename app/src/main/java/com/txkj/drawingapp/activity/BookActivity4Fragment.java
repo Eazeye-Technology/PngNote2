@@ -176,7 +176,7 @@ public class BookActivity4Fragment extends Fragment {
     private final static boolean USE_RECORDING_FRAGMENT_TEST = false; //need open id/fragment_recording
 
     private final static boolean TYPE_NO_CHOOSE = true;
-    private int type = TYPE_USE_SHERPA_KROKO; //TYPE_USE_VOSK;
+    private int type = TYPE_USE_SHERPA_KROKO;//TYPE_USE_SHERPA_KROKO; //TYPE_USE_VOSK;
     public final static int TYPE_USE_RTASR = 0;
     public final static int TYPE_USE_VOSK = 1;
     public final static int TYPE_USE_SHERPA = 2;
@@ -5188,9 +5188,14 @@ public class BookActivity4Fragment extends Fragment {
 
         AppCompatImageView ivStartRecord = (AppCompatImageView) g_rootView.findViewById(R.id.ivStartRecord);
         TextView tvStartRecord = (TextView) g_rootView.findViewById(R.id.tvStartRecord);
+        LinearLayout llStartRecordOuter = (LinearLayout) g_rootView.findViewById(R.id.llStartRecordOuter);
+        CardView startRecord = (CardView) g_rootView.findViewById(R.id.startRecord);
 
         AppCompatImageView ivPauseRecordOff = (AppCompatImageView) g_rootView.findViewById(R.id.ivPauseRecordOff);
         TextView tvPauseRecordOff = (TextView) g_rootView.findViewById(R.id.tvPauseRecordOff);
+        LinearLayout llPauseRecordOffOuter = (LinearLayout) g_rootView.findViewById(R.id.llPauseRecordOffOuter);
+        CardView pauseRecordOff = (CardView) g_rootView.findViewById(R.id.pauseRecordOff);
+
         AppCompatImageView ivPauseRecordOn = (AppCompatImageView) g_rootView.findViewById(R.id.ivPauseRecordOn);
         TextView tvPauseRecordOn = (TextView) g_rootView.findViewById(R.id.tvPauseRecordOn);
 
@@ -5199,12 +5204,18 @@ public class BookActivity4Fragment extends Fragment {
         RadioButton rbASR2 = (RadioButton) g_rootView.findViewById(R.id.rbASR2);
         RadioButton rbASR3 = (RadioButton) g_rootView.findViewById(R.id.rbASR3);
 
-
+        final int LTGRAY = 0xFF898786; //Color.LTGRAY
         if (enableRecordButton) {
             ivStartRecord.setColorFilter(null);
             tvStartRecord.setTextColor(Color.BLACK);
+            llStartRecordOuter.setBackgroundResource(R.drawable.border_background);
+            startRecord.setCardBackgroundColor(0xFFF6F3F2);
+
             ivPauseRecordOff.setColorFilter(null);
             tvPauseRecordOff.setTextColor(Color.BLACK);
+            llPauseRecordOffOuter.setBackgroundResource(R.drawable.border_background);
+            pauseRecordOff.setCardBackgroundColor(0xFFF6F3F2);
+
             ivPauseRecordOn.setColorFilter(null);
             tvPauseRecordOn.setTextColor(Color.WHITE);
 
@@ -5212,12 +5223,22 @@ public class BookActivity4Fragment extends Fragment {
             rbASR2.setEnabled(true);
             rbASR3.setEnabled(true);
         } else {
-            ivStartRecord.setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-            tvStartRecord.setTextColor(Color.LTGRAY);
-            ivPauseRecordOff.setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-            tvPauseRecordOff.setTextColor(Color.LTGRAY);
-            ivPauseRecordOn.setColorFilter(Color.LTGRAY, PorterDuff.Mode.SRC_IN);
-            tvPauseRecordOn.setTextColor(Color.LTGRAY);
+            ivStartRecord.setColorFilter(LTGRAY, PorterDuff.Mode.SRC_IN);
+            tvStartRecord.setTextColor(LTGRAY);
+            llStartRecordOuter.setBackgroundResource(R.drawable.border_background_disable);
+            startRecord.setCardBackgroundColor(0xFFDCD8D8);
+            startRecord.setForeground(null);
+            //startRecord.setCardBackgroundColor(0xFF00FF00);
+
+            ivPauseRecordOff.setColorFilter(LTGRAY, PorterDuff.Mode.SRC_IN);
+            tvPauseRecordOff.setTextColor(LTGRAY);
+            llPauseRecordOffOuter.setBackgroundResource(R.drawable.border_background_disable);
+            pauseRecordOff.setCardBackgroundColor(0xFFDCD8D8);
+            pauseRecordOff.setForeground(null);
+            //pauseRecordOff.setCardBackgroundColor(0xFF00FF00);
+
+            ivPauseRecordOn.setColorFilter(LTGRAY, PorterDuff.Mode.SRC_IN);
+            tvPauseRecordOn.setTextColor(LTGRAY);
 
             rbASR1.setEnabled(false);
             rbASR2.setEnabled(false);

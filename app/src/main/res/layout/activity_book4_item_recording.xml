@@ -18,7 +18,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/speech__main_menu_item"
+    android:background="@drawable/speech__main_menu_item2"
     android:descendantFocusability="blocksDescendants"
     >
 

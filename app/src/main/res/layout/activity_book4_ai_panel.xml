@@ -4,12 +4,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:cardBackgroundColor="#F1EDEC"
+        app:cardBackgroundColor="#F4F0EF"
         app:cardCornerRadius="40px"
         app:cardElevation="1px"
         android:layout_gravity="center|center_vertical"
         android:paddingBottom="20px"
         >
+    <!--#F1EDEC-->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -19,8 +20,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:background="#F6F3F2"
                 >
+                <!--#F6F3F2-->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -53,12 +54,13 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="0px"
-                    android:background="#ffffff"
+                    android:background="#FCF8F8"
                     android:layout_weight="1"
                     android:orientation="vertical">
+                    <!--#ffffff-->
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="40px"
+                        android:layout_height="@dimen/activity_book4_ai_panel_tab1_wrapper_height"
                         android:orientation="horizontal"
                         >
                         <RelativeLayout
@@ -71,7 +73,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textSize="14px"
+                                android:textSize="@dimen/activity_book4_ai_panel_tab1_text_size1"
                                 android:text="Info"
                                 android:textStyle="bold"
                                 android:textColor="#000000"
@@ -100,7 +102,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:textSize="14px"
+                                android:textSize="@dimen/activity_book4_ai_panel_tab1_text_size1"
                                 android:text="Transcript"
                                 android:textStyle="bold"
                                 android:textColor="#000000"
@@ -152,6 +154,7 @@
                             android:orientation="vertical"
                             android:visibility="gone"
                             android:id="@+id/llTranscript"
+                            android:background="#F4F0EF"
                             >
                             <!--                                            <include layout="@layout/a_design_003_trans3"/>-->
                             <ListView
@@ -171,7 +174,11 @@
                 </LinearLayout>
 
 
-
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#464A4A"
+                    />
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -229,6 +236,7 @@
                             android:id="@+id/stopRecord"
                             android:visibility="gone"
                             android:layout_centerInParent="true"
+                            android:foreground="?android:attr/selectableItemBackground"
                             >
                             <LinearLayout
                                 android:layout_width="wrap_content"
@@ -242,7 +250,7 @@
                                     android:scaleType="fitCenter"
                                     android:textSize="11px"
                                     android:textAllCaps="true"
-                                    android:src="@drawable/ic_baseline_stop_24_white"
+                                    android:src="@drawable/ic_baseline_stop_24_white2"
                                     android:text="PEN"
                                     android:layout_gravity="center"
                                     android:gravity="center"
@@ -273,11 +281,15 @@
                             android:id="@+id/startRecord"
                             android:visibility="visible"
                             android:layout_centerInParent="true"
+                            app:cardElevation="0px"
+                            android:foreground="?android:attr/selectableItemBackground"
                             >
                             <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:paddingLeft="@dimen/activity_book4_ai_panel_rec_btn1_padding_left"
+                                android:background="@drawable/border_background"
+                                android:id="@+id/llStartRecordOuter"
                                 >
                                 <androidx.appcompat.widget.AppCompatImageView
                                     android:id="@+id/ivStartRecord"
@@ -287,19 +299,22 @@
                                     android:scaleType="fitCenter"
                                     android:textSize="11px"
                                     android:textAllCaps="true"
-                                    android:src="@drawable/ic_baseline_fiber_manual_record_24"
+                                    android:src="@drawable/ic_baseline_fiber_manual_record_24_2"
                                     android:text="PEN"
                                     android:layout_gravity="center"
                                     android:gravity="center"
                                     android:tag="binding_1"
                                     android:layout_margin="@dimen/activity_book4_ai_panel_rec_btn1_iv_margin"
                                     />
+                                <!--
+                                android:src="@drawable/ic_baseline_fiber_manual_record_24"
+                                    -->
                                 <TextView
                                     android:id="@+id/tvStartRecord"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:textSize="@dimen/activity_book4_ai_panel_rec_btn1_tv_text_size"
-                                    android:text="Start Record"
+                                    android:text="Start Recording"
                                     android:textColor="#000000"
                                     android:textStyle="bold"
                                     android:layout_gravity="center"
@@ -328,11 +343,15 @@
                             android:layout_marginLeft="@dimen/activity_book4_ai_panel_rec_btn1_margin"
                             android:visibility="visible"
                             android:layout_centerInParent="true"
+                            app:cardElevation="0px"
+                            android:foreground="?android:attr/selectableItemBackground"
                             >
                             <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:paddingLeft="@dimen/activity_book4_ai_panel_rec_btn1_padding_left"
+                            android:background="@drawable/border_background"
+                            android:id="@+id/llPauseRecordOffOuter"
                             >
                             <androidx.appcompat.widget.AppCompatImageView
                                 android:id="@+id/ivPauseRecordOff"
@@ -375,6 +394,7 @@
                             android:layout_marginLeft="@dimen/activity_book4_ai_panel_rec_btn1_margin"
                             android:visibility="gone"
                             android:layout_centerInParent="true"
+                            android:foreground="?android:attr/selectableItemBackground"
                             >
                             <LinearLayout
                                 android:layout_width="wrap_content"
@@ -389,13 +409,16 @@
                                     android:scaleType="fitCenter"
                                     android:textSize="11px"
                                     android:textAllCaps="true"
-                                    android:src="@drawable/ic_baseline_pause_24_white"
+                                    android:src="@drawable/ic_baseline_pause_24_white2"
                                     android:text="PEN"
                                     android:layout_gravity="center"
                                     android:gravity="center"
                                     android:tag="binding_1"
                                     android:layout_margin="@dimen/activity_book4_ai_panel_rec_btn1_iv_margin"
                                     />
+                                <!--
+                                android:src="@drawable/ic_baseline_pause_24_white"
+                                    -->
                                 <TextView
                                     android:id="@+id/tvPauseRecordOn"
                                     android:layout_width="wrap_content"

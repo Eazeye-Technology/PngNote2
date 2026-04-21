@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="activity_book4_ai_panel_tab1_text_size1">32px</dimen>
-    <dimen name="activity_book4_ai_panel_tab1_text_size2">28px</dimen>
+    <dimen name="activity_book4_ai_panel_tab1_text_size1">24px</dimen>
+    <dimen name="activity_book4_ai_panel_tab1_text_size2">21px</dimen>
+
+    <dimen name="activity_book4_ai_panel_tab1_wrapper_height">70px</dimen>
 </resources>

@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="activity_book4_item_recording_text_size">28px</dimen>
+    <dimen name="activity_book4_item_recording_text_size">21px</dimen>
 </resources>
