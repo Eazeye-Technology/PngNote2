@@ -23,6 +23,7 @@
                 >
                 <!--#F6F3F2-->
                 <LinearLayout
+                    android:id="@+id/llMeetingTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="20px"

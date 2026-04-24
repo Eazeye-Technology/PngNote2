@@ -63,7 +63,7 @@ public final class DrawCanvas extends View {
     private final static boolean USE_JUMP_PAGE_CENTER = true;//跳转页面后居中
 
     private final static double INIT_SCALE = 1.0;//0.8;
-    private final static boolean DEBUG_EVENT = false;
+    private final static boolean DEBUG_EVENT = true;
     private final static String TAG = "DrawCanvas";
 
     public final Paint paint = new Paint();
@@ -316,6 +316,68 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
     public static final int TOOL_TYPE_STYLUS = 2;
     public static final int TOOL_TYPE_UNKNOWN = 0;
                  */
+/*
+wacom:
+event.getDeviceId() == 6
+event.getSource() == 20482
+InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.17948718, event.getToolType() == 2
+event.getDeviceId() == 6
+event.getSource() == 20482
+InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.24566546, event.getToolType() == 2
+event.getDeviceId() == 6
+event.getSource() == 20482
+InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.24810746, event.getToolType() == 2
+...
+InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.43516487, event.getToolType() == 2
+event.getDeviceId() == 6
+event.getSource() == 20482
+InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.43956047, event.getToolType() == 2
+event.getDeviceId() == 6
+event.getSource() == 20482
+InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.43956047, event.getToolType() == 2
+event.getDeviceId() == 6
+event.getSource() == 20482
+InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.23565325, event.getToolType() == 2
+event.getDeviceId() == 6
+event.getSource() == 20482
+InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.08693529, event.getToolType() == 2
+event.getDeviceId() == 6
+event.getSource() == 20482
+InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.08693529, event.getToolType() == 2
+
+
+
+adb:
+event.getDeviceId() == -1
+event.getSource() == 20482
+InputDevice.SOURCE_STYLUS == true, event.getPressure() == 1.0, event.getToolType() == 1
+event.getDeviceId() == -1
+event.getSource() == 20482
+InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.0, event.getToolType() == 1
+event.getDeviceId() == -1
+event.getSource() == 20482
+InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.0, event.getToolType() == 1
+event.getDeviceId() == -1
+event.getSource() == 20482
+InputDevice.SOURCE_STYLUS == true, event.getPressure() == 1.0, event.getToolType() == 1
+
+
+hand:
+InputDevice.SOURCE_STYLUS == false, event.getPressure() == 0.5546875, event.getToolType() == 1
+event.getDeviceId() == 4
+event.getSource() == 4098
+InputDevice.SOURCE_STYLUS == false, event.getPressure() == 0.5546875, event.getToolType() == 1
+event.getDeviceId() == 4
+event.getSource() == 4098
+InputDevice.SOURCE_STYLUS == false, event.getPressure() == 0.546875, event.getToolType() == 1
+event.getDeviceId() == 4
+event.getSource() == 4098
+InputDevice.SOURCE_STYLUS == false, event.getPressure() == 0.390625, event.getToolType() == 1
+event.getDeviceId() == 4
+event.getSource() == 4098
+InputDevice.SOURCE_STYLUS == false, event.getPressure() == 0.390625, event.getToolType() == 1
+
+ */
         }
         // Runs chosenTool.onTouchEvent if it exists, otherwise don't update the screen.
         TOOLS curTool = this.tool; //temporary, don't modify current Tool

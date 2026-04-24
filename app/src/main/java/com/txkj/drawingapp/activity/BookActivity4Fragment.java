@@ -1089,6 +1089,18 @@ public class BookActivity4Fragment extends Fragment {
         }
         this.currentTabIdTopBar = id;
         View view = rootView.findViewById(id);
+        rootView.findViewById(R.id.llTab).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //skip
+            }
+        });
+        rootView.findViewById(R.id.llTopBar).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //skip
+            }
+        });
         for (int i = 0; i < iconsTopBar.length; ++i) {
             View viewIcon = rootView.findViewById(iconsTopBar[i]);
             if (viewIcon != null) {
@@ -1478,6 +1490,12 @@ public class BookActivity4Fragment extends Fragment {
                         }
                     }
                 }
+            }
+        });
+        rootView.findViewById(R.id.llMeetingTitle).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //skip
             }
         });
         rootView.findViewById(R.id.closeTrans).setOnClickListener(new View.OnClickListener() {
@@ -3128,6 +3146,9 @@ public class BookActivity4Fragment extends Fragment {
     }
 
     private void onUndo() {
+        if (!g_isUndoActive) {
+            return;
+        }
         undoCount = undoCount + 1;
         if (isCanRestorePages()) {
             createWaitingProgressDialog();
@@ -3144,6 +3165,9 @@ public class BookActivity4Fragment extends Fragment {
         }
     }
     private void onRedo() {
+        if (!g_isRedoActive) {
+            return;
+        }
         redoCount = redoCount + 1;
         canvas.redo();
     }
@@ -5097,17 +5121,21 @@ public class BookActivity4Fragment extends Fragment {
         BookActivity4Utils.canPushFragment = true;
     }
 
+    private boolean g_isUndoActive = false;
+    private boolean g_isRedoActive = false;
     public void onVersionChanged(boolean isUndoActive, boolean isRedoActive, int numUndo, int numRedo) {
         if (isUndoActive || isCanRestorePages()) {
             //((ImageView)g_rootView.findViewById(R.id.ivTitleUndo)).setImageAlpha(255);
             g_rootView.findViewById(R.id.llTitleUndo).setVisibility(View.VISIBLE);
             g_rootView.findViewById(R.id.llTitleUndo2).setVisibility(View.INVISIBLE);
             ((TextView)g_rootView.findViewById(R.id.tvTitleUndoNum)).setText("" + numUndo);
+            g_isUndoActive = true;
         } else {
             //((ImageView)g_rootView.findViewById(R.id.ivTitleUndo)).setImageAlpha(125);
             g_rootView.findViewById(R.id.llTitleUndo).setVisibility(View.INVISIBLE);
             g_rootView.findViewById(R.id.llTitleUndo2).setVisibility(View.VISIBLE);
             ((TextView)g_rootView.findViewById(R.id.tvTitleUndoNum)).setText("");
+            g_isUndoActive = false;
         }
 
         if (isRedoActive) {
@@ -5115,11 +5143,13 @@ public class BookActivity4Fragment extends Fragment {
             g_rootView.findViewById(R.id.llTitleRedo).setVisibility(View.VISIBLE);
             g_rootView.findViewById(R.id.llTitleRedo2).setVisibility(View.INVISIBLE);
             ((TextView)g_rootView.findViewById(R.id.tvTitleRedoNum)).setText("" + numRedo);
+            g_isRedoActive = true;
         } else {
             //((ImageView)g_rootView.findViewById(R.id.ivTitleRedo)).setImageAlpha(125);
             g_rootView.findViewById(R.id.llTitleRedo).setVisibility(View.INVISIBLE);
             g_rootView.findViewById(R.id.llTitleRedo2).setVisibility(View.VISIBLE);
             ((TextView)g_rootView.findViewById(R.id.tvTitleRedoNum)).setText("");
+            g_isRedoActive = false;
         }
     }
 

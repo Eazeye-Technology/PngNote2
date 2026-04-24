@@ -31,5 +31,5 @@
 
     <!--impl-->
     <dimen name="activity_book4_ai_panel_margin_top">175px</dimen>
-    <dimen name="activity_book4_ai_panel_width">800px</dimen>
+    <dimen name="activity_book4_ai_panel_width">600px</dimen>
 </resources>
