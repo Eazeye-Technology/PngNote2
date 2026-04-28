@@ -100,6 +100,19 @@ public class VecJson {
                     objPath.put("path", points);
                 }
                 {
+                    JSONArray points = new JSONArray();
+                    for (Point p : path.preSimplified) {
+                        JSONObject objPoint = new JSONObject();
+                        objPoint.put("x", p.x);
+                        objPoint.put("y", p.y);
+                        objPoint.put("color", colorToHex8(p.color));
+                        objPoint.put("pressure", p.pressure);
+                        objPoint.put("command", p.command.ordinal());
+                        points.put(objPoint);
+                    }
+                    objPath.put("preSimplified", points);
+                }
+                {
                     objPath.put("pointsTextType", path.pointsTextType);
                     objPath.put("pointsText", path.pointsText);
                     objPath.put("pointsBitmap", bitmapToBase64(path.pointsBitmap));
@@ -119,6 +132,8 @@ public class VecJson {
 //                    }
                     objPath.put("pointsScaleX", path.pointsScaleX);
                     objPath.put("pointsScaleY", path.pointsScaleY);
+
+                    objPath.put("shapeType", path.shapeType);
 
                     if (path.appearance.fill != -1) {
                         objPath.put("fill", colorToHex8(path.appearance.fill));
@@ -215,6 +230,20 @@ public class VecJson {
                     path.points.add(p);
                 }
 
+                path.preSimplified = new CopyOnWriteArrayList<Point>();
+                JSONArray arrPreSimplified = element.optJSONArray("preSimplified");
+                for (int j = 0; j < arrPreSimplified.length(); ++j) {
+                    JSONObject objPoint = arrPreSimplified.optJSONObject(j);
+                    float x = (float) objPoint.optDouble("x");
+                    float y = (float) objPoint.optDouble("y");
+                    int color = hex8ToColor(objPoint.optString("color"));
+                    float pressure = (float) objPoint.optDouble("pressure");
+                    int command = objPoint.optInt("command");
+                    Point p = new Point(x, y, Point.COMMANDS.values()[command], color);
+                    p.pressure = pressure;
+                    path.preSimplified.add(p);
+                }
+
                 path.pointsTextType = element.optInt("pointsTextType", 0);
                 path.pointsText = element.optString("pointsText");
                 path.pointsBitmap = base64ToBitmap(element.optString("pointsBitmap"));
@@ -243,6 +272,8 @@ public class VecJson {
 //                }
                 path.pointsScaleX = (float)element.optDouble("pointsScaleX", 1.0);
                 path.pointsScaleY = (float)element.optDouble("pointsScaleY", 1.0);
+
+                path.shapeType = (int)element.optInt("shapeType", 0);
 
                 // Fill/stroke
                 if (element.has("fill")) {

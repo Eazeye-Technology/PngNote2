@@ -8,6 +8,7 @@ import android.view.MotionEvent;
 import androidx.preference.PreferenceManager;
 
 import com.txkj.drawingapp.activity.BookActivity4Config;
+import com.txkj.drawingapp.activity.BookActivity4Fragment;
 
 import java.util.LinkedList;
 
@@ -100,6 +101,9 @@ public class PaintTool implements Tool {
             //skip
         }
         if (appearance.penType == DrawAppearance.PEN_TYPE_6) {
+            if (BookActivity4Fragment.ENABLE_SHAPE_PEN) {
+                //FIXME:
+            }
             currentPath.simplificationAmount = 100; //shape pen
         } else {
             currentPath.simplificationAmount = 0;

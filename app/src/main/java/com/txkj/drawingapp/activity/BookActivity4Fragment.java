@@ -143,6 +143,8 @@ import io.material.catalog.windowpreferences.WindowPreferencesManager;
 //isDirty = true; //FIXME: force save
 //TODO:notifyForceSave, when view onSizeChanged or other events, need call it
 public class BookActivity4Fragment extends Fragment {
+    public final static boolean ENABLE_SHAPE_PEN = true; //enable shape pen
+
     private final static boolean INIT_EMPTY_BACK_TEXT_WHEN_ADD_PAGE = false; //empty back texture when adding new page
     private final static boolean NO_PEN_BOTTOM_POPUP = true; //don't show brush bottom popup
 
@@ -725,7 +727,7 @@ public class BookActivity4Fragment extends Fragment {
             R.id.left_toolkit_item3, //2 highlight //PEN_TYPE_3
             R.id.left_toolkit_item4, //3 pencil //hidden
             R.id.left_toolkit_item5,
-            R.id.left_toolkit_item6, //6 shape //hidden
+            R.id.left_toolkit_item6, //6 shape //hidden //shape pen
     };
     public int getActiveIconIdSubmenu1(int id, boolean isActive) {
         if (id == R.id.left_toolkit_item1) {
@@ -1438,6 +1440,11 @@ public class BookActivity4Fragment extends Fragment {
                     //return false;
                 }
             });
+        }
+        if (ENABLE_SHAPE_PEN) {
+            g_rootView.findViewById(R.id.left_toolkit_item6).setVisibility(View.VISIBLE);
+        } else {
+            g_rootView.findViewById(R.id.left_toolkit_item6).setVisibility(View.GONE);
         }
         onClickSubmenu1(rootView, iconsSubmenu1[0], true, true);
         for (int id : iconsSubmenu2) {

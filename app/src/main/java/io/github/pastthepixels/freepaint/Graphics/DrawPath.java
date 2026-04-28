@@ -9,18 +9,23 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
 import android.graphics.PointF;
-import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.Typeface;
 import android.util.Log;
 import android.util.SizeF;
 
 import androidx.annotation.NonNull;
 
+import com.strokeapp.domain.model.ShapeType;
+import com.strokeapp.domain.model.SimplifiedShape;
+import com.strokeapp.domain.model.Stroke;
+import com.strokeapp.domain.model.StrokePoint;
+import com.strokeapp.domain.usecase.StrokeSimplifierUseCase;
+import com.strokeapp.domain.usecase.TestData1;
 import com.txkj.drawingapp.activity.BookActivity4Config;
 import com.txkj.drawingapp.activity.BookActivity4Fragment;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -77,6 +82,15 @@ public class DrawPath {
     public float tempMidY = 0.0F;
     public boolean tempHidden = false;
     ArrayList<Point> tempPoints = new ArrayList<>();
+
+    public int shapeType = 0;
+    public final static int SHAPE_TYPE_LINE = 1;
+    public final static int SHAPE_TYPE_RECTANGLE = 2;
+    public final static int SHAPE_TYPE_CIRCLE = 3;
+    public final static int SHAPE_TYPE_TRIANGLE = 4;
+    public final static int SHAPE_TYPE_POLYGON = 5;
+    public final static int SHAPE_TYPE_UNKNOWN = 6;
+    public CopyOnWriteArrayList<Point> preSimplified = new CopyOnWriteArrayList<>();
 
 //    private Matrix matrix = new Matrix();
 //    public Matrix getMatrix() {
@@ -391,6 +405,7 @@ public class DrawPath {
         }
     }
 
+    private final static boolean USE_OLD_METHOD = false;
     /**
      * Simplifies points using the Ramer-Douglas-Peucker algorithm.
      * Adapted from the pseudocde from https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm
@@ -401,40 +416,87 @@ public class DrawPath {
                 return points;
             }
         }
-        double max_distance = 0;
-        int index = 0;
-        for (int i = 2; i < points.size() - 1; i++) {
-            double distance = Utils.distanceFromPointToLine(points.get(0), points.get(points.size() - 1), points.get(i));
-            if (distance > max_distance) {
-                index = i;
-                max_distance = distance;
+        if (USE_OLD_METHOD) {
+            double max_distance = 0;
+            int index = 0;
+            for (int i = 2; i < points.size() - 1; i++) {
+                double distance = Utils.distanceFromPointToLine(points.get(0), points.get(points.size() - 1), points.get(i));
+                if (distance > max_distance) {
+                    index = i;
+                    max_distance = distance;
+                }
             }
-        }
 
-        CopyOnWriteArrayList<Point> simplified = new CopyOnWriteArrayList<>();
+            CopyOnWriteArrayList<Point> simplified = new CopyOnWriteArrayList<>();
 
-        if (max_distance > epsilon) {
-            // Like merge sort
-            CopyOnWriteArrayList<Point> leftHalf = simplify(new CopyOnWriteArrayList<Point>(points.subList(0, index)), epsilon, false);
-            CopyOnWriteArrayList<Point> rightHalf = simplify(new CopyOnWriteArrayList<Point>(points.subList(index, points.size())), epsilon, false);
-            Point point = rightHalf.get(0).clone().applySubtract(leftHalf.get(leftHalf.size() - 1));
-            leftHalf.remove(leftHalf.size() - 1);
-            if (isTop) {
-                simplified.add(points.get(0)); //FIXME: added
+            if (max_distance > epsilon) {
+                // Like merge sort
+                CopyOnWriteArrayList<Point> leftHalf = simplify(new CopyOnWriteArrayList<Point>(points.subList(0, index)), epsilon, false);
+                CopyOnWriteArrayList<Point> rightHalf = simplify(new CopyOnWriteArrayList<Point>(points.subList(index, points.size())), epsilon, false);
+                Point point = rightHalf.get(0).clone().applySubtract(leftHalf.get(leftHalf.size() - 1));
+                leftHalf.remove(leftHalf.size() - 1);
+                if (isTop) {
+                    simplified.add(points.get(0)); //FIXME: added
+                }
+                simplified.addAll(leftHalf);
+                simplified.addAll(rightHalf);
+                if (isTop) {
+                    simplified.add(points.get(points.size() - 1)); //FIXME: added
+                }
+            } else {
+                if (points.size() > 0) {
+                    simplified.add(points.get(0));
+                    simplified.add(points.get(points.size() - 1));
+                }
             }
-            simplified.addAll(leftHalf);
-            simplified.addAll(rightHalf);
-            if (isTop) {
-                simplified.add(points.get(points.size() - 1)); //FIXME: added
-            }
+            return simplified;
         } else {
-            if (points.size() > 0) {
-                simplified.add(points.get(0));
-                simplified.add(points.get(points.size() - 1));
+            if (BookActivity4Fragment.ENABLE_SHAPE_PEN) {
+                //FIXME:
             }
+            //return points;
+            boolean IS_TEST = false;
+            TestData1 testData1 = null;
+            if (IS_TEST) {
+                testData1 = new TestData1();
+                testData1.init();
+            }
+            StrokeSimplifierUseCase simplifier = new StrokeSimplifierUseCase();
+            List<StrokePoint> strokePointList = new ArrayList<>();
+            if (IS_TEST) {
+                for (StrokePoint sp : testData1.strokePoints) {
+                    strokePointList.add(sp);
+                }
+            } else {
+                for (Point point : points) {
+                    strokePointList.add(new StrokePoint(point.x, point.y));
+                }
+            }
+            Stroke stroke = new Stroke(strokePointList, 0);
+            Stroke simplified = simplifier.simplify(stroke, IS_TEST ? testData1.tolerance : 10.0f);//50.0f);
+            SimplifiedShape shape = simplifier.recognizeShape(simplified);
+            List<StrokePoint> points2 = shape.getPoints();
+            if (shape.getType() == ShapeType.LINE) {
+                this.shapeType = SHAPE_TYPE_LINE;
+            } else if (shape.getType() == ShapeType.RECTANGLE) {
+                this.shapeType = SHAPE_TYPE_RECTANGLE;
+            } else if (shape.getType() == ShapeType.CIRCLE) {
+                this.shapeType = SHAPE_TYPE_CIRCLE;
+            } else if (shape.getType() == ShapeType.TRIANGLE) {
+                this.shapeType = SHAPE_TYPE_TRIANGLE;
+            } else if (shape.getType() == ShapeType.POLYGON) {
+                this.shapeType = SHAPE_TYPE_POLYGON;
+            } else if (shape.getType() == ShapeType.UNKNOWN) {
+                this.shapeType = SHAPE_TYPE_UNKNOWN;
+            }
+            CopyOnWriteArrayList<Point> points_ = new CopyOnWriteArrayList<Point>();
+            for (StrokePoint point : points2) {
+                points_.add(new Point(point.getX(), point.getY()));
+            }
+            this.preSimplified.clear();
+            this.preSimplified.addAll(points);
+            return points_;
         }
-
-        return simplified;
     }
 
     /**
@@ -542,6 +604,90 @@ public class DrawPath {
                         }
                     }
                     canvas.drawPath(toDraw, paint);
+                } else if (appearance.penType == DrawAppearance.PEN_TYPE_6) { //shape pen
+                    if (shapeType == SHAPE_TYPE_LINE) {
+                        if (points.size() >= 2) {
+                            canvas.drawLine(points.get(0).x, points.get(0).y,
+                                    points.get(1).x, points.get(1).y, paint);
+                        } else {
+                            canvas.drawPath(toDraw, paint);
+                        }
+                    } else if (shapeType == SHAPE_TYPE_RECTANGLE) {
+                        if (points.size() >= 4) {
+                            float minX = Float.MAX_VALUE;
+                            float minY = Float.MAX_VALUE;
+                            float maxX = Float.MIN_VALUE;
+                            float maxY = Float.MIN_VALUE;
+                            for (int i = 0; i < 4; ++i) {
+                                if (points.get(i).x < minX) {
+                                    minX = points.get(i).x;
+                                }
+                                if (points.get(i).y < minY) {
+                                    minY = points.get(i).y;
+                                }
+                                if (points.get(i).x > maxX) {
+                                    maxX = points.get(i).x;
+                                }
+                                if (points.get(i).y > maxY) {
+                                    maxY = points.get(i).y;
+                                }
+                            }
+                            canvas.drawRect(minX, minY, maxX, maxY, paint);
+                        } else {
+                            canvas.drawPath(toDraw, paint);
+                        }
+                    } else if (shapeType == SHAPE_TYPE_CIRCLE) {
+                        //ShapeType.CIRCLE
+                        float centerX = 0;
+                        float centerY = 0;
+                        for (Point point : points) {
+                            centerX += point.x;
+                            centerY += point.y;
+                        }
+                        Point center =
+                                points != null && points.size() > 0 ?
+                                        new Point(centerX / points.size(),
+                                                centerY / points.size()) :
+                                        new Point(0, 0);
+                        float radiusIt = 0;
+                        for (Point point : points) {
+                            radiusIt += Math.hypot(point.x - center.x, point.y - center.y);
+                        }
+                        float radius =
+                                points != null && points.size() > 0 ?
+                                        radiusIt / points.size() :
+                                        0;
+                        if (radius > 0) {
+                            canvas.drawCircle(center.x, center.y, radius, paint);
+                        } else {
+                            canvas.drawPath(toDraw, paint);
+                        }
+                    } else if (shapeType == SHAPE_TYPE_TRIANGLE) {
+                        if (points.size() >= 3) {
+                            Path path = new Path();
+                            path.moveTo(points.get(0).x, points.get(0).y);
+                            path.lineTo(points.get(1).x, points.get(1).y);
+                            path.lineTo(points.get(2).x, points.get(2).y);
+                            path.close();
+                            canvas.drawPath(path, paint);
+                        } else {
+                            canvas.drawPath(toDraw, paint);
+                        }
+                    } else if (shapeType == SHAPE_TYPE_POLYGON) {
+                        if (points.size() >= 3) {
+                            Path path = new Path();
+                            path.moveTo(points.get(0).x, points.get(0).y);
+                            for (int i = 1; i < points.size(); ++i) {
+                                path.lineTo(points.get(i).x, points.get(i).y);
+                            }
+                            path.close();
+                            canvas.drawPath(path, paint);
+                        } else {
+                            canvas.drawPath(toDraw, paint);
+                        }
+                    } else {
+                        canvas.drawPath(toDraw, paint);
+                    }
                 } else {
                     canvas.drawPath(toDraw, paint);
                 }
@@ -1096,6 +1242,11 @@ public class DrawPath {
 //        cloned.matrix.set(matrix);
         cloned.pointsScaleX = pointsScaleX;
         cloned.pointsScaleY = pointsScaleY;
+
+        cloned.shapeType = shapeType;
+        for (Point point : preSimplified) {
+            cloned.preSimplified.add(point.clone());
+        }
 
         return cloned;
     }

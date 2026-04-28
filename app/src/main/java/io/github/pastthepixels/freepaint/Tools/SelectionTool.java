@@ -831,7 +831,44 @@ public class SelectionTool implements Tool {
                         region.set(rectRound); //20260321, image and text don't be clipped by screen
                     }
                 } else {
-                    if (path.getPath() != null) {
+                    if (path.pointsType == DrawPath.POINTS_TYPE_STROKE &&
+                            path.shapeType == DrawPath.SHAPE_TYPE_CIRCLE) {
+
+                        float centerX = 0;
+                        float centerY = 0;
+                        for (Point point : path.points) {
+                            centerX += point.x;
+                            centerY += point.y;
+                        }
+                        Point center =
+                                path.points != null && path.points.size() > 0 ?
+                                        new Point(centerX / path.points.size(),
+                                                centerY / path.points.size()) :
+                                        new Point(0, 0);
+                        float radiusIt = 0;
+                        for (Point point : path.points) {
+                            radiusIt += Math.hypot(point.x - center.x, point.y - center.y);
+                        }
+                        float radius =
+                                path.points != null && path.points.size() > 0 ?
+                                        radiusIt / path.points.size() :
+                                        0;
+                        region.set(
+                                (int)(center.x - radius),
+                                (int)(center.y - radius),
+                                (int)(center.x + radius),
+                                (int)(center.y + radius));
+                        RectF bounds3_ = new RectF();
+                        bounds3_.set(
+                                (float)(center.x - radius),
+                                (float)(center.y - radius),
+                                (float)(center.x + radius),
+                                (float)(center.y + radius));
+                        //rect3 is touch area
+                        if (Utils.isIntersects(bounds3_, rect3)) {  //BE CAREFUL:bounds2 is changed
+                            isSelected = true;
+                        }
+                    } else if (path.getPath() != null) {
                         //FIXME:added, because region.op(currentPathRegion, Region.Op.INTERSECT) not good
                         path.getPath().computeBounds(bounds2, false); //改用路径外框选中
                         Path p = new Path();
