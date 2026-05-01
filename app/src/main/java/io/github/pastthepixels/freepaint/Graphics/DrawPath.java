@@ -412,44 +412,14 @@ public class DrawPath {
      */
     private CopyOnWriteArrayList<Point> simplify(CopyOnWriteArrayList<Point> points, double epsilon, boolean isTop) {
         if (BookActivity4Config.USE_NO_POINT_SIMPLIFY) {
-            if (epsilon == 0) {
+            if (FORCE_PENCIL_SIMPLIFY && appearance.penType == DrawAppearance.PEN_TYPE_4) {
+                return old_simplify(points, 10,/*epsilon,*/ isTop);
+            } else if (epsilon == 0) {
                 return points;
             }
         }
         if (USE_OLD_METHOD) {
-            double max_distance = 0;
-            int index = 0;
-            for (int i = 2; i < points.size() - 1; i++) {
-                double distance = Utils.distanceFromPointToLine(points.get(0), points.get(points.size() - 1), points.get(i));
-                if (distance > max_distance) {
-                    index = i;
-                    max_distance = distance;
-                }
-            }
-
-            CopyOnWriteArrayList<Point> simplified = new CopyOnWriteArrayList<>();
-
-            if (max_distance > epsilon) {
-                // Like merge sort
-                CopyOnWriteArrayList<Point> leftHalf = simplify(new CopyOnWriteArrayList<Point>(points.subList(0, index)), epsilon, false);
-                CopyOnWriteArrayList<Point> rightHalf = simplify(new CopyOnWriteArrayList<Point>(points.subList(index, points.size())), epsilon, false);
-                Point point = rightHalf.get(0).clone().applySubtract(leftHalf.get(leftHalf.size() - 1));
-                leftHalf.remove(leftHalf.size() - 1);
-                if (isTop) {
-                    simplified.add(points.get(0)); //FIXME: added
-                }
-                simplified.addAll(leftHalf);
-                simplified.addAll(rightHalf);
-                if (isTop) {
-                    simplified.add(points.get(points.size() - 1)); //FIXME: added
-                }
-            } else {
-                if (points.size() > 0) {
-                    simplified.add(points.get(0));
-                    simplified.add(points.get(points.size() - 1));
-                }
-            }
-            return simplified;
+            return old_simplify(points, epsilon, isTop);
         } else {
             if (BookActivity4Fragment.ENABLE_SHAPE_PEN) {
                 //FIXME:
@@ -497,6 +467,42 @@ public class DrawPath {
             this.preSimplified.addAll(points);
             return points_;
         }
+    }
+
+    private CopyOnWriteArrayList<Point> old_simplify(CopyOnWriteArrayList<Point> points, double epsilon, boolean isTop) {
+        double max_distance = 0;
+        int index = 0;
+        for (int i = 2; i < points.size() - 1; i++) {
+            double distance = Utils.distanceFromPointToLine(points.get(0), points.get(points.size() - 1), points.get(i));
+            if (distance > max_distance) {
+                index = i;
+                max_distance = distance;
+            }
+        }
+
+        CopyOnWriteArrayList<Point> simplified = new CopyOnWriteArrayList<>();
+
+        if (max_distance > epsilon) {
+            // Like merge sort
+            CopyOnWriteArrayList<Point> leftHalf = old_simplify(new CopyOnWriteArrayList<Point>(points.subList(0, index)), epsilon, false);
+            CopyOnWriteArrayList<Point> rightHalf = old_simplify(new CopyOnWriteArrayList<Point>(points.subList(index, points.size())), epsilon, false);
+            Point point = rightHalf.get(0).clone().applySubtract(leftHalf.get(leftHalf.size() - 1));
+            leftHalf.remove(leftHalf.size() - 1);
+            if (isTop) {
+                simplified.add(points.get(0)); //FIXME: added
+            }
+            simplified.addAll(leftHalf);
+            simplified.addAll(rightHalf);
+            if (isTop) {
+                simplified.add(points.get(points.size() - 1)); //FIXME: added
+            }
+        } else {
+            if (points.size() > 0) {
+                simplified.add(points.get(0));
+                simplified.add(points.get(points.size() - 1));
+            }
+        }
+        return simplified;
     }
 
     /**
@@ -604,6 +610,14 @@ public class DrawPath {
                         }
                     }
                     canvas.drawPath(toDraw, paint);
+                } else if (appearance.penType == DrawAppearance.PEN_TYPE_4) {
+                    int baseColor = paint.getColor();
+                    //Paint base = new Paint(paint);
+                    for (int i = 0; i < points.size() - 1; ++i) {
+                        Point p0 = points.get(i);
+                        Point p1 = points.get(i + 1);
+                        drawStroke(canvas, p0, p1, appearance.strokeSize, baseColor);
+                    }
                 } else if (appearance.penType == DrawAppearance.PEN_TYPE_6) { //shape pen
                     if (shapeType == SHAPE_TYPE_LINE) {
                         if (points.size() >= 2) {
@@ -854,6 +868,154 @@ public class DrawPath {
                 canvas.drawLine(pt.getRightHandle().x, pt.getRightHandle().y, pt.x, pt.y, paint);
                 // Done
             }
+        }
+    }
+
+    //
+    //new pencil implementation, 20260429, from Free-hand Drawing App
+    //https://www.figma.com/design/GJTGvpoKP8En3dkw0H2VBl/Free-hand-Drawing-App
+    //
+    private void drawStroke(Canvas ctx,
+                             Point from,
+                             Point to,
+                             double size,
+                             int color
+    ) {
+        boolean useDrawPoints = true;
+        Random rand = new Random(0);
+        Paint paint = new Paint();
+        double distance = Math.sqrt(Math.pow(to.x - from.x, 2) + Math.pow(to.y - from.y, 2));
+        int steps = (int)Math.max(Math.ceil(distance), 1);
+        List<Float> toDrawList = new ArrayList<>();
+        for (int i = 0; i <= steps; i++) {
+            double t = (float)i / steps;
+            double x = from.x + (to.x - from.x) * t;
+            double y = from.y + (to.y - from.y) * t;
+            double pressure = from.pressure + (to.pressure - from.pressure) * t;
+
+            drawPoint(ctx, x, y, pressure, size, color, paint, rand, useDrawPoints, toDrawList);
+        }
+        if (useDrawPoints) {
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor((color & 0xFFFFFF) | 0xFF000000);
+            paint.setStrokeWidth(1.1f);
+            //int pos = 0;
+            float[] points = new float[toDrawList.size()];
+            for (int i = 0; i < toDrawList.size(); ++i) {
+                Float p = toDrawList.get(i);
+                points[i] = p;
+            }
+            ctx.drawPoints(points, paint);
+        }
+    }
+
+    private final boolean FORCE_PENCIL_SIMPLIFY = false;
+    private void drawPoint(Canvas canvas,
+                            double x,
+                            double y,
+                            double pressure,
+                            double size,
+                            int color,
+                           Paint paint,
+                           Random rand,
+                           boolean useDrawPoints,
+                           List<Float> toDrawList
+    ) {
+        final double MAX_LOOP = 1.0;//5.0;//Double.MAX_VALUE;//5.0;//1.0;//2.0;//5.0;
+        //FIXME:added, loop times don't over MAX_LOOP (like 5.0)
+
+        double effectivePressure = Math.max(0.15, Math.min(1, pressure));
+        double radius = size * effectivePressure;
+
+        double particleDensity = 0.3 + effectivePressure * 0.7;
+        double particleCount = Math.min(MAX_LOOP, Math.floor(radius * 15 * particleDensity));
+
+        double particleOpacity = 0.08 + effectivePressure * 0.15;
+
+        //canvas.save();
+        if (true) {
+            for (int i = 0; i < particleCount; i++) {
+                if (rand.nextDouble() > particleDensity) continue;
+
+                double angle = rand.nextDouble() * Math.PI * 2;
+                double distance = Math.sqrt(rand.nextDouble()) * radius;
+                double px = x + Math.cos(angle) * distance;
+                double py = y + Math.sin(angle) * distance;
+
+                double particleSize = 0.3 + rand.nextDouble() * (0.8 + effectivePressure * 0.8);
+                double opacity = particleOpacity * (0.5 + rand.nextDouble() * 0.5);
+
+//            ctx.globalAlpha = opacity;
+//            ctx.fillStyle = color;
+                paint.setStyle(Paint.Style.FILL);
+                paint.setColor((color & 0xFFFFFF) |
+                        ((((int) (0xFF * opacity)) & 0xFF) << 24));
+                if (useDrawPoints) {
+                    if (toDrawList != null) {
+                        toDrawList.add((float) (px));
+                        toDrawList.add((float) (py));
+                    }
+                } else {
+                    canvas.drawRect(
+                            (float) (px - particleSize / 2),
+                            (float) (py - particleSize / 2),
+                            (float) (px - particleSize / 2) + (float) (particleSize),
+                            (float) (py - particleSize / 2) + (float) (particleSize),
+                            paint
+                    );
+                }
+//                canvas.drawCircle(
+//                        (float) (px - particleSize / 2),
+//                        (float) (py - particleSize / 2),
+//                        (float)size,
+//                        paint);
+            }
+
+            if (true) {
+                double edgeParticles = Math.min(MAX_LOOP, Math.floor(radius * 3));
+                for (int i = 0; i < edgeParticles; i++) {
+                    double angle = rand.nextDouble() * Math.PI * 2;
+                    double distance = radius * (0.7 + rand.nextDouble() * 0.6);
+                    double px = x + Math.cos(angle) * distance;
+                    double py = y + Math.sin(angle) * distance;
+
+                    double particleSize = 0.3 + rand.nextDouble() * 0.8;
+                    double opacity = particleOpacity * 0.3 * (0.3 + rand.nextDouble() * 0.7);
+
+                    //ctx.globalAlpha = opacity;
+                    //ctx.fillStyle = color;
+                    paint.setStyle(Paint.Style.FILL);
+                    paint.setColor((color & 0xFFFFFF) |
+                            ((((int) (0xFF * opacity)) & 0xFF) << 24));
+                    if (useDrawPoints) {
+                        if (toDrawList != null) {
+                            toDrawList.add((float) (px));
+                            toDrawList.add((float) (py));
+                        }
+                    } else {
+                        if (true) {
+                            canvas.drawRect(
+                                    (float) (px - particleSize / 2),
+                                    (float) (py - particleSize / 2),
+                                    (float) (px - particleSize / 2) + (float) (particleSize),
+                                    (float) (py - particleSize / 2) + (float) (particleSize),
+                                    paint
+                            );
+                        } else {
+//                            canvas.drawCircle(
+//                                    (float) (px - particleSize / 2),
+//                                    (float) (py - particleSize / 2),
+//                                    (float) particleSize,
+//                                    paint);
+                        }
+                    }
+                }
+            }
+//            canvas.restore();
+        } else {
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor((color & 0xFFFFFF) | 0xFF000000);
+            canvas.drawCircle((float)x, (float)y, (float)size, paint);
         }
     }
 

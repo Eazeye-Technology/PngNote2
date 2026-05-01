@@ -213,7 +213,7 @@
                             android:layout_gravity="center|center_vertical"
                             android:layout_margin="5px"
                             android:id="@+id/left_toolkit_item4"
-                            android:visibility="gone"
+                            android:visibility="visible"
                             >
                             <LinearLayout
                                 android:layout_width="wrap_content"
