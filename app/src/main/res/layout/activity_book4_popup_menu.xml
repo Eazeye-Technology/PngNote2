@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="300px"
+    android:layout_width="@dimen/activity_book4_popup_menu_width"
     android:layout_height="wrap_content"
     android:layout_marginLeft="50px"
     android:layout_marginTop="50px"
@@ -12,8 +12,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center|center_vertical"
         app:cardBackgroundColor="#F1EDEC"
-        app:cardCornerRadius="10px"
-        app:cardElevation="1px">
+        app:cardCornerRadius="@dimen/activity_book4_popup_menu_corner"
+        app:cardElevation="@dimen/activity_book4_popup_menu_elevation">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -27,7 +27,7 @@
                 android:layout_gravity="center|center_vertical"
                 android:layout_margin="0px"
                 android:background="@drawable/context_menu_outline"
-                android:elevation="4px"
+                android:elevation="@dimen/activity_book4_popup_menu_elevation2"
                 >
 <!--
 androidx.cardview.widget.CardView
@@ -39,24 +39,24 @@ app:cardBackgroundColor="#00585858"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:paddingTop="8px"
-                    android:paddingBottom="8px">
+                    android:paddingTop="@dimen/activity_book4_popup_menu_padding_top"
+                    android:paddingBottom="@dimen/activity_book4_popup_menu_padding_bottom">
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="56px"
+                        android:layout_height="@dimen/activity_book4_popup_menu_item_height"
                         android:orientation="horizontal"
                         android:visibility="visible"
                         android:id="@+id/popTextViewCopy"
                         >
 
                         <RelativeLayout
-                            android:layout_width="56px"
-                            android:layout_height="56px"
+                            android:layout_width="@dimen/activity_book4_popup_menu_item_height"
+                            android:layout_height="@dimen/activity_book4_popup_menu_item_height"
                             android:orientation="vertical">
                         <ImageView
-                            android:layout_width="24px"
-                            android:layout_height="24px"
+                            android:layout_width="@dimen/activity_book4_popup_menu_item_iv_height"
+                            android:layout_height="@dimen/activity_book4_popup_menu_item_iv_height"
                             android:layout_centerInParent="true"
                             android:layout_gravity="center"
                             android:gravity="center"
@@ -72,50 +72,50 @@ app:cardBackgroundColor="#00585858"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:layout_marginLeft="10px"
-                            android:layout_marginRight="10px"
+                            android:layout_marginLeft="@dimen/activity_book4_popup_menu_item_tv_margin_left"
+                            android:layout_marginRight="@dimen/activity_book4_popup_menu_item_tv_margin_left"
                             android:gravity="center"
                             android:text="Copy"
                             android:textColor="#000000"
-                            android:textSize="16px"
+                            android:textSize="@dimen/activity_book4_popup_menu_item_tv_text_size"
                             android:visibility="visible" />
                     </LinearLayout>
 
                     <View
                         android:layout_width="match_parent"
-                        android:layout_height="1px"
-                        android:layout_marginTop="8px"
-                        android:layout_marginBottom="8px"
+                        android:layout_height="@dimen/activity_book4_popup_menu_separator_height"
+                        android:layout_marginTop="@dimen/activity_book4_popup_menu_separator_margin_top"
+                        android:layout_marginBottom="@dimen/activity_book4_popup_menu_separator_margin_top"
                         android:background="#C4C7C8" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="56px"
+                        android:layout_height="@dimen/activity_book4_popup_menu_item_height"
                         android:orientation="horizontal"
                         android:visibility="visible"
                         android:id="@+id/popTextViewPaste"
                         >
 
                         <RelativeLayout
-                            android:layout_width="56px"
-                            android:layout_height="56px"
+                            android:layout_width="@dimen/activity_book4_popup_menu_item_height"
+                            android:layout_height="@dimen/activity_book4_popup_menu_item_height"
                             android:orientation="vertical">
                             <ImageView
                                 android:id="@+id/ivMenuPaste"
-                                android:layout_width="48px"
-                                android:layout_height="48px"
+                                android:layout_width="@dimen/activity_book4_popup_menu_item_iv_height2"
+                                android:layout_height="@dimen/activity_book4_popup_menu_item_iv_height2"
                                 android:layout_centerVertical="true"
                                 android:layout_gravity="center"
                                 android:gravity="center"
-                                android:paddingLeft="5px"
-                                android:paddingRight="5px"
+                                android:paddingLeft="@dimen/activity_book4_popup_menu_item_iv_padding2"
+                                android:paddingRight="@dimen/activity_book4_popup_menu_item_iv_padding2"
                                 android:scaleType="fitCenter"
                                 android:src="@drawable/ic_baseline_content_paste_24"
                                 android:text="PEN"
                                 android:textAllCaps="true"
                                 android:textSize="11px"
-                                android:layout_marginLeft="12px"
-                                android:layout_marginRight="12px"
+                                android:layout_marginLeft="@dimen/activity_book4_popup_menu_item_iv_margin2"
+                                android:layout_marginRight="@dimen/activity_book4_popup_menu_item_iv_margin2"
                                 />
                         </RelativeLayout>
 
@@ -124,49 +124,49 @@ app:cardBackgroundColor="#00585858"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:layout_marginLeft="10px"
-                            android:layout_marginRight="10px"
+                            android:layout_marginLeft="@dimen/activity_book4_popup_menu_item_tv_margin_left"
+                            android:layout_marginRight="@dimen/activity_book4_popup_menu_item_tv_margin_left"
                             android:gravity="center"
                             android:text="Paste"
                             android:textColor="#000000"
-                            android:textSize="16px"
+                            android:textSize="@dimen/activity_book4_popup_menu_item_tv_text_size"
                             android:visibility="visible" />
                     </LinearLayout>
 
                     <View
                         android:layout_width="match_parent"
-                        android:layout_height="1px"
-                        android:layout_marginTop="8px"
-                        android:layout_marginBottom="8px"
+                        android:layout_height="@dimen/activity_book4_popup_menu_separator_height"
+                        android:layout_marginTop="@dimen/activity_book4_popup_menu_separator_margin_top"
+                        android:layout_marginBottom="@dimen/activity_book4_popup_menu_separator_margin_top"
                         android:background="#C4C7C8" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="56px"
+                        android:layout_height="@dimen/activity_book4_popup_menu_item_height"
                         android:orientation="horizontal"
                         android:visibility="visible"
                         android:id="@+id/popTextViewCut"
                         >
 
                         <RelativeLayout
-                            android:layout_width="56px"
-                            android:layout_height="56px"
+                            android:layout_width="@dimen/activity_book4_popup_menu_item_height"
+                            android:layout_height="@dimen/activity_book4_popup_menu_item_height"
                             android:orientation="vertical">
                         <ImageView
-                            android:layout_width="48px"
-                            android:layout_height="48px"
+                            android:layout_width="@dimen/activity_book4_popup_menu_item_iv_height2"
+                            android:layout_height="@dimen/activity_book4_popup_menu_item_iv_height2"
                             android:layout_centerVertical="true"
                             android:layout_gravity="center"
                             android:gravity="center"
-                            android:paddingLeft="5px"
-                            android:paddingRight="5px"
+                            android:paddingLeft="@dimen/activity_book4_popup_menu_item_iv_padding2"
+                            android:paddingRight="@dimen/activity_book4_popup_menu_item_iv_padding2"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_baseline_content_cut_24"
                             android:text="PEN"
                             android:textAllCaps="true"
                             android:textSize="11px"
-                            android:layout_marginLeft="12px"
-                            android:layout_marginRight="12px"
+                            android:layout_marginLeft="@dimen/activity_book4_popup_menu_item_iv_margin2"
+                            android:layout_marginRight="@dimen/activity_book4_popup_menu_item_iv_margin2"
                             />
                         </RelativeLayout>
 
@@ -174,21 +174,21 @@ app:cardBackgroundColor="#00585858"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:layout_marginLeft="10px"
-                            android:layout_marginRight="10px"
+                            android:layout_marginLeft="@dimen/activity_book4_popup_menu_item_tv_margin_left"
+                            android:layout_marginRight="@dimen/activity_book4_popup_menu_item_tv_margin_left"
                             android:gravity="center"
                             android:text="Cut"
                             android:textColor="#000000"
-                            android:textSize="16px"
+                            android:textSize="@dimen/activity_book4_popup_menu_item_tv_text_size"
                             android:visibility="visible"
                             />
                     </LinearLayout>
 
                     <View
                         android:layout_width="match_parent"
-                        android:layout_height="1px"
-                        android:layout_marginTop="8px"
-                        android:layout_marginBottom="8px"
+                        android:layout_height="@dimen/activity_book4_popup_menu_separator_height"
+                        android:layout_marginTop="@dimen/activity_book4_popup_menu_separator_margin_top"
+                        android:layout_marginBottom="@dimen/activity_book4_popup_menu_separator_margin_top"
                         android:background="#C4C7C8" />
 
                     <LinearLayout
@@ -201,13 +201,13 @@ app:cardBackgroundColor="#00585858"
 
                         <ImageView
                             android:layout_width="0px"
-                            android:layout_height="56px"
+                            android:layout_height="@dimen/activity_book4_popup_menu_item_height"
                             android:layout_centerVertical="true"
                             android:layout_gravity="center"
                             android:layout_weight="0"
                             android:gravity="center"
-                            android:paddingLeft="5px"
-                            android:paddingRight="5px"
+                            android:paddingLeft="@dimen/activity_book4_popup_menu_item_iv_padding2"
+                            android:paddingRight="@dimen/activity_book4_popup_menu_item_iv_padding2"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_baseline_content_cut_24"
                             android:text="PEN"
@@ -217,21 +217,21 @@ app:cardBackgroundColor="#00585858"
 
                         <TextView
                             android:layout_width="wrap_content"
-                            android:layout_height="24px"
+                            android:layout_height="@dimen/activity_book4_popup_menu_item_tv_height"
                             android:layout_gravity="center"
-                            android:layout_margin="12px"
+                            android:layout_margin="@dimen/activity_book4_popup_menu_item_tv_margin"
                             android:gravity="center|center_vertical"
                             android:text="Insert image..."
                             android:textColor="#000000"
-                            android:textSize="16px"
+                            android:textSize="@dimen/activity_book4_popup_menu_item_tv_text_size"
                             android:visibility="visible" />
                     </LinearLayout>
 
                     <View
                         android:layout_width="match_parent"
-                        android:layout_height="1px"
-                        android:layout_marginTop="8px"
-                        android:layout_marginBottom="8px"
+                        android:layout_height="@dimen/activity_book4_popup_menu_separator_height"
+                        android:layout_marginTop="@dimen/activity_book4_popup_menu_separator_margin_top"
+                        android:layout_marginBottom="@dimen/activity_book4_popup_menu_separator_margin_top"
                         android:background="#C4C7C8" />
 
                     <LinearLayout
@@ -248,13 +248,13 @@ app:cardBackgroundColor="#00585858"
                             android:orientation="vertical">
 
                             <ImageView
-                                android:layout_width="24px"
-                                android:layout_height="24px"
+                                android:layout_width="@dimen/activity_book4_popup_menu_item_iv_height3"
+                                android:layout_height="@dimen/activity_book4_popup_menu_item_iv_height3"
                                 android:layout_centerVertical="true"
                                 android:layout_gravity="center"
-                                android:layout_margin="20px"
+                                android:layout_margin="@dimen/activity_book4_popup_menu_item_iv_marign3"
                                 android:gravity="center"
-                                android:padding="2px"
+                                android:padding="@dimen/activity_book4_popup_menu_item_iv_padding3"
                                 android:scaleType="fitXY"
                                 android:src="@drawable/ic_my_context_menu_001"
                                 android:text="GRID"
@@ -277,16 +277,16 @@ app:cardBackgroundColor="#00585858"
 
                         <RelativeLayout
                             android:id="@+id/linearTextAnnot"
-                            android:layout_width="48px"
-                            android:layout_height="48px"
+                            android:layout_width="@dimen/activity_book4_popup_menu_item_iv_rl_height4"
+                            android:layout_height="@dimen/activity_book4_popup_menu_item_iv_rl_height4"
                             android:layout_gravity="center_vertical|center"
-                            android:layout_marginLeft="12px"
+                            android:layout_marginLeft="@dimen/activity_book4_popup_menu_item_iv_rl_margin_left4"
                             android:orientation="vertical">
 
                             <ImageView
                                 android:id="@+id/popButtonPrevPage"
-                                android:layout_width="40px"
-                                android:layout_height="40px"
+                                android:layout_width="@dimen/activity_book4_popup_menu_item_iv_height4"
+                                android:layout_height="@dimen/activity_book4_popup_menu_item_iv_height4"
                                 android:layout_centerHorizontal="true"
                                 android:layout_centerVertical="true"
                                 android:layout_gravity="center|center_vertical"
@@ -302,31 +302,29 @@ app:cardBackgroundColor="#00585858"
                             android:id="@+id/popTextViewPageInfo"
                             android:layout_width="0px"
                             android:layout_weight="1"
-                            android:layout_height="16px"
+                            android:layout_height="@dimen/activity_book4_popup_menu_item_tv_height5"
                             android:layout_gravity="center_vertical|center"
                             android:layout_marginLeft="0px"
                             android:gravity="center|center_vertical"
                             android:text="1/1"
-                            android:textSize="12px"
+                            android:textSize="@dimen/activity_book4_popup_menu_item_tv_text_size5"
                             android:textStyle="bold" />
 
                         <RelativeLayout
-                            android:layout_width="48px"
-                            android:layout_height="48px"
+                            android:layout_width="@dimen/activity_book4_popup_menu_item_iv_rl_height6"
+                            android:layout_height="@dimen/activity_book4_popup_menu_item_iv_rl_height6"
                             android:layout_gravity="center_vertical|center"
                             android:layout_marginLeft="0px"
                             android:orientation="vertical">
 
                             <ImageView
                                 android:id="@+id/popButtonNextPage"
-                                android:layout_width="40px"
-                                android:layout_height="40px"
+                                android:layout_width="@dimen/activity_book4_popup_menu_item_iv_height6"
+                                android:layout_height="@dimen/activity_book4_popup_menu_item_iv_height6"
                                 android:layout_centerHorizontal="true"
                                 android:layout_centerVertical="true"
                                 android:layout_gravity="center"
                                 android:gravity="center"
-                                android:paddingLeft="5px"
-                                android:paddingRight="5px"
                                 android:scaleType="fitCenter"
                                 android:src="@drawable/ic_my_context_menu_003"
                                 android:text="NEXT PAGE"
@@ -385,17 +383,17 @@ app:cardBackgroundColor="#00585858"
                         </LinearLayout>
 
                         <LinearLayout
-                            android:layout_width="48px"
-                            android:layout_height="48px"
+                            android:layout_width="@dimen/activity_book4_popup_menu_item_iv_rl_height7"
+                            android:layout_height="@dimen/activity_book4_popup_menu_item_iv_rl_height7"
                             android:layout_gravity="center_vertical|center"
-                            android:layout_marginLeft="12px"
+                            android:layout_marginLeft="@dimen/activity_book4_popup_menu_item_iv_rl_margin_left7"
                             android:gravity="center_vertical|center"
                             android:orientation="vertical">
 
                             <ImageView
                                 android:id="@+id/popButtonAddPage"
-                                android:layout_width="40px"
-                                android:layout_height="40px"
+                                android:layout_width="@dimen/activity_book4_popup_menu_item_iv_height7"
+                                android:layout_height="@dimen/activity_book4_popup_menu_item_iv_height7"
                                 android:layout_centerVertical="true"
                                 android:layout_gravity="center|center_vertical"
                                 android:gravity="center|center_vertical"
@@ -410,9 +408,9 @@ app:cardBackgroundColor="#00585858"
 
                     <View
                         android:layout_width="match_parent"
-                        android:layout_height="1px"
-                        android:layout_marginTop="8px"
-                        android:layout_marginBottom="8px"
+                        android:layout_height="@dimen/activity_book4_popup_menu_separator_height"
+                        android:layout_marginTop="@dimen/activity_book4_popup_menu_separator_margin_top"
+                        android:layout_marginBottom="@dimen/activity_book4_popup_menu_separator_margin_top"
                         android:background="#C4C7C8" />
 
                     <LinearLayout
@@ -425,13 +423,13 @@ app:cardBackgroundColor="#00585858"
 
                         <ImageView
                             android:layout_width="0px"
-                            android:layout_height="56px"
+                            android:layout_height="@dimen/activity_book4_popup_menu_item_height"
                             android:layout_centerVertical="true"
                             android:layout_gravity="center"
                             android:layout_weight="0"
                             android:gravity="center"
-                            android:paddingLeft="5px"
-                            android:paddingRight="5px"
+                            android:paddingLeft="@dimen/activity_book4_popup_menu_item_iv_padding2"
+                            android:paddingRight="@dimen/activity_book4_popup_menu_item_iv_padding2"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_baseline_content_cut_24"
                             android:text="PEN"
@@ -441,13 +439,13 @@ app:cardBackgroundColor="#00585858"
 
                         <TextView
                             android:layout_width="wrap_content"
-                            android:layout_height="24px"
+                            android:layout_height="@dimen/activity_book4_popup_menu_item_tv_height"
                             android:layout_gravity="center"
-                            android:layout_margin="12px"
+                            android:layout_margin="@dimen/activity_book4_popup_menu_item_tv_margin"
                             android:gravity="center|center_vertical"
                             android:text="Rename file..."
                             android:textColor="#000000"
-                            android:textSize="16px"
+                            android:textSize="@dimen/activity_book4_popup_menu_item_tv_text_size"
                             android:visibility="visible" />
                     </LinearLayout>
 
@@ -462,13 +460,13 @@ app:cardBackgroundColor="#00585858"
 
                         <ImageView
                             android:layout_width="0px"
-                            android:layout_height="56px"
+                            android:layout_height="@dimen/activity_book4_popup_menu_item_height"
                             android:layout_centerVertical="true"
                             android:layout_gravity="center"
                             android:layout_weight="0"
                             android:gravity="center"
-                            android:paddingLeft="5px"
-                            android:paddingRight="5px"
+                            android:paddingLeft="@dimen/activity_book4_popup_menu_item_iv_padding2"
+                            android:paddingRight="@dimen/activity_book4_popup_menu_item_iv_padding2"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_baseline_content_cut_24"
                             android:text="PEN"
@@ -478,13 +476,13 @@ app:cardBackgroundColor="#00585858"
 
                         <TextView
                             android:layout_width="wrap_content"
-                            android:layout_height="24px"
+                            android:layout_height="@dimen/activity_book4_popup_menu_item_tv_height"
                             android:layout_gravity="center"
-                            android:layout_margin="12px"
+                            android:layout_margin="@dimen/activity_book4_popup_menu_item_tv_margin"
                             android:gravity="center|center_vertical"
                             android:text="Page background..."
                             android:textColor="#000000"
-                            android:textSize="16px"
+                            android:textSize="@dimen/activity_book4_popup_menu_item_tv_text_size"
                             android:visibility="visible" />
                     </LinearLayout>
 
@@ -530,22 +528,22 @@ app:cardBackgroundColor="#00585858"
 
                     <View
                         android:layout_width="match_parent"
-                        android:layout_height="1px"
+                        android:layout_height="@dimen/activity_book4_popup_menu_separator_height"
                         android:background="#C4C7C8"
-                        android:layout_marginTop="8px"
-                        android:layout_marginBottom="8px"
+                        android:layout_marginTop="@dimen/activity_book4_popup_menu_separator_margin_top"
+                        android:layout_marginBottom="@dimen/activity_book4_popup_menu_separator_margin_top"
                         />
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="56px"
+                        android:layout_height="@dimen/activity_book4_popup_menu_item_height"
                         android:orientation="horizontal"
                         android:id="@+id/popButtonShare"
                         >
 
                         <ImageView
-                            android:layout_width="24px"
-                            android:layout_height="24px"
+                            android:layout_width="@dimen/activity_book4_popup_menu_item_iv_height8"
+                            android:layout_height="@dimen/activity_book4_popup_menu_item_iv_height8"
                             android:layout_centerVertical="true"
                             android:layout_gravity="center"
                             android:gravity="center"
@@ -555,59 +553,59 @@ app:cardBackgroundColor="#00585858"
                             android:textAllCaps="true"
                             android:textSize="11px"
                             android:visibility="visible"
-                            android:layout_marginLeft="12px"
-                            android:layout_marginRight="12px"
+                            android:layout_marginLeft="@dimen/activity_book4_popup_menu_item_iv_rl_margin_left8"
+                            android:layout_marginRight="@dimen/activity_book4_popup_menu_item_iv_rl_margin_left8"
                             />
 
                         <TextView
                             android:layout_width="0px"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:layout_marginLeft="10px"
-                            android:layout_marginRight="10px"
+                            android:layout_marginLeft="@dimen/activity_book4_popup_menu_item_iv_tv_margin_left8"
+                            android:layout_marginRight="@dimen/activity_book4_popup_menu_item_iv_tv_margin_left8"
                             android:layout_weight="1"
                             android:gravity="left"
                             android:text="Share..."
                             android:textColor="#000000"
-                            android:textSize="16px"
+                            android:textSize="@dimen/activity_book4_popup_menu_item_iv_tv_text_size8"
                             android:visibility="visible" />
 
                         <ImageView
-                            android:layout_width="40px"
-                            android:layout_height="40px"
+                            android:layout_width="@dimen/activity_book4_popup_menu_item_iv_iv_height8"
+                            android:layout_height="@dimen/activity_book4_popup_menu_item_iv_iv_height8"
                             android:layout_centerVertical="true"
                             android:layout_gravity="center"
                             android:gravity="center"
                             android:scaleType="fitCenter"
                             android:src="@drawable/ic_baseline_arrow_right_24"
                             android:text="PEN"
-                            android:padding="4px"
+                            android:padding="@dimen/activity_book4_popup_menu_item_iv_iv_padding8"
                             android:textAllCaps="true"
                             android:textSize="11px"
                             android:visibility="visible"
-                            android:layout_marginRight="12px"
+                            android:layout_marginRight="@dimen/activity_book4_popup_menu_item_iv_iv_margin_left8"
                             />
                     </LinearLayout>
 
 
                     <View
                         android:layout_width="match_parent"
-                        android:layout_height="1px"
+                        android:layout_height="@dimen/activity_book4_popup_menu_separator_height"
                         android:background="#C4C7C8"
-                        android:layout_marginTop="8px"
-                        android:layout_marginBottom="8px"
+                        android:layout_marginTop="@dimen/activity_book4_popup_menu_separator_margin_top"
+                        android:layout_marginBottom="@dimen/activity_book4_popup_menu_separator_margin_top"
                         />
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="56px"
+                        android:layout_height="@dimen/activity_book4_popup_menu_item_height"
                         android:orientation="horizontal"
                         android:id="@+id/popButtonShortcut"
                         >
 
                         <ImageView
-                            android:layout_width="24px"
-                            android:layout_height="24px"
+                            android:layout_width="@dimen/activity_book4_popup_menu_item_iv_height8"
+                            android:layout_height="@dimen/activity_book4_popup_menu_item_iv_height8"
                             android:layout_centerVertical="true"
                             android:layout_gravity="center"
                             android:layout_weight="0"
@@ -618,21 +616,21 @@ app:cardBackgroundColor="#00585858"
                             android:textAllCaps="true"
                             android:textSize="11px"
                             android:visibility="visible"
-                            android:layout_marginLeft="12px"
-                            android:layout_marginRight="12px"
+                            android:layout_marginLeft="@dimen/activity_book4_popup_menu_item_iv_rl_margin_left8"
+                            android:layout_marginRight="@dimen/activity_book4_popup_menu_item_iv_rl_margin_left8"
                             />
 
                         <TextView
                             android:layout_width="0px"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:layout_marginLeft="10px"
-                            android:layout_marginRight="10px"
+                            android:layout_marginLeft="@dimen/activity_book4_popup_menu_item_iv_tv_margin_left8"
+                            android:layout_marginRight="@dimen/activity_book4_popup_menu_item_iv_tv_margin_left8"
                             android:layout_weight="1"
                             android:gravity="left"
                             android:text="Shortcuts"
                             android:textColor="#000000"
-                            android:textSize="16px"
+                            android:textSize="@dimen/activity_book4_popup_menu_item_iv_tv_text_size8"
                             android:visibility="visible" />
                     </LinearLayout>
 

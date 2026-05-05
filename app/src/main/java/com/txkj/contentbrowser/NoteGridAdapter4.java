@@ -2,11 +2,13 @@ package com.txkj.contentbrowser;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowMetrics;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
@@ -29,12 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NoteGridAdapter4 extends RecyclerView.Adapter<NoteGridAdapter4.GridViewHolder> {
-    private final static int SINGLE_GRID_DP_WIDTH = 120;
-    public final static int SINGLE_GRID_PX_WIDTH_PORT = 200;
-    public final static int SINGLE_GRID_PX_HEIGHT_PORT = 300;
-    public final static int SINGLE_GRID_PX_WIDTH_LAND = 300;
-    public final static int SINGLE_GRID_PX_HEIGHT_LAND = 200;
-
     public int gridHeight = 0;
     AdapterView.OnItemClickListener mListener = null;
     public void setOnItemClickListener2(AdapterView.OnItemClickListener listener) {
@@ -176,10 +172,17 @@ public class NoteGridAdapter4 extends RecyclerView.Adapter<NoteGridAdapter4.Grid
     public long getItemId(int position) {
         return position;
     }
-/*
-getItem()
-return position;
- */
+
+    @Override
+    public int getItemViewType(int position) {
+        int orientation = mContext.getResources().getConfiguration().orientation;
+        return orientation == Configuration.ORIENTATION_LANDSCAPE ? 1 : 0;
+    }
+
+    /*
+    getItem()
+    return position;
+     */
     @Override
     public int getItemCount() {
         if (dataList != null) {
@@ -244,23 +247,6 @@ return position;
 //            ivCoverImageBack = (ImageView) itemView.findViewById(R.id.bookgrid_pic_backgroud);
             llGridTop = (LinearLayout) itemView.findViewById(R.id.llGridTop);
             checkBox = (CheckBox) itemView.findViewById(R.id.checkbox);
-            if (true) {
-                ViewGroup.LayoutParams params2 = new AbsListView.LayoutParams(
-                        AbsListView.LayoutParams.MATCH_PARENT,
-                        AbsListView.LayoutParams.MATCH_PARENT);
-                if (DM.heightPixels > DM.widthPixels) {
-                    //port
-                    //params2.height = (int)(DM.heightPixels / 2.8);//3.5);
-                    params2.height = SINGLE_GRID_PX_HEIGHT_PORT;
-                    params2.width = SINGLE_GRID_PX_WIDTH_PORT;
-                } else {
-                    //land
-                    //params2.height = (int)(DM.widthPixels / 2.0 / 1.6);//2.5);
-                    params2.height = SINGLE_GRID_PX_HEIGHT_LAND;
-                    params2.width = SINGLE_GRID_PX_WIDTH_LAND;
-                }
-                itemView.setLayoutParams(params2);
-            }
         }
     }
 }

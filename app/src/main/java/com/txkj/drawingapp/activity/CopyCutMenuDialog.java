@@ -80,9 +80,12 @@ public class CopyCutMenuDialog {
             tvMenuPaste.setTextColor(Color.LTGRAY);
         }
 
+        int menuWidth = context.getResources().getDimensionPixelSize(R.dimen.activity_book4_popup_menu_width);
+        int offsetX = context.getResources().getDimensionPixelSize(R.dimen.activity_book4_popup_menu_offsetx);
+        int offsetY = context.getResources().getDimensionPixelSize(R.dimen.activity_book4_popup_menu_offsety);
         //  make a popup window
         popup = new PopupWindow(layout,
-                300/*ViewGroup.LayoutParams.WRAP_CONTENT*/, ViewGroup.LayoutParams.WRAP_CONTENT);
+                menuWidth/*300 ViewGroup.LayoutParams.WRAP_CONTENT*/, ViewGroup.LayoutParams.WRAP_CONTENT);
         popup.setFocusable(true);
         popup.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
@@ -92,7 +95,7 @@ public class CopyCutMenuDialog {
         });
 
                 //  now show the popup
-        popup.showAsDropDown(anchor, POPUP_OFFSET_X, POPUP_OFFSET_Y, Gravity.RIGHT);
+        popup.showAsDropDown(anchor, offsetX, offsetY, Gravity.RIGHT);
     }
 //    public interface WidthChangedListener {
 //        void onWidthChanged(float value);

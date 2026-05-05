@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="back">Back</string>
+    <string name="create_note">Create note</string>
+    <string name="more_note_manipulation_options">More note manipulation options</string>
+    <string name="notes_list">Notes List</string>
+    <string name="today">Today</string>
+    <string name="this_week">This week</string>
+    <string name="earlier">Earlier</string>
+    <string name="decorative_image_of_lines_of_text_and_a_pencil">Decorative image of lines of text and a pencil</string>
+    <string name="notes_will_appear_here">Notes will appear here</string>
+    <string name="create_a_new_note_by_pressing_the_button">Create a new note by pressing the + button.</string>
+</resources>

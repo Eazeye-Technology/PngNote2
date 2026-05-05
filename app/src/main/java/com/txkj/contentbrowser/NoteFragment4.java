@@ -70,6 +70,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import android.content.res.Configuration;
 
 import gm.com.dosya.utils.FileTransactions;
 
@@ -132,18 +133,26 @@ class PreferencesKeys {
     private TextView tvrecentNoteView2;
 
 
-//    @Override
-//    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-//        super.onConfigurationChanged(newConfig);
-//        recentNoteView1.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                updateList1();
-//                updateList2();
-//                updateList3();
-//            }
-//        }, 100);
-//    }
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        if (recentNoteView1 != null) {
+            recentNoteView1.getRecycledViewPool().clear();
+            recentNoteView1.getAdapter().notifyDataSetChanged();
+        }
+
+        if (recentNoteView2 != null) {
+            recentNoteView2.getRecycledViewPool().clear();
+            recentNoteView2.getAdapter().notifyDataSetChanged();
+        }
+
+        if (recentNoteView3 != null) {
+            recentNoteView3.getRecycledViewPool().clear();
+            recentNoteView3.getAdapter().notifyDataSetChanged();
+        }
+
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
