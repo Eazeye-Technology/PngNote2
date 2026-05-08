@@ -573,7 +573,17 @@ public class DrawPath {
                         for (Point p : points) {
                             float w = appearance.strokeSize;//(stroke.width * p.pressure).clamp(0.5, 220.0);
                             if (!DrawCanvas.isEmulator()) {
-                                w = appearance.strokeSize * p.pressure;
+                                if (false) {
+                                    w = appearance.strokeSize * p.pressure;
+                                } else {
+                                    // 获取手写笔压力（如果支持）
+                                    //if (event.getPressure() > 0 && event.getPressure() <= 1.0f) {
+                                    //    stylusPressure = event.getPressure();
+                                    //    currentStrokeWidth = stylusStrokeWidth * (0.5f + stylusPressure * 0.5f);
+                                    //}
+                                    //new pressure algorithm
+                                    w = appearance.strokeSize * (0.5f + p.pressure * 0.5f);
+                                }
                             }
                             // Base smudge
                             Paint base = new Paint();
@@ -613,10 +623,24 @@ public class DrawPath {
                 } else if (appearance.penType == DrawAppearance.PEN_TYPE_4) {
                     int baseColor = paint.getColor();
                     //Paint base = new Paint(paint);
+                    boolean useDrawPoints = true;
+                    List<Float> toDrawList = new ArrayList<>();
                     for (int i = 0; i < points.size() - 1; ++i) {
                         Point p0 = points.get(i);
                         Point p1 = points.get(i + 1);
-                        drawStroke(canvas, p0, p1, appearance.strokeSize, baseColor);
+                        drawStroke(canvas, p0, p1, appearance.strokeSize, baseColor, useDrawPoints, toDrawList);
+                    }
+                    if (useDrawPoints) {
+                        paint.setStyle(Paint.Style.FILL);
+                        paint.setColor((baseColor & 0xFFFFFF) | 0xFF000000);
+                        paint.setStrokeWidth(1.1f);
+                        //int pos = 0;
+                        float[] points = new float[toDrawList.size()];
+                        for (int i = 0; i < toDrawList.size(); ++i) {
+                            Float p = toDrawList.get(i);
+                            points[i] = p;
+                        }
+                        canvas.drawPoints(points, paint);
                     }
                 } else if (appearance.penType == DrawAppearance.PEN_TYPE_6) { //shape pen
                     if (shapeType == SHAPE_TYPE_LINE) {
@@ -879,14 +903,14 @@ public class DrawPath {
                              Point from,
                              Point to,
                              double size,
-                             int color
+                             int color,
+                             boolean useDrawPoints,
+                            List<Float> toDrawList
     ) {
-        boolean useDrawPoints = true;
         Random rand = new Random(0);
         Paint paint = new Paint();
         double distance = Math.sqrt(Math.pow(to.x - from.x, 2) + Math.pow(to.y - from.y, 2));
         int steps = (int)Math.max(Math.ceil(distance), 1);
-        List<Float> toDrawList = new ArrayList<>();
         for (int i = 0; i <= steps; i++) {
             double t = (float)i / steps;
             double x = from.x + (to.x - from.x) * t;
@@ -894,18 +918,6 @@ public class DrawPath {
             double pressure = from.pressure + (to.pressure - from.pressure) * t;
 
             drawPoint(ctx, x, y, pressure, size, color, paint, rand, useDrawPoints, toDrawList);
-        }
-        if (useDrawPoints) {
-            paint.setStyle(Paint.Style.FILL);
-            paint.setColor((color & 0xFFFFFF) | 0xFF000000);
-            paint.setStrokeWidth(1.1f);
-            //int pos = 0;
-            float[] points = new float[toDrawList.size()];
-            for (int i = 0; i < toDrawList.size(); ++i) {
-                Float p = toDrawList.get(i);
-                points[i] = p;
-            }
-            ctx.drawPoints(points, paint);
         }
     }
 
