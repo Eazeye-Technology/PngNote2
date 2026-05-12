@@ -75,6 +75,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.slider.Slider;
 import com.sys.speech.activity.DictResultActivity;
 import com.sys.speech.db.SDRecordingsDatabase;
 import com.sys.speech.dialog.PlayerDialog;
@@ -1737,6 +1738,47 @@ public class BookActivity4Fragment extends Fragment {
         }
 
         BookActivity4RichText.initButtons(this);
+
+        Slider sliderVerticalShape = (Slider) rootView.findViewById(R.id.sliderVerticalShape);
+        sliderVerticalShape.setVisibility(View.GONE);
+        sliderVerticalShape.addOnChangeListener(new Slider.OnChangeListener() {
+            @Override
+            public void onValueChange(@NonNull Slider slider, float value, boolean fromUser) {
+                if (fromUser) {
+                    LinkedList<DrawPath> selectedPaths = canvas.getSelectionTool().getSelectedPaths();
+                    if (selectedPaths != null) {
+                        for (DrawPath drawPath : selectedPaths) {
+                            if (drawPath != null &&
+                                    drawPath.pointsType == DrawPath.POINTS_TYPE_STROKE &&
+                                    drawPath.appearance != null &&
+                                    drawPath.appearance.penType == DrawAppearance.PEN_TYPE_6) {
+                                switch ((int) value) {
+                                    case 0:
+                                        drawPath.shapeType = DrawPath.SHAPE_TYPE_UNKNOWN;
+                                        break;
+                                    case 1:
+                                        drawPath.shapeType = DrawPath.SHAPE_TYPE_LINE;
+                                        break;
+                                    case 2:
+                                        drawPath.shapeType = DrawPath.SHAPE_TYPE_RECTANGLE;
+                                        break;
+                                    case 3:
+                                        drawPath.shapeType = DrawPath.SHAPE_TYPE_CIRCLE;
+                                        break;
+                                    case 4:
+                                        drawPath.shapeType = DrawPath.SHAPE_TYPE_TRIANGLE;
+                                        break;
+                                    case 5:
+                                        drawPath.shapeType = DrawPath.SHAPE_TYPE_POLYGON;
+                                        break;
+                                }
+                            }
+                        }
+                        canvas.invalidate();
+                    }
+                }
+            }
+        });
     }
     long lastTimeShowKeyboard = 0;
     float g_y = 0;
@@ -5091,6 +5133,80 @@ public class BookActivity4Fragment extends Fragment {
         notifyForceSave(false);
         this.ensureSave();
         onPageIdxChange(true);
+    }
+
+    public void onSelectChange() {
+        if (g_rootView != null) {
+            Slider sliderVerticalShape = (Slider) g_rootView.findViewById(R.id.sliderVerticalShape);
+            if (sliderVerticalShape != null) {
+                boolean found = false;
+                LinkedList<DrawPath> selectedPaths = canvas.getSelectionTool().getSelectedPaths();
+                DrawPath drawPathFound = null;
+                if (selectedPaths != null) {
+                    for (DrawPath drawPath : selectedPaths) {
+                        if (drawPath != null &&
+                                drawPath.pointsType == DrawPath.POINTS_TYPE_STROKE &&
+                                drawPath.appearance != null &&
+                                drawPath.appearance.penType == DrawAppearance.PEN_TYPE_6) {
+                            drawPathFound = drawPath;
+                            found = true;
+                        }
+                    }
+                }
+                if (found && drawPathFound != null) {
+                    sliderVerticalShape.setVisibility(View.VISIBLE);
+                    switch (drawPathFound.shapeType) {
+                        case DrawPath.SHAPE_TYPE_UNKNOWN:
+                            sliderVerticalShape.setValue(0);
+                            break;
+                        case DrawPath.SHAPE_TYPE_LINE:
+                            sliderVerticalShape.setValue(1);
+                            break;
+                        case DrawPath.SHAPE_TYPE_RECTANGLE:
+                            sliderVerticalShape.setValue(2);
+                            break;
+                        case DrawPath.SHAPE_TYPE_CIRCLE:
+                            sliderVerticalShape.setValue(3);
+                            break;
+                        case DrawPath.SHAPE_TYPE_TRIANGLE:
+                            sliderVerticalShape.setValue(4);
+                            break;
+                        case DrawPath.SHAPE_TYPE_POLYGON:
+                            sliderVerticalShape.setValue(5);
+                            break;
+                    }
+
+                    LinkedList<DrawPath> toolPath = null;
+                    if (canvas != null && canvas.getSelectionTool() != null) {
+                        toolPath = canvas.getSelectionTool().getToolPaths();
+                    }
+                    if (toolPath != null) {
+                        for (DrawPath path : toolPath) {
+                            if (path.points.size() >= 4) {
+                                Point p1 = path.points.get(1);
+                                Point p2 = path.points.get(2);
+
+                                RelativeLayout.LayoutParams pp = (RelativeLayout.LayoutParams)
+                                        sliderVerticalShape.getLayoutParams();
+                                //pp.setMargins((int)p.x, (int)p.y, 0, 0);
+                                Point screenPoint1 = canvas.mapPointScreen(p1.x, p1.y, 1.0f);
+                                Point screenPoint2 = canvas.mapPointScreen(p2.x, p2.y, 1.0f);
+                                int sliderHeight = getResources().getDimensionPixelSize(R.dimen.activity_book4_slider_height);
+                                float dy = (Math.abs(screenPoint2.y - screenPoint1.y) -
+                                        sliderHeight/*sliderVerticalShape.getMeasuredHeight()*/)
+                                        / 2.0f;
+                                pp.leftMargin = (int)screenPoint1.x + 50;
+                                pp.topMargin = (int)screenPoint1.y + (int)dy;
+                                sliderVerticalShape.setLayoutParams(pp);
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    sliderVerticalShape.setVisibility(View.GONE);
+                }
+            }
+        }
     }
 
     private boolean isBackPressed = false;

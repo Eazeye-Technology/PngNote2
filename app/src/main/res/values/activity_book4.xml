@@ -32,4 +32,8 @@
     <!--impl-->
     <dimen name="activity_book4_ai_panel_margin_top">120px</dimen>
     <dimen name="activity_book4_ai_panel_width">400px</dimen>
+
+
+
+    <dimen name="activity_book4_slider_height">350dp</dimen>
 </resources>

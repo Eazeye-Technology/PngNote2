@@ -63,8 +63,9 @@ public class SelectionTool implements Tool {
     public Drawable editIcon;
     public final static int editIcon_index = 3;
 
-    public float iconRadius = 10;
-
+    public float iconRadius = 0;//10;
+    public float iconRadiusActual = 0;
+    private final static boolean USE_SELECTION_ICON_OFFSET = true;
     /**
      * Creates a SelectionTool instance, saying that the selection path has to be closed (it's a rectangle)
      *
@@ -85,6 +86,8 @@ public class SelectionTool implements Tool {
         doneIcon = ContextCompat.getDrawable(canvas.getContext(), R.drawable.ic_done_white_20dp);
         zoomIcon = ContextCompat.getDrawable(canvas.getContext(), R.drawable.ic_rotate_scale_white_17dp);
         editIcon = ContextCompat.getDrawable(canvas.getContext(), R.drawable.ic_baseline_edit_24_white); //R.drawable.ic_flip_white_20dp);
+
+        iconRadius = canvas.getContext().getResources().getDimensionPixelSize(R.dimen.selection_tool_icon_radius);
     }
 
     /**
@@ -362,6 +365,7 @@ public class SelectionTool implements Tool {
                     // do math to actually select those paths.
                     selectPaths();
                     currentPath.appearance = APPEARANCE_SELECTED;
+                    BookActivity4Utils.onSelectChange(this.canvas.mAct);
                 } else {
                     //---------------
                     if (getScaleMode()) {
@@ -376,6 +380,7 @@ public class SelectionTool implements Tool {
                 }
                 mode = TOUCH_MODES.none;
                 previousPoint = null;
+                BookActivity4Utils.onSelectChange(this.canvas.mAct);
                 break; // Usually we would say we consumed the input and we shouldn't do a redraw
             // but this is also when we lift our finger a.k.a when we make backups of
             // DrawCanvas.drawPaths.
@@ -416,10 +421,19 @@ public class SelectionTool implements Tool {
             matrix.mapPoints(dst, new float[]{boundsBottom_old.x, boundsBottom_old.y});
             Point boundsBottom = new Point(dst[0], dst[1]);
             this.currentPath.clear();
-            this.currentPath.addPoint(boundsTop);
-            this.currentPath.addPoint(new Point(boundsBottom.x, boundsTop.y));
-            this.currentPath.addPoint(boundsBottom);
-            this.currentPath.addPoint(new Point(boundsTop.x, boundsBottom.y));
+            if (!USE_SELECTION_ICON_OFFSET) {
+                currentPath.addPoint(boundsTop); //left top
+                currentPath.addPoint(new Point(boundsBottom.x, boundsTop.y)); //right top
+                currentPath.addPoint(boundsBottom); //right bottom
+                currentPath.addPoint(new Point(boundsTop.x, boundsBottom.y)); //left bottom
+            } else {
+                float offsetX = iconRadiusActual;
+                float offsetY = iconRadiusActual;
+                currentPath.addPoint(new Point(boundsTop.x - offsetX, boundsTop.y - offsetY)); //left top
+                currentPath.addPoint(new Point(boundsBottom.x + offsetX, boundsTop.y - offsetY)); //right top
+                currentPath.addPoint(new Point(boundsBottom.x + offsetX, boundsBottom.y + offsetY)); //right bottom
+                currentPath.addPoint(new Point(boundsTop.x - offsetX, boundsBottom.y + offsetY)); //left bottom
+            }
             this.currentPath.appearance =
                     this.canvas.getSelectionTool().APPEARANCE_SELECTED;
         }
@@ -535,10 +549,19 @@ public class SelectionTool implements Tool {
                 matrix.mapPoints(dst, new float[]{boundsBottom_old.x, boundsBottom_old.y});
                 Point boundsBottom = new Point(dst[0], dst[1]);
                 this.currentPath.clear();
-                this.currentPath.addPoint(boundsTop);
-                this.currentPath.addPoint(new Point(boundsBottom.x, boundsTop.y));
-                this.currentPath.addPoint(boundsBottom);
-                this.currentPath.addPoint(new Point(boundsTop.x, boundsBottom.y));
+                if (!USE_SELECTION_ICON_OFFSET) {
+                    currentPath.addPoint(boundsTop); //left top
+                    currentPath.addPoint(new Point(boundsBottom.x, boundsTop.y)); //right top
+                    currentPath.addPoint(boundsBottom); //right bottom
+                    currentPath.addPoint(new Point(boundsTop.x, boundsBottom.y)); //left bottom
+                } else {
+                    float offsetX = iconRadiusActual;
+                    float offsetY = iconRadiusActual;
+                    currentPath.addPoint(new Point(boundsTop.x - offsetX, boundsTop.y - offsetY)); //left top
+                    currentPath.addPoint(new Point(boundsBottom.x + offsetX, boundsTop.y - offsetY)); //right top
+                    currentPath.addPoint(new Point(boundsBottom.x + offsetX, boundsBottom.y + offsetY)); //right bottom
+                    currentPath.addPoint(new Point(boundsTop.x - offsetX, boundsBottom.y + offsetY)); //left bottom
+                }
                 this.currentPath.appearance =
                         this.canvas.getSelectionTool().APPEARANCE_SELECTED;
             }
@@ -563,10 +586,19 @@ public class SelectionTool implements Tool {
                     boundsTop.x + w * pathImage.pointsScaleX,
                     boundsTop.y + h * pathImage.pointsScaleX);
             this.currentPath.clear();
-            this.currentPath.addPoint(boundsTop);
-            this.currentPath.addPoint(new Point(boundsBottom.x, boundsTop.y));
-            this.currentPath.addPoint(boundsBottom);
-            this.currentPath.addPoint(new Point(boundsTop.x, boundsBottom.y));
+            if (!USE_SELECTION_ICON_OFFSET) {
+                currentPath.addPoint(boundsTop); //left top
+                currentPath.addPoint(new Point(boundsBottom.x, boundsTop.y)); //right top
+                currentPath.addPoint(boundsBottom); //right bottom
+                currentPath.addPoint(new Point(boundsTop.x, boundsBottom.y)); //left bottom
+            } else {
+                float offsetX = iconRadiusActual;
+                float offsetY = iconRadiusActual;
+                currentPath.addPoint(new Point(boundsTop.x - offsetX, boundsTop.y - offsetY)); //left top
+                currentPath.addPoint(new Point(boundsBottom.x + offsetX, boundsTop.y - offsetY)); //right top
+                currentPath.addPoint(new Point(boundsBottom.x + offsetX, boundsBottom.y + offsetY)); //right bottom
+                currentPath.addPoint(new Point(boundsTop.x - offsetX, boundsBottom.y + offsetY)); //left bottom
+            }
             this.currentPath.appearance =
                     this.canvas.getSelectionTool().APPEARANCE_SELECTED;
         }
@@ -602,11 +634,19 @@ public class SelectionTool implements Tool {
                     boundsTop.x + w * pathText.pointsScaleX,
                     boundsTop.y + h * pathText.pointsScaleY);
             this.currentPath.clear();
-            this.currentPath.addPoint(boundsTop);
-            this.currentPath.addPoint(new Point(boundsBottom.x, boundsTop.y));
-            this.currentPath.addPoint(boundsBottom);
-            this.currentPath.addPoint(new Point(boundsTop.x, boundsBottom.y));
-            this.currentPath.addPoint(boundsTop);
+            if (!USE_SELECTION_ICON_OFFSET) {
+                currentPath.addPoint(boundsTop); //left top
+                currentPath.addPoint(new Point(boundsBottom.x, boundsTop.y)); //right top
+                currentPath.addPoint(boundsBottom); //right bottom
+                currentPath.addPoint(new Point(boundsTop.x, boundsBottom.y)); //left bottom
+            } else {
+                float offsetX = iconRadiusActual;
+                float offsetY = iconRadiusActual;
+                currentPath.addPoint(new Point(boundsTop.x - offsetX, boundsTop.y - offsetY)); //left top
+                currentPath.addPoint(new Point(boundsBottom.x + offsetX, boundsTop.y - offsetY)); //right top
+                currentPath.addPoint(new Point(boundsBottom.x + offsetX, boundsBottom.y + offsetY)); //right bottom
+                currentPath.addPoint(new Point(boundsTop.x - offsetX, boundsBottom.y + offsetY)); //left bottom
+            }
             this.currentPath.appearance =
                     this.canvas.getSelectionTool().APPEARANCE_SELECTED;
         }
@@ -666,7 +706,8 @@ public class SelectionTool implements Tool {
 //            }
 //        }
         for (DrawPath path : getToolPaths()) {
-            float radius = this.iconRadius;
+            //float radius = this.iconRadius;
+            float radius = iconRadiusActual; // / scaleFactor;
             for (int i = 0; i < path.points.size(); ++i) {
                 Point pt = path.points.get(i);
                 float[] dst = new float[2];
@@ -954,11 +995,19 @@ public class SelectionTool implements Tool {
             // but the bounds of the *paths* the user selected.
             currentPath.clear();
             if (boundsTop != null) {
-                currentPath.addPoint(boundsTop);
-                currentPath.addPoint(new Point(boundsBottom.x, boundsTop.y));
-                currentPath.addPoint(boundsBottom);
-                currentPath.addPoint(new Point(boundsTop.x, boundsBottom.y));
-
+                if (!USE_SELECTION_ICON_OFFSET) {
+                    currentPath.addPoint(boundsTop); //left top
+                    currentPath.addPoint(new Point(boundsBottom.x, boundsTop.y)); //right top
+                    currentPath.addPoint(boundsBottom); //right bottom
+                    currentPath.addPoint(new Point(boundsTop.x, boundsBottom.y)); //left bottom
+                } else {
+                    float offsetX = iconRadiusActual;
+                    float offsetY = iconRadiusActual;
+                    currentPath.addPoint(new Point(boundsTop.x - offsetX, boundsTop.y - offsetY)); //left top
+                    currentPath.addPoint(new Point(boundsBottom.x + offsetX, boundsTop.y - offsetY)); //right top
+                    currentPath.addPoint(new Point(boundsBottom.x + offsetX, boundsBottom.y + offsetY)); //right bottom
+                    currentPath.addPoint(new Point(boundsTop.x - offsetX, boundsBottom.y + offsetY)); //left bottom
+                }
                 if (getScaleMode()) {
                     scalePoint = new Point((boundsTop.x + boundsBottom.x) / 2,
                             (boundsTop.y + boundsBottom.y) / 2);

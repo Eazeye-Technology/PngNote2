@@ -826,6 +826,32 @@
             </RelativeLayout>
         </RelativeLayout>
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <com.google.android.material.slider.Slider
+                android:id="@+id/sliderVerticalShape"
+                android:layout_marginLeft="240px"
+                android:layout_marginTop="264px"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/activity_book4_slider_height"
+                android:orientation="vertical"
+                android:value="0.00"
+                android:valueFrom="0.0"
+                android:valueTo="5.0"
+                android:stepSize="1.0"
+                app:thumbHeight="48dp"
+                app:trackCornerSize="12dp"
+                app:trackHeight="20dp"
+                app:trackIconActiveColor="@color/m3_slider_active_tick_marks_color"
+                app:trackIconInactiveColor="@color/m3_slider_inactive_tick_marks_color"
+                app:trackIconSize="20dp" />
+            <!--
+            app:trackIconActiveStart="@drawable/baseline_music_note_24"
+                app:trackIconInactiveStart="@drawable/baseline_music_off_24"
+                -->
+        </RelativeLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"

@@ -18,14 +18,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="36px"
+            android:textSize="@dimen/focus_mode_text_size1"
             android:text="This is focus mode "
             android:textColor="#000000"
             />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="16px"
+            android:textSize="@dimen/focus_mode_text_size2"
             android:text="Focus mode gets rid of distractions to enhance productivity."
             android:textColor="#000000"
             />
@@ -35,9 +35,9 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14px"
+            android:textSize="@dimen/focus_mode_text_size3"
             android:text="Tap anywhere to dismiss"
-            android:layout_marginTop="18px"
+            android:layout_marginTop="@dimen/focus_mode_margin1"
             android:textColor="#000000"
             />
     </LinearLayout>
@@ -48,33 +48,33 @@
         android:orientation="vertical"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="8px"
-        android:layout_marginTop="-40px"
+        android:layout_marginRight="@dimen/focus_mode_margin2"
+        android:layout_marginTop="@dimen/focus_mode_margin3"
         >
         <androidx.cardview.widget.CardView
-            android:layout_width="64px"
-            android:layout_height="80px"
+            android:layout_width="@dimen/focus_mode_w1"
+            android:layout_height="@dimen/focus_mode_h1"
             app:cardBackgroundColor="#585858"
-            app:cardCornerRadius="10px"
-            app:cardElevation="10px"
+            app:cardCornerRadius="@dimen/focus_mode_radius"
+            app:cardElevation="@dimen/focus_mode_elevation"
             >
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 >
                 <ImageView
-                    android:layout_width="25px"
-                    android:layout_height="25px"
+                    android:layout_width="@dimen/focus_mode_w2"
+                    android:layout_height="@dimen/focus_mode_h2"
                     android:src="@drawable/ic_my_focus_exit_001"
                     android:layout_alignParentBottom="true"
                     android:layout_centerHorizontal="true"
-                    android:layout_marginBottom="10px"
+                    android:layout_marginBottom="@dimen/focus_mode_margin4"
                     />
             </RelativeLayout>
         </androidx.cardview.widget.CardView>
         <View
             android:layout_width="match_parent"
-            android:layout_height="60px"
+            android:layout_height="@dimen/focus_mode_h3"
             />
     </LinearLayout>
 
@@ -82,20 +82,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:cardBackgroundColor="#F1EDEC"
-        app:cardCornerRadius="10px"
-        app:cardElevation="10px"
+        app:cardCornerRadius="@dimen/focus_mode_radius"
+        app:cardElevation="@dimen/focus_mode_elevation"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="40px"
-        android:layout_marginTop="60px"
+        android:layout_marginRight="@dimen/focus_mode_margin5"
+        android:layout_marginTop="@dimen/focus_mode_margin6"
         >
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Tap here to exit focus mode"
             android:textColor="#444444"
-            android:layout_margin="10px"
-            android:textSize="14px"
+            android:layout_margin="@dimen/focus_mode_margin7"
+            android:textSize="@dimen/focus_mode_text_size4"
             />
     </androidx.cardview.widget.CardView>
 
@@ -105,28 +105,28 @@
         android:src="@drawable/ic_my_focus_double_tap_002"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_marginLeft="234px"
-        android:layout_marginTop="155px"
+        android:layout_marginLeft="@dimen/focus_mode_margin8"
+        android:layout_marginTop="@dimen/focus_mode_margin9"
         />
 
     <androidx.cardview.widget.CardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:cardBackgroundColor="#F1EDEC"
-        app:cardCornerRadius="10px"
-        app:cardElevation="10px"
+        app:cardCornerRadius="@dimen/focus_mode_radius"
+        app:cardElevation="@dimen/focus_mode_elevation"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_marginLeft="40px"
-        android:layout_marginTop="231px"
+        android:layout_marginLeft="@dimen/focus_mode_margin10"
+        android:layout_marginTop="@dimen/focus_mode_margin11"
         >
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Double tap on the left or right of the page to move between pages"
             android:textColor="#444444"
-            android:layout_margin="10px"
-            android:textSize="14px"
+            android:layout_margin="@dimen/focus_mode_margin12"
+            android:textSize="@dimen/focus_mode_text_size5"
             />
     </androidx.cardview.widget.CardView>
 
@@ -137,7 +137,7 @@
         android:src="@drawable/ic_my_focus_swipe_003"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="180px"
+        android:layout_marginBottom="@dimen/focus_mode_margin13"
         android:visibility="gone"
         />
 
@@ -145,11 +145,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:cardBackgroundColor="#F1EDEC"
-        app:cardCornerRadius="10px"
-        app:cardElevation="10px"
+        app:cardCornerRadius="@dimen/focus_mode_radius"
+        app:cardElevation="@dimen/focus_mode_elevation"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="100px"
+        android:layout_marginBottom="@dimen/focus_mode_margin14"
         android:visibility="gone"
         >
         <TextView
@@ -157,7 +157,7 @@
             android:layout_height="wrap_content"
             android:text="Swipe up to open focus panel"
             android:textColor="#444444"
-            android:layout_margin="10px"
+            android:layout_margin="@dimen/focus_mode_margin15"
             />
     </androidx.cardview.widget.CardView>
 

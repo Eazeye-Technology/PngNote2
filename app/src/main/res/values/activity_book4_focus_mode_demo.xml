@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="focus_mode_text_size1">36px</dimen>
+    <dimen name="focus_mode_text_size2">16px</dimen>
+    <dimen name="focus_mode_text_size3">14px</dimen>
+    <dimen name="focus_mode_text_size4">14px</dimen>
+    <dimen name="focus_mode_text_size5">14px</dimen>
+
+
+    <dimen name="focus_mode_margin1">18px</dimen>
+    <dimen name="focus_mode_margin2">8px</dimen>
+    <dimen name="focus_mode_margin3">-40px</dimen>
+    <dimen name="focus_mode_margin4">10px</dimen>
+    <dimen name="focus_mode_margin5">40px</dimen>
+
+    <dimen name="focus_mode_margin6">60px</dimen>
+    <dimen name="focus_mode_margin7">10px</dimen>
+    <dimen name="focus_mode_margin8">234px</dimen>
+    <dimen name="focus_mode_margin9">155px</dimen>
+    <dimen name="focus_mode_margin10">40px</dimen>
+    <dimen name="focus_mode_margin11">231px</dimen>
+
+    <dimen name="focus_mode_margin12">10px</dimen>
+    <dimen name="focus_mode_margin13">180px</dimen>
+    <dimen name="focus_mode_margin14">100px</dimen>
+    <dimen name="focus_mode_margin15">10px</dimen>
+
+    <dimen name="focus_mode_radius">10px</dimen>
+    <dimen name="focus_mode_elevation">10px</dimen>
+
+
+    <dimen name="focus_mode_w1">64px</dimen>
+    <dimen name="focus_mode_h1">80px</dimen>
+    <dimen name="focus_mode_w2">25px</dimen>
+    <dimen name="focus_mode_h2">25px</dimen>
+    <dimen name="focus_mode_h3">60px</dimen>
+
+</resources>

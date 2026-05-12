@@ -845,7 +845,8 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
 
                     //draw menu on four corners
                     if (!menuHidden && getTool() instanceof SelectionTool) {
-                        float radius = getSelectionTool().iconRadius;
+                        float radius = getSelectionTool().iconRadius / panTool.scaleFactor;
+                        getSelectionTool().iconRadiusActual = radius;
                         if (getSelectionTool().mode != SelectionTool.TOUCH_MODES.define) {
                             for (int i = 0; i < path.points.size() && i < 4; ++i) {
                                 Point pt = path.points.get(i);

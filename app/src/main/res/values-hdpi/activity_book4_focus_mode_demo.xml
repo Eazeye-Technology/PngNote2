@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!--    <dimen name="focus_mode_text_size1">54px</dimen>-->
+<!--    <dimen name="focus_mode_text_size2">24px</dimen>-->
+<!--    <dimen name="focus_mode_text_size3">21px</dimen>-->
+<!--    <dimen name="focus_mode_text_size4">21px</dimen>-->
+<!--    <dimen name="focus_mode_text_size5">21px</dimen>-->
+
+
+<!--    <dimen name="focus_mode_margin1">27px</dimen>-->
+<!--    <dimen name="focus_mode_margin2">12px</dimen>-->
+<!--    <dimen name="focus_mode_margin3">-60px</dimen>-->
+<!--    <dimen name="focus_mode_margin4">15px</dimen>-->
+<!--    <dimen name="focus_mode_margin5">60px</dimen>-->
+
+<!--    <dimen name="focus_mode_margin6">90px</dimen>-->
+<!--    <dimen name="focus_mode_margin7">15px</dimen>-->
+<!--    <dimen name="focus_mode_margin8">351px</dimen>-->
+<!--    <dimen name="focus_mode_margin9">232px</dimen>-->
+<!--    <dimen name="focus_mode_margin10">60px</dimen>-->
+<!--    <dimen name="focus_mode_margin11">346px</dimen>-->
+
+<!--    <dimen name="focus_mode_margin12">15px</dimen>-->
+<!--    <dimen name="focus_mode_margin13">270px</dimen>-->
+<!--    <dimen name="focus_mode_margin14">150px</dimen>-->
+<!--    <dimen name="focus_mode_margin15">15px</dimen>-->
+
+<!--    <dimen name="focus_mode_radius">15px</dimen>-->
+<!--    <dimen name="focus_mode_elevation">15px</dimen>-->
+
+
+<!--    <dimen name="focus_mode_w1">96px</dimen>-->
+<!--    <dimen name="focus_mode_h1">120px</dimen>-->
+<!--    <dimen name="focus_mode_w2">37px</dimen>-->
+<!--    <dimen name="focus_mode_h2">37px</dimen>-->
+<!--    <dimen name="focus_mode_h3">90px</dimen>-->
+
+
+    <dimen name="focus_mode_text_size1">72px</dimen>
+    <dimen name="focus_mode_text_size2">32px</dimen>
+    <dimen name="focus_mode_text_size3">28px</dimen>
+    <dimen name="focus_mode_text_size4">28px</dimen>
+    <dimen name="focus_mode_text_size5">28px</dimen>
+
+
+    <dimen name="focus_mode_margin1">36px</dimen>
+    <dimen name="focus_mode_margin2">16px</dimen>
+    <dimen name="focus_mode_margin3">-80px</dimen>
+    <dimen name="focus_mode_margin4">20px</dimen>
+    <dimen name="focus_mode_margin5">80px</dimen>
+
+    <dimen name="focus_mode_margin6">90px</dimen>
+    <dimen name="focus_mode_margin7">20px</dimen>
+    <dimen name="focus_mode_margin8">468px</dimen>
+    <dimen name="focus_mode_margin9">160px</dimen>
+    <dimen name="focus_mode_margin10">80px</dimen>
+    <dimen name="focus_mode_margin11">262px</dimen>
+
+    <dimen name="focus_mode_margin12">20px</dimen>
+    <dimen name="focus_mode_margin13">360px</dimen>
+    <dimen name="focus_mode_margin14">200px</dimen>
+    <dimen name="focus_mode_margin15">20px</dimen>
+
+    <dimen name="focus_mode_radius">20px</dimen>
+    <dimen name="focus_mode_elevation">20px</dimen>
+
+
+    <dimen name="focus_mode_w1">128px</dimen>
+    <dimen name="focus_mode_h1">160px</dimen>
+    <dimen name="focus_mode_w2">50px</dimen>
+    <dimen name="focus_mode_h2">50px</dimen>
+    <dimen name="focus_mode_h3">120px</dimen>
+
+</resources>
