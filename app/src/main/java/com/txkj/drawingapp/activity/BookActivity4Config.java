@@ -19,6 +19,7 @@ public class BookActivity4Config {
     public final static String USE_SKETCH_CONFIG_MEETING_HOUR = "meetingHour";
     public final static String USE_SKETCH_CONFIG_MEETING_MINUTE = "meetingMinute";
     public final static String USE_SKETCH_CONFIG_PATTERN = "pattern";
+    public final static String USE_DIARIZATION_RESULT_CONFIG = "diarization_result.meta";
 
     public final static boolean USE_RECORD_META_TO_NOTES_DB = true;
 

@@ -4,6 +4,7 @@ package com.k2fsa.sherpa.onnx;
 import android.app.Activity;
 import android.content.Context;
 import android.media.AudioRecord;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.method.MovementMethod;
 import android.text.method.ScrollingMovementMethod;
@@ -11,21 +12,32 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.k2fsa.sherpa.onnx.speaker.diarization.SpeakerDiarizationObject;
+import com.k2fsa.sherpa.onnx.speaker.diarization.screens.ReadWaveFileKt;
 import com.txkj.drawingapp.R;
 
 import kotlin.Metadata;
 import kotlin.Unit;
 import kotlin.concurrent.ThreadsKt;
 import kotlin.jvm.functions.Function0;
+import kotlin.jvm.functions.Function3;
 import kotlin.jvm.internal.DefaultConstructorMarker;
 import kotlin.jvm.internal.Intrinsics;
 import kotlin.jvm.internal.Ref;
 import kotlin.text.StringsKt;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import androidx.documentfile.provider.DocumentFile;
+
+import java.io.File;
 
 //(x) from sherpa-onnx-v1.12.9-android.tar.bz2
 //from sherpa-onnx-1.12.33.zip
@@ -43,6 +55,8 @@ import org.jetbrains.annotations.Nullable;
 //
 //see initModel(), type = 21 or 10
 public final class MainActivity extends AppCompatActivity {
+    private final static String TAG = "MainActivity";
+
     @NotNull
     private final String[] permissions;
     private OnlineRecognizer recognizer;
@@ -84,6 +98,15 @@ public final class MainActivity extends AppCompatActivity {
         Log.i("sherpa-onnx", "Audio record is permitted");
     }
 
+    String progress = "";
+    boolean done = false;
+    boolean fileIsOk = false;
+    float[] samples = null;
+    String status;
+    boolean started = false;
+    int numSpeakers = 0;
+    float threshold = 0.5f;
+
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.activity_main_sherpa_onnx);
@@ -116,7 +139,112 @@ public final class MainActivity extends AppCompatActivity {
         }
 
         var2.setMovementMethod((MovementMethod)(new ScrollingMovementMethod()));
+
+
+        Context a_context = MainActivity.this.getApplicationContext();
+        ActivityResultLauncher<String[]> launcher = this.registerForActivityResult(new ActivityResultContracts.OpenDocument(),
+                new ActivityResultCallback<Uri>() {
+            @Override
+            public void onActivityResult(Uri o) {
+                DocumentFile documentFile = DocumentFile.fromSingleUri(a_context, o);
+                String filename = "";
+                if (documentFile != null) {
+                    filename = documentFile.getName();
+                }
+                if (!filename.isEmpty()) {
+                    com.k2fsa.sherpa.onnx.speaker.diarization.screens.WaveData data
+                            = ReadWaveFileKt.readUri(a_context, o);
+                    Log.i(TAG, "sample rate: " + data.getSampleRate());
+                    Log.i(TAG, "numSamples: " +
+                            (data.getSamples() != null ? data.getSamples().length : 0));
+                    if (data.getMsg() != null) {
+                        Log.i(TAG, "failed to read $filename");
+                        status = data.getMsg();
+                    } else if (data.getSampleRate() != SpeakerDiarizationObject.INSTANCE.getSd().sampleRate()) {
+                        status = "Expected sample rate: ${SpeakerDiarizationObject.sd.sampleRate()}. Given wave file with sample rate: ${data.sampleRate}";
+                    } else {
+                        samples = data.getSamples();
+                    }
+                }
+            }
+        });
+        Button select_file = (Button)findViewById(R.id.select_file);
+        Button start_diarization = (Button)findViewById(R.id.start_diarization);
+        select_file.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (false) {
+                    SpeakerDiarizationObject.INSTANCE.initSpeakerDiarization(MainActivity.this.getAssets());
+                    launcher.launch(new String[] {"audio/*"});
+                } else {
+                    loadWavFile();
+                }
+            }
+        });
+        start_diarization.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i(TAG, "started");
+                Log.i(TAG, "num samples: " + (samples != null ? samples.length : 0));
+                started = true;
+                progress = "";
+
+                OfflineSpeakerDiarizationConfig config = SpeakerDiarizationObject.INSTANCE.getSd().getConfig();
+                config.getClustering().setNumClusters(numSpeakers);
+                config.getClustering().setThreshold(threshold);
+
+                SpeakerDiarizationObject.INSTANCE.getSd().setConfig(config);
+
+                (new Thread() {
+                    @Override
+                    public void run() {
+                        done = false;
+                        status = "Started! Please wait";
+                        OfflineSpeakerDiarizationSegment[] segments =
+                                SpeakerDiarizationObject.INSTANCE.getSd().processWithCallback(
+                                        samples, myCallback, 0
+                                );
+                        done = true;
+                        started = false;
+                        status = "";
+                        Log.i(TAG, "segments.length == " + segments.length);
+                        for (OfflineSpeakerDiarizationSegment s : segments) {
+                            String start = String.format("%.2f", s.getStart());
+                            String end = String.format("%.2f", s.getEnd());
+                            String speaker = String.format("speaker_%02d", s.getSpeaker());
+                            status += "" + start + " -- " + end + " " + speaker + "\n";
+                            Log.i(TAG, "" + start + " -- " + end + " " + speaker);
+                        }
+                        Log.i(TAG, status);
+                    }
+                }).start();
+            }
+        });
     }
+
+    //must be static class
+    public class MyCallback implements Function3<Integer, Integer, Long, Integer> {
+        //JNI DETECTED ERROR IN APPLICATION: JNI GetObjectClass called with pending
+        // exception java.lang.NoSuchMethodError:
+        // no non-static method "Lcom/k2fsa/sherpa/onnx/MainActivity$MyCallback;.invoke(IIJ)Ljava/lang/Integer;"
+        //must keep 2 invoke() functions here, I don't know why
+        //TODO:don't remove this function!!!!!
+        public Integer invoke(int numProcessedChunks, int numTotalChunks, long arg) {
+            double percent = 100.0 * numProcessedChunks / numTotalChunks;
+            String progress = String.format("%.2f%%", percent);
+            Log.i(TAG, progress);
+            return 0;
+        }
+
+        @Override
+        public Integer invoke(Integer numProcessedChunks, Integer numTotalChunks, Long arg) {
+            double percent = 100.0 * numProcessedChunks / numTotalChunks;
+            String progress = String.format("%.2f%%", percent);
+            Log.i(TAG, progress);
+            return 0;
+        }
+    }
+    public MyCallback myCallback = new MyCallback();
 
     private final void onclick() {
         if (!this.isRecording) {
@@ -178,6 +306,41 @@ public final class MainActivity extends AppCompatActivity {
 
     }
 
+    private void loadWavFile() {
+        SpeakerDiarizationObject.INSTANCE.initSpeakerDiarization(this.getAssets());
+
+        Context a_context = MainActivity.this.getApplicationContext();
+        File pcmFile = new File(MainActivity.this.getExternalFilesDir(null), "audio_record.pcm");
+        File wavFile = new File(MainActivity.this.getExternalFilesDir(null), "audio_record.wav");
+        String filename = wavFile.getAbsolutePath();
+        Uri o = Uri.fromFile(new File(filename));
+        if (!filename.isEmpty()) {
+            com.k2fsa.sherpa.onnx.speaker.diarization.screens.WaveData data
+                    = ReadWaveFileKt.readUri(a_context, o);
+            Log.i(TAG, "sample rate: " + data.getSampleRate());
+            Log.i(TAG, "numSamples: " +
+                    (data.getSamples() != null ? data.getSamples().length : 0));
+            if (data.getMsg() != null) {
+                Log.i(TAG, "failed to read " + filename);
+                status = data.getMsg();
+                Toast.makeText(MainActivity.this,
+                        status,
+                        Toast.LENGTH_LONG).show();
+            } else if (data.getSampleRate() != SpeakerDiarizationObject.INSTANCE.getSd().sampleRate()) {
+                status = "Expected sample rate: " + SpeakerDiarizationObject.INSTANCE.getSd().sampleRate() +
+                        ". Given wave file with sample rate: " + data.getSampleRate();
+                Toast.makeText(MainActivity.this,
+                        status,
+                        Toast.LENGTH_LONG).show();
+            } else {
+                samples = data.getSamples();
+                Toast.makeText(MainActivity.this,
+                        "load " + filename + " success!",
+                        Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
     private final void processSamples() {
         Log.i("sherpa-onnx", "processing samples");
         OnlineRecognizer var10000 = this.recognizer;
@@ -227,6 +390,7 @@ public final class MainActivity extends AppCompatActivity {
                         }
 
                         String text = var17.getResult(stream).getText();
+                        float[] timestamps = var17.getResult(stream).getTimestamps();
                         if (isEndpoint_) {
                             var17 = this.recognizer;
                             if (var17 == null) {
@@ -253,6 +417,7 @@ public final class MainActivity extends AppCompatActivity {
                                         }
 
                                         text = var17.getResult(stream).getText();
+                                        timestamps = var17.getResult(stream).getTimestamps();
                                         break;
                                     }
 

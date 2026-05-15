@@ -152,7 +152,7 @@ public class BookActivity4VoskDialog implements RecognitionListener {
     public void onResult(String hypothesis) {
 //        resultView.append(hypothesis + "\n");
         if (DEBUG) {
-            BookActivity4Utils.tv_result_setText(mAct, "onResult == " + hypothesis, hypothesis, true, false);
+            BookActivity4Utils.tv_result_setText(mAct, "onResult == " + hypothesis, hypothesis, true, false, null, -1);
         } else {
             String result = null;
             try {
@@ -162,7 +162,7 @@ public class BookActivity4VoskDialog implements RecognitionListener {
                 e.printStackTrace();
             }
             if (result != null && !result.isEmpty()) {
-                BookActivity4Utils.tv_result_setText(mAct, result, result, true, false);
+                BookActivity4Utils.tv_result_setText(mAct, result, result, true, false, null, -1);
             }
         }
     }
@@ -171,7 +171,7 @@ public class BookActivity4VoskDialog implements RecognitionListener {
     public void onFinalResult(String hypothesis) {
 //        resultView.append(hypothesis + "\n");
         if (DEBUG) {
-            BookActivity4Utils.tv_result_setText(mAct, "onFinalResult == " + hypothesis, hypothesis, true, false);
+            BookActivity4Utils.tv_result_setText(mAct, "onFinalResult == " + hypothesis, hypothesis, true, false, null, -1);
         }
         setUiState(STATE_DONE);
         if (speechStreamService != null) {
@@ -183,7 +183,7 @@ public class BookActivity4VoskDialog implements RecognitionListener {
     public void onPartialResult(String hypothesis) {
 //        resultView.append(hypothesis + "\n");
         if (DEBUG) {
-            BookActivity4Utils.tv_result_setText(mAct, "onPartialResult == " + hypothesis, hypothesis, true, false);
+            BookActivity4Utils.tv_result_setText(mAct, "onPartialResult == " + hypothesis, hypothesis, true, false, null, -1);
         } else {
             String result = null;
             try {
@@ -193,7 +193,7 @@ public class BookActivity4VoskDialog implements RecognitionListener {
                 e.printStackTrace();
             }
             if (result != null && !result.isEmpty()) {
-                BookActivity4Utils.tv_result_setText(mAct, result, result, false, false);
+                BookActivity4Utils.tv_result_setText(mAct, result, result, false, false, null, -1);
             }
         }
     }

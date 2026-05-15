@@ -76,6 +76,10 @@ import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
+import com.k2fsa.sherpa.onnx.OfflineSpeakerDiarizationConfig;
+import com.k2fsa.sherpa.onnx.OfflineSpeakerDiarizationSegment;
+import com.k2fsa.sherpa.onnx.speaker.diarization.SpeakerDiarizationObject;
+import com.k2fsa.sherpa.onnx.speaker.diarization.screens.ReadWaveFileKt;
 import com.sys.speech.activity.DictResultActivity;
 import com.sys.speech.db.SDRecordingsDatabase;
 import com.sys.speech.dialog.PlayerDialog;
@@ -98,14 +102,18 @@ import com.txkj.notemobile2.colorpicker.SimpleColorDialog;
 import com.txkj.notemobile2.ui.CanvasBoox;
 import com.txkj.notemobile2.ui.Page;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
@@ -136,6 +144,7 @@ import io.github.pastthepixels.freepaint.MainActivity;
 import io.github.pastthepixels.freepaint.Tools.EraserTool;
 import io.github.pastthepixels.freepaint.Tools.SelectionTool;
 import io.material.catalog.windowpreferences.WindowPreferencesManager;
+import kotlin.jvm.functions.Function3;
 
 //FIXME:onBackPressed, onCreateOptionsMenu, onDestroy, onKeyDown, onKeyUp
 
@@ -145,6 +154,7 @@ import io.material.catalog.windowpreferences.WindowPreferencesManager;
 //TODO:notifyForceSave, when view onSizeChanged or other events, need call it
 public class BookActivity4Fragment extends Fragment {
     public final static boolean ENABLE_SHAPE_PEN = true; //enable shape pen
+    public final static boolean ENABLE_NO_DETECT_SHAPE_PEN = true; //enable shape pen but close auto detect
 
     private final static boolean INIT_EMPTY_BACK_TEXT_WHEN_ADD_PAGE = false; //empty back texture when adding new page
     private final static boolean NO_PEN_BOTTOM_POPUP = true; //don't show brush bottom popup
@@ -232,7 +242,7 @@ public class BookActivity4Fragment extends Fragment {
     private String backText; //背景图案的种类文本
 
     private Uri dirUrl;
-    private String dirUrlPath;
+    public String dirUrlPath;
     private int initialPageIdx;
     private FastFile _bookDir;// = bookDir_init();
     FastFile bookDir_init() {
@@ -1741,6 +1751,11 @@ public class BookActivity4Fragment extends Fragment {
 
         Slider sliderVerticalShape = (Slider) rootView.findViewById(R.id.sliderVerticalShape);
         sliderVerticalShape.setVisibility(View.GONE);
+        if (BookActivity4Fragment.ENABLE_NO_DETECT_SHAPE_PEN) {
+            sliderVerticalShape.setValueTo(10.0f - 2);
+        } else {
+            sliderVerticalShape.setValueTo(5.0f);
+        }
         sliderVerticalShape.addOnChangeListener(new Slider.OnChangeListener() {
             @Override
             public void onValueChange(@NonNull Slider slider, float value, boolean fromUser) {
@@ -1752,25 +1767,29 @@ public class BookActivity4Fragment extends Fragment {
                                     drawPath.pointsType == DrawPath.POINTS_TYPE_STROKE &&
                                     drawPath.appearance != null &&
                                     drawPath.appearance.penType == DrawAppearance.PEN_TYPE_6) {
-                                switch ((int) value) {
-                                    case 0:
-                                        drawPath.shapeType = DrawPath.SHAPE_TYPE_UNKNOWN;
-                                        break;
-                                    case 1:
-                                        drawPath.shapeType = DrawPath.SHAPE_TYPE_LINE;
-                                        break;
-                                    case 2:
-                                        drawPath.shapeType = DrawPath.SHAPE_TYPE_RECTANGLE;
-                                        break;
-                                    case 3:
-                                        drawPath.shapeType = DrawPath.SHAPE_TYPE_CIRCLE;
-                                        break;
-                                    case 4:
-                                        drawPath.shapeType = DrawPath.SHAPE_TYPE_TRIANGLE;
-                                        break;
-                                    case 5:
-                                        drawPath.shapeType = DrawPath.SHAPE_TYPE_POLYGON;
-                                        break;
+                                if (ENABLE_NO_DETECT_SHAPE_PEN) {
+                                    drawPath.shapeSide = (int)value;
+                                } else {
+                                    switch ((int) value) {
+                                        case 0:
+                                            drawPath.shapeType = DrawPath.SHAPE_TYPE_UNKNOWN;
+                                            break;
+                                        case 1:
+                                            drawPath.shapeType = DrawPath.SHAPE_TYPE_LINE;
+                                            break;
+                                        case 2:
+                                            drawPath.shapeType = DrawPath.SHAPE_TYPE_RECTANGLE;
+                                            break;
+                                        case 3:
+                                            drawPath.shapeType = DrawPath.SHAPE_TYPE_CIRCLE;
+                                            break;
+                                        case 4:
+                                            drawPath.shapeType = DrawPath.SHAPE_TYPE_TRIANGLE;
+                                            break;
+                                        case 5:
+                                            drawPath.shapeType = DrawPath.SHAPE_TYPE_POLYGON;
+                                            break;
+                                    }
                                 }
                             }
                         }
@@ -2816,6 +2835,18 @@ public class BookActivity4Fragment extends Fragment {
                 }
             }
         });
+        rootView.findViewById(R.id.startDiarization).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startDiarization();
+            }
+        });
+        rootView.findViewById(R.id.startDiarization).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                loadDiarizationFile();
+            }
+        }, 2000);
         TextView tvMeetingDate = rootView.findViewById(R.id.tvMeetingDate);
         Long meetingDate = getMeetingDate();
         if (meetingDate != null) {
@@ -2941,6 +2972,335 @@ public class BookActivity4Fragment extends Fragment {
                 }
             };
             rgASR.setOnCheckedChangeListener(onCheckedChangeListener);
+        }
+    }
+
+    String progress = "";
+    boolean done = false;
+    boolean fileIsOk = false;
+    float[] samples = null;
+    String status;
+    boolean started = false;
+    int numSpeakers = 0;
+    float threshold = 0.5f;
+    private void startDiarization() {
+        try {
+            if (started) {
+                return;
+            }
+            final TextView tvDiarizationLog = g_rootView.findViewById(R.id.tvDiarizationLog);
+            if (tvDiarizationLog != null) {
+                tvDiarizationLog.setText("Loading...");
+            }
+            SpeakerDiarizationObject.INSTANCE.initSpeakerDiarization(getContext().getAssets());
+
+            Context a_context = getContext().getApplicationContext();
+            File pcmFile = null;
+            File wavFile = null;
+            if (false) {
+                new File(getContext().getExternalFilesDir(null), "audio_record.pcm");
+                new File(getContext().getExternalFilesDir(null), "audio_record.wav");
+            } else {
+                String dirPath = this.dirUrlPath;
+                pcmFile = new File(dirPath, "audio_record.pcm");
+                wavFile = new File(dirPath, "audio_record.wav");
+            }
+            String filename = wavFile.getAbsolutePath();
+            Uri o = Uri.fromFile(new File(filename));
+            if (!filename.isEmpty()) {
+                com.k2fsa.sherpa.onnx.speaker.diarization.screens.WaveData data
+                        = ReadWaveFileKt.readUri(a_context, o);
+                Log.i(TAG, "sample rate: " + data.getSampleRate());
+                Log.i(TAG, "numSamples: " +
+                        (data.getSamples() != null ? data.getSamples().length : 0));
+                if (data.getMsg() != null) {
+                    Log.i(TAG, "failed to read " + filename);
+                    status = data.getMsg();
+                    //                Toast.makeText(getContext(),
+                    //                        status,
+                    //                        Toast.LENGTH_LONG).show();
+                } else if (data.getSampleRate() != SpeakerDiarizationObject.INSTANCE.getSd().sampleRate()) {
+                    status = "Expected sample rate: " + SpeakerDiarizationObject.INSTANCE.getSd().sampleRate() +
+                            ". Given wave file with sample rate: " + data.getSampleRate();
+                    //                Toast.makeText(getContext(),
+                    //                        status,
+                    //                        Toast.LENGTH_LONG).show();
+                } else {
+                    samples = data.getSamples();
+                    //                Toast.makeText(getContext(),
+                    //                        "load " + filename + " success!",
+                    //                        Toast.LENGTH_LONG).show();
+                }
+            }
+
+            Log.i(TAG, "started");
+            Log.i(TAG, "num samples: " + (samples != null ? samples.length : 0));
+            started = true;
+            progress = "";
+            if (tvDiarizationLog != null) {
+                tvDiarizationLog.setText("Diarization started, Please wait");
+            }
+
+            OfflineSpeakerDiarizationConfig config = SpeakerDiarizationObject.INSTANCE.getSd().getConfig();
+            config.getClustering().setNumClusters(numSpeakers);
+            config.getClustering().setThreshold(threshold);
+
+            SpeakerDiarizationObject.INSTANCE.getSd().setConfig(config);
+
+            final CardView startDiarization = g_rootView.findViewById(R.id.startDiarization);
+            (new Thread() {
+                @Override
+                public void run() {
+                    done = false;
+                    status = "Started! Please wait";
+                    OfflineSpeakerDiarizationSegment[] segments =
+                            SpeakerDiarizationObject.INSTANCE.getSd().processWithCallback(
+                                    samples, myCallback, 0
+                            );
+                    done = true;
+                    started = false;
+                    status = "";
+                    Log.i(TAG, "segments.length == " + segments.length);
+                    for (OfflineSpeakerDiarizationSegment s : segments) {
+                        String start = String.format("%.2f", s.getStart());
+                        String end = String.format("%.2f", s.getEnd());
+                        String speaker = String.format("speaker_%02d", s.getSpeaker());
+                        status += "" + start + " -- " + end + " " + speaker + "\n";
+                        Log.i(TAG, "" + start + " -- " + end + " " + speaker);
+                    }
+                    saveDiarizationFile(segments);
+                    if (tvDiarizationLog != null) {
+                        tvDiarizationLog.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                tvDiarizationLog.setText("Diarization done");
+                                loadDiarizationFile();
+                                g_rootView.findViewById(R.id.rlTranscript).performClick();
+                            }
+                        });
+                    }
+                    //Log.i(TAG, status);
+                    if (false) {
+                        startDiarization.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                //Toast.makeText(getContext(), status, Toast.LENGTH_LONG).show();
+                                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                                builder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        if (dialogInterface != null) {
+                                            dialogInterface.dismiss();
+                                        }
+                                    }
+                                });
+                                builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                                    @Override
+                                    public void onCancel(DialogInterface dialogInterface) {
+                                        if (dialogInterface != null) {
+                                            dialogInterface.dismiss();
+                                        }
+                                    }
+                                });
+                                builder.setTitle("Speaker Diarization");
+                                builder.setMessage(status);
+                                builder.setCancelable(true);
+                                final AlertDialog dialog = builder.create();
+                                //        dialog.setContentView(R.layout.dialog_loadpages); //don't use this
+                                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                                    @Override
+                                    public void onShow(DialogInterface dialogInterface) {
+                                        BookActivity4Utils.runFullScreen(getActivity());
+                                    }
+                                });
+                                dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                    @Override
+                                    public void onDismiss(DialogInterface dialogInterface) {
+
+                                    }
+                                });
+                                dialog.show();
+                            }
+                        });
+                    }
+                }
+            }).start();
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+            started = false;
+            final TextView tvDiarizationLog = g_rootView.findViewById(R.id.tvDiarizationLog);
+            if (tvDiarizationLog != null) {
+                tvDiarizationLog.setText("Diarization failed");
+            }
+        }
+    }
+    //must be static class
+    public class MyCallback implements Function3<Integer, Integer, Long, Integer> {
+        //JNI DETECTED ERROR IN APPLICATION: JNI GetObjectClass called with pending
+        // exception java.lang.NoSuchMethodError:
+        // no non-static method "Lcom/k2fsa/sherpa/onnx/MainActivity$MyCallback;.invoke(IIJ)Ljava/lang/Integer;"
+        //must keep 2 invoke() functions here, I don't know why
+        //TODO:don't remove this function!!!!!
+        public Integer invoke(int numProcessedChunks, int numTotalChunks, long arg) {
+            return invoke_(numProcessedChunks, numTotalChunks, arg);
+        }
+
+        @Override
+        public Integer invoke(Integer numProcessedChunks, Integer numTotalChunks, Long arg) {
+            return invoke_(numProcessedChunks, numTotalChunks, arg);
+        }
+
+        private Integer invoke_(int numProcessedChunks, int numTotalChunks, long arg) {
+            double percent = 100.0 * numProcessedChunks / numTotalChunks;
+            String progress = String.format("%.2f%%", percent);
+            Log.i(TAG, progress);
+            final TextView tvDiarizationLog = g_rootView.findViewById(R.id.tvDiarizationLog);
+            if (tvDiarizationLog != null) {
+                tvDiarizationLog.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        tvDiarizationLog.setText("progress:" + progress);
+                    }
+                });
+            }
+            return 0;
+        }
+    }
+    public MyCallback myCallback = new MyCallback();
+    private void saveDiarizationFile(OfflineSpeakerDiarizationSegment[] segments) {
+        //this.dirUrl==file:///storage/emulated/0/txkjnote2/SKETCH_fa5d355e-ba40-40ff-b751-a39b1170661d
+        //this.dirUrlPath==/storage/emulated/0/txkjnote2/SKETCH_fa5d355e-ba40-40ff-b751-a39b1170661d
+        JSONObject content = new JSONObject();
+        try {
+            JSONArray arrSegments = new JSONArray();
+            if (segments != null) {
+                for (OfflineSpeakerDiarizationSegment seg : segments) {
+                    JSONObject item = new JSONObject();
+                    item.put("start", seg.getStart());
+                    item.put("end", seg.getEnd());
+                    item.put("speaker", seg.getSpeaker());
+                    arrSegments.put(item);
+                }
+            }
+            content.put("segments", arrSegments);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        String diaMeta = content.toString();
+        if (this.dirUrlPath != null) {
+            try {
+                try {
+                    String filePath = new File(this.dirUrlPath, BookActivity4Config.USE_DIARIZATION_RESULT_CONFIG).getAbsolutePath();
+                    String fullFilePath = filePath;
+                    Log.e(TAG, "saveDiarizationFile : " + fullFilePath);
+                    if (diaMeta != null && diaMeta.length() > 0) {
+                        OutputStream it = null;
+                        try {
+                            it = new FileOutputStream(fullFilePath);
+                            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(it, StandardCharsets.UTF_8);
+                            BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
+                            bufferedWriter.write(diaMeta);
+                            bufferedWriter.flush();
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                        } finally {
+                            try {
+                                if (it != null) {
+                                    it.close();
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                }
+            } catch (Throwable ee) {
+                ee.printStackTrace();
+            }
+        }
+    }
+    private void loadDiarizationFile() {
+        try {
+            //this.dirUrl==file:///storage/emulated/0/txkjnote2/SKETCH_fa5d355e-ba40-40ff-b751-a39b1170661d
+            //this.dirUrlPath==/storage/emulated/0/txkjnote2/SKETCH_fa5d355e-ba40-40ff-b751-a39b1170661d
+            List<OfflineSpeakerDiarizationSegment> segmentList = new ArrayList<>();
+            String content = null;
+            if (this.dirUrlPath != null) {
+                InputStream fis = null;
+                InputStreamReader isr = null;
+                BufferedReader reader = null;
+                try {
+                    String filePath = new File(this.dirUrlPath, BookActivity4Config.USE_DIARIZATION_RESULT_CONFIG).getAbsolutePath();
+                    String fullFilePath = filePath;
+                    Log.e(TAG, "loadDiarizationFile : " + fullFilePath);
+
+                    fis = new FileInputStream(fullFilePath);
+                    isr = new InputStreamReader(fis, "UTF-8");
+                    reader = new BufferedReader(isr);
+                    StringBuffer recentFilesBuffer = new StringBuffer();
+                    while (true) {
+                        String line = reader.readLine();
+                        if (line != null) {
+                            recentFilesBuffer.append(line);
+                            recentFilesBuffer.append("\n");
+                        } else {
+                            break;
+                        }
+                    }
+                    content = recentFilesBuffer.toString();
+                } catch (IOException eee) {
+                    if (reader != null) {
+                        try {
+                            reader.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (isr != null) {
+                        try {
+                            isr.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (fis != null) {
+                        try {
+                            fis.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+            if (content != null) {
+                try {
+                    JSONObject contentObj = new JSONObject(content);
+                    JSONArray arrSegments = contentObj.getJSONArray("segments");
+                    if (arrSegments != null) {
+                        for (int i = 0; i < arrSegments.length(); ++i) {
+                            JSONObject item = arrSegments.getJSONObject(i);
+                            double start = item.optDouble("start");
+                            double end = item.optDouble("end");
+                            int speaker = item.optInt("speaker");
+
+                            OfflineSpeakerDiarizationSegment seg =
+                                    new OfflineSpeakerDiarizationSegment((float) start, (float) end, speaker);
+                            segmentList.add(seg);
+                        }
+                    }
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            if (adapter != null) {
+                adapter.setDiarization(segmentList);
+                adapter.notifyDataSetChanged();
+            }
+        } catch (Throwable eee) {
+            eee.printStackTrace();
         }
     }
 
@@ -4748,7 +5108,7 @@ public class BookActivity4Fragment extends Fragment {
     }
 
     private long rowId = -1;
-    public void tv_result_setText(String str, String subStr, boolean isEnd, boolean isAppend) {
+    public void tv_result_setText(String str, String subStr, boolean isEnd, boolean isAppend, float[] timestamps, float processTime) {
         Log.e(TAG, "tv_result_setText : " + str);
 
         if (g_rootView.findViewById(R.id.pauseRecordOn).getVisibility() == View.VISIBLE) {
@@ -4766,10 +5126,20 @@ public class BookActivity4Fragment extends Fragment {
                 if (rowId > -1) {
                     mDatabase.updateItemContent(rowId, str, isAppend);
                 } else {
+                    String recordingName = "rtasr-" + System.currentTimeMillis();
+
+                    if (timestamps != null) {
+                        recordingName = "sherpa-";
+//                        for (int i = 0; i < timestamps.length; ++i) {
+//                            recordingName += timestamps[i] + ",";
+//                        }
+                        recordingName += ("" + processTime);
+                    }
+
                     if (str != null &&
                             (str.startsWith(".") || str.startsWith("?") || str.startsWith(","))) {
                         rowId = mDatabase.addRecording(
-                                "rtasr-" + System.currentTimeMillis(),
+                                recordingName,
                                 "",
                                 0,
                                 "", "",
@@ -4777,7 +5147,7 @@ public class BookActivity4Fragment extends Fragment {
                         mDatabase.updateItemContent(rowId - 1, str.substring(0, 1), true);
                     } else {
                         rowId = mDatabase.addRecording(
-                                "rtasr-" + System.currentTimeMillis(),
+                                recordingName,
                                 "",
                                 0,
                                 "", "",
@@ -5155,25 +5525,29 @@ public class BookActivity4Fragment extends Fragment {
                 }
                 if (found && drawPathFound != null) {
                     sliderVerticalShape.setVisibility(View.VISIBLE);
-                    switch (drawPathFound.shapeType) {
-                        case DrawPath.SHAPE_TYPE_UNKNOWN:
-                            sliderVerticalShape.setValue(0);
-                            break;
-                        case DrawPath.SHAPE_TYPE_LINE:
-                            sliderVerticalShape.setValue(1);
-                            break;
-                        case DrawPath.SHAPE_TYPE_RECTANGLE:
-                            sliderVerticalShape.setValue(2);
-                            break;
-                        case DrawPath.SHAPE_TYPE_CIRCLE:
-                            sliderVerticalShape.setValue(3);
-                            break;
-                        case DrawPath.SHAPE_TYPE_TRIANGLE:
-                            sliderVerticalShape.setValue(4);
-                            break;
-                        case DrawPath.SHAPE_TYPE_POLYGON:
-                            sliderVerticalShape.setValue(5);
-                            break;
+                    if (ENABLE_NO_DETECT_SHAPE_PEN) {
+                        sliderVerticalShape.setValue(drawPathFound.shapeSide);
+                    } else {
+                        switch (drawPathFound.shapeType) {
+                            case DrawPath.SHAPE_TYPE_UNKNOWN:
+                                sliderVerticalShape.setValue(0);
+                                break;
+                            case DrawPath.SHAPE_TYPE_LINE:
+                                sliderVerticalShape.setValue(1);
+                                break;
+                            case DrawPath.SHAPE_TYPE_RECTANGLE:
+                                sliderVerticalShape.setValue(2);
+                                break;
+                            case DrawPath.SHAPE_TYPE_CIRCLE:
+                                sliderVerticalShape.setValue(3);
+                                break;
+                            case DrawPath.SHAPE_TYPE_TRIANGLE:
+                                sliderVerticalShape.setValue(4);
+                                break;
+                            case DrawPath.SHAPE_TYPE_POLYGON:
+                                sliderVerticalShape.setValue(5);
+                                break;
+                        }
                     }
 
                     LinkedList<DrawPath> toolPath = null;
@@ -5352,6 +5726,7 @@ public class BookActivity4Fragment extends Fragment {
         AppCompatImageView ivPauseRecordOn = (AppCompatImageView) g_rootView.findViewById(R.id.ivPauseRecordOn);
         TextView tvPauseRecordOn = (TextView) g_rootView.findViewById(R.id.tvPauseRecordOn);
 
+        LinearLayout llDiarization = (LinearLayout) g_rootView.findViewById(R.id.llDiarization);
 
         RadioButton rbASR1 = (RadioButton) g_rootView.findViewById(R.id.rbASR1);
         RadioButton rbASR2 = (RadioButton) g_rootView.findViewById(R.id.rbASR2);
@@ -5375,6 +5750,8 @@ public class BookActivity4Fragment extends Fragment {
             rbASR1.setEnabled(true);
             rbASR2.setEnabled(true);
             rbASR3.setEnabled(true);
+
+            llDiarization.setVisibility(View.GONE);
         } else {
             ivStartRecord.setColorFilter(LTGRAY, PorterDuff.Mode.SRC_IN);
             tvStartRecord.setTextColor(LTGRAY);
@@ -5396,6 +5773,8 @@ public class BookActivity4Fragment extends Fragment {
             rbASR1.setEnabled(false);
             rbASR2.setEnabled(false);
             rbASR3.setEnabled(false);
+
+            llDiarization.setVisibility(View.VISIBLE);
         }
     }
 

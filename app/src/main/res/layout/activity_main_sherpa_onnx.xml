@@ -32,8 +32,26 @@ tools:context=".MainActivity"
             android:id="@+id/record_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0.5"
             android:text="start" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+            <Button
+                android:id="@+id/select_file"
+                android:text="Select a .wav file"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                />
+            <Button
+                android:id="@+id/start_diarization"
+                android:text="Start diarization"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                />
+        </LinearLayout>
     </LinearLayout>
 
 

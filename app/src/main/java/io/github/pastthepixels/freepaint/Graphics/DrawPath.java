@@ -91,6 +91,9 @@ public class DrawPath {
     public final static int SHAPE_TYPE_POLYGON = 5;
     public final static int SHAPE_TYPE_UNKNOWN = 6;
     public CopyOnWriteArrayList<Point> preSimplified = new CopyOnWriteArrayList<>();
+    public int shapeSide = 0;
+    public int shapeWidth = 0;
+    public int shapeHeight = 0;
 
 //    private Matrix matrix = new Matrix();
 //    public Matrix getMatrix() {
@@ -365,6 +368,11 @@ public class DrawPath {
     public void finalise() {
         // Simplifies the path.
         points = simplify(points, simplificationAmount, true);
+        if (appearance.penType == DrawAppearance.PEN_TYPE_6) { //shape pen
+            if (BookActivity4Fragment.ENABLE_NO_DETECT_SHAPE_PEN) {
+                shapeWidth = shapeHeight = 100;
+            }
+        }
         // Generates handles for each point.
         if (true) {
             for (int i = 0; i < points.size(); i++) {
@@ -643,88 +651,122 @@ public class DrawPath {
                         canvas.drawPoints(points, paint);
                     }
                 } else if (appearance.penType == DrawAppearance.PEN_TYPE_6) { //shape pen
-                    if (shapeType == SHAPE_TYPE_LINE) {
-                        if (points.size() >= 2) {
-                            canvas.drawLine(points.get(0).x, points.get(0).y,
-                                    points.get(1).x, points.get(1).y, paint);
-                        } else {
-                            canvas.drawPath(toDraw, paint);
-                        }
-                    } else if (shapeType == SHAPE_TYPE_RECTANGLE) {
-                        if (points.size() >= 4) {
-                            float minX = Float.MAX_VALUE;
-                            float minY = Float.MAX_VALUE;
-                            float maxX = Float.MIN_VALUE;
-                            float maxY = Float.MIN_VALUE;
-                            for (int i = 0; i < 4; ++i) {
-                                if (points.get(i).x < minX) {
-                                    minX = points.get(i).x;
+                    if (BookActivity4Fragment.ENABLE_NO_DETECT_SHAPE_PEN) {
+                        //always circle when created
+                        if (points != null && points.size() > 0) {
+                            if (shapeSide == 0 /*|| shapeSide == 1 || shapeSide == 2*/) {
+                                Point center = points.get(points.size() - 1);
+                                float radius = shapeWidth;//100;
+                                canvas.drawCircle(center.x, center.y, radius, paint);
+                            } else {
+                                float radius = shapeWidth * 2;//100 * 2;
+                                Point center = points.get(points.size() - 1);
+                                List<RegularPolygonVertices2.Point> points_ =
+                                        RegularPolygonVertices2.getVertices(shapeSide + 2);
+                                Path path = new Path();
+                                for (int i = 0; i < points_.size(); i++) {
+                                    RegularPolygonVertices2.Point point =
+                                            points_.get(i);
+                                    if (i == 0) {
+                                        path.moveTo(
+                                                (float)(center.x + radius * point.getX()),
+                                                (float)(center.y + radius * point.getY()));
+                                    } else {
+//                                        RegularPolygonVertices2.Point prev =
+//                                                points_.get(i - 1);
+                                        path.lineTo(
+                                                (float)(center.x + radius * point.getX()),
+                                                (float)(center.y + radius * point.getY()));
+                                    }
                                 }
-                                if (points.get(i).y < minY) {
-                                    minY = points.get(i).y;
-                                }
-                                if (points.get(i).x > maxX) {
-                                    maxX = points.get(i).x;
-                                }
-                                if (points.get(i).y > maxY) {
-                                    maxY = points.get(i).y;
-                                }
+                                path.close();
+                                canvas.drawPath(path, paint);
                             }
-                            canvas.drawRect(minX, minY, maxX, maxY, paint);
-                        } else {
-                            canvas.drawPath(toDraw, paint);
-                        }
-                    } else if (shapeType == SHAPE_TYPE_CIRCLE) {
-                        //ShapeType.CIRCLE
-                        float centerX = 0;
-                        float centerY = 0;
-                        for (Point point : points) {
-                            centerX += point.x;
-                            centerY += point.y;
-                        }
-                        Point center =
-                                points != null && points.size() > 0 ?
-                                        new Point(centerX / points.size(),
-                                                centerY / points.size()) :
-                                        new Point(0, 0);
-                        float radiusIt = 0;
-                        for (Point point : points) {
-                            radiusIt += Math.hypot(point.x - center.x, point.y - center.y);
-                        }
-                        float radius =
-                                points != null && points.size() > 0 ?
-                                        radiusIt / points.size() :
-                                        0;
-                        if (radius > 0) {
-                            canvas.drawCircle(center.x, center.y, radius, paint);
-                        } else {
-                            canvas.drawPath(toDraw, paint);
-                        }
-                    } else if (shapeType == SHAPE_TYPE_TRIANGLE) {
-                        if (points.size() >= 3) {
-                            Path path = new Path();
-                            path.moveTo(points.get(0).x, points.get(0).y);
-                            path.lineTo(points.get(1).x, points.get(1).y);
-                            path.lineTo(points.get(2).x, points.get(2).y);
-                            path.close();
-                            canvas.drawPath(path, paint);
-                        } else {
-                            canvas.drawPath(toDraw, paint);
-                        }
-                    } else if (shapeType == SHAPE_TYPE_POLYGON) {
-                        if (points.size() >= 3) {
-                            Path path = new Path();
-                            path.moveTo(points.get(0).x, points.get(0).y);
-                            for (int i = 1; i < points.size(); ++i) {
-                                path.lineTo(points.get(i).x, points.get(i).y);
-                            }
-                            path.close();
-                            canvas.drawPath(path, paint);
-                        } else {
-                            canvas.drawPath(toDraw, paint);
                         }
                     } else {
-                        canvas.drawPath(toDraw, paint);
+                        if (shapeType == SHAPE_TYPE_LINE) {
+                            if (points.size() >= 2) {
+                                canvas.drawLine(points.get(0).x, points.get(0).y,
+                                        points.get(1).x, points.get(1).y, paint);
+                            } else {
+                                canvas.drawPath(toDraw, paint);
+                            }
+                        } else if (shapeType == SHAPE_TYPE_RECTANGLE) {
+                            if (points.size() >= 4) {
+                                float minX = Float.MAX_VALUE;
+                                float minY = Float.MAX_VALUE;
+                                float maxX = Float.MIN_VALUE;
+                                float maxY = Float.MIN_VALUE;
+                                for (int i = 0; i < 4; ++i) {
+                                    if (points.get(i).x < minX) {
+                                        minX = points.get(i).x;
+                                    }
+                                    if (points.get(i).y < minY) {
+                                        minY = points.get(i).y;
+                                    }
+                                    if (points.get(i).x > maxX) {
+                                        maxX = points.get(i).x;
+                                    }
+                                    if (points.get(i).y > maxY) {
+                                        maxY = points.get(i).y;
+                                    }
+                                }
+                                canvas.drawRect(minX, minY, maxX, maxY, paint);
+                            } else {
+                                canvas.drawPath(toDraw, paint);
+                            }
+                        } else if (shapeType == SHAPE_TYPE_CIRCLE) {
+                            //ShapeType.CIRCLE
+                            float centerX = 0;
+                            float centerY = 0;
+                            for (Point point : points) {
+                                centerX += point.x;
+                                centerY += point.y;
+                            }
+                            Point center =
+                                    points != null && points.size() > 0 ?
+                                            new Point(centerX / points.size(),
+                                                    centerY / points.size()) :
+                                            new Point(0, 0);
+                            float radiusIt = 0;
+                            for (Point point : points) {
+                                radiusIt += Math.hypot(point.x - center.x, point.y - center.y);
+                            }
+                            float radius =
+                                    points != null && points.size() > 0 ?
+                                            radiusIt / points.size() :
+                                            0;
+                            if (radius > 0) {
+                                canvas.drawCircle(center.x, center.y, radius, paint);
+                            } else {
+                                canvas.drawPath(toDraw, paint);
+                            }
+                        } else if (shapeType == SHAPE_TYPE_TRIANGLE) {
+                            if (points.size() >= 3) {
+                                Path path = new Path();
+                                path.moveTo(points.get(0).x, points.get(0).y);
+                                path.lineTo(points.get(1).x, points.get(1).y);
+                                path.lineTo(points.get(2).x, points.get(2).y);
+                                path.close();
+                                canvas.drawPath(path, paint);
+                            } else {
+                                canvas.drawPath(toDraw, paint);
+                            }
+                        } else if (shapeType == SHAPE_TYPE_POLYGON) {
+                            if (points.size() >= 3) {
+                                Path path = new Path();
+                                path.moveTo(points.get(0).x, points.get(0).y);
+                                for (int i = 1; i < points.size(); ++i) {
+                                    path.lineTo(points.get(i).x, points.get(i).y);
+                                }
+                                path.close();
+                                canvas.drawPath(path, paint);
+                            } else {
+                                canvas.drawPath(toDraw, paint);
+                            }
+                        } else {
+                            canvas.drawPath(toDraw, paint);
+                        }
                     }
                 } else {
                     canvas.drawPath(toDraw, paint);
@@ -1421,6 +1463,10 @@ public class DrawPath {
         for (Point point : preSimplified) {
             cloned.preSimplified.add(point.clone());
         }
+
+        cloned.shapeSide = shapeSide;
+        cloned.shapeWidth = shapeWidth;
+        cloned.shapeHeight = shapeHeight;
 
         return cloned;
     }

@@ -143,6 +143,11 @@ public class VecJson {
                     }
                     objPath.put("strokeSize", path.appearance.strokeSize);
                     objPath.put("penType", path.appearance.penType);
+
+
+                    objPath.put("shapeSide", path.shapeSide);
+                    objPath.put("shapeWidth", path.shapeWidth);
+                    objPath.put("shapeHeight", path.shapeHeight);
                 }
 
                 // Done
@@ -274,6 +279,10 @@ public class VecJson {
                 path.pointsScaleY = (float)element.optDouble("pointsScaleY", 1.0);
 
                 path.shapeType = (int)element.optInt("shapeType", 0);
+
+                path.shapeSide = (int)element.optInt("shapeSide", 0);
+                path.shapeWidth = (int)element.optInt("shapeWidth", 0);
+                path.shapeHeight = (int)element.optInt("shapeHeight", 0);
 
                 // Fill/stroke
                 if (element.has("fill")) {

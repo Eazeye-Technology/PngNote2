@@ -236,8 +236,112 @@
                    -->
             </LinearLayout>
 
-
         </LinearLayout>
 
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:id="@+id/llDiarization"
+            >
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_margin="10dp"
+                >
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/activity_book4_ai_panel_tab1_text_size1"
+                    android:text="Speaker Diarization"
+                    android:textColor="#000000"
+                    android:layout_gravity="left|center_vertical"
+                    android:gravity="left|center_vertical"
+                    android:layout_marginLeft="10px"
+                    android:layout_marginRight="10px"
+                    android:visibility="gone"
+                    />
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical|center"
+                    >
+                    <!--
+                    android:layout_marginLeft="@dimen/activity_book4_ai_panel_rec_btn1_margin_left"
+                    -->
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:cardBackgroundColor="#F6F3F2"
+                        app:cardCornerRadius="@dimen/activity_book4_ai_panel_rec_btn1_corner"
+                        android:layout_gravity="center|center_vertical"
+                        android:layout_marginLeft="@dimen/activity_book4_ai_panel_rec_btn1_margin"
+                        android:id="@+id/startDiarization"
+                        android:visibility="visible"
+                        android:layout_centerInParent="true"
+                        app:cardElevation="0px"
+                        android:foreground="?android:attr/selectableItemBackground"
+                        >
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingLeft="@dimen/activity_book4_ai_panel_rec_btn1_padding_left"
+                            android:background="@drawable/border_background"
+                            android:id="@+id/llStartDiarizationOuter"
+                            >
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:layout_width="0dp"
+                                android:layout_height="@dimen/activity_book4_ai_panel_rec_btn1_iv_height"
+                                android:layout_centerVertical="true"
+                                android:scaleType="fitCenter"
+                                android:textSize="11px"
+                                android:textAllCaps="true"
+                                android:src="@drawable/ic_baseline_fiber_manual_record_24_2"
+                                android:text="PEN"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:tag="binding_1"
+                                android:layout_margin="@dimen/activity_book4_ai_panel_rec_btn1_iv_margin"
+                                android:visibility="invisible"
+                                />
+                            <!--
+                            android:src="@drawable/ic_baseline_fiber_manual_record_24"
+                                -->
+                            <TextView
+                                android:id="@+id/tvStartDiarization"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="@dimen/activity_book4_ai_panel_rec_btn1_tv_text_size"
+                                android:text="Start Speaker Diarization"
+                                android:textColor="#000000"
+                                android:textStyle="bold"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:layout_marginRight="@dimen/activity_book4_ai_panel_rec_btn1_tv_margin_right"
+                                android:visibility="visible"
+                                />
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+                </RelativeLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/activity_book4_ai_panel_tab1_text_size1"
+                    android:text=""
+                    android:textColor="#000000"
+                    android:layout_gravity="left|center_vertical"
+                    android:gravity="center|center_vertical"
+                    android:layout_marginLeft="0px"
+                    android:layout_marginRight="0px"
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/tvDiarizationLog"
+                    />
+                <!--Speaker Diarization-->
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>

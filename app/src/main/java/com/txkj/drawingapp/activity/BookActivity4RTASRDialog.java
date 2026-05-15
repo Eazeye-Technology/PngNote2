@@ -63,28 +63,28 @@ public class BookActivity4RTASRDialog implements AudioRecorderManager.AudioDataC
             if (false) {
                 Log.e(TAG, "5sec: str == " + str + ", asrFinalResult == " + asrFinalResult + ", subStr == " + subStr);
                 //keep prefix . or prefix ?
-                BookActivity4Utils.tv_result_setText(mAct, asrFinalResult, asrFinalResult, true, false);
-                BookActivity4Utils.tv_result_setText(mAct, subStr, subStr, false, false);
+                BookActivity4Utils.tv_result_setText(mAct, asrFinalResult, asrFinalResult, true, false, null, -1);
+                BookActivity4Utils.tv_result_setText(mAct, subStr, subStr, false, false, null, -1);
                 asrFinalResult = "" + subStr;
             } else {
                 Log.e(TAG, "5sec: str == " + str + ", asrFinalResult == " + asrFinalResult + ", subStr == " + subStr);
                 //remove prefix . or prefix ?
                 if (oldStr.startsWith(".") || oldStr.startsWith("?") || oldStr.startsWith(",")) {
-                    BookActivity4Utils.tv_result_setText(mAct, oldStr.substring(0, 1), oldStr.substring(0, 1), true, true);
-                    BookActivity4Utils.tv_result_setText(mAct, "", "", true, false);
+                    BookActivity4Utils.tv_result_setText(mAct, oldStr.substring(0, 1), oldStr.substring(0, 1), true, true, null, -1);
+                    BookActivity4Utils.tv_result_setText(mAct, "", "", true, false, null, -1);
                     asrFinalResult = "" + oldStr.substring(1);
-                    BookActivity4Utils.tv_result_setText(mAct, asrFinalResult, asrFinalResult, false, false);
+                    BookActivity4Utils.tv_result_setText(mAct, asrFinalResult, asrFinalResult, false, false, null, -1);
                 } else {
 //                    BookActivity4Utils.tv_result_setText(mAct, oldStr, oldStr, true);
 //                    //BookActivity4Utils.tv_result_setText(mAct, asrFinalResult, asrFinalResult, true);
 //                    asrFinalResult = "";
-                    BookActivity4Utils.tv_result_setText(mAct, asrFinalResult, asrFinalResult, true, false);
-                    BookActivity4Utils.tv_result_setText(mAct, subStr, subStr, false, false);
+                    BookActivity4Utils.tv_result_setText(mAct, asrFinalResult, asrFinalResult, true, false, null, -1);
+                    BookActivity4Utils.tv_result_setText(mAct, subStr, subStr, false, false, null, -1);
                     asrFinalResult = "" + subStr;
                 }
             }
         } else {
-            BookActivity4Utils.tv_result_setText(mAct, str, subStr, isEnd, false);
+            BookActivity4Utils.tv_result_setText(mAct, str, subStr, isEnd, false, null, -1);
         }
         lastUpdate = System.currentTimeMillis();
     }

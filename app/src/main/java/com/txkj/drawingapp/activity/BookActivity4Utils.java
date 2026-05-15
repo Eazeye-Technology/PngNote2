@@ -249,6 +249,18 @@ public static boolean onBackPressed(Activity context) {
         }
     }
 
+    public static String getDirPath(Activity context) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            FragmentManager fragmentManager = act.getSupportFragmentManager();
+            Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+            if (currentFragment instanceof BookActivity4Fragment) {
+                return ((BookActivity4Fragment) currentFragment).dirUrlPath;
+            }
+        }
+        return null;
+    }
+
     public static void clearRestorePages(Activity context) {
         if (context instanceof BookListActivity) {
             BookListActivity act = (BookListActivity) context;
@@ -509,13 +521,14 @@ public static boolean onBackPressed(Activity context) {
         }
     }
 
-    public static void tv_result_setText(Context context, String str, String subStr, boolean isEnd, boolean isAppend) {
+    public static void tv_result_setText(Context context, String str, String subStr, boolean isEnd, boolean isAppend,
+                                         float[] timestamps, float processTime) {
         if (context instanceof BookListActivity) {
             BookListActivity act = (BookListActivity) context;
             FragmentManager fragmentManager = act.getSupportFragmentManager();
             Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
             if (currentFragment instanceof BookActivity4Fragment) {
-                ((BookActivity4Fragment) currentFragment).tv_result_setText(str, subStr, isEnd, isAppend);
+                ((BookActivity4Fragment) currentFragment).tv_result_setText(str, subStr, isEnd, isAppend, timestamps, processTime);
             }
         }
     }

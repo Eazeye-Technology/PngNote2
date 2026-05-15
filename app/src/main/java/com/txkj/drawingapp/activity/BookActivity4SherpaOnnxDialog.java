@@ -32,6 +32,11 @@ import com.txkj.drawingapp.R;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.List;
 
 import kotlin.jvm.internal.DefaultConstructorMarker;
@@ -202,7 +207,7 @@ public class BookActivity4SherpaOnnxDialog {
 //            }
 //            var3.setText((CharSequence)"");
         textView_setText("");
-        if (false) BookActivity4Utils.tv_result_setText(mAct, "", "", true, false);
+        if (false) BookActivity4Utils.tv_result_setText(mAct, "", "", true, false, null, -1);
 
         this.lastText = "";
         this.idx = 0;
@@ -240,7 +245,8 @@ public class BookActivity4SherpaOnnxDialog {
     }
 
 
-
+    private float processTime = 0;
+    private long processBytes = 0;
     private final void processSamples() {
         Log.i(TAG, "processing samples");
         OnlineRecognizer var10000 = this.recognizer;
@@ -254,136 +260,171 @@ public class BookActivity4SherpaOnnxDialog {
         int bufferSize = (int)(interval * (double)this.sampleRateInHz);
         short[] buffer = new short[bufferSize];
 
-        while(this.isRecording) {
-            AudioRecord var16 = this.audioRecord;
-            Integer ret = var16 != null ? var16.read(buffer, 0, buffer.length) : null;
-            if (ret != null && ret > 0) {
-                int isEndpoint_i = 0;
-                int var9 = ret;
+        File pcmFile = null;
+        File wavFile = null;
+        if (false) {
+            pcmFile = new File(mAct.getExternalFilesDir(null), "audio_record.pcm");
+            wavFile = new File(mAct.getExternalFilesDir(null), "audio_record.wav");
+        } else {
+            String dirPath = BookActivity4Utils.getDirPath(mAct);
+            pcmFile = new File(dirPath, "audio_record.pcm");
+            wavFile = new File(dirPath, "audio_record.wav");
+        }
+        Log.e(TAG, "pcmFile == " + pcmFile.getAbsolutePath());
+        try (FileOutputStream fos = new FileOutputStream(pcmFile)) {
+            while (this.isRecording) {
+                AudioRecord var16 = this.audioRecord;
+                Integer ret = var16 != null ? var16.read(buffer, 0, buffer.length) : null;
+                if (ret != null && ret > 0) {
+                    {
+                        byte[] bytes = new byte[buffer.length * 2];
+                        ByteBuffer.wrap(bytes)
+                                .order(ByteOrder.LITTLE_ENDIAN)//.BIG_ENDIAN)   // 可改 LITTLE_ENDIAN
+                                .asShortBuffer()
+                                .put(buffer);
+                        fos.write(bytes, 0, ret * 2); // 将 PCM 数据写入文件
 
-                float[] tailPaddings;
-                for(tailPaddings = new float[var9]; isEndpoint_i < var9; ++isEndpoint_i) {
-                    tailPaddings[isEndpoint_i] = (float)buffer[isEndpoint_i] / 32768.0F;
-                }
 
-                stream.acceptWaveform(tailPaddings, this.sampleRateInHz);
-
-                while(true) {
-                    OnlineRecognizer var17 = this.recognizer;
-                    if (var17 == null) {
-                        Intrinsics.throwUninitializedPropertyAccessException("recognizer");
-                        var17 = null;
+                        processBytes += ret * 2;
+                        //575488 bytes ==  575488/(16kHz*2) = 35.968/2 = 17.984sec
+                        //13sec 416000==16000*2*13==13sec
+                        processTime = (float)processBytes / (float)(this.sampleRateInHz * this.channelConfig / 8);
                     }
 
-                    if (!var17.isReady(stream)) {
-                        var17 = this.recognizer;
+                    int isEndpoint_i = 0;
+                    int var9 = ret;
+
+                    float[] tailPaddings;
+                    for (tailPaddings = new float[var9]; isEndpoint_i < var9; ++isEndpoint_i) {
+                        tailPaddings[isEndpoint_i] = (float) buffer[isEndpoint_i] / 32768.0F;
+                    }
+
+                    stream.acceptWaveform(tailPaddings, this.sampleRateInHz);
+
+                    while (true) {
+                        OnlineRecognizer var17 = this.recognizer;
                         if (var17 == null) {
                             Intrinsics.throwUninitializedPropertyAccessException("recognizer");
                             var17 = null;
                         }
 
-                        boolean isEndpoint_ = var17.isEndpoint(stream);
-                        var17 = this.recognizer;
-                        if (var17 == null) {
-                            Intrinsics.throwUninitializedPropertyAccessException("recognizer");
-                            var17 = null;
-                        }
-
-                        String text = var17.getResult(stream).getText();
-                        if (isEndpoint_) {
+                        if (!var17.isReady(stream)) {
                             var17 = this.recognizer;
                             if (var17 == null) {
                                 Intrinsics.throwUninitializedPropertyAccessException("recognizer");
                                 var17 = null;
                             }
 
-                            if (!StringsKt.isBlank((CharSequence)var17.getConfig().getModelConfig().getParaformer().getEncoder())) {
-                                tailPaddings = new float[(int)(0.8 * (double)this.sampleRateInHz)];
-                                stream.acceptWaveform(tailPaddings, this.sampleRateInHz);
+                            boolean isEndpoint_ = var17.isEndpoint(stream);
+                            var17 = this.recognizer;
+                            if (var17 == null) {
+                                Intrinsics.throwUninitializedPropertyAccessException("recognizer");
+                                var17 = null;
+                            }
 
-                                while(true) {
-                                    var17 = this.recognizer;
-                                    if (var17 == null) {
-                                        Intrinsics.throwUninitializedPropertyAccessException("recognizer");
-                                        var17 = null;
-                                    }
+                            String text = var17.getResult(stream).getText();
+                            float[] timestamps = var17.getResult(stream).getTimestamps();
+                            if (isEndpoint_) {
+                                var17 = this.recognizer;
+                                if (var17 == null) {
+                                    Intrinsics.throwUninitializedPropertyAccessException("recognizer");
+                                    var17 = null;
+                                }
 
-                                    if (!var17.isReady(stream)) {
+                                if (!StringsKt.isBlank((CharSequence) var17.getConfig().getModelConfig().getParaformer().getEncoder())) {
+                                    tailPaddings = new float[(int) (0.8 * (double) this.sampleRateInHz)];
+                                    stream.acceptWaveform(tailPaddings, this.sampleRateInHz);
+
+                                    while (true) {
                                         var17 = this.recognizer;
                                         if (var17 == null) {
                                             Intrinsics.throwUninitializedPropertyAccessException("recognizer");
                                             var17 = null;
                                         }
 
-                                        text = var17.getResult(stream).getText();
-                                        break;
-                                    }
+                                        if (!var17.isReady(stream)) {
+                                            var17 = this.recognizer;
+                                            if (var17 == null) {
+                                                Intrinsics.throwUninitializedPropertyAccessException("recognizer");
+                                                var17 = null;
+                                            }
 
-                                    var17 = this.recognizer;
-                                    if (var17 == null) {
-                                        Intrinsics.throwUninitializedPropertyAccessException("recognizer");
-                                        var17 = null;
-                                    }
+                                            text = var17.getResult(stream).getText();
+                                            timestamps = var17.getResult(stream).getTimestamps();
+                                            break;
+                                        }
 
-                                    var17.decode(stream);
+                                        var17 = this.recognizer;
+                                        if (var17 == null) {
+                                            Intrinsics.throwUninitializedPropertyAccessException("recognizer");
+                                            var17 = null;
+                                        }
+
+                                        var17.decode(stream);
+                                    }
                                 }
                             }
-                        }
 
-                        Ref.ObjectRef textToDisplay = new Ref.ObjectRef();
-                        textToDisplay.element = this.lastText;
-                        if (!StringsKt.isBlank((CharSequence)text)) {
-                            textToDisplay.element = StringsKt.isBlank((CharSequence)this.lastText) ? this.idx + ": " + text : this.lastText + '\n' + this.idx + ": " + text;
-                        }
-
-                        boolean isEndPointValue = false;
-                        if (isEndpoint_) {
-                            var17 = this.recognizer;
-                            if (var17 == null) {
-                                Intrinsics.throwUninitializedPropertyAccessException("recognizer");
-                                var17 = null;
+                            Ref.ObjectRef textToDisplay = new Ref.ObjectRef();
+                            textToDisplay.element = this.lastText;
+                            if (!StringsKt.isBlank((CharSequence) text)) {
+                                textToDisplay.element = StringsKt.isBlank((CharSequence) this.lastText) ? this.idx + ": " + text : this.lastText + '\n' + this.idx + ": " + text;
                             }
 
-                            var17.reset(stream);
-                            if (!StringsKt.isBlank((CharSequence)text)) {
-                                this.lastText = this.lastText + '\n' + this.idx + ": " + text;
-                                textToDisplay.element = this.lastText;
-                                ++this.idx;
-                                isEndPointValue = true;
+                            boolean isEndPointValue = false;
+                            if (isEndpoint_) {
+                                var17 = this.recognizer;
+                                if (var17 == null) {
+                                    Intrinsics.throwUninitializedPropertyAccessException("recognizer");
+                                    var17 = null;
+                                }
+
+                                var17.reset(stream);
+                                if (!StringsKt.isBlank((CharSequence) text)) {
+                                    this.lastText = this.lastText + '\n' + this.idx + ": " + text;
+                                    textToDisplay.element = this.lastText;
+                                    ++this.idx;
+                                    isEndPointValue = true;
+                                }
                             }
-                        }
-                        final boolean isEndPointValue_ = isEndPointValue;
-                        final String text_ = text;
-                        this.mAct.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+                            final boolean isEndPointValue_ = isEndPointValue;
+                            final float[] timestamps_ = timestamps;
+                            final String text_ = text;
+                            this.mAct.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
 //                                TextView var10000 = textView;
 //                                if (var10000 == null) {
 //                                    Intrinsics.throwUninitializedPropertyAccessException("textView");
 //                                    var10000 = null;
 //                                }
 //                                var10000.setText((CharSequence)textToDisplay.element);
-                                textView_setText(((CharSequence)textToDisplay.element).toString());
-                                if (text_ != null && text_.length() > 0) {
-                                    //see BookReaderItemsAdapter.java
-                                    BookActivity4Utils.tv_result_setText(mAct, text_, text_, isEndPointValue_, false);
+                                    textView_setText(((CharSequence) textToDisplay.element).toString());
+                                    if (text_ != null && text_.length() > 0) {
+                                        //see BookReaderItemsAdapter.java
+                                        BookActivity4Utils.tv_result_setText(mAct, text_, text_, isEndPointValue_, false, timestamps_, processTime);
+                                    }
                                 }
-                            }
-                        });
-                        break;
-                    }
+                            });
+                            break;
+                        }
 
-                    var17 = this.recognizer;
-                    if (var17 == null) {
-                        Intrinsics.throwUninitializedPropertyAccessException("recognizer");
-                        var17 = null;
-                    }
+                        var17 = this.recognizer;
+                        if (var17 == null) {
+                            Intrinsics.throwUninitializedPropertyAccessException("recognizer");
+                            var17 = null;
+                        }
 
-                    var17.decode(stream);
+                        var17.decode(stream);
+                    }
                 }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            PcmToWavUtil pcmToWavUtil = new PcmToWavUtil(this.sampleRateInHz, this.channelConfig, this.audioFormat);
+            pcmToWavUtil.pcmToWav(pcmFile.getAbsolutePath(), wavFile.getAbsolutePath());
         }
-
         stream.release();
     }
 

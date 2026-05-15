@@ -16,6 +16,7 @@ import android.widget.Toast;
 import androidx.core.content.ContextCompat;
 
 import com.txkj.drawingapp.R;
+import com.txkj.drawingapp.activity.BookActivity4Fragment;
 import com.txkj.drawingapp.activity.BookActivity4Utils;
 
 import java.util.ArrayList;
@@ -873,7 +874,32 @@ public class SelectionTool implements Tool {
                     }
                 } else {
                     if (path.pointsType == DrawPath.POINTS_TYPE_STROKE &&
-                            path.shapeType == DrawPath.SHAPE_TYPE_CIRCLE) {
+                            path.appearance.penType == DrawAppearance.PEN_TYPE_6 &&
+                            BookActivity4Fragment.ENABLE_NO_DETECT_SHAPE_PEN) {
+                        Point center = new Point(0, 0);
+                        if (path.points != null && path.points.size() > 0) {
+                            center = path.points.get(path.points.size() - 1);
+                        }
+                        float radius = path.shapeWidth; //100;
+                        region.set(
+                                (int) (center.x - radius),
+                                (int) (center.y - radius),
+                                (int) (center.x + radius),
+                                (int) (center.y + radius));
+                        RectF bounds3_ = new RectF();
+                        bounds3_.set(
+                                (float) (center.x - radius),
+                                (float) (center.y - radius),
+                                (float) (center.x + radius),
+                                (float) (center.y + radius));
+                        //rect3 is touch area
+                        if (Utils.isIntersects(bounds3_, rect3)) {  //BE CAREFUL:bounds2 is changed
+                            isSelected = true;
+                        }
+                    } else if (path.pointsType == DrawPath.POINTS_TYPE_STROKE &&
+                            path.appearance.penType == DrawAppearance.PEN_TYPE_6 &&
+                            path.shapeType == DrawPath.SHAPE_TYPE_CIRCLE &&
+                            !BookActivity4Fragment.ENABLE_NO_DETECT_SHAPE_PEN) {
 
                         float centerX = 0;
                         float centerY = 0;
