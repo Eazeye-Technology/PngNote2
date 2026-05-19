@@ -148,6 +148,7 @@ public class VecJson {
                     objPath.put("shapeSide", path.shapeSide);
                     objPath.put("shapeWidth", path.shapeWidth);
                     objPath.put("shapeHeight", path.shapeHeight);
+                    objPath.put("shapeRotate", path.shapeRotate);
                 }
 
                 // Done
@@ -283,6 +284,7 @@ public class VecJson {
                 path.shapeSide = (int)element.optInt("shapeSide", 0);
                 path.shapeWidth = (int)element.optInt("shapeWidth", 0);
                 path.shapeHeight = (int)element.optInt("shapeHeight", 0);
+                path.shapeRotate = element.optDouble("shapeRotate", 0);
 
                 // Fill/stroke
                 if (element.has("fill")) {

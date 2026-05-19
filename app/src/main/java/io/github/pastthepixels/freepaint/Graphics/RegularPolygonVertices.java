@@ -45,35 +45,35 @@ public class RegularPolygonVertices {
         }
     }
 
-    public static void main(String[] args) {
-        if (args.length == 0) {
-            System.out.println("用法: java RegularPolygonVertices <边数> [半径]");
-            System.out.println("示例: java RegularPolygonVertices 5       (半径=1)");
-            System.out.println("示例: java RegularPolygonVertices 6 2.0   (半径=2)");
-            return;
-        }
-
-        int n;
-        double radius = 1.0;  // 默认半径
-
-        try {
-            n = Integer.parseInt(args[0]);
-            if (args.length >= 2) {
-                radius = Double.parseDouble(args[1]);
-            }
-        } catch (NumberFormatException e) {
-            System.out.println("参数格式错误，请输入数字");
-            return;
-        }
-
-        try {
-            List<Point> vertices = getVertices(n, radius);
-            System.out.printf("边数: %d, 半径: %.2f\n", n, radius);
-            for (int i = 0; i < vertices.size(); i++) {
-                System.out.printf("顶点 %d: %s\n", i + 1, vertices.get(i));
-            }
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
-        }
-    }
+//    public static void main(String[] args) {
+//        if (args.length == 0) {
+//            System.out.println("用法: java RegularPolygonVertices <边数> [半径]");
+//            System.out.println("示例: java RegularPolygonVertices 5       (半径=1)");
+//            System.out.println("示例: java RegularPolygonVertices 6 2.0   (半径=2)");
+//            return;
+//        }
+//
+//        int n;
+//        double radius = 1.0;  // 默认半径
+//
+//        try {
+//            n = Integer.parseInt(args[0]);
+//            if (args.length >= 2) {
+//                radius = Double.parseDouble(args[1]);
+//            }
+//        } catch (NumberFormatException e) {
+//            System.out.println("参数格式错误，请输入数字");
+//            return;
+//        }
+//
+//        try {
+//            List<Point> vertices = getVertices(n, radius);
+//            System.out.printf("边数: %d, 半径: %.2f\n", n, radius);
+//            for (int i = 0; i < vertices.size(); i++) {
+//                System.out.printf("顶点 %d: %s\n", i + 1, vertices.get(i));
+//            }
+//        } catch (IllegalArgumentException e) {
+//            System.out.println(e.getMessage());
+//        }
+//    }
 }

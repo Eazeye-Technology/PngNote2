@@ -65,6 +65,10 @@ public class PaintTool implements Tool {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 initCurrentPath();
+                if (appearance.penType == DrawAppearance.PEN_TYPE_6 &&
+                        BookActivity4Fragment.ENABLE_NO_DETECT_SHAPE_PEN) {
+                    currentPath.addPoint(canvas.mapPoint(event.getX(), event.getY(), event.getPressure()));
+                }
                 break;
 
             case MotionEvent.ACTION_MOVE:

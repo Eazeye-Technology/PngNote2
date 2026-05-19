@@ -35,7 +35,7 @@ public class RegularPolygonVertices2 {
      * @param n 边数，n >= 3
      * @return 顶点列表（逆时针方向，第一个顶点在 x 轴正半轴）
      */
-    public static List<Point> getVertices(int n) {
+    public static List<Point> getVertices(int n, double shapeRotate) {
         if (n < 3) {
             throw new IllegalArgumentException("边数必须至少为3");
         }
@@ -45,9 +45,9 @@ public class RegularPolygonVertices2 {
         for (int i = 0; i < n; i++) {
             double angle = 2 * Math.PI * i / n;  // 从角度 0 开始
             if (n == 4) {
-                angle -= Math.PI / 4; //rotate 45 degrees
+                angle -= (Math.PI / 4 + shapeRotate); //rotate 45 degrees
             } else {
-                angle -= Math.PI / 2; //rotate 90 degrees
+                angle -= (Math.PI / 2 + shapeRotate); //rotate 90 degrees
             }
             double x = Math.cos(angle);
             double y = Math.sin(angle);
@@ -72,29 +72,29 @@ public class RegularPolygonVertices2 {
         return vertices;
     }
 
-    public static void main(String[] args) {
-        if (args.length == 0) {
-            System.out.println("用法: java RegularPolygonVertices <边数>");
-            System.out.println("示例: java RegularPolygonVertices 5");
-            return;
-        }
-
-        int n;
-        try {
-            n = Integer.parseInt(args[0]);
-        } catch (NumberFormatException e) {
-            System.out.println("边数必须是整数");
-            return;
-        }
-
-        try {
-            List<Point> vertices = getVertices(n);
-            System.out.printf("边数: %d，外接正方形边长: 1\n", n);
-            for (int i = 0; i < vertices.size(); i++) {
-                System.out.printf("顶点 %d: %s\n", i + 1, vertices.get(i));
-            }
-        } catch (IllegalArgumentException e) {
-            System.out.println(e.getMessage());
-        }
-    }
+//    public static void main(String[] args) {
+//        if (args.length == 0) {
+//            System.out.println("用法: java RegularPolygonVertices <边数>");
+//            System.out.println("示例: java RegularPolygonVertices 5");
+//            return;
+//        }
+//
+//        int n;
+//        try {
+//            n = Integer.parseInt(args[0]);
+//        } catch (NumberFormatException e) {
+//            System.out.println("边数必须是整数");
+//            return;
+//        }
+//
+//        try {
+//            List<Point> vertices = getVertices(n, 0);
+//            System.out.printf("边数: %d，外接正方形边长: 1\n", n);
+//            for (int i = 0; i < vertices.size(); i++) {
+//                System.out.printf("顶点 %d: %s\n", i + 1, vertices.get(i));
+//            }
+//        } catch (IllegalArgumentException e) {
+//            System.out.println(e.getMessage());
+//        }
+//    }
 }

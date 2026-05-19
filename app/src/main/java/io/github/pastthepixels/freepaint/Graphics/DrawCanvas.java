@@ -851,11 +851,22 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
                             for (int i = 0; i < path.points.size() && i < 4; ++i) {
                                 Point pt = path.points.get(i);
                                 Drawable drawable = null;
-                                if (i == SelectionTool.deleteIcon_index) {
+                                if (i == SelectionTool.rotateIcon_index || i == SelectionTool.deleteIcon_index) {
                                     if (SelectionTool.HIDE_DELETE_BUTTON) {
                                         //hide this button
                                     } else {
                                         drawable = getSelectionTool().deleteIcon;
+                                    }
+                                    //FIXME:don't allow multi objects to rotate, just allow shape pen to ratate
+                                    drawable = null;
+                                    if (getSelectionTool().getSelectedPaths().size() == 1) {
+                                        DrawPath path0 = getSelectionTool().getSelectedPaths().get(0);
+                                        if (path0 != null &&
+                                                (path0.pointsType == DrawPath.POINTS_TYPE_STROKE &&
+                                                        path0.appearance.penType == DrawAppearance.PEN_TYPE_6 &&
+                                                        BookActivity4Fragment.ENABLE_NO_DETECT_SHAPE_PEN)) {
+                                            drawable = getSelectionTool().rotateIcon;
+                                        }
                                     }
                                 } else if (i == SelectionTool.doneIcon_index) {
                                     drawable = getSelectionTool().doneIcon;

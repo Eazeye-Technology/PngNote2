@@ -1058,6 +1058,11 @@ public class BookActivity4Fragment extends Fragment {
                 //拖动
                 canvas.setTool(DrawCanvas.TOOLS.pan);
             } else if (id == R.id.left_toolkit_item45) {
+                if (canvas != null) {
+                    canvas.getSelectionTool().exitSelect();
+                    canvas.invalidate();
+                }
+
                 //删除
                 if (false) {
                     canvas.setTool(DrawCanvas.TOOLS.select);
@@ -1144,6 +1149,12 @@ public class BookActivity4Fragment extends Fragment {
             if (getDtView(false) != null) {
                 getDtView(false).setVisibility(View.GONE);
             }
+            //typing
+            if (canvas != null) {
+                canvas.getSelectionTool().exitSelect();
+                canvas.invalidate();
+            }
+
             llASR.setVisibility(View.GONE);
             rl_ai.setVisibility(View.GONE);
             btnPanel2.setImageTintList(ColorStateList.valueOf(Color.BLACK));
@@ -5505,7 +5516,7 @@ public class BookActivity4Fragment extends Fragment {
         onPageIdxChange(true);
     }
 
-    public void onSelectChange() {
+    public void onSelectChange(boolean forceExit) {
         if (g_rootView != null) {
             Slider sliderVerticalShape = (Slider) g_rootView.findViewById(R.id.sliderVerticalShape);
             if (sliderVerticalShape != null) {
@@ -5523,7 +5534,9 @@ public class BookActivity4Fragment extends Fragment {
                         }
                     }
                 }
-                if (found && drawPathFound != null) {
+                if (forceExit) {
+                    sliderVerticalShape.setVisibility(View.GONE);
+                } else if (found && drawPathFound != null) {
                     sliderVerticalShape.setVisibility(View.VISIBLE);
                     if (ENABLE_NO_DETECT_SHAPE_PEN) {
                         sliderVerticalShape.setValue(drawPathFound.shapeSide);

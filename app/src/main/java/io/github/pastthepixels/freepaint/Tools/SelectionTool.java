@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
 
+import com.txkj.contentbrowser.NoteFragment4;
 import com.txkj.drawingapp.R;
 import com.txkj.drawingapp.activity.BookActivity4Fragment;
 import com.txkj.drawingapp.activity.BookActivity4Utils;
@@ -56,7 +57,9 @@ public class SelectionTool implements Tool {
     public final static int doneIcon_index = 0;
 
     public Drawable deleteIcon;
+    public Drawable rotateIcon;
     public final static int deleteIcon_index = 1;
+    public final static int rotateIcon_index = 1;
 
     public Drawable zoomIcon;
     public final static int zoomIcon_index = 2;
@@ -80,12 +83,17 @@ public class SelectionTool implements Tool {
         APPEARANCE_SELECTED.effect = DrawAppearance.EFFECTS.dashed;
 
         deleteIcon = ContextCompat.getDrawable(canvas.getContext(), R.drawable.ic_close_white_20dp);
+        rotateIcon = ContextCompat.getDrawable(canvas.getContext(),
+                R.drawable.icon_rotate);
+                //R.drawable.ic_baseline_rotate_right_24_white);
 //        if (deleteIcon != null) {
 //            deleteIcon.setAlpha(255);
 //            //deleteIcon.setColorFilter(0xFF000000, PorterDuff.Mode.SRC_ATOP);
 //        }
         doneIcon = ContextCompat.getDrawable(canvas.getContext(), R.drawable.ic_done_white_20dp);
-        zoomIcon = ContextCompat.getDrawable(canvas.getContext(), R.drawable.ic_rotate_scale_white_17dp);
+        zoomIcon = ContextCompat.getDrawable(canvas.getContext(),
+                R.drawable.icon_scale);
+                //R.drawable.ic_rotate_scale_white_17dp);
         editIcon = ContextCompat.getDrawable(canvas.getContext(), R.drawable.ic_baseline_edit_24_white); //R.drawable.ic_flip_white_20dp);
 
         iconRadius = canvas.getContext().getResources().getDimensionPixelSize(R.dimen.selection_tool_icon_radius);
@@ -137,7 +145,7 @@ public class SelectionTool implements Tool {
 
                 if (true) {
                     int icon = findCurrentIconTouched(originalPoint.x, originalPoint.y);
-                    if (icon == deleteIcon_index) { //
+                    if (icon == deleteIcon_index || icon == rotateIcon_index) { //
                         //Toast.makeText(canvas.getContext(), "deleteIcon", Toast.LENGTH_SHORT).show();
                         if (HIDE_DELETE_BUTTON) {
 
@@ -146,6 +154,24 @@ public class SelectionTool implements Tool {
                                 path.erasePath();
                             }
                             currentPath.clear();
+                        }
+
+                        if (selectedPaths.size() == 1) {
+                            DrawPath path = selectedPaths.get(0);
+                            if (path != null &&
+                                    (path.pointsType == DrawPath.POINTS_TYPE_STROKE &&
+                                            path.appearance.penType == DrawAppearance.PEN_TYPE_6 &&
+                                            BookActivity4Fragment.ENABLE_NO_DETECT_SHAPE_PEN)) {
+                                isIconRotate = true;
+                                path.setRotateBegin();
+                                if (path.points.size() > 0) {
+                                    this.midPoint.set(path.points.get(path.points.size() - 1));
+                                } else {
+                                    this.midPoint.set(0, 0);
+                                }
+                                this.oldRotate = this.calculateRotate(this.midPoint.x, this.midPoint.y,
+                                        originalPoint.x, originalPoint.y);
+                            }
                         }
                         break;
                     } else if (icon == doneIcon_index) {
@@ -166,11 +192,20 @@ public class SelectionTool implements Tool {
                                 path.setScaleBegin();
 //                                this.downMatrix.set(path.getMatrix());
                                 if (path.pointsType == DrawPath.POINTS_TYPE_STROKE) {
-                                    //path.pointsType == DrawPath.POINTS_TYPE_STROKE, need to calculate
-                                    this.midPoint.set(
-                                            //see path.setScaleBegin();
-                                            (path.tempPointXMin + path.tempPointXMax) / 2.0F,
-                                            (path.tempPointYMin + path.tempPointYMax) / 2.0F);
+                                    if (path.appearance.penType == DrawAppearance.PEN_TYPE_6 &&
+                                            BookActivity4Fragment.ENABLE_NO_DETECT_SHAPE_PEN) {
+                                        if (path.points.size() > 0) {
+                                            this.midPoint.set(path.points.get(path.points.size() - 1));
+                                        } else {
+                                            this.midPoint.set(0, 0);
+                                        }
+                                    } else {
+                                        //path.pointsType == DrawPath.POINTS_TYPE_STROKE, need to calculate
+                                        this.midPoint.set(
+                                                //see path.setScaleBegin();
+                                                (path.tempPointXMin + path.tempPointXMax) / 2.0F,
+                                                (path.tempPointYMin + path.tempPointYMax) / 2.0F);
+                                    }
                                 } else {
                                     //DrawPath.POINTS_TYPE_IMAGE is center point, so must scale with center point
                                     //DrawPath.POINTS_TYPE_TEXT is left top, so must scale with left top point
@@ -299,6 +334,15 @@ public class SelectionTool implements Tool {
                     rebuildMultiStrokesSelectFrame(touchPoint.x, touchPoint.y);
                     rebuildImageSelectFrame();
                     rebuildTextSelectFrame();
+                } else if (isIconRotate) {
+                    DrawPath path = selectedPaths.get(0);
+                    if (path != null &&
+                            (path.pointsType == DrawPath.POINTS_TYPE_STROKE &&
+                                    path.appearance.penType == DrawAppearance.PEN_TYPE_6 &&
+                                    BookActivity4Fragment.ENABLE_NO_DETECT_SHAPE_PEN)) {
+                        double newRotate = calculateRotate(this.midPoint.x, this.midPoint.y, touchPoint.x, touchPoint.y);
+                        path.setRotate(newRotate, oldRotate);
+                    }
                 } else {
                     //drag empty to select
                     if (mode == TOUCH_MODES.define) {
@@ -359,6 +403,7 @@ public class SelectionTool implements Tool {
                 break;
 
             case MotionEvent.ACTION_UP:
+                isIconRotate = false;
                 isIconDrag = false;
                 isIconDragMulti = false;
                 if (mode == TOUCH_MODES.define) {
@@ -366,7 +411,7 @@ public class SelectionTool implements Tool {
                     // do math to actually select those paths.
                     selectPaths();
                     currentPath.appearance = APPEARANCE_SELECTED;
-                    BookActivity4Utils.onSelectChange(this.canvas.mAct);
+                    BookActivity4Utils.onSelectChange(this.canvas.mAct, false);
                 } else {
                     //---------------
                     if (getScaleMode()) {
@@ -381,7 +426,7 @@ public class SelectionTool implements Tool {
                 }
                 mode = TOUCH_MODES.none;
                 previousPoint = null;
-                BookActivity4Utils.onSelectChange(this.canvas.mAct);
+                BookActivity4Utils.onSelectChange(this.canvas.mAct, false);
                 break; // Usually we would say we consumed the input and we shouldn't do a redraw
             // but this is also when we lift our finger a.k.a when we make backups of
             // DrawCanvas.drawPaths.
@@ -421,6 +466,22 @@ public class SelectionTool implements Tool {
             Point boundsTop = new Point(dst[0], dst[1]);
             matrix.mapPoints(dst, new float[]{boundsBottom_old.x, boundsBottom_old.y});
             Point boundsBottom = new Point(dst[0], dst[1]);
+
+            //shape pen need to assign new boundsTop and boundsBottom
+            if (pathStroke.appearance.penType == DrawAppearance.PEN_TYPE_6  &&
+                    BookActivity4Fragment.ENABLE_NO_DETECT_SHAPE_PEN) {
+                Point tempMidPoint = new Point(0, 0, 1.0f);
+                if (pathStroke.points.size() > 0) {
+                    tempMidPoint.set(pathStroke.points.get(pathStroke.points.size() - 1));
+                } else {
+                    tempMidPoint.set(0, 0);
+                }
+                boundsTop = new Point(tempMidPoint.x - pathStroke.shapeWidth,
+                                    tempMidPoint.y - pathStroke.shapeHeight);
+                boundsBottom = new Point(tempMidPoint.x + pathStroke.shapeWidth,
+                        tempMidPoint.y + pathStroke.shapeHeight);
+            }
+
             this.currentPath.clear();
             if (!USE_SELECTION_ICON_OFFSET) {
                 currentPath.addPoint(boundsTop); //left top
@@ -653,6 +714,10 @@ public class SelectionTool implements Tool {
         }
     }
 
+    public boolean isIconRotate = false;
+    private double oldRotate = 0;
+
+
     //FIXME:scale
     public boolean isIconDrag = false;
     public boolean isIconDragMulti = false;
@@ -696,6 +761,10 @@ public class SelectionTool implements Tool {
         double x = (double)x1 - (double)x2;
         double y = (double)y1 - (double)y2;
         return (float)Math.sqrt(x * x + y * y);
+    }
+
+    private double calculateRotate(float x1, float y1, float x2, float y2) {
+        return AngleCalculator.angleBetweenPoints(x1, y1, x2, y2);
     }
 
     private int findCurrentIconTouched(float downX, float downY) {
@@ -1076,5 +1145,6 @@ public class SelectionTool implements Tool {
         mode = TOUCH_MODES.none; //TOUCH_MODES.define;
         selectedPaths.clear();
         currentPath.clear();
+        BookActivity4Utils.onSelectChange(this.canvas.mAct, true);
     }
 }

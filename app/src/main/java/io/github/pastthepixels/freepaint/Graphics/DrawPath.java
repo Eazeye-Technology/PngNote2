@@ -94,6 +94,21 @@ public class DrawPath {
     public int shapeSide = 0;
     public int shapeWidth = 0;
     public int shapeHeight = 0;
+    public double shapeRotate = 0;
+
+    private double shapeRotate_beforeRotate;
+    public void setRotateBegin() {
+        if (pointsType == POINTS_TYPE_STROKE) {
+            if (appearance.penType == DrawAppearance.PEN_TYPE_6 &&
+                    BookActivity4Fragment.ENABLE_NO_DETECT_SHAPE_PEN) {
+                shapeRotate_beforeRotate = shapeRotate;
+            }
+        }
+    }
+
+    public void setRotate(double newRotate, double oldRotate) {
+        shapeRotate = shapeRotate_beforeRotate - (newRotate - oldRotate);
+    }
 
 //    private Matrix matrix = new Matrix();
 //    public Matrix getMatrix() {
@@ -104,38 +119,44 @@ public class DrawPath {
     public void setScaleBegin() {
 //        this.tempMatrix.set(matrix);
         if (pointsType == POINTS_TYPE_STROKE) {
-            //stoke's scaleXY are not used
-            //tempScaleXY used for rebuildStrokeSelectFrame
-            this.tempScaleX = 1.0F;
-            this.tempScaleY = 1.0F;
-            tempPoints.clear();
-            if (points != null) {
-                if (points.size() > 0 && points.get(0) != null) {
-                    tempPointXMin = points.get(0).x;
-                    tempPointXMax = points.get(0).x;
-                    tempPointYMin = points.get(0).y;
-                    tempPointYMax = points.get(0).y;
-                } else {
-                    tempPointXMin = 0;
-                    tempPointXMax = 0;
-                    tempPointYMin = 0;
-                    tempPointYMax = 0;
-                }
-                for (Point pt : points) {
-                    if (pt != null) {
-                        if (pt.x < tempPointXMin) {
-                            tempPointXMin = pt.x;
+            if (appearance.penType == DrawAppearance.PEN_TYPE_6 &&
+                    BookActivity4Fragment.ENABLE_NO_DETECT_SHAPE_PEN) {
+                shapeWidth_beforeScale = shapeWidth;
+                shapeHeight_beforeScale = shapeHeight;
+            } else {
+                //stoke's scaleXY are not used
+                //tempScaleXY used for rebuildStrokeSelectFrame
+                this.tempScaleX = 1.0F;
+                this.tempScaleY = 1.0F;
+                tempPoints.clear();
+                if (points != null) {
+                    if (points.size() > 0 && points.get(0) != null) {
+                        tempPointXMin = points.get(0).x;
+                        tempPointXMax = points.get(0).x;
+                        tempPointYMin = points.get(0).y;
+                        tempPointYMax = points.get(0).y;
+                    } else {
+                        tempPointXMin = 0;
+                        tempPointXMax = 0;
+                        tempPointYMin = 0;
+                        tempPointYMax = 0;
+                    }
+                    for (Point pt : points) {
+                        if (pt != null) {
+                            if (pt.x < tempPointXMin) {
+                                tempPointXMin = pt.x;
+                            }
+                            if (pt.x > tempPointXMax) {
+                                tempPointXMax = pt.x;
+                            }
+                            if (pt.y < tempPointYMin) {
+                                tempPointYMin = pt.y;
+                            }
+                            if (pt.y > tempPointYMax) {
+                                tempPointYMax = pt.y;
+                            }
+                            tempPoints.add(new Point(pt.x, pt.y));
                         }
-                        if (pt.x > tempPointXMax) {
-                            tempPointXMax = pt.x;
-                        }
-                        if (pt.y < tempPointYMin) {
-                            tempPointYMin = pt.y;
-                        }
-                        if (pt.y > tempPointYMax) {
-                            tempPointYMax = pt.y;
-                        }
-                        tempPoints.add(new Point(pt.x, pt.y));
                     }
                 }
             }
@@ -186,36 +207,43 @@ public class DrawPath {
     public float tempPointYMin = 0;
     public float tempPointYMax = 0;
     //FIXME:midX_, midY_ not used
+    //FIXME:don't use scale()
     public void setScale(/*Matrix matrix, */float scaleX_, float scaleY_, float midX_, float midY_) {
         if (pointsType == POINTS_TYPE_STROKE) {
-            this.pointsScaleX = 1.0F;
-            this.pointsScaleY = 1.0F; //don't use scaleXY, modify points directly
-            this.tempScaleX = scaleX_; //tempScaleXY is not used, so used for rebuildStrokeSelectFrame()
-            this.tempScaleY = scaleY_;
-            Matrix matrix = new Matrix();
-            matrix.setScale(
-                    scaleX_,
-                    scaleY_,
-                    midX_, //(tempPointXMin + tempPointXMax) / 2,
-                    midY_ //(tempPointYMin + tempPointYMax) / 2
-            );
-            if (tempPoints != null) {
-                for (int i = 0; i < tempPoints.size(); ++i) {
-                    Point tempPoint = tempPoints.get(i);
-                    if (i >= 0 && i < points.size()) {
-                        Point point = points.get(i);
-                        if (tempPoint != null && point != null) {
-                            float[] dstPoint = new float[2];
-                            matrix.mapPoints(dstPoint, new float[]{tempPoint.x, tempPoint.y});
-                            point.x = dstPoint[0];
-                            point.y = dstPoint[1];
+            if (appearance.penType == DrawAppearance.PEN_TYPE_6 &&
+                    BookActivity4Fragment.ENABLE_NO_DETECT_SHAPE_PEN) {
+                shapeWidth = (int)(scaleX_ * shapeWidth_beforeScale);
+                shapeHeight = (int)(scaleY_ * shapeHeight_beforeScale);
+            } else {
+                this.pointsScaleX = 1.0F;
+                this.pointsScaleY = 1.0F; //don't use scaleXY, modify points directly
+                this.tempScaleX = scaleX_; //tempScaleXY is not used, so used for rebuildStrokeSelectFrame()
+                this.tempScaleY = scaleY_;
+                Matrix matrix = new Matrix();
+                matrix.setScale(
+                        scaleX_,
+                        scaleY_,
+                        midX_, //(tempPointXMin + tempPointXMax) / 2,
+                        midY_ //(tempPointYMin + tempPointYMax) / 2
+                );
+                if (tempPoints != null) {
+                    for (int i = 0; i < tempPoints.size(); ++i) {
+                        Point tempPoint = tempPoints.get(i);
+                        if (i >= 0 && i < points.size()) {
+                            Point point = points.get(i);
+                            if (tempPoint != null && point != null) {
+                                float[] dstPoint = new float[2];
+                                matrix.mapPoints(dstPoint, new float[]{tempPoint.x, tempPoint.y});
+                                point.x = dstPoint[0];
+                                point.y = dstPoint[1];
+                            }
                         }
                     }
                 }
+                this.tempMidX = midX_;
+                this.tempMidY = midY_;
+                cachePath();
             }
-            this.tempMidX = midX_;
-            this.tempMidY = midY_;
-            cachePath();
         } else {
             //this.matrix.set(matrix);
             this.pointsScaleX = this.tempScaleX * scaleX_;
@@ -662,7 +690,7 @@ public class DrawPath {
                                 float radius = shapeWidth * 2;//100 * 2;
                                 Point center = points.get(points.size() - 1);
                                 List<RegularPolygonVertices2.Point> points_ =
-                                        RegularPolygonVertices2.getVertices(shapeSide + 2);
+                                        RegularPolygonVertices2.getVertices(shapeSide + 2, shapeRotate);
                                 Path path = new Path();
                                 for (int i = 0; i < points_.size(); i++) {
                                     RegularPolygonVertices2.Point point =
@@ -1339,22 +1367,35 @@ public class DrawPath {
     }
 
     public ArrayList<Point> points_beforeScale = new ArrayList<>();
+    public int shapeWidth_beforeScale = 0;
+    public int shapeHeight_beforeScale = 0;
     public void beginScale() {
         points_beforeScale.clear();
         for (Point point: points) {
             points_beforeScale.add(point.clone());
         }
+        shapeWidth_beforeScale = shapeWidth;
+        shapeHeight_beforeScale = shapeHeight;
     }
     public void endScale() {
         points_beforeScale.clear();
+        shapeWidth_beforeScale = 0;
+        shapeHeight_beforeScale = 0;
     }
+    //don't use this, use setScale()
     public void scale(Point center, Point by) {
         double scale = Math.sqrt(by.x * by.x + by.y * by.y) / Math.sqrt(2) / 10;
-        for (int i = 0; i < points.size(); ++i) {
-            Point point = points.get(i);
-            Point point_beforeScale = points_beforeScale.get(i);
-            point.x = (float)(center.x + (point_beforeScale.x - center.x) * scale);
-            point.y = (float)(center.y + (point_beforeScale.y - center.y) * scale);
+        if (appearance.penType == DrawAppearance.PEN_TYPE_6 &&
+                BookActivity4Fragment.ENABLE_NO_DETECT_SHAPE_PEN) {
+            shapeWidth = (int)(shapeWidth_beforeScale * scale);
+            shapeHeight = (int)(shapeHeight_beforeScale * scale);
+        } else {
+            for (int i = 0; i < points.size(); ++i) {
+                Point point = points.get(i);
+                Point point_beforeScale = points_beforeScale.get(i);
+                point.x = (float) (center.x + (point_beforeScale.x - center.x) * scale);
+                point.y = (float) (center.y + (point_beforeScale.y - center.y) * scale);
+            }
         }
     }
 
@@ -1378,32 +1419,72 @@ public class DrawPath {
         return pointPath.isEmpty();
     }
     public boolean containsSimple(Point point) {
-        Path pointPath = new Path();
-        if (true) {
-            pointPath.addCircle(point.x, point.y, 20, Path.Direction.CW);
-        } else {
-            //pointPath.addCircle(point.x, point.y, 5, Path.Direction.CW);
-        }
-        Path path_g = getPathOrGenerate();
-        pointPath.op(path_g, Path.Op.DIFFERENCE);
-        RectF bounds = new RectF();
-        path_g.computeBounds(bounds, false);
-        boolean result0 = bounds.contains(point.x, point.y);
-        boolean result1 = pointPath.isEmpty();
-        boolean result2 = false;
-        if (this.points != null) {
-            for (Point p : this.points) {
-                if (p != null) {
-                    float dis2 = (p.x - point.x) * (p.x - point.x) +
-                            (p.y - point.y) * (p.y - point.y);
-                    if (dis2 < 20 * 20) {
-                        result2 = true;
-                        break;
+        if (pointsType == POINTS_TYPE_STROKE &&
+                appearance.penType == DrawAppearance.PEN_TYPE_6 &&
+                    BookActivity4Fragment.ENABLE_NO_DETECT_SHAPE_PEN) {
+            Point tempMidPoint = new Point(0, 0, 1.0f);
+            if (points.size() > 0) {
+                tempMidPoint.set(points.get(points.size() - 1));
+            } else {
+                tempMidPoint.set(0, 0);
+            }
+            Point boundsTop = new Point(tempMidPoint.x - shapeWidth,
+                    tempMidPoint.y - shapeHeight);
+            Point boundsBottom = new Point(tempMidPoint.x + shapeWidth,
+                    tempMidPoint.y + shapeHeight);
+            Path pointPath = new Path();
+            pointPath.moveTo(boundsTop.x, boundsTop.y); //left top
+            pointPath.lineTo(boundsBottom.x, boundsTop.y); //right top
+            pointPath.lineTo(boundsBottom.x, boundsBottom.y); //right bottom
+            pointPath.lineTo(boundsTop.x, boundsBottom.y); //left bottom
+            pointPath.close();
+
+            RectF bounds = new RectF();
+            pointPath.computeBounds(bounds, false);
+            boolean result0 = bounds.contains(point.x, point.y);
+            boolean result1 = pointPath.isEmpty();
+            boolean result2 = false;
+            if (this.points != null) {
+                for (Point p : this.points) {
+                    if (p != null) {
+                        float dis2 = (p.x - point.x) * (p.x - point.x) +
+                                (p.y - point.y) * (p.y - point.y);
+                        if (dis2 < 20 * 20) {
+                            result2 = true;
+                            break;
+                        }
                     }
                 }
             }
+            return result0 || result1 || result2;
+        } else {
+            Path pointPath = new Path();
+            if (true) {
+                pointPath.addCircle(point.x, point.y, 20, Path.Direction.CW);
+            } else {
+                //pointPath.addCircle(point.x, point.y, 5, Path.Direction.CW);
+            }
+            Path path_g = getPathOrGenerate();
+            pointPath.op(path_g, Path.Op.DIFFERENCE);
+            RectF bounds = new RectF();
+            path_g.computeBounds(bounds, false);
+            boolean result0 = bounds.contains(point.x, point.y);
+            boolean result1 = pointPath.isEmpty();
+            boolean result2 = false;
+            if (this.points != null) {
+                for (Point p : this.points) {
+                    if (p != null) {
+                        float dis2 = (p.x - point.x) * (p.x - point.x) +
+                                (p.y - point.y) * (p.y - point.y);
+                        if (dis2 < 20 * 20) {
+                            result2 = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            return result0 || result1 || result2;
         }
-        return result0 || result1 || result2;
     }
 
     public boolean containsRect(Point point1, Point point2) {
@@ -1467,6 +1548,7 @@ public class DrawPath {
         cloned.shapeSide = shapeSide;
         cloned.shapeWidth = shapeWidth;
         cloned.shapeHeight = shapeHeight;
+        cloned.shapeRotate = shapeRotate;
 
         return cloned;
     }

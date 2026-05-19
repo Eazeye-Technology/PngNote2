@@ -238,13 +238,13 @@ public static boolean onBackPressed(Activity context) {
         }
     }
 
-    public static void onSelectChange(Activity context) {
+    public static void onSelectChange(Activity context, boolean forceExit) {
         if (context instanceof BookListActivity) {
             BookListActivity act = (BookListActivity) context;
             FragmentManager fragmentManager = act.getSupportFragmentManager();
             Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
             if (currentFragment instanceof BookActivity4Fragment) {
-                ((BookActivity4Fragment) currentFragment).onSelectChange();
+                ((BookActivity4Fragment) currentFragment).onSelectChange(forceExit);
             }
         }
     }
