@@ -9,6 +9,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.txkj.drawingapp.activity.BookActivity4Config;
 import com.txkj.drawingapp.activity.BookActivity4Utils;
 
 import java.util.LinkedList;
@@ -97,7 +98,9 @@ public class PanTool implements Tool {
         @Override
         public boolean onDoubleTap(@NonNull MotionEvent e) {
             //Toast.makeText(canvas.getContext(), "onDoubleTap", Toast.LENGTH_LONG).show();
-            BookActivity4Utils.toggleFocusMode(canvas.mAct);
+            if (BookActivity4Config.ENABLE_GESTURE_FOCUS_MODE) {
+                BookActivity4Utils.toggleFocusMode(canvas.mAct);
+            }
             return true;//super.onDoubleTap(e);
         }
 

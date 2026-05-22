@@ -35,6 +35,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 
+import com.txkj.drawingapp.activity.BookActivity4Config;
 import com.txkj.drawingapp.activity.BookActivity4Fragment;
 import com.txkj.drawingapp.activity.BookActivity4Utils;
 import com.txkj.notemobile2.colorpicker.FileMeta;
@@ -161,6 +162,7 @@ java.util.ConcurrentModificationException
     }
 
     public Activity mAct = null;
+
     public void initAct(Activity act) {
         this.mAct = act;
     }
@@ -205,11 +207,13 @@ java.util.ConcurrentModificationException
         svgHelper.createSVG();
         svgHelper.writeFile(Objects.requireNonNull(getContext().getContentResolver().openOutputStream(uri, "wt")));
     }
+
     //synchronized is mainly for .createJson, for (DrawPath path : canvas.paths)
     public synchronized String getVecJson() {
         vecJsonHelper.createJson();
         return vecJsonHelper.writeString();
     }
+
     public synchronized void loadVecJson(String strVecJson) {
         vecJsonHelper.parseFile(strVecJson);
     }
@@ -247,10 +251,18 @@ java.util.ConcurrentModificationException
     int lastSource = 0;
 
 
+    private ThreeFingerDoubleTapDetector mTreeFingerDoubleTapDetector = new ThreeFingerDoubleTapDetector(() -> {
+        // 三指双击被触发，在这里执行你的业务逻辑
+        if (BookActivity4Config.ENABLE_GESTURE_FOCUS_MODE) {
+            //Toast.makeText(mAct, "Three figure double tap", Toast.LENGTH_SHORT).show();
+            BookActivity4Utils.toggleFocusMode(mAct);
+        }
+    });
+
     public boolean gScaleBegin = false;
     private ScaleGestureDetector scaleDetector;
     private ScaleGestureDetector.SimpleOnScaleGestureListener scaleListener = new ScaleGestureDetector.SimpleOnScaleGestureListener() {
-//        @Override
+        //        @Override
 //        public boolean onScaleBegin(@NonNull ScaleGestureDetector detector) {
 //            //Toast.makeText(getContext(), "onScaleBegin", Toast.LENGTH_LONG).show();
 //            gScaleBegin = true; //don't use this method, easy to trigger
@@ -280,13 +292,27 @@ java.util.ConcurrentModificationException
         }
     };
 
+//    @Override
+    public boolean onTouchEvent_test2(MotionEvent event) {
+        Log.e(TAG, "event.getActionMasked() == " + event.getActionMasked());
+        Log.e(TAG, "event.getPointerCount() == " + event.getPointerCount());
+        Log.e(TAG, "event.getDeviceId() == " + event.getDeviceId());
+        Log.e(TAG, "event.getSource() == " + event.getSource());
+        Log.e(TAG, "event.getEventTimeNanos() == " + event.getEventTimeNanos());
+       mTreeFingerDoubleTapDetector.onTouchEvent(event);
+
+        //https://cloud.tencent.com/developer/ask/sof/100130489
+        //MUST return true, don't return false or return super.onTouchEvent(event);
+        return true;//super.onTouchEvent(event);
+    }
+
     /**
      * Adds touch points when the user touches the screen.
      *
      * @param event The motion event.
      */
     @SuppressLint("ClickableViewAccessibility")
-    @Override
+//    @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (DEBUG_EVENT) {
             Log.e(TAG, "event.getDeviceId() == " + event.getDeviceId());
@@ -379,6 +405,9 @@ InputDevice.SOURCE_STYLUS == false, event.getPressure() == 0.390625, event.getTo
 
  */
         }
+
+        mTreeFingerDoubleTapDetector.onTouchEvent(event);
+
         // Runs chosenTool.onTouchEvent if it exists, otherwise don't update the screen.
         TOOLS curTool = this.tool; //temporary, don't modify current Tool
         if (tool == TOOLS.paint) {
@@ -424,7 +453,8 @@ InputDevice.SOURCE_STYLUS == false, event.getPressure() == 0.390625, event.getTo
         }
 
         if (tool == TOOLS.none || !Objects.requireNonNull(getTool_(curTool)).onTouchEvent(event)) {
-            return false;
+            //return false;
+            return true;//FIXME:If return false, event.getPointerCount() always return 1
         } else {
             if (getTool().allowVersionBackup() && event.getAction() == MotionEvent.ACTION_UP) {
                 versionBackup();
