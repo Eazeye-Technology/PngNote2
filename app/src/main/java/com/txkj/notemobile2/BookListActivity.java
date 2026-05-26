@@ -86,6 +86,7 @@ public class BookListActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             stateStarted = savedInstanceState.getInt(STATE_STARTED, 0);
             stateStarted_ = stateStarted;
+            globalDisableFingerDraw = savedInstanceState.getBoolean(STATE_DISABLE_FINGER_DRAW, false);
         }
         if (stateStarted == 0) {
             checkPermission();
@@ -198,10 +199,12 @@ Android6.onRequestPermissionsResult(this, i, strArr, iArr);
 */
     private static final String STATE_STARTED = "STATE_STARTED";
     public int stateStarted_ = 0;
+    private static final String STATE_DISABLE_FINGER_DRAW = "STATE_DISABLE_FINGER_DRAW";
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(STATE_STARTED, 1);
+        outState.putBoolean(STATE_DISABLE_FINGER_DRAW, globalDisableFingerDraw);
     }
 
     @Override
@@ -282,5 +285,13 @@ Android6.onRequestPermissionsResult(this, i, strArr, iArr);
             mProgressDialog.dismiss();
             mProgressDialog = null;
         }
+    }
+
+    boolean globalDisableFingerDraw = false;
+    public void setGlobalDisableFingerDraw(boolean isDisable) {
+        this.globalDisableFingerDraw = isDisable;
+    }
+    public boolean getGlobalDisableFingerDraw() {
+        return this.globalDisableFingerDraw;
     }
 }

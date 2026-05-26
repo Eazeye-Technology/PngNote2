@@ -30,7 +30,6 @@ import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
@@ -49,7 +48,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import io.github.pastthepixels.freepaint.File.SVG;
@@ -142,9 +140,10 @@ java.util.ConcurrentModificationException
             documentSize.set(w, h);
         }
 
-        gestureDetector = new GestureDetector(getContext(), gestureListener);
+        //gestureDetector = new GestureDetector(getContext(), gestureListener);
         //gestureDetector.setIsLongpressEnabled(false);
-        this.scaleDetector = new ScaleGestureDetector(getContext(), scaleListener);
+        this.old_scaleDetector = new ScaleGestureDetector(getContext(), old_scaleListener);
+        this.mZoomGestureDetector = new ZoomGestureDetector(getContext());
     }
 
     /**
@@ -258,10 +257,95 @@ java.util.ConcurrentModificationException
             BookActivity4Utils.toggleFocusMode(mAct);
         }
     });
+    private RotateGestureDetector mRotateDetector = new RotateGestureDetector((delta, total, fx, fy) -> {
+        // Update UI
+        if (BookActivity4Config.ENABLE_GESTURE_PINCH_ROTATE) {
+            if (getTool() instanceof SelectionTool) {
+                LinkedList<DrawPath> selectedPaths = getSelectionTool().getSelectedPaths();
+                if (selectedPaths != null && selectedPaths.size() > 0) {
+                    DrawPath path = selectedPaths.get(0);
+                    if (path != null &&
+                            (path.pointsType == DrawPath.POINTS_TYPE_STROKE &&
+                                    path.appearance.penType == DrawAppearance.PEN_TYPE_6 &&
+                                    BookActivity4Fragment.ENABLE_NO_DETECT_SHAPE_PEN)) {
+                        path.setRotate(delta, 0);
+                    }
+                }
+            }
+        }
+        return true;
+    });
+    private ZoomGestureDetector mZoomGestureDetector;
 
-    public boolean gScaleBegin = false;
-    private ScaleGestureDetector scaleDetector;
-    private ScaleGestureDetector.SimpleOnScaleGestureListener scaleListener = new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+    private GestureDetector mFlingGestureDetector = new GestureDetector(new GestureDetector.SimpleOnGestureListener() {
+        private long flipTime = 0;
+        private boolean useFlip = false;
+
+        @Override
+        public boolean onDoubleTap(@NonNull MotionEvent e) {
+            //Toast.makeText(canvas.getContext(), "onDoubleTap", Toast.LENGTH_LONG).show();
+//            if (BookActivity4Config.ENABLE_GESTURE_FOCUS_MODE) {
+//                BookActivity4Utils.toggleFocusMode(mAct);
+//            }
+            return true;//super.onDoubleTap(e);
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(@NonNull MotionEvent e) {
+            //Toast.makeText(canvas.getContext(), "onSingleTapConfirmed", Toast.LENGTH_LONG).show();
+            return super.onSingleTapConfirmed(e);
+        }
+
+        private static final int VERTICAL_MIN_DISTANCE = 50 * 12;
+        private static final int MIN_VELOCITY = 10 * 12;
+
+        private static final int VERTICAL_MIN_DISTANCE_UP = 50 * 12;//15; //1920*1440
+        private static final int MIN_VELOCITY_UP = 10 * 12;//15;
+        @Override
+        public boolean onFling(@androidx.annotation.Nullable MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
+            try {
+                if (e1.getY() - e2.getY() > VERTICAL_MIN_DISTANCE_UP && Math.abs(velocityY) > MIN_VELOCITY_UP) {
+                    getPaintTool().setCancel(); //need do before
+                    //flip up
+                    if (BookActivity4Config.ENABLE_GESTURE_NAVIGATION_PANEL) {
+                        BookActivity4Utils.flipUp(mAct);
+                    }
+                    flipTime = System.currentTimeMillis();
+                    useFlip = true;
+                    postInvalidateDelayed(1000);
+                    return true;
+                } else if (e1.getX() - e2.getX() > VERTICAL_MIN_DISTANCE && Math.abs(velocityX) > MIN_VELOCITY) {
+                    //flip left
+                    getPaintTool().setCancel(); //need do before
+                    if (BookActivity4Config.ENABLE_GESTURE_PREVIOUS_PAGE) {
+                        BookActivity4Utils.previousPage(mAct);
+                    }
+                    flipTime = System.currentTimeMillis();
+                    useFlip = true;
+                    postInvalidateDelayed(1000);
+                    return true;
+                } else if (e2.getX() - e1.getX() > VERTICAL_MIN_DISTANCE && Math.abs(velocityX) > MIN_VELOCITY) {
+                    //flip right
+                    getPaintTool().setCancel(); //need do before
+                    if (BookActivity4Config.ENABLE_GESTURE_NEXT_PAGE) {
+                        BookActivity4Utils.nextPage(mAct);
+                    }
+
+                    flipTime = System.currentTimeMillis();
+                    useFlip = true;
+                    postInvalidateDelayed(1000);
+                    return true;
+                }
+            } catch (Throwable eee) {
+                eee.printStackTrace(); //e2 == null
+            }
+            return super.onFling(e1, e2, velocityX, velocityY);
+        }
+    });
+
+    public boolean old_gScaleBegin = false;
+    private ScaleGestureDetector old_scaleDetector;
+    private ScaleGestureDetector.SimpleOnScaleGestureListener old_scaleListener = new ScaleGestureDetector.SimpleOnScaleGestureListener() {
         //        @Override
 //        public boolean onScaleBegin(@NonNull ScaleGestureDetector detector) {
 //            //Toast.makeText(getContext(), "onScaleBegin", Toast.LENGTH_LONG).show();
@@ -272,25 +356,25 @@ java.util.ConcurrentModificationException
         public boolean onScale(@NonNull ScaleGestureDetector detector) {
             //Toast.makeText(getContext(), "onScale", Toast.LENGTH_LONG).show();
             if (detector != null && detector.getScaleFactor() > 2.0f) {
-                gScaleBegin = true;
+                old_gScaleBegin = true;
             }
             return super.onScale(detector);
         }
     };
-    private GestureDetector gestureDetector;
-    private GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
-        @Override
-        public boolean onDoubleTap(@NonNull MotionEvent e) {
-            Toast.makeText(getContext(), "onDoubleTap", Toast.LENGTH_LONG).show();
-            return super.onDoubleTap(e);
-        }
-
-        @Override
-        public boolean onSingleTapConfirmed(@NonNull MotionEvent e) {
-            Toast.makeText(getContext(), "onSingleTapConfirmed", Toast.LENGTH_LONG).show();
-            return super.onSingleTapConfirmed(e);
-        }
-    };
+//    private GestureDetector gestureDetector;
+//    private GestureDetector.SimpleOnGestureListener gestureListener = new GestureDetector.SimpleOnGestureListener() {
+//        @Override
+//        public boolean onDoubleTap(@NonNull MotionEvent e) {
+//            Toast.makeText(getContext(), "onDoubleTap", Toast.LENGTH_LONG).show();
+//            return super.onDoubleTap(e);
+//        }
+//
+//        @Override
+//        public boolean onSingleTapConfirmed(@NonNull MotionEvent e) {
+//            Toast.makeText(getContext(), "onSingleTapConfirmed", Toast.LENGTH_LONG).show();
+//            return super.onSingleTapConfirmed(e);
+//        }
+//    };
 
 //    @Override
     public boolean onTouchEvent_test2(MotionEvent event) {
@@ -298,7 +382,7 @@ java.util.ConcurrentModificationException
         Log.e(TAG, "event.getPointerCount() == " + event.getPointerCount());
         Log.e(TAG, "event.getDeviceId() == " + event.getDeviceId());
         Log.e(TAG, "event.getSource() == " + event.getSource());
-        Log.e(TAG, "event.getEventTimeNanos() == " + event.getEventTimeNanos());
+//        Log.e(TAG, "event.getEventTimeNanos() == " + event.getEventTimeNanos());
        mTreeFingerDoubleTapDetector.onTouchEvent(event);
 
         //https://cloud.tencent.com/developer/ask/sof/100130489
@@ -406,7 +490,60 @@ InputDevice.SOURCE_STYLUS == false, event.getPressure() == 0.390625, event.getTo
  */
         }
 
-        mTreeFingerDoubleTapDetector.onTouchEvent(event);
+
+        int pointerIndex = event.getActionIndex(); // 获取事件对应的指针索引
+        int toolType = event.getToolType(pointerIndex);
+        boolean isStylus = (toolType == MotionEvent.TOOL_TYPE_STYLUS);
+        boolean isEraser = (toolType == MotionEvent.TOOL_TYPE_ERASER);
+        boolean isFinger = (toolType == MotionEvent.TOOL_TYPE_FINGER);
+        if (isEraser) {
+            //Log.e(TAG, ">>>>>>>>>>>>>>>>>> eraser:" + isEraser);
+            //return true;
+            //skip
+            BookActivity4Utils.setGlobalDisableFingerDraw(mAct, true);
+        } else if (isStylus)  {
+            //skip
+            BookActivity4Utils.setGlobalDisableFingerDraw(mAct, true);
+        } else {
+            mTreeFingerDoubleTapDetector.onTouchEvent(event);
+            int count = event.getPointerCount();
+            if (count >= 2) {
+                //skip
+            } else {
+                mFlingGestureDetector.onTouchEvent(event);
+            }
+            boolean enableRotate = false;
+            if (BookActivity4Config.ENABLE_GESTURE_PINCH_ROTATE) {
+                if (getTool() instanceof SelectionTool) {
+                    LinkedList<DrawPath> selectedPaths = getSelectionTool().getSelectedPaths();
+                    if (selectedPaths != null && selectedPaths.size() > 0) {
+                        DrawPath path = selectedPaths.get(0);
+                        if (path != null &&
+                                (path.pointsType == DrawPath.POINTS_TYPE_STROKE &&
+                                        path.appearance.penType == DrawAppearance.PEN_TYPE_6 &&
+                                        BookActivity4Fragment.ENABLE_NO_DETECT_SHAPE_PEN)) {
+                            enableRotate = true;
+                        }
+                    }
+                }
+            }
+            if (enableRotate) {
+                mRotateDetector.onTouchEvent(event);
+            } else {
+                mZoomGestureDetector.onTouchEvent(event);
+            }
+        }
+
+        if (BookActivity4Utils.getGlobalDisableFingerDraw(mAct)) {
+            if (isFinger) {
+                return true;
+            }
+        }
+
+        int count = event.getPointerCount();
+        if (count >= 2) {
+            return true;
+        }
 
         // Runs chosenTool.onTouchEvent if it exists, otherwise don't update the screen.
         TOOLS curTool = this.tool; //temporary, don't modify current Tool
@@ -427,7 +564,7 @@ InputDevice.SOURCE_STYLUS == false, event.getPressure() == 0.390625, event.getTo
                     }
                 } else if (event != null && event.getAction() == MotionEvent.ACTION_DOWN) {
                     //don't check SOURCE_TOUCHSCREEN, because SOURCE_STYLUS contains SOURCE_TOUCHSCREEN
-                    boolean isStylus = ((event.getSource() & InputDevice.SOURCE_STYLUS) == InputDevice.SOURCE_STYLUS);
+                    boolean isStylusOld = ((event.getSource() & InputDevice.SOURCE_STYLUS) == InputDevice.SOURCE_STYLUS);
                     boolean isStylusScreen = (((event.getSource() & InputDevice.SOURCE_STYLUS) == InputDevice.SOURCE_STYLUS) &&
                             event.getPointerCount() > 0 &&
                             event.getToolType(0) == MotionEvent.TOOL_TYPE_FINGER);
@@ -437,18 +574,20 @@ InputDevice.SOURCE_STYLUS == false, event.getPressure() == 0.390625, event.getTo
                     if (isEmulator()) {
                         //skip
                     }
-                    if ((!isStylus || isStylusScreen) && !isTouchScreen) { //FIXME:
+                    if ((!isStylusOld || isStylusScreen) && !isTouchScreen) { //FIXME:
                         curTool = TOOLS.pan;
                         isPan = true;
                     }
                 }
             }
         } else if (this.tool == TOOLS.select) {
-            scaleDetector.onTouchEvent(event);
-            if (gScaleBegin) {
-                curTool = TOOLS.pan;
-                getSelectionTool().getToolPaths().clear();
-                isPan = true;
+            if (false) {
+                old_scaleDetector.onTouchEvent(event);
+                if (old_gScaleBegin) {
+                    curTool = TOOLS.pan;
+                    getSelectionTool().getToolPaths().clear();
+                    isPan = true;
+                }
             }
         }
 
@@ -517,7 +656,7 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
         }
 
         if (false) {
-            gestureDetector.onTouchEvent(event);
+//            gestureDetector.onTouchEvent(event);
             return true;
         } else if (true) {
             // Runs chosenTool.onTouchEvent if it exists, otherwise don't update the screen.

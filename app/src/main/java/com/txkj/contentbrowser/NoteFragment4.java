@@ -180,6 +180,7 @@ class PreferencesKeys {
             @Override
             public void onClick(View view) {
                 if (getActivity() != null) {
+                    BookActivity4Utils.setGlobalDisableFingerDraw(getActivity(), false);
                     getActivity().finish();
                 }
             }

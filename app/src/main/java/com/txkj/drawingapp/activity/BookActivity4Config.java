@@ -32,16 +32,16 @@ public class BookActivity4Config {
     //    Double tap with three fingers: Toggle focus mode
     public final static boolean ENABLE_GESTURE_FOCUS_MODE = true;
     //    Swipe right on the right side of canvas: Next page
-    public final static boolean ENABLE_GESTURE_NEXT_PAGE = false;
+    public final static boolean ENABLE_GESTURE_NEXT_PAGE = true;
     //    Swipe left on the left side of canvas: Previous page
-    public final static boolean ENABLE_GESTURE_PREVIOUS_PAGE = false;
+    public final static boolean ENABLE_GESTURE_PREVIOUS_PAGE = true;
     //    Pinch and rotate with two fingers: Pinch and rotate with two fingers
-    public final static boolean ENABLE_GESTURE_PINCH_ROTATE = false;
+    public final static boolean ENABLE_GESTURE_PINCH_ROTATE = true;
     //    Two finger pinch out: Zoom out
-    public final static boolean ENABLE_GESTURE_ZOOM_OUT = false;
+    public final static boolean ENABLE_GESTURE_ZOOM_OUT = true;
     //    Two finger pinch in: Zoom in
-    public final static boolean ENABLE_GESTURE_ZOOM_IN = false;
+    public final static boolean ENABLE_GESTURE_ZOOM_IN = true;
     //    Swipe up from bottom of screen: Open navigation panel
-    public final static boolean ENABLE_GESTURE_NAVIGATION_PANEL = false;
+    public final static boolean ENABLE_GESTURE_NAVIGATION_PANEL = true;
 
 }

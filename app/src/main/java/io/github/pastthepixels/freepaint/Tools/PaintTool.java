@@ -93,10 +93,22 @@ public class PaintTool implements Tool {
     }
 
     public boolean allowVersionBackup() {
-        return true;
+        if (isCancel) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    public void setCancel() {
+        this.isCancel = true;
+        if (this.currentPath != null) {
+            canvas.paths.remove(this.currentPath);
+        }
     }
 
+    private boolean isCancel = false;
     private void initCurrentPath() {
+        isCancel = false;
         appearance.loadFromSettings(canvas.getContext());
         appearance.penType = canvas.getPenType();
         // Starts a new line in the path -- whether or not it is closed is taken from the preferences (defaults to false)

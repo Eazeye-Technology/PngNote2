@@ -85,6 +85,7 @@ public static boolean onBackPressed(Activity context) {
             ((BookActivity4Fragment) currentFragment).onBackPressed();
             return true;
         } else {
+            BookActivity4Utils.setGlobalDisableFingerDraw(act, false);
             act.finish();
             return true;
         }
@@ -119,6 +120,7 @@ public static boolean onBackPressed(Activity context) {
                     }
                 }
                 if (act.isIntentNew || act.isIntentOpen) {
+                    BookActivity4Utils.setGlobalDisableFingerDraw(act, false);
                     act.finish();
                 }
             }
@@ -311,6 +313,32 @@ public static boolean onBackPressed(Activity context) {
                 ((BookActivity4Fragment) currentFragment).flipUp();
             }
         }
+    }
+    public static void scale(Activity context, double delta,
+                             float translationX, float translationY,
+                             float deltaX, float deltaY) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            FragmentManager fragmentManager = act.getSupportFragmentManager();
+            Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+            if (currentFragment instanceof BookActivity4Fragment) {
+                ((BookActivity4Fragment) currentFragment).scale(delta,
+                        translationX, translationY, deltaX, deltaY);
+            }
+        }
+    }
+    public static void setGlobalDisableFingerDraw(Activity context, boolean isDisable) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            act.setGlobalDisableFingerDraw(isDisable);
+        }
+    }
+    public static boolean getGlobalDisableFingerDraw(Activity context) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            return act.getGlobalDisableFingerDraw();
+        }
+        return false;
     }
 
     public static void openPage(Activity context, int pageIdx) {

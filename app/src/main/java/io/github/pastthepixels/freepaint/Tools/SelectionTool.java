@@ -38,8 +38,9 @@ public class SelectionTool implements Tool {
     //可变，需要用clone
     private final DrawAppearance APPEARANCE = new DrawAppearance(Color.GRAY, Color.argb(32, 64, 64, 64));
 
+    //选择框
     //不可变
-    public final DrawAppearance APPEARANCE_SELECTED = new DrawAppearance(Color.BLUE, -1);
+    public final DrawAppearance APPEARANCE_SELECTED = new DrawAppearance(Color.BLACK, -1); //Color.BLUE
 
     private final LinkedList<DrawPath> toolPaths = new LinkedList<>();
     private final LinkedList<DrawPath> selectedPaths = new LinkedList<>();

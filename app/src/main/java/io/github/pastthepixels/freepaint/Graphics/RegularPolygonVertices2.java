@@ -36,16 +36,24 @@ public class RegularPolygonVertices2 {
      * @return 顶点列表（逆时针方向，第一个顶点在 x 轴正半轴）
      */
     public static List<Point> getVertices(int n, double shapeRotate) {
-        if (n < 3) {
-            throw new IllegalArgumentException("边数必须至少为3");
+//        if (n < 3) {
+//            throw new IllegalArgumentException("The side parameter must be at least 3"); //"边数必须至少为3"
+//        }
+        boolean isRotate = false;
+        if (n == 1) {
+            n = 2;
+            isRotate = true;
         }
 
         // 1. 计算半径为 1 的原始顶点坐标
         List<Point> rawVertices = new ArrayList<>();
         for (int i = 0; i < n; i++) {
             double angle = 2 * Math.PI * i / n;  // 从角度 0 开始
+            //if (n == 1) angle = 2 * Math.PI / 2;
             if (n == 4) {
                 angle -= (Math.PI / 4 + shapeRotate); //rotate 45 degrees
+            } else if (isRotate) {
+                angle -= (Math.PI + shapeRotate); //rotate 180 degrees
             } else {
                 angle -= (Math.PI / 2 + shapeRotate); //rotate 90 degrees
             }

@@ -2,7 +2,6 @@ package com.txkj.drawingapp.activity;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -38,13 +37,10 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
@@ -75,6 +71,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.slider.LabelFormatter;
 import com.google.android.material.slider.Slider;
 import com.k2fsa.sherpa.onnx.OfflineSpeakerDiarizationConfig;
 import com.k2fsa.sherpa.onnx.OfflineSpeakerDiarizationSegment;
@@ -130,7 +127,6 @@ import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -759,7 +755,7 @@ public class BookActivity4Fragment extends Fragment {
     private int currentTabIdSubmenu1 = iconsSubmenu1[0];
     public void onClickSubmenu1(View rootView, int id, boolean isClick, boolean noShowBottom) {
         if (canvas != null) {
-            canvas.gScaleBegin = false;
+            canvas.old_gScaleBegin = false;
         }
         boolean isShowBottom = false;
         if (!NO_PEN_BOTTOM_POPUP) {
@@ -938,7 +934,7 @@ public class BookActivity4Fragment extends Fragment {
     private int currentTabIdSubmenu2 = iconsSubmenu2[0];
     public void onClickSubmenu2(View rootView, int id, boolean isClick) {
         if (canvas != null) {
-            canvas.gScaleBegin = false;
+            canvas.old_gScaleBegin = false;
         }
         boolean isShowBottom = false;
         if (this.currentTabIdSubmenu2 == id) {
@@ -1014,7 +1010,7 @@ public class BookActivity4Fragment extends Fragment {
     private int currentTabIdSubmenu4 = iconsSubmenu4[0];
     public void onClickSubmenu4(View rootView, int id, boolean isClick) {
         if (canvas != null) {
-            canvas.gScaleBegin = false;
+            canvas.old_gScaleBegin = false;
         }
         this.currentTabIdSubmenu4 = id;
         View view = rootView.findViewById(id);
@@ -1103,7 +1099,7 @@ public class BookActivity4Fragment extends Fragment {
     private int currentTabIdTopBar = iconsTopBar[0];
     public void onClickTopBar(View rootView, int id, boolean isClick) {
         if (canvas != null) {
-            canvas.gScaleBegin = false;
+            canvas.old_gScaleBegin = false;
         }
         this.currentTabIdTopBar = id;
         View view = rootView.findViewById(id);
@@ -1764,6 +1760,20 @@ public class BookActivity4Fragment extends Fragment {
         sliderVerticalShape.setVisibility(View.GONE);
         if (BookActivity4Fragment.ENABLE_NO_DETECT_SHAPE_PEN) {
             sliderVerticalShape.setValueTo(10.0f - 2);
+            sliderVerticalShape.setLabelFormatter(new LabelFormatter() {
+                @NonNull
+                @Override
+                public String getFormattedValue(float value) {
+                    //int intValue = Math.round(value);
+                    //return intValue + "%";
+                    if (value >= 1) {
+                        return "" + (int)(value + 2);
+                    } else {
+                        return "" + (int)(value);
+                    }
+                }
+            });
+        //setThumbTextFormatter
         } else {
             sliderVerticalShape.setValueTo(5.0f);
         }
@@ -3977,6 +3987,7 @@ public class BookActivity4Fragment extends Fragment {
 
     }
 
+    boolean isLoadingPageGrid = false;
     private void showPopupMenu(View rootView, View view) {
         //see LineWidthDialog
         if (CopyCutMenuDialog.isOpen == false) {
@@ -4006,19 +4017,23 @@ public class BookActivity4Fragment extends Fragment {
                                     gotoGridPage();
                                 }
                             } else {
-                                createWaitingProgressDialog();
-                                view.postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        beforePageGrid();
-                                        AlertDialog dialog = new BookActivity4PageGridDialog(getActivity(),
-                                                BookActivity4Fragment.this.dirUrl,
-                                                BookActivity4Fragment.this.dirUrlPath)
-                                                .create();
-                                        dialog.show();
-                                        cancelWaitingProgressDialog();
-                                    }
-                                }, 0);//100);
+                                if (!isLoadingPageGrid) {
+                                    isLoadingPageGrid = true;
+                                    createWaitingProgressDialog();
+                                    view.postDelayed(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            isLoadingPageGrid = false;
+                                            beforePageGrid();
+                                            AlertDialog dialog = new BookActivity4PageGridDialog(getActivity(),
+                                                    BookActivity4Fragment.this.dirUrl,
+                                                    BookActivity4Fragment.this.dirUrlPath)
+                                                    .create();
+                                            dialog.show();
+                                            cancelWaitingProgressDialog();
+                                        }
+                                    }, 0);//100);
+                                }
                             }
                         } else if (view.getId() == R.id.popButtonPrevPage) {
                             notifyForceSave(false);
@@ -4741,30 +4756,51 @@ public class BookActivity4Fragment extends Fragment {
         gotoPrevPage();
     }
     public void flipUp() {
-        if (currentTabIdTopBar == iconsTopBar[0]) { //paint tool
-            g_rootView.findViewById(R.id.bottomDialog2).setVisibility(View.GONE);
-            if (g_rootView.findViewById(R.id.bottomDialog1).getVisibility() == View.VISIBLE) {
-                g_rootView.findViewById(R.id.bottomDialog1).setVisibility(View.GONE);
-            } else {
-                initBottom12();
-                g_rootView.findViewById(R.id.bottomDialog1).setVisibility(View.VISIBLE);
-            }
-        } else if (currentTabIdTopBar == iconsTopBar[1]) { //text tool
-            if (currentTabIdSubmenu2 == R.id.left_toolkit_item21) {
-                initBottom12();
-                g_rootView.findViewById(R.id.llLeftPanel1).setVisibility(View.VISIBLE);
-                g_rootView.findViewById(R.id.llLeftPanel2).setVisibility(View.GONE);
-            } else if (currentTabIdSubmenu2 == R.id.left_toolkit_item22) {
-                initBottom12();
-                g_rootView.findViewById(R.id.llLeftPanel1).setVisibility(View.GONE);
-                g_rootView.findViewById(R.id.llLeftPanel2).setVisibility(View.VISIBLE);
-            }
-            g_rootView.findViewById(R.id.bottomDialog1).setVisibility(View.GONE);
-            if (g_rootView.findViewById(R.id.bottomDialog2).getVisibility() == View.VISIBLE) {
+        if (false) {
+            if (currentTabIdTopBar == iconsTopBar[0]) { //paint tool
                 g_rootView.findViewById(R.id.bottomDialog2).setVisibility(View.GONE);
-            } else {
-                initBottom12();
-                g_rootView.findViewById(R.id.bottomDialog2).setVisibility(View.VISIBLE);
+                if (g_rootView.findViewById(R.id.bottomDialog1).getVisibility() == View.VISIBLE) {
+                    g_rootView.findViewById(R.id.bottomDialog1).setVisibility(View.GONE);
+                } else {
+                    initBottom12();
+                    g_rootView.findViewById(R.id.bottomDialog1).setVisibility(View.VISIBLE);
+                }
+            } else if (currentTabIdTopBar == iconsTopBar[1]) { //text tool
+                if (currentTabIdSubmenu2 == R.id.left_toolkit_item21) {
+                    initBottom12();
+                    g_rootView.findViewById(R.id.llLeftPanel1).setVisibility(View.VISIBLE);
+                    g_rootView.findViewById(R.id.llLeftPanel2).setVisibility(View.GONE);
+                } else if (currentTabIdSubmenu2 == R.id.left_toolkit_item22) {
+                    initBottom12();
+                    g_rootView.findViewById(R.id.llLeftPanel1).setVisibility(View.GONE);
+                    g_rootView.findViewById(R.id.llLeftPanel2).setVisibility(View.VISIBLE);
+                }
+                g_rootView.findViewById(R.id.bottomDialog1).setVisibility(View.GONE);
+                if (g_rootView.findViewById(R.id.bottomDialog2).getVisibility() == View.VISIBLE) {
+                    g_rootView.findViewById(R.id.bottomDialog2).setVisibility(View.GONE);
+                } else {
+                    initBottom12();
+                    g_rootView.findViewById(R.id.bottomDialog2).setVisibility(View.VISIBLE);
+                }
+            }
+        } else {
+            //open navigation panel
+            if (!isLoadingPageGrid) {
+                isLoadingPageGrid = true;
+                createWaitingProgressDialog();
+                g_rootView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        isLoadingPageGrid = false;
+                        beforePageGrid();
+                        AlertDialog dialog = new BookActivity4PageGridDialog(getActivity(),
+                                BookActivity4Fragment.this.dirUrl,
+                                BookActivity4Fragment.this.dirUrlPath)
+                                .create();
+                        dialog.show();
+                        cancelWaitingProgressDialog();
+                    }
+                }, 0);//100);
             }
         }
     }
@@ -5621,6 +5657,21 @@ public class BookActivity4Fragment extends Fragment {
                 savePageInMain(getPageIdx(), pageBmp, getVecJson(canvas));
             }
             BookActivity4Utils.finish(getActivity(), true);
+        }
+    }
+
+    public void scale(double delta,
+                      float translationX,
+                      float translationY,
+                      float deltaX,
+                      float deltaY) {
+        if (canvas != null) {
+            canvas.getPanTool().scaleFactor *= delta;
+            canvas.getPanTool().updatePanOffset();
+            canvas.getPanTool().offset.set(
+                    canvas.getPanTool().offset.x + deltaX / canvas.getPanTool().scaleFactor /*canvas.getPanTool().scaleFactor*/,
+                    canvas.getPanTool().offset.y + deltaY / canvas.getPanTool().scaleFactor /*canvas.getPanTool().scaleFactor*/);
+            canvas.invalidate();
         }
     }
 
