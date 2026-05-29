@@ -2859,7 +2859,16 @@ public class BookActivity4Fragment extends Fragment {
         rootView.findViewById(R.id.startDiarization).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startDiarization();
+                if (false) {
+                    startDiarization();
+                } else {
+                    AlertDialog dialog =
+                            new BookActivity4MeetingDiarizationDialog(getActivity(),
+                                    "" + numSpeakers, "" + threshold).create();
+                    if (dialog != null) {
+                        dialog.show();
+                    }
+                }
             }
         });
         rootView.findViewById(R.id.startDiarization).postDelayed(new Runnable() {
@@ -2996,6 +3005,27 @@ public class BookActivity4Fragment extends Fragment {
         }
     }
 
+    public void editMeetingDiarization(String number, String threshold_) {
+        boolean parseSuccess = false;
+        try {
+            this.numSpeakers = Integer.parseInt(number);
+            this.threshold = Float.parseFloat(threshold_);
+            parseSuccess = true;
+            startDiarization();
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+            final TextView tvDiarizationLog = g_rootView.findViewById(R.id.tvDiarizationLog);
+            if (parseSuccess) {
+                if (tvDiarizationLog != null) {
+                    tvDiarizationLog.setText("Diarization failed");
+                }
+            } else {
+                if (tvDiarizationLog != null) {
+                    tvDiarizationLog.setText("Diarization failed, parameters error");
+                }
+            }
+        }
+    }
     String progress = "";
     boolean done = false;
     boolean fileIsOk = false;

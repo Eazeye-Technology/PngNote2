@@ -47,8 +47,28 @@ import kotlin.text.StringsKt;
 public class BookActivity4SherpaOnnxDialog {
     private static final String TAG = "sherpa-onnx";
 
-    private void textView_setText(String text) {
-
+    private void textView_setText(String str) {}
+    private void mySetText(Context context, String str, String subStr, boolean isEnd, boolean isAppend,
+                                  float[] timestamps, float processTime) {
+//        if (str != null && str.contains(".") && isEnd) {
+//            int pos = str.lastIndexOf('.');
+//            String str1 = str.substring(0, pos + 1);
+//            String str2 = str.substring(pos + 1);
+//            //BookActivity4Utils.tv_result_setText(context, str1, str1, true, isAppend, timestamps, processTime);
+//            //BookActivity4Utils.tv_result_setText(context, str2, str2, isEnd, isAppend, timestamps, processTime);
+//        } else
+            if (false) { //(str != null && str.contains(".")) {
+            int pos = str.lastIndexOf('.');
+            String str1 = str.substring(0, pos + 1);
+            String str2 = str.substring(pos + 1);
+            String debugStr = ">>>>enter<<<<\n" + str1 + "\n" + str2;
+            BookActivity4Utils.tv_result_setText(context, debugStr, debugStr, true, false, timestamps, processTime);
+            //BookActivity4Utils.tv_result_setText(context, str1, str1, true, isAppend, timestamps, processTime);
+            //BookActivity4Utils.tv_result_setText(context, str2, str2, isEnd, isAppend, timestamps, processTime);
+        } else {
+            BookActivity4Utils.tv_result_setText(context, str, subStr, isEnd, isAppend,
+                    timestamps, processTime);
+        }
     }
 
 
@@ -207,7 +227,7 @@ public class BookActivity4SherpaOnnxDialog {
 //            }
 //            var3.setText((CharSequence)"");
         textView_setText("");
-        if (false) BookActivity4Utils.tv_result_setText(mAct, "", "", true, false, null, -1);
+        if (false) mySetText(mAct, "", "", true, false, null, -1);
 
         this.lastText = "";
         this.idx = 0;
@@ -271,6 +291,8 @@ public class BookActivity4SherpaOnnxDialog {
             wavFile = new File(dirPath, "audio_record.wav");
         }
         Log.e(TAG, "pcmFile == " + pcmFile.getAbsolutePath());
+        String oldText = null;
+        boolean touchOldText = false;
         try (FileOutputStream fos = new FileOutputStream(pcmFile)) {
             while (this.isRecording) {
                 AudioRecord var16 = this.audioRecord;
@@ -323,7 +345,40 @@ public class BookActivity4SherpaOnnxDialog {
                             }
 
                             String text = var17.getResult(stream).getText();
+                            if (touchOldText && oldText != null) {
+                                text = (oldText != null ? oldText : "") + text;
+                            }
                             float[] timestamps = var17.getResult(stream).getTimestamps();
+
+                            //---------------------
+                            //FIXME:added
+                            String text_2 = text.trim();
+//                            if (text_2.endsWith(".") || text_2.endsWith("?")) {
+//                                isEndpoint_ = true; //TODO: force call var17.reset(stream);
+//                            }
+//                            if (text_2.startsWith(".") || text_2.startsWith("?")) {
+//                                isEndpoint_ = true; //TODO: force call var17.reset(stream);
+//                            }
+                            if (text_2.contains(".")) {// || text_2.contains("?")) {
+                                isEndpoint_ = true; //TODO: force call var17.reset(stream);
+                                touchOldText = true;
+                                String oriText = text;
+                                text = oriText.substring(0, oriText.lastIndexOf(".") + 1);
+                                oldText = oriText.substring(oriText.lastIndexOf(".") + 1);
+                            } else if (text_2.contains("?")) {
+                                isEndpoint_ = true; //TODO: force call var17.reset(stream);
+                                touchOldText = true;
+                                String oriText = text;
+                                text = oriText.substring(0, oriText.lastIndexOf("?") + 1);
+                                oldText = oriText.substring(oriText.lastIndexOf("?") + 1);
+                            } else {
+                                if (isEndpoint_) {
+                                    oldText = "";
+                                    touchOldText = false;
+                                }
+                            }
+                            //---------------------
+
                             if (isEndpoint_) {
                                 var17 = this.recognizer;
                                 if (var17 == null) {
@@ -389,7 +444,7 @@ public class BookActivity4SherpaOnnxDialog {
                             }
                             final boolean isEndPointValue_ = isEndPointValue;
                             final float[] timestamps_ = timestamps;
-                            final String text_ = text;
+                            final String text_ = text;// + "【" + oldText + "】"; //【】 for debugging
                             this.mAct.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -402,7 +457,7 @@ public class BookActivity4SherpaOnnxDialog {
                                     textView_setText(((CharSequence) textToDisplay.element).toString());
                                     if (text_ != null && text_.length() > 0) {
                                         //see BookReaderItemsAdapter.java
-                                        BookActivity4Utils.tv_result_setText(mAct, text_, text_, isEndPointValue_, false, timestamps_, processTime);
+                                        mySetText(mAct, text_, text_, isEndPointValue_, false, timestamps_, processTime);
                                     }
                                 }
                             });

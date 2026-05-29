@@ -107,6 +107,50 @@ public class BookReaderItemsAdapter extends BaseAdapter implements SDRecordingsD
                                     }
                                 }
                             }
+                            if (speakerName.equals("?")) {
+                                final float deltaTime = 1.0f; //1 second
+                                for (int i = 0; i < m_segmentList.size(); ++i) {
+                                    OfflineSpeakerDiarizationSegment seg = m_segmentList.get(i);
+                                    if (seg != null) {
+//                                        if (timeSimple >= 0) {
+//                                            if (timeSimple < seg.getStart() &&
+//                                                    timeSimple > seg.getStart() - 3) {
+//                                                //speakerName = "Speaker_" + seg.getSpeaker();
+//                                                speakerName = "Speaker " + (seg.getSpeaker() + 1);
+//                                            }
+//                                        }
+                                        if (timeSimple - deltaTime >= 0) {
+                                            if (timeSimple - deltaTime >= seg.getStart() &&
+                                                    timeSimple - deltaTime < seg.getEnd()) {
+                                                //speakerName = "Speaker_" + seg.getSpeaker();
+                                                speakerName = "Speaker " + (seg.getSpeaker() + 1);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if (speakerName.equals("?")) {
+                                final float deltaTime = 1.5f; //1.5 second
+                                for (int i = 0; i < m_segmentList.size(); ++i) {
+                                    OfflineSpeakerDiarizationSegment seg = m_segmentList.get(i);
+                                    if (seg != null) {
+//                                        if (timeSimple >= 0) {
+//                                            if (timeSimple < seg.getStart() &&
+//                                                    timeSimple > seg.getStart() - 3) {
+//                                                //speakerName = "Speaker_" + seg.getSpeaker();
+//                                                speakerName = "Speaker " + (seg.getSpeaker() + 1);
+//                                            }
+//                                        }
+                                        if (timeSimple - deltaTime >= 0) {
+                                            if (timeSimple - deltaTime >= seg.getStart() &&
+                                                    timeSimple - deltaTime < seg.getEnd()) {
+                                                //speakerName = "Speaker_" + seg.getSpeaker();
+                                                speakerName = "Speaker " + (seg.getSpeaker() + 1);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     } catch (Throwable eee) {}
 

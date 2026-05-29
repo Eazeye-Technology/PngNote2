@@ -406,6 +406,16 @@ public static boolean onBackPressed(Activity context) {
             }
         }
     }
+    public static void editMeetingDiarization(Activity context, String number, String threshold) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            FragmentManager fragmentManager = act.getSupportFragmentManager();
+            Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+            if (currentFragment instanceof BookActivity4Fragment) {
+                ((BookActivity4Fragment) currentFragment).editMeetingDiarization(number, threshold);
+            }
+        }
+    }
 
     public static void editMeetingDate(Activity context, String newName, Long dateVal) {
         if (context instanceof BookListActivity) {
