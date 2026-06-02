@@ -505,32 +505,36 @@ InputDevice.SOURCE_STYLUS == false, event.getPressure() == 0.390625, event.getTo
             //skip
             BookActivity4Utils.setGlobalDisableFingerDraw(mAct, true);
         } else {
-            mTreeFingerDoubleTapDetector.onTouchEvent(event);
-            int count = event.getPointerCount();
-            if (count >= 2) {
+            if (mIsTyping) {
                 //skip
             } else {
-                mFlingGestureDetector.onTouchEvent(event);
-            }
-            boolean enableRotate = false;
-            if (BookActivity4Config.ENABLE_GESTURE_PINCH_ROTATE) {
-                if (getTool() instanceof SelectionTool) {
-                    LinkedList<DrawPath> selectedPaths = getSelectionTool().getSelectedPaths();
-                    if (selectedPaths != null && selectedPaths.size() > 0) {
-                        DrawPath path = selectedPaths.get(0);
-                        if (path != null &&
-                                (path.pointsType == DrawPath.POINTS_TYPE_STROKE &&
-                                        path.appearance.penType == DrawAppearance.PEN_TYPE_6 &&
-                                        BookActivity4Fragment.ENABLE_NO_DETECT_SHAPE_PEN)) {
-                            enableRotate = true;
+                mTreeFingerDoubleTapDetector.onTouchEvent(event);
+                int count = event.getPointerCount();
+                if (count >= 2) {
+                    //skip
+                } else {
+                    mFlingGestureDetector.onTouchEvent(event);
+                }
+                boolean enableRotate = false;
+                if (BookActivity4Config.ENABLE_GESTURE_PINCH_ROTATE) {
+                    if (getTool() instanceof SelectionTool) {
+                        LinkedList<DrawPath> selectedPaths = getSelectionTool().getSelectedPaths();
+                        if (selectedPaths != null && selectedPaths.size() > 0) {
+                            DrawPath path = selectedPaths.get(0);
+                            if (path != null &&
+                                    (path.pointsType == DrawPath.POINTS_TYPE_STROKE &&
+                                            path.appearance.penType == DrawAppearance.PEN_TYPE_6 &&
+                                            BookActivity4Fragment.ENABLE_NO_DETECT_SHAPE_PEN)) {
+                                enableRotate = true;
+                            }
                         }
                     }
                 }
-            }
-            if (enableRotate) {
-                mRotateDetector.onTouchEvent(event);
-            } else {
-                mZoomGestureDetector.onTouchEvent(event);
+                if (enableRotate) {
+                    mRotateDetector.onTouchEvent(event);
+                } else {
+                    mZoomGestureDetector.onTouchEvent(event);
+                }
             }
         }
 
@@ -883,6 +887,11 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
             getTool().init();
         }
         postInvalidate(); // Indicate view should be redrawn
+    }
+
+    private boolean mIsTyping = false;
+    public void setIsTyping(boolean isTyping) {
+        this.mIsTyping = isTyping;
     }
 
     /**

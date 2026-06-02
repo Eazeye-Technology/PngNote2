@@ -806,7 +806,7 @@ public class SelectionTool implements Tool {
         if (currentPath.points != null && currentPath.points.size() >= 2) {
             float x1 = currentPath.points.get(0).x;
             float x2 = currentPath.points.get(1).x;
-            if (x2 - x1 < 2) {
+            if (Math.abs(x2 - x1) < 2) {
                 if (canvas.mAct != null) {
                     //Toast.makeText(canvas.mAct, "single select", Toast.LENGTH_LONG).show();
                 }

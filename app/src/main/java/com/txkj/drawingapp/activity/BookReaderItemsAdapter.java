@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -77,6 +78,9 @@ public class BookReaderItemsAdapter extends BaseAdapter implements SDRecordingsD
             holder.title = (TextView) convertView.findViewById(R.id.title);
             holder.date = (TextView) convertView.findViewById(R.id.date);
             holder.llTop = (LinearLayout) convertView.findViewById(R.id.llTop);
+
+            holder.titleTime = (TextView) convertView.findViewById(R.id.titleTime);
+            holder.titleSpeaker = (Button) convertView.findViewById(R.id.titleSpeaker);
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
@@ -86,6 +90,8 @@ public class BookReaderItemsAdapter extends BaseAdapter implements SDRecordingsD
             if (item.getRecType() != null && item.getRecType().equals("text")) {
                 //normally run here
                 String content = item.getRecContent() != null ? item.getRecContent().trim() : "";
+                final boolean USE_ONE_LINE = false;
+
                 //content = ">>>content<<<";
                 if (m_segmentList != null && m_segmentList.size() > 0 &&
                         item.getName() != null && item.getName().startsWith("sherpa-")) {
@@ -176,10 +182,24 @@ public class BookReaderItemsAdapter extends BaseAdapter implements SDRecordingsD
                         timeStr = String.format("%02d:%02d.%01d", minutes, remainingSeconds, (int)(milliseconds / 100));
                     }
 
-                    content = "【" + speakerName + "】" + timeStr
-                            + "\n" + content;
+                    if (USE_ONE_LINE) {
+                        content = "【" + speakerName + "】" + timeStr
+                                + "\n" + content;
+                        holder.title.setText(content);
+                        holder.titleTime.setVisibility(View.GONE);
+                        holder.titleSpeaker.setVisibility(View.GONE);
+                    } else {
+                        holder.title.setText(content);
+                        holder.titleTime.setText(timeStr);
+                        holder.titleTime.setVisibility(View.VISIBLE);
+                        holder.titleSpeaker.setText(speakerName);
+                        holder.titleSpeaker.setVisibility(View.VISIBLE);
+                    }
+                } else {
+                    holder.title.setText(content);
+                    holder.titleTime.setVisibility(View.GONE);
+                    holder.titleSpeaker.setVisibility(View.GONE);
                 }
-                holder.title.setText(content);
             } else {
                 String name = item.getName() != null ? item.getName().trim() : "";
                 //name = ">>>name<<<";
@@ -209,6 +229,8 @@ public class BookReaderItemsAdapter extends BaseAdapter implements SDRecordingsD
     }
 
     private static final class ViewHolder {
+        Button titleSpeaker;
+        TextView titleTime;
         TextView title;
         TextView date;
         LinearLayout llTop;
