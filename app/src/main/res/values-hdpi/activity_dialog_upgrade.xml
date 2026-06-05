@@ -16,5 +16,6 @@
     <!--312 + 24 * 2-->
     <dimen name="activity_dialog_upgrade_min_width">720px</dimen>
     <dimen name="activity_dialog_upgrade_min_width2">700px</dimen>
+    <dimen name="activity_dialog_upgrade_min_width3">500px</dimen>
     <dimen name="activity_dialog_upgrade_padding">48px</dimen>
 </resources>

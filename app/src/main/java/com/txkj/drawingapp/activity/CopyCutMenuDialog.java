@@ -36,6 +36,7 @@ public class CopyCutMenuDialog {
                 R.id.popTextViewInsertImage,
                 R.id.popTextViewRenameFile,
                 R.id.popTextViewPageBackground,
+                R.id.popTextViewTranscriptLanguage,
                 R.id.popButtonShare,
                 R.id.popButtonPan,
                 R.id.popButtonShortcut,

@@ -4203,6 +4203,12 @@ public class BookActivity4Fragment extends Fragment {
                             if (dialog != null) {
                                 dialog.show();
                             }
+                        } else if (view.getId() == R.id.popTextViewTranscriptLanguage) {
+                            AlertDialog dialog = new BookActivity4TranscriptionLanguage(getActivity())
+                                    .create();
+                            if (dialog != null) {
+                                dialog.show();
+                            }
                         }
                     }
                 }
