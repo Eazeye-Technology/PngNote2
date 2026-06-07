@@ -1,9 +1,13 @@
 package com.example.sparkchaindemo.utils;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.util.Log;
+
+import androidx.annotation.RequiresPermission;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,6 +34,7 @@ public class AudioRecorderManager {
         this(16000, AudioFormat.ENCODING_PCM_16BIT, AudioFormat.CHANNEL_IN_MONO);
     }
 
+    @SuppressLint("MissingPermission")
     public AudioRecorderManager(int sampleRateInHz, int audioFormat, int channels) {
         this.sampleRateInHz = sampleRateInHz;
         this.audioFormat = audioFormat;
@@ -53,9 +58,6 @@ public class AudioRecorderManager {
         }
         return mInstance;
     }
-    /**
-     * 销毁线程方法
-     */
     public void destroyThread() {
         synchronized (this){
             try {
@@ -64,7 +66,7 @@ public class AudioRecorderManager {
                     try {
 //                        Thread.sleep(500);
                         recordThread.interrupt();
-                        recordThread.join(); // 确保线程已终止
+                        recordThread.join();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }finally {
@@ -80,22 +82,16 @@ public class AudioRecorderManager {
         }
     }
 
-    /**
-     * 启动录音线程
-     */
     private void startThread() {
         destroyThread();
         isStart.set(true);
-        Log.i(TAG,"recordThread："+(recordThread == null));
+        Log.i(TAG,"recordThread:"+(recordThread == null));
         if (recordThread == null) {
             recordThread = new Thread(recordRunnable);
             recordThread.start();
         }
     }
 
-    /**
-     * 录音线程
-     */
     Runnable recordRunnable = new Runnable() {
         @Override
         public void run() {
@@ -119,36 +115,27 @@ public class AudioRecorderManager {
                                     continue;
                                 }
                                 if (bytesRecord != 0 && bytesRecord != -1 && isStart.get()) {
-                                    //在此可以对录制音频的数据进行二次处理 比如变声，压缩，降噪，增益等操作
-                                    // 使用RMS方法计算音量
                                     double sumSquares = 0.0;
-                                    int sampleCount = bytesRecord / 2;  // 每个样本16位(2字节)
+                                    int sampleCount = bytesRecord / 2;
 
                                     for (int i = 0; i < bytesRecord; i += 2) {
-                                        // 将两个字节转换为一个16位短整型
                                         short sample = (short) ((tempBuffer[i] & 0xFF) |
                                                 ((tempBuffer[i + 1] & 0xFF) << 8));
-                                        // 计算平方和
                                         sumSquares += (double)sample * sample;
                                     }
 
-                                    // 计算RMS (均方根)
                                     double rms = Math.sqrt(sumSquares / sampleCount);
 
-                                    // 转换为分贝值 (防止除以0)
-                                    double db = -120.0; // 默认极低值
-                                    if (rms > 1e-10) {  // 避免log(0)
+                                    double db = -120.0;
+                                    if (rms > 1e-10) {
                                         db = 20 * Math.log10(rms / 32767.0);
                                     }
 
-                                    // 映射到0-9音量等级
                                     int volume = 0;
                                     if (db > -60) {
-                                        // 更符合人耳感知的映射：-60dB(0级)到-20dB(9级)
                                         volume = (int) Math.min(9, Math.max(0, (db + 60) * 9 / 40.0));
                                     }
                                     callback.onAudioVolume(db,volume);
-                                    //我们这里直接将pcm音频原数据写入文件 这里可以直接发送至服务器 对方采用AudioTrack进行播放原数据
                                     callback.onAudioData(tempBuffer,bytesRecord);
                                 } else {
                                     break;
@@ -159,7 +146,7 @@ public class AudioRecorderManager {
                 }
 
             } catch (Exception e) {
-                Log.w(TAG,"录音异常:"+e.toString());
+                Log.w(TAG,"Recording exception:"+e.toString());
                 e.printStackTrace();
             }finally {
                 if (mRecorder != null) {
@@ -173,9 +160,6 @@ public class AudioRecorderManager {
     };
 
 
-    /**
-     * 启动录音
-     */
     public void startRecord() {
         try {
             startThread();
@@ -184,9 +168,6 @@ public class AudioRecorderManager {
         }
     }
 
-    /**
-     * 停止录音
-     */
     public void stopRecord() {
         destroyThread();
         synchronized (this){
@@ -209,7 +190,7 @@ public class AudioRecorderManager {
             } catch (Exception e) {
                 e.printStackTrace();
             }finally {
-                mInstance = null; // 确保单例实例被释放
+                mInstance = null;
             }
         }
     }
@@ -221,10 +202,10 @@ public class AudioRecorderManager {
             if (!file.exists()) {
                 file.createNewFile();
             }
-            FileOutputStream out = new FileOutputStream(path, append);//指定写到哪个路径中
+            FileOutputStream out = new FileOutputStream(path, append);
             FileChannel fileChannel = out.getChannel();
-            fileChannel.write(ByteBuffer.wrap(bytes)); //将字节流写入文件中
-            fileChannel.force(true);//强制刷新
+            fileChannel.write(ByteBuffer.wrap(bytes));
+            fileChannel.force(true);
             fileChannel.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();

@@ -259,7 +259,6 @@ public class CanvasBoox extends View {
 
     private String backText;
     public void setBackText(String backText) {
-        //设置背景图案
         this.backText = backText;
     }
 
@@ -279,7 +278,6 @@ public class CanvasBoox extends View {
         this.bmpCanvas = new Canvas(bmp);
     }
 
-    //sampleSize=1原样， sampleSize=3 or 4，列表和表格中缩略图的下采样，所以间距也要除以这个数
     public static void initBackText(String backText, Bitmap bmp, int sampleSize) {
         if (bmp != null && backText != null) {
             if (backText.equals(FileMeta.DOTTED)) {
@@ -552,7 +550,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
                 }
             }
         }
-        if (isPen == 0 && this.tempBitmap != null) { //橡皮擦而且有图片缓存
+        if (isPen == 0 && this.tempBitmap != null) {
             this.tempBitmap.eraseColor(0x00000000);
             Canvas canvas_ = new Canvas(this.tempBitmap);
             canvas_.drawBitmap(this.bitmap, 0, 0, this.bmpPaint);

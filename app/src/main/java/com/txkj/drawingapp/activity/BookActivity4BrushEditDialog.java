@@ -198,7 +198,7 @@ public class BookActivity4BrushEditDialog {
 
     public static int dp2px(Context context, float dpValue) {
         final float scale = context.getResources().getDisplayMetrics().density;
-        return (int) (dpValue * scale + 0.5f); // 0.5f用于四舍五入
+        return (int) (dpValue * scale + 0.5f);
     }
 
     private void setupTitle(AlertDialog dialog) {

@@ -75,7 +75,7 @@ public class EraserTool implements Tool {
                 // Draws line between last point and this point
                 currentPath.addPoint(canvas.mapPoint(event.getX(), event.getY(), event.getPressure()));
                 if (USE_SIMPLE_IMPL) {
-                    eraseCurrentPath(); //立刻删除
+                    eraseCurrentPath(); //delete immediately
                 }
                 break;
 

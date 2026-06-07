@@ -188,7 +188,6 @@ public class FastFile {
                         Log.e(TAG, "<<<< removeBookFile failed! " + this.filePath);
                     }
                 }
-                //FIXME:还需要遍历所有文件，移动其他文件到前面
                 if (BookActivity4Config.USE_VECJ) {
                     //no need to reload
                 } else {
@@ -647,7 +646,7 @@ public class FastFile {
                 if (treeDocUri == null) {
                     throw new NullPointerException("Failed to build documentUri from " + treeUri);
                 } else {
-                    ContentResolver resolver = context.getContentResolver(); //FIXME：check null
+                    ContentResolver resolver = context.getContentResolver(); //FIXME:check null
                     FastFile result = fromDocUri(resolver, treeDocUri, null);
                     if (result != null) {
                         return result;

@@ -8,15 +8,15 @@
 <!--    <color name="black">#FF000000</color>-->
 <!--    <color name="white">#FFFFFFFF</color>-->
 
-    <color name="toolbar">#FDFDFD</color> <!--#FFFFFF，自制动作栏颜色-->
+    <color name="toolbar">#FDFDFD</color> <!--#FFFFFF actionbar color-->
     <color name="button_normal">#00000000</color>
     <color name="button_selected">#FFe6e6e6</color>
     <color name="button_outline">#FF000000</color>
     <color name="button_pressed">#FF2572AC</color>
 
     <!--HomePage-Design-Using-CardView-master-->
-    <color name="colorPrimary">#f6f3f2</color><!--#008577,#000000,状态栏-->
-    <color name="colorPrimaryDark">#f6f3f2</color><!--#00574B,#000000,状态栏-->
+    <color name="colorPrimary">#f6f3f2</color><!--#008577,#000000,status bar-->
+    <color name="colorPrimaryDark">#f6f3f2</color><!--#00574B,#000000,status bar-->
     <color name="colorAccent">#000000</color><!--#D81B60,#D81B60-->
 
 

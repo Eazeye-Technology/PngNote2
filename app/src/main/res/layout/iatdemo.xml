@@ -18,7 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="讯飞听写示例"
+            android:text="iflytek IAT listen sample"
             android:textSize="30sp" />
 
         <ImageButton
@@ -64,7 +64,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="开始"
+            android:text="Start"
             android:textSize="20sp" />
 
         <Button
@@ -72,7 +72,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="停止"
+            android:text="Stop"
             android:textSize="20sp" />
 
         <Button
@@ -80,7 +80,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="取消"
+            android:text="Cancel"
             android:textSize="20sp" />
     </LinearLayout>
 
@@ -93,7 +93,7 @@
         android:clickable="true"
         android:focusable="true"
         android:gravity="center_horizontal"
-        android:text="点击设置小语种,当前语种：中文(普通话)"
+        android:text="Click to set language, current:Chinese(Mandarin)"
         android:textSize="20sp" />
 
     <Button
@@ -101,14 +101,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:text="音频流识别"
+        android:text="Audio stream recognition"
         android:textSize="20sp" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:text="上传词表，可以使云端识别更加准确，这里上传的内容对语义理解同样有效。"
+        android:text="Upload user words"
         android:textSize="@dimen/txt_size" />
 
     <Button
@@ -117,7 +117,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="4dp"
-        android:text="上传词表"
+        android:text="Upload user words"
         android:textSize="17sp" />
 
 </LinearLayout>

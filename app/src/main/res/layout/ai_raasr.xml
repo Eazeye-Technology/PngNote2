@@ -32,7 +32,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="10dp"
-                android:text="选择音频"
+                android:text="Choose audio"
                 android:textColor="#fff"
                 />
             <TextView
@@ -43,7 +43,7 @@
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="10dp"
                 android:gravity="left|center"
-                android:text="当前音频路径为:/sdcard/iflytek/asr/cn_test.pcm"
+                android:text="Current audio file path:/sdcard/iflytek/asr/cn_test.pcm"
                 />
         </LinearLayout>
         <Button
@@ -54,7 +54,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="10dp"
-            android:text="上传音频"
+            android:text="Upload audio"
             android:textColor="#fff"
             />
 
@@ -67,7 +67,7 @@
             android:layout_marginRight="10dp"
             android:layout_marginBottom="10dp"
             android:visibility="gone"
-            android:text="查询结果"/>
+            android:text="Query result"/>
 
         <Button
             android:id="@+id/ai_raasr_stop"
@@ -77,7 +77,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginBottom="10dp"
-            android:text="停止上传"
+            android:text="Stop upload"
             android:textColor="#fff"
             />
 

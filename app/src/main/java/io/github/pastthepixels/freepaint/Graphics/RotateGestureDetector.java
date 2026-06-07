@@ -2,7 +2,6 @@ package io.github.pastthepixels.freepaint.Graphics;
 
 import android.view.MotionEvent;
 
-//安卓java代码怎样判断两指旋转手势？
 public class RotateGestureDetector {
     public interface OnRotateGestureListener {
         boolean onRotate(float deltaAngle, float totalAngle, float focusX, float focusY);
@@ -34,7 +33,6 @@ public class RotateGestureDetector {
                 if (isRotating && pointerCount == 2) {
                     float curAngle = getAngle(event);
                     float delta = curAngle - startAngle;
-                    // 处理角度跳变
                     if (delta > 180) delta -= 360;
                     if (delta < -180) delta += 360;
 
@@ -63,10 +61,3 @@ public class RotateGestureDetector {
     }
 }
 
-/*
-RotateGestureDetector detector = new RotateGestureDetector((delta, total, fx, fy) -> {
-    // 更新UI
-    return true;
-});
-// 在 View 的 onTouchEvent 中调用 detector.onTouchEvent(event);
- */

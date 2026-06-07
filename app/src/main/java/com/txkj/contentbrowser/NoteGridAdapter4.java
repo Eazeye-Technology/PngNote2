@@ -148,24 +148,6 @@ public class NoteGridAdapter4 extends RecyclerView.Adapter<NoteGridAdapter4.Grid
                 }
             }
         }
-        // 设置固定高度
-//        if (gridHeight != 0) {
-//            ViewGroup.LayoutParams params = convertView.getLayoutParams();
-//            if (params != null) {
-//                params.height = gridHeight; //100; // 假设你想要的固定高度是100dp
-//                convertView.setLayoutParams(params);
-//            }
-//        }
-//        convertView.findViewById(R.id.llGridTop).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                //Toast.makeText(context, "note grid click", Toast.LENGTH_LONG).show();
-//                if (mListener != null) {
-//                    mListener.onItemClick(null, view, position, (long)position);
-//                }
-//            }
-//        });
-//        convertView.findViewById(R.id.llGridTop).requestFocus();
     }
 
     @Override

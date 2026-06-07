@@ -96,7 +96,7 @@ public class DictResultActivity extends Activity implements OnItemClickListener,
             if (item != null) {
             	holder.title.setText(item.getContent());
         		holder.date.setText(getTime(item.getTimeCreated()));
-        		holder.lang.setText("转换语言：" + item.getLangString());
+        		holder.lang.setText("Language:" + item.getLangString());
         		//lengthView.setText(getLengthString(item.getLength()));
         	} else {
             	holder.title.setText("");
@@ -174,15 +174,15 @@ public class DictResultActivity extends Activity implements OnItemClickListener,
 			intent = new Intent();
 			intent.setAction(Intent.ACTION_SEND);
 			intent.setType("text/plain");
-			intent.putExtra(Intent.EXTRA_SUBJECT, "语音转换结果：" + ReaderItemsAdapter.getTime(item.getTimeCreated()));
+			intent.putExtra(Intent.EXTRA_SUBJECT, "Transcription result:" + ReaderItemsAdapter.getTime(item.getTimeCreated()));
 			intent.putExtra(Intent.EXTRA_TEXT, item.getContent());
             try {
-            	//startActivity(Intent.createChooser(intent, "共享方式"));
+            	//startActivity(Intent.createChooser(intent, "Share"));
             	startActivity(intent);
             } catch (Throwable e) {
 				e.printStackTrace();
 				Toast.makeText(this, 
-					"共享方式出错", Toast.LENGTH_SHORT)
+					"Share error", Toast.LENGTH_SHORT)
 					.show();
 			}
 		}
@@ -193,9 +193,9 @@ public class DictResultActivity extends Activity implements OnItemClickListener,
 	public boolean onItemLongClick(AdapterView<?> av, View v, int position, long id) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		final DictationItem item = (DictationItem)adapter.getItem(position);
-		builder.setTitle("操作")
+		builder.setTitle("Operation")
 		.setItems(new String[] {
-			"删除"
+			"Delete"
 		}, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
 				if (item != null) {

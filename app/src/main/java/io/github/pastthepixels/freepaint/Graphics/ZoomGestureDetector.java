@@ -36,8 +36,6 @@ public class ZoomGestureDetector extends ScaleGestureDetector {
 //                updatePanOffset();
 //                canvas.invalidate();
 
-                // 两指拖动时，detector.getFocusX/Y() 可得到中心点
-                // detector.getCurrentSpanX/Y() 可得到水平/垂直方向上的距离变化
                 //FIXME:dont' use getCurrentSpanX, use getFocusX instead
 //                float deltaX = detector.getCurrentSpanX() - detector.getPreviousSpanX();
 //                float deltaY = detector.getCurrentSpanY() - detector.getPreviousSpanY();

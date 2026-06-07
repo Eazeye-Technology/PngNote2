@@ -11,7 +11,7 @@
         android:layout_marginTop="10dp"
         android:textColor="#333333"
         android:textSize="16dp"
-        android:text="信息显示："/>
+        android:text="Infomation show:"/>
 
     <TextView
         android:id="@+id/ai_asr_result"
@@ -40,7 +40,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:text="选择语种："
+                android:text="Choose language:"
                 android:textColor="#333333"
                 android:textSize="15dp" />
             <Spinner
@@ -55,21 +55,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/ai_asr_file_start_btn"
-        android:text="麦克风识别"
+        android:text="Microphone recognition"
         android:textColor="#ffffff" />
     <Button
         android:id="@+id/ai_asr_file_start_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/ai_asr_stop_btn"
-        android:text="文件识别"
+        android:text="File Recognition"
         android:textColor="#ffffff" />
     <Button
         android:id="@+id/ai_asr_stop_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:text="停止识别"
+        android:text="Stop Recognition"
         android:layout_marginBottom="10dp"
         android:textColor="#ffffff" />
     </RelativeLayout>

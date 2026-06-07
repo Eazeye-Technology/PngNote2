@@ -177,23 +177,23 @@ public class BookActivity4FragmentBottom1 {
         for (int i = 0; i < iconsBottomMenu1.length; ++i) {
             View viewIcon = rootView.findViewById(iconsBottomMenu1[i]);
             if (viewIcon != null) {
-                ((CardView) viewIcon).setCardBackgroundColor(0xFFF1EDEC); //白色背景
+                ((CardView) viewIcon).setCardBackgroundColor(0xFFF1EDEC); //white background
                 //((CardView) viewIcon).setCardElevation(0.0f);
 //                if (viewIcon.findViewWithTag("binding_1") != null) {
 //                    ((AppCompatImageView) viewIcon.findViewWithTag("binding_1")).setBackgroundResource(
 //                            getActiveIconIdSubmenu1(iconsSubmenu1[i], false));
 //                }
                 if (viewIcon.findViewWithTag("binding_1") != null) {
-                    ((TextView) viewIcon.findViewWithTag("binding_1")).setTextColor(0xFF000000); //黑色字
+                    ((TextView) viewIcon.findViewWithTag("binding_1")).setTextColor(0xFF000000); //black font
                 }
             }
         }
         if (view != null) {
-            ((CardView) view).setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            ((CardView) view).setCardBackgroundColor(0xFF1C1B1B); //black background
             //((CardView) view).setCardElevation(5.0f);
 
             if (view.findViewWithTag("binding_1") != null) {
-                ((TextView) view.findViewWithTag("binding_1")).setTextColor(0xFFFFFFFF); //白色字
+                ((TextView) view.findViewWithTag("binding_1")).setTextColor(0xFFFFFFFF); //white font
             }
         }
         int color = Color.BLACK;
@@ -224,23 +224,23 @@ public class BookActivity4FragmentBottom1 {
         for (int i = 0; i < iconsBottomMenu2.length; ++i) {
             View viewIcon = rootView.findViewById(iconsBottomMenu2[i]);
             if (viewIcon != null) {
-                ((CardView) viewIcon).setCardBackgroundColor(0xFFF1EDEC); //白色背景
+                ((CardView) viewIcon).setCardBackgroundColor(0xFFF1EDEC); //white background
                 //((CardView) viewIcon).setCardElevation(0.0f);
 //                if (viewIcon.findViewWithTag("binding_1") != null) {
 //                    ((AppCompatImageView) viewIcon.findViewWithTag("binding_1")).setBackgroundResource(
 //                            getActiveIconIdSubmenu1(iconsSubmenu1[i], false));
 //                }
                 if (viewIcon.findViewWithTag("binding_1") != null) {
-                    ((TextView) viewIcon.findViewWithTag("binding_1")).setTextColor(0xFF000000); //黑色字
+                    ((TextView) viewIcon.findViewWithTag("binding_1")).setTextColor(0xFF000000); //black font
                 }
             }
         }
         if (view != null) {
-            ((CardView) view).setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            ((CardView) view).setCardBackgroundColor(0xFF1C1B1B); //black background
             //((CardView) view).setCardElevation(5.0f);
 
             if (view.findViewWithTag("binding_1") != null) {
-                ((TextView) view.findViewWithTag("binding_1")).setTextColor(0xFFFFFFFF); //白色字
+                ((TextView) view.findViewWithTag("binding_1")).setTextColor(0xFFFFFFFF); //white font
             }
         }
         int color = Color.BLACK;
@@ -428,21 +428,21 @@ public class BookActivity4FragmentBottom1 {
         CardView viewCard_underline = (CardView) rootView.findViewById(R.id.btnUnderline);
         ImageView icon_underline = (ImageView) viewCard_underline.findViewWithTag("icon");
         if (this.mFragment.isBold) {
-            viewCard_bold.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            viewCard_bold.setCardBackgroundColor(0xFF1C1B1B); //black background
             icon_bold.setImageResource(R.drawable.ic_my_para_bold_011_w);
         } else {
             viewCard_bold.setCardBackgroundColor(0x00585858);
             icon_bold.setImageResource(R.drawable.ic_my_para_bold_011);
         }
         if (this.mFragment.isItalics) {
-            viewCard_italics.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            viewCard_italics.setCardBackgroundColor(0xFF1C1B1B); //black background
             icon_italics.setImageResource(R.drawable.ic_my_para_italics_012_w);
         } else {
             viewCard_italics.setCardBackgroundColor(0x00585858);
             icon_italics.setImageResource(R.drawable.ic_my_para_italics_012);
         }
         if (this.mFragment.isUnderline) {
-            viewCard_underline.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            viewCard_underline.setCardBackgroundColor(0xFF1C1B1B); //black background
             icon_underline.setImageResource(R.drawable.ic_my_para_underline_013_w);
         } else {
             viewCard_underline.setCardBackgroundColor(0x00585858);
@@ -457,28 +457,28 @@ public class BookActivity4FragmentBottom1 {
         CardView viewCard_justify = (CardView) rootView.findViewById(R.id.btnAlignJustify);
         ImageView icon_justify = (ImageView) viewCard_justify.findViewWithTag("icon");
         if (this.mFragment.alignType == BookActivity4Fragment.ALIGN_TYPE_LEFT) {
-            viewCard_alignLeft.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            viewCard_alignLeft.setCardBackgroundColor(0xFF1C1B1B); //black background
             icon_alignLeft.setImageResource(R.drawable.ic_my_para_left_015_w);
         } else {
             viewCard_alignLeft.setCardBackgroundColor(0x00585858);
             icon_alignLeft.setImageResource(R.drawable.ic_my_para_left_015);
         }
         if (this.mFragment.alignType == BookActivity4Fragment.ALIGN_TYPE_CENTER) {
-            viewCard_alignCenter.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            viewCard_alignCenter.setCardBackgroundColor(0xFF1C1B1B); //black background
             icon_alignCenter.setImageResource(R.drawable.ic_my_para_center_017_w);
         } else {
             viewCard_alignCenter.setCardBackgroundColor(0x00585858);
             icon_alignCenter.setImageResource(R.drawable.ic_my_para_center_017);
         }
         if (this.mFragment.alignType == BookActivity4Fragment.ALIGN_TYPE_RIGHT) {
-            viewCard_alignRight.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            viewCard_alignRight.setCardBackgroundColor(0xFF1C1B1B); //black background
             icon_alignRight.setImageResource(R.drawable.ic_my_para_right_016_w);
         } else {
             viewCard_alignRight.setCardBackgroundColor(0x00585858);
             icon_alignRight.setImageResource(R.drawable.ic_my_para_right_016);
         }
         if (this.mFragment.alignType == BookActivity4Fragment.ALIGN_TYPE_JUSTIFY) {
-            viewCard_justify.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            viewCard_justify.setCardBackgroundColor(0xFF1C1B1B); //black background
             icon_justify.setImageResource(R.drawable.ic_my_para_justify_018_w);
         } else {
             viewCard_justify.setCardBackgroundColor(0x00585858);
@@ -489,14 +489,14 @@ public class BookActivity4FragmentBottom1 {
         CardView viewCard_number = (CardView) rootView.findViewById(R.id.btnNumber);
         ImageView icon_number = (ImageView) viewCard_number.findViewWithTag("icon");
         if (this.mFragment.listType == BookActivity4Fragment.LIST_TYPE_BULLET) {
-            viewCard_bullet.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            viewCard_bullet.setCardBackgroundColor(0xFF1C1B1B); //black background
             icon_bullet.setImageResource(R.drawable.ic_my_para_bullet_019_w);
         } else {
             viewCard_bullet.setCardBackgroundColor(0x00585858);
             icon_bullet.setImageResource(R.drawable.ic_my_para_bullet_019);
         }
         if (this.mFragment.listType == BookActivity4Fragment.LIST_TYPE_NUMBER) {
-            viewCard_number.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            viewCard_number.setCardBackgroundColor(0xFF1C1B1B); //black background
             icon_number.setImageResource(R.drawable.ic_my_para_number_020_w);
         } else {
             viewCard_number.setCardBackgroundColor(0x00585858);
@@ -509,21 +509,21 @@ public class BookActivity4FragmentBottom1 {
         CardView viewCard_sans = (CardView) rootView.findViewById(R.id.btnSans);
         ImageView icon_sans = (ImageView) viewCard_sans.findViewWithTag("icon");
         if (this.mFragment.styleType == BookActivity4Fragment.STYLE_TYPE_HAND) {
-            viewCard_hand.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            viewCard_hand.setCardBackgroundColor(0xFF1C1B1B); //black background
             icon_hand.setImageResource(R.drawable.ic_my_style_hand_005_w);
         } else {
             viewCard_hand.setCardBackgroundColor(0x00585858);
             icon_hand.setImageResource(R.drawable.ic_my_style_hand_005);
         }
         if (this.mFragment.styleType == BookActivity4Fragment.STYLE_TYPE_SERIF) {
-            viewCard_serif.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            viewCard_serif.setCardBackgroundColor(0xFF1C1B1B); //black background
             icon_serif.setImageResource(R.drawable.ic_my_style_serif_006_w);
         } else {
             viewCard_serif.setCardBackgroundColor(0x00585858);
             icon_serif.setImageResource(R.drawable.ic_my_style_serif_006);
         }
         if (this.mFragment.styleType == BookActivity4Fragment.STYLE_TYPE_SANS) {
-            viewCard_sans.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            viewCard_sans.setCardBackgroundColor(0xFF1C1B1B); //black background
             icon_sans.setImageResource(R.drawable.ic_my_style_sans_007_w);
         } else {
             viewCard_sans.setCardBackgroundColor(0x00585858);
@@ -538,28 +538,28 @@ public class BookActivity4FragmentBottom1 {
         CardView viewCard_h3 = (CardView) rootView.findViewById(R.id.btnH3);
         ImageView icon_h3 = (ImageView) viewCard_h3.findViewWithTag("icon");
         if (this.mFragment.sizeType == BookActivity4Fragment.SIZE_TYPE_TITLE) {
-            viewCard_title.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            viewCard_title.setCardBackgroundColor(0xFF1C1B1B); //black background
             icon_title.setImageResource(R.drawable.ic_my_style_title_001_w);
         } else {
             viewCard_title.setCardBackgroundColor(0x00585858);
             icon_title.setImageResource(R.drawable.ic_my_style_title_001);
         }
         if (this.mFragment.sizeType == BookActivity4Fragment.SIZE_TYPE_H1) {
-            viewCard_h1.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            viewCard_h1.setCardBackgroundColor(0xFF1C1B1B); //black background
             icon_h1.setImageResource(R.drawable.ic_my_style_h1_002_w);
         } else {
             viewCard_h1.setCardBackgroundColor(0x00585858);
             icon_h1.setImageResource(R.drawable.ic_my_style_h1_002);
         }
         if (this.mFragment.sizeType == BookActivity4Fragment.SIZE_TYPE_H2) {
-            viewCard_h2.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            viewCard_h2.setCardBackgroundColor(0xFF1C1B1B); //black background
             icon_h2.setImageResource(R.drawable.ic_my_style_h2_003_w);
         } else {
             viewCard_h2.setCardBackgroundColor(0x00585858);
             icon_h2.setImageResource(R.drawable.ic_my_style_h2_003);
         }
         if (this.mFragment.sizeType == BookActivity4Fragment.SIZE_TYPE_H3) {
-            viewCard_h3.setCardBackgroundColor(0xFF1C1B1B); //黑色背景选中
+            viewCard_h3.setCardBackgroundColor(0xFF1C1B1B); //black background
             icon_h3.setImageResource(R.drawable.ic_my_style_h3_004_w);
         } else {
             viewCard_h3.setCardBackgroundColor(0x00585858);

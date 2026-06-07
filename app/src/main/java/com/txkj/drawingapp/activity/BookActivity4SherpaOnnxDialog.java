@@ -160,7 +160,7 @@ public class BookActivity4SherpaOnnxDialog {
                 public void hasPermission(List<String> granted, boolean all) {
                     Log.d(TAG,"Permission success:"+all);
                     for(int i=0;i<granted.size();i++){
-                        Log.d(TAG,"Granted："+granted.get(i));
+                        Log.d(TAG,"Granted:"+granted.get(i));
                     }
                     if(all) {
                         Log.i(TAG, "Start to initialize model");
@@ -301,10 +301,10 @@ public class BookActivity4SherpaOnnxDialog {
                     {
                         byte[] bytes = new byte[buffer.length * 2];
                         ByteBuffer.wrap(bytes)
-                                .order(ByteOrder.LITTLE_ENDIAN)//.BIG_ENDIAN)   // 可改 LITTLE_ENDIAN
+                                .order(ByteOrder.LITTLE_ENDIAN)//.BIG_ENDIAN)
                                 .asShortBuffer()
                                 .put(buffer);
-                        fos.write(bytes, 0, ret * 2); // 将 PCM 数据写入文件
+                        fos.write(bytes, 0, ret * 2);
 
 
                         processBytes += ret * 2;
@@ -444,7 +444,7 @@ public class BookActivity4SherpaOnnxDialog {
                             }
                             final boolean isEndPointValue_ = isEndPointValue;
                             final float[] timestamps_ = timestamps;
-                            final String text_ = text;// + "【" + oldText + "】"; //【】 for debugging
+                            final String text_ = text;// + "[" + oldText + "]"; //[] for debugging
                             this.mAct.runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {

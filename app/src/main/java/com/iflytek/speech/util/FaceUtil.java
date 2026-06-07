@@ -46,21 +46,15 @@ public class FaceUtil {
         return imageUri;
     }
 
-    /***
-     * 裁剪图片
-     * @param activity Activity
-     * @param uri 图片的Uri
-     */
     public static void cropPicture(Activity activity, Uri uri) {
         Intent innerIntent = new Intent("com.android.camera.action.CROP");
         innerIntent.setDataAndType(uri, "image/*");
-        innerIntent.putExtra("crop", "true");// 才能出剪辑的小方框，不然没有剪辑功能，只能选取图片
-        innerIntent.putExtra("aspectX", 1); // 放大缩小比例的X
-        innerIntent.putExtra("aspectY", 1);// 放大缩小比例的X   这里的比例为：   1:1
-        innerIntent.putExtra("outputX", 320);  //这个是限制输出图片大小
+        innerIntent.putExtra("crop", "true");
+        innerIntent.putExtra("aspectX", 1);
+        innerIntent.putExtra("aspectY", 1);
+        innerIntent.putExtra("outputX", 320);
         innerIntent.putExtra("outputY", 320);
         innerIntent.putExtra("return-data", false);
-        // 切图大小不足输出，无黑框
         innerIntent.putExtra("scale", true);
         innerIntent.putExtra("scaleUpIfNeeded", true);
         File imageFile = new File(getImagePath(activity.getApplicationContext()));
@@ -81,11 +75,6 @@ public class FaceUtil {
         activity.startActivityForResult(innerIntent, REQUEST_CROP_IMAGE);
     }
 
-    /**
-     * 保存裁剪的图片的路径
-     *
-     * @return
-     */
     public static String getImagePath(Context context) {
         String path = context.getExternalFilesDir("msc").getAbsolutePath();
         if (!path.endsWith("/")) {
@@ -99,12 +88,6 @@ public class FaceUtil {
         return path;
     }
 
-    /**
-     * 读取图片属性：旋转的角度
-     *
-     * @param path 图片绝对路径
-     * @return degree 旋转角度
-     */
     public static int readPictureDegree(String path) {
         int degree = 0;
         try {
@@ -129,33 +112,14 @@ public class FaceUtil {
         return degree;
     }
 
-    /**
-     * 旋转图片
-     *
-     * @param angle  旋转角度
-     * @param bitmap 原图
-     * @return bitmap 旋转后的图片
-     */
     public static Bitmap rotateImage(int angle, Bitmap bitmap) {
-        // 图片旋转矩阵
         Matrix matrix = new Matrix();
         matrix.postRotate(angle);
-        // 得到旋转后的图片
         Bitmap resizedBitmap = Bitmap.createBitmap(bitmap, 0, 0,
                 bitmap.getWidth(), bitmap.getHeight(), matrix, true);
         return resizedBitmap;
     }
 
-    /**
-     * 在指定画布上将人脸框出来
-     *
-     * @param canvas      给定的画布
-     * @param face        需要绘制的人脸信息
-     * @param width       原图宽
-     * @param height      原图高
-     * @param frontCamera 是否为前置摄像头，如为前置摄像头需左右对称
-     * @param DrawOriRect 可绘制原始框，也可以只画四个角
-     */
     static public void drawFaceRect(Canvas canvas, FaceRect face, int width, int height, boolean frontCamera, boolean DrawOriRect) {
         if (canvas == null) {
             return;
@@ -204,14 +168,6 @@ public class FaceUtil {
         }
     }
 
-    /**
-     * 将矩形随原图顺时针旋转90度
-     *
-     * @param r      待旋转的矩形
-     * @param width  输入矩形对应的原图宽
-     * @param height 输入矩形对应的原图高
-     * @return 旋转后的矩形
-     */
     static public Rect RotateDeg90(Rect r, int width, int height) {
         int left = r.left;
         r.left = height - r.bottom;
@@ -221,14 +177,6 @@ public class FaceUtil {
         return r;
     }
 
-    /**
-     * 将点随原图顺时针旋转90度
-     *
-     * @param p      待旋转的点
-     * @param width  输入点对应的原图宽
-     * @param height 输入点对应的原图宽
-     * @return 旋转后的点
-     */
     static public Point RotateDeg90(Point p, int width, int height) {
         int x = p.x;
         p.x = height - p.y;
@@ -256,9 +204,6 @@ public class FaceUtil {
         }
     }
 
-    /**
-     * 保存Bitmap至本地
-     */
     public static void saveBitmapToFile(Context context, Bitmap bmp) {
         String file_path = getImagePath(context);
         File file = new File(file_path);

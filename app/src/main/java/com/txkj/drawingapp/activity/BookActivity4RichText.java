@@ -27,12 +27,12 @@ p=16px
 h5=13.28px
 h6=12px
 
-h1: 大约是默认字体大小的两倍 (2em)。32px
-h2: 大约是默认字体大小的 1.5 倍 (1.5em)。28px
-h3: 大约是默认字体大小的 1.17 倍 (1.17em)。24px
-h4: 与默认字体大小相同 (1em)。
-h5: 略小于默认字体大小 (0.83em)。
-h6: 更小 (0.67em)。
+h1:32px
+h2:28px
+h3:24px
+h4:1em
+h5:0.83em
+h6:0.67em
      */
 
     private final static boolean USE_RELATIVE_SIZE_SPAN = true;

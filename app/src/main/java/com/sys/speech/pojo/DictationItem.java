@@ -20,11 +20,11 @@ public class DictationItem implements Parcelable {
 			lang = "";
 		}
 		if (lang.equals(RecognizeDialog.LANG_CHINESE)) {
-			result = "普通话";
+			result = "Mandarin";
 		} else if (lang.equals(RecognizeDialog.LANG_CHINESE_GD)) {
-			result = "粤语";
+			result = "Cantonese";
 		} else if (lang.equals(RecognizeDialog.LANG_ENGLISH)) {
-			result = "英语";
+			result = "English";
 		} else {
 			result = lang;
 		}

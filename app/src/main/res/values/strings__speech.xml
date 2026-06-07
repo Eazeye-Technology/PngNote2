@@ -1,15 +1,3 @@
 <resources>
-
-<!--    <string name="app_name">speechlist</string>-->
-
-    <!-- 
-    <string name="stop">Stop</string>
-    <string name="state_recording">Recording…</string>
-    <string name="failed_to_create_dir">Failed to create directory where recordings will be saved</string>
-    <string name="example_time">00:00</string>
-     -->
-     
-    
-    <!-- 请替换成在语音云官网申请的appid -->
     <string name="xunfei_app_id">598ab79d</string>
 </resources>

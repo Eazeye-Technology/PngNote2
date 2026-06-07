@@ -35,11 +35,11 @@ public class SelectionTool implements Tool {
     private final static boolean SELECT_REGION_NO_CLIP = true;
     //stop text being deleted, see also region.setPath(p, null);
 
-    //可变，需要用clone
+    //can change, need clone
     private final DrawAppearance APPEARANCE = new DrawAppearance(Color.GRAY, Color.argb(32, 64, 64, 64));
 
-    //选择框
-    //不可变
+    //select frame
+    //cannot change
     public final DrawAppearance APPEARANCE_SELECTED = new DrawAppearance(Color.BLACK, -1); //Color.BLUE
 
     private final LinkedList<DrawPath> toolPaths = new LinkedList<>();
@@ -182,7 +182,6 @@ public class SelectionTool implements Tool {
                         currentPath.clear();
                         break;
                     } else if (icon == zoomIcon_index) {
-                        //FIXME:暂时不允许多个对象缩放
                         if (selectedPaths.size() == 1) {
                             DrawPath path = selectedPaths.get(0);
                             if (path != null &&
@@ -304,7 +303,6 @@ public class SelectionTool implements Tool {
                         }
                     }
                 } else {
-                    //FIXME:要在区域内才能移动，或者更改这个条件
                     mode = TOUCH_MODES.move;
                     previousPoint = null;
                     {
@@ -934,7 +932,7 @@ public class SelectionTool implements Tool {
                         }
                     }
                     p.close();
-                    p.computeBounds(bounds2, false); //改用路径外框选中
+                    p.computeBounds(bounds2, false);
                     if (!SELECT_REGION_NO_CLIP) {
                         region.setPath(p, clip);
                     } else {
@@ -1007,7 +1005,7 @@ public class SelectionTool implements Tool {
                         }
                     } else if (path.getPath() != null) {
                         //FIXME:added, because region.op(currentPathRegion, Region.Op.INTERSECT) not good
-                        path.getPath().computeBounds(bounds2, false); //改用路径外框选中
+                        path.getPath().computeBounds(bounds2, false);
                         Path p = new Path();
                         if (true) {
                             p.moveTo(bounds2.left, bounds2.top);

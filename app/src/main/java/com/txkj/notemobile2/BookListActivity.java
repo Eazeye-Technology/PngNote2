@@ -123,7 +123,7 @@ public class BookListActivity extends AppCompatActivity {
     }
 
 
-    //原文链接：https://blog.csdn.net/zuo_er_lyf/article/details/82659426
+    //https://blog.csdn.net/zuo_er_lyf/article/details/82659426
     //https://www.dev2qa.com/android-read-write-external-storage-file-example/
     private final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE_PERMISSION = 100;
     private void checkPermission(){
@@ -162,9 +162,9 @@ public class BookListActivity extends AppCompatActivity {
         if (requestCode == REQUEST_CODE) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 if (Environment.isExternalStorageManager()) {
-                    // 权限已授予
+
                 } else {
-                    // 权限未授予
+
                 }
             }
         }
@@ -269,7 +269,7 @@ Android6.onRequestPermissionsResult(this, i, strArr, iArr);
         }
     }
 
-    private ProgressDialog mProgressDialog = null; // 对话框对象
+    private ProgressDialog mProgressDialog = null;
     public void createWaitingProgressDialog() {
         if (mProgressDialog == null || !mProgressDialog.isShowing()) {
             mProgressDialog = new ProgressDialog(this);

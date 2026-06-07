@@ -48,7 +48,7 @@ import java.io.File;
 //https://github.com/k2-fsa/sherpa-onnx/releases/tag/v1.12.33
 //https://github.com/k2-fsa/sherpa-onnx/releases/tag/v1.12.9
 //
-//https://huggingface.co/csukuangfj2/sherpa-onnx-apk/resolve/main/asr/1.12.33/sherpa-onnx-1.12.33-arm64-v8a-asr-en-zipformer_kroko_asr.apk，
+//https://huggingface.co/csukuangfj2/sherpa-onnx-apk/resolve/main/asr/1.12.33/sherpa-onnx-1.12.33-arm64-v8a-asr-en-zipformer_kroko_asr.apk
 // I found that the model with the word kroko_asr supports punctuation marks, but the recognition speed will slow down.
 // I may also add this model to the engine's options
 //from https://k2-fsa.github.io/sherpa/onnx/android/apk.html

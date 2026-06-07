@@ -282,7 +282,6 @@ android:background="#f6f3f2"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 >
-                <!-- 设置列表 -->
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/recycler_view"
                     android:scrollbars="vertical"

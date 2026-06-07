@@ -14,7 +14,7 @@
             android:id="@+id/recording_name_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="录音名称"
+            android:text="Record name"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="#ff4444" />
 

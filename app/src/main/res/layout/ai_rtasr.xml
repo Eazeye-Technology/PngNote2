@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:text="识别音频路径:"
+            android:text="Audio file path:"
             />
 
         <TextView
@@ -26,7 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="10"
             android:scrollbars="vertical"
-            android:text="识别结果："
+            android:text="Recognition result:"
             />
 
         <TextView
@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="10"
             android:scrollbars="vertical"
-            android:text="翻译结果："
+            android:text="Translation result:"
             />
         <LinearLayout
             android:layout_width="match_parent"
@@ -54,7 +54,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:gravity="center"
-                    android:text="选择语种："
+                    android:text="Choose language:"
                     android:textColor="#333333"
                     android:textSize="15dp" />
                 <Spinner
@@ -69,7 +69,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="0.5"
-            android:text="麦克风转写测试"
+            android:text="Microphone transcription test"
             android:textColor="#fff"
             />
         <Button
@@ -78,7 +78,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_weight="0.5"
-            android:text="文件转写测试"
+            android:text="File transcription test"
             android:textColor="#fff"
             />
         <Button
@@ -87,7 +87,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_weight="0.5"
-            android:text="停止转写"
+            android:text="Stop transcription"
             android:textColor="#fff"
             />
     </LinearLayout>

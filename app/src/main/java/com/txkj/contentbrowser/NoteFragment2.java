@@ -87,7 +87,6 @@ public class NoteFragment2 extends Fragment {
 
     private static final String SHARED_PREFERENCES_NAME = "FlutterSharedPreferences";
 
-    //这个值没用了
     private static final String SHARE_PACKAGE_NAME = "com.txkj.notemobile";//"online.xournal.mobile";
     //PreferencesKeys.kRecentFiles
     /*
@@ -100,7 +99,6 @@ class PreferencesKeys {
     private final static String TAG = "HomeFragment";
     private final static boolean TEST_GRID = false;
     private final static int SINGLE_GRID_DP_WIDTH = 120;
-    //这个宽度参考pagegridviewitem_library的最大宽度，例如封面的dp宽度（可以稍微设置大一点）
 
 
 
@@ -182,7 +180,6 @@ class PreferencesKeys {
         });
 
 
-        //笔记历史记录加载
 
         recentNoteList = new ArrayList<FileMeta>();
         recentNoteView = (GridView) view.findViewById(R.id.notegridview_note);
@@ -287,7 +284,7 @@ class PreferencesKeys {
 //            view.findViewById(R.id.progressLoading1).setVisibility(View.VISIBLE);
             progressLoading1.setVisibility(View.GONE);
         } else {
-            if (true) { //FIXME:小心，注释此处无法阻止监听器执行populate
+            if (true) {
                 onGridList();
                 if (true) {
                     //don't use onResume
@@ -326,7 +323,7 @@ class PreferencesKeys {
 
 
 
-    private ProgressDialog mProgressDialog = null; // 对话框对象
+    private ProgressDialog mProgressDialog = null;
     protected void createWaitingProgressDialog() {
 //        if (isIntentNew || isIntentOpen) {
 //            return;
@@ -521,10 +518,8 @@ class PreferencesKeys {
                             }
                             fileMeta.setDateTxt(updateTimeStr);
                         }
-                        //preview字段加上base64头部才能显示出来封面
                         fileMeta.setPath(preview != null ? BaseExtractor.BASE64_PREFIX + preview : null);
 
-                        //搜索过滤
                         if (txt != null && txt.length() > 0) {
                             if (name.toLowerCase().contains(txt.toLowerCase())) {
                                 recentNoteList2__.add(fileMeta);
@@ -613,10 +608,8 @@ class PreferencesKeys {
                                 }
                                 fileMeta.setDateTxt(updateTimeStr);
                             }
-                            //preview字段加上base64头部才能显示出来封面
                             fileMeta.setPath(preview != null ? BaseExtractor.BASE64_PREFIX + preview : null);
 
-                            //搜索过滤
                             if (txt != null && txt.length() > 0) {
                                 if (name.toLowerCase().contains(txt.toLowerCase())) {
                                     recentNoteList2__.add(fileMeta);
@@ -675,10 +668,6 @@ class PreferencesKeys {
     @Override
     public void onResume() {
         super.onResume();
-        //notifyFragment();
-//        if (BookActivity4Utils.isTopNoteFragment2(getActivity())) {
-//            populate(); //FIXME:是否重复执行？
-//        }
     }
 
     public void refresh() {

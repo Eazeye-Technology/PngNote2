@@ -8,63 +8,63 @@
         android:id="@+id/ai_main_sdk_init"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="SDK初始化"
+        android:text="SDK init"
         android:textColor="#fff"
         />
     <Button
         android:id="@+id/ai_main_its"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="在线翻译"
+        android:text="ITS"
         android:textColor="#fff"
         />
     <Button
         android:id="@+id/ai_main_rtasr"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="实时语音转写"
+        android:text="RTASR"
         android:textColor="#fff"
         />
     <Button
         android:id="@+id/ai_main_tts"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="在线合成"
+        android:text="TTS"
         android:textColor="#fff"
         />
     <Button
         android:id="@+id/ai_main_asr"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="语音听写"
+        android:text="ASR"
         android:textColor="#fff"
         />
     <Button
         android:id="@+id/ai_main_raasr"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="录音文件转写"
+        android:text="RAASR"
         android:textColor="#fff"
         />
     <Button
         android:id="@+id/ai_main_imts"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="图片翻译"
+        android:text="IMTS"
         android:textColor="#fff"
         />
     <Button
         android:id="@+id/ai_main_ist"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="极速转写"
+        android:text="IST"
         android:textColor="#fff"
         />
     <TextView
         android:id="@+id/ai_main_notification"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="请先初始化SDK"
+        android:text="Please init SDK first"
         android:textColor="#fff"
         />
 </LinearLayout>

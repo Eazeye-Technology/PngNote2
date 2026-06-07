@@ -20,8 +20,7 @@ import java.util.List;
 
 public class PaintSelectDialog extends Dialog {
     //FIXME:
-    private final static int SINGLE_GRID_DP_WIDTH = 100; //FIXME:动态指定近期PDF文件的格子宽度
-    //这个宽度参考pagegridviewitem_library的最大宽度，例如封面的dp宽度（可以稍微设置大一点）
+    private final static int SINGLE_GRID_DP_WIDTH = 100;
 
     List<FileMeta> recentNoteList;
     private GridView recentNoteView;

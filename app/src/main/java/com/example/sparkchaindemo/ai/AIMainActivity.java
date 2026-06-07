@@ -73,9 +73,9 @@ public class AIMainActivity extends AppCompatActivity implements View.OnClickLis
                 , "android.permission.MANAGE_EXTERNAL_STORAGE").request(new OnPermission() {
             @Override
             public void hasPermission(List<String> granted, boolean all) {
-                Log.d(TAG,"SDK获取系统权限成功:"+all);
+                Log.d(TAG,"Grant permissions:"+all);
                 for(int i=0;i<granted.size();i++){
-                    Log.d(TAG,"获取到的权限有："+granted.get(i));
+                    Log.d(TAG,"Grant permissions:"+granted.get(i));
                 }
                 if(all){
                     createWorkDir();
@@ -86,10 +86,10 @@ public class AIMainActivity extends AppCompatActivity implements View.OnClickLis
             @Override
             public void noPermission(List<String> denied, boolean quick) {
                 if(quick){
-                    Log.e(TAG,"onDenied:被永久拒绝授权，请手动授予权限");
+                    Log.e(TAG,"onDenied: please manually grant");
                     XXPermissions.startPermissionActivity(AIMainActivity.this,denied);
                 }else{
-                    Log.e(TAG,"onDenied:权限获取失败");
+                    Log.e(TAG,"onDenied: grant failed");
                 }
             }
         });
@@ -98,11 +98,10 @@ public class AIMainActivity extends AppCompatActivity implements View.OnClickLis
 
     private void SDKInit(){
         Log.d(TAG,"initSDK");
-        // 初始化SDK，Appid等信息在清单中配置
         SparkChainConfig sparkChainConfig = SparkChainConfig.builder();
         sparkChainConfig.appID(getResources().getString(R.string.appid))
                 .apiKey(getResources().getString(R.string.apikey))
-                .apiSecret(getResources().getString(R.string.apiSecret))//应用申请的appid三元组
+                .apiSecret(getResources().getString(R.string.apiSecret))
 //                .uid("")
 //                .logPath("/sdcard/iflytek/AEELog.txt")
                 .logLevel(LogLvl.VERBOSE.getValue());
@@ -110,10 +109,10 @@ public class AIMainActivity extends AppCompatActivity implements View.OnClickLis
         int ret = SparkChain.getInst().init(getApplicationContext(),sparkChainConfig);
         String result;
         if(ret == 0){
-            result = "SDK初始化成功,请选择相应的功能点击体验。";
+            result = "SDK init successful";
             isAuth = true;
         }else{
-            result = "SDK初始化失败,错误码:" + ret;
+            result = "SDK init failed:" + ret;
             isAuth = false;
         }
         Log.d(TAG,result);
@@ -144,68 +143,63 @@ public class AIMainActivity extends AppCompatActivity implements View.OnClickLis
             getPermission();
         } else if (view.getId() == R.id.ai_main_its) {
             if (!isAuth) {
-                showInfo("SDK未初始化，请先初始化SDK");
+                showInfo("SDK is uninitialized, please initialize SDK");
                 return;
             }
 //                jump(ITSActivity.class);
         } else if (view.getId() == R.id.ai_main_rtasr) {
             if (!isAuth) {
-                showInfo("SDK未初始化，请先初始化SDK");
+                showInfo("SDK is uninitialized, please initialize SDK");
                 return;
             }
             jump(RTASRActivity.class);
         } else if (view.getId() == R.id.ai_main_tts) {
             if (!isAuth) {
-                showInfo("SDK未初始化，请先初始化SDK");
+                showInfo("SDK is uninitialized, please initialize SDK");
                 return;
             }
 //                jump(TTSActivity.class);
         } else if (view.getId() == R.id.ai_main_asr) {
             if (!isAuth) {
-                showInfo("SDK未初始化，请先初始化SDK");
+                showInfo("SDK is uninitialized, please initialize SDK");
                 return;
             }
                 jump(asrActivity.class);
         } else if (view.getId() == R.id.ai_main_raasr) {
             if (!isAuth) {
-                showInfo("SDK未初始化，请先初始化SDK");
+                showInfo("SDK is uninitialized, please initialize SDK");
                 return;
             }
             jump(RAASRActivity.class);
         } else if (view.getId() == R.id.ai_main_imts) {
             if (!isAuth) {
-                showInfo("SDK未初始化，请先初始化SDK");
+                showInfo("SDK is uninitialized, please initialize SDK");
                 return;
             }
 //                jump(IMTSActivity.class);
         } else if (view.getId() == R.id.ai_main_ist) {
                 if(!isAuth){
-                    showInfo("SDK未初始化，请先初始化SDK");
+                    showInfo("SDK is uninitialized, please initialize SDK");
                     return;
                 }
 //                jump(ISTActivity.class);
         }
     }
 
-    /*************************
-     * 从assets目录中拷贝测试音频到本地
-     * *******************************/
     private void createWorkDir()  {
         String path = "/sdcard/iflytek/asr";
         FileUtils.deleteDirectory(path);
         File folder = new File(path);
         boolean success = folder.mkdirs();
         if (success) {
-            // 文件夹创建成功
             try {
                 copyFilesFromAssets();
             }catch (Exception e){
                 e.printStackTrace();
-                Toast.makeText(getApplicationContext(),"在线识别音频文件拷贝失败，请检查是否有sdcard读写权限",Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(),"Copy failed, please check sdcard permission",Toast.LENGTH_LONG).show();
             }
         } else {
-            // 文件夹创建失败
-            Toast.makeText(getApplicationContext(),"在线识别音频文件拷贝失败，请检查是否有sdcard读写权限",Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(),"Copy failed, please check sdcard permission",Toast.LENGTH_LONG).show();
         }
     }
 

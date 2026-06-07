@@ -59,7 +59,7 @@ import io.github.pastthepixels.freepaint.Tools.SelectionTool;
 import io.github.pastthepixels.freepaint.Tools.Tool;
 
 public final class DrawCanvas extends View {
-    private final static boolean USE_JUMP_PAGE_CENTER = true;//跳转页面后居中
+    private final static boolean USE_JUMP_PAGE_CENTER = true;
 
     private final static double INIT_SCALE = 1.0;//0.8;
     private final static boolean DEBUG_EVENT = true;
@@ -251,7 +251,6 @@ java.util.ConcurrentModificationException
 
 
     private ThreeFingerDoubleTapDetector mTreeFingerDoubleTapDetector = new ThreeFingerDoubleTapDetector(() -> {
-        // 三指双击被触发，在这里执行你的业务逻辑
         if (BookActivity4Config.ENABLE_GESTURE_FOCUS_MODE) {
             //Toast.makeText(mAct, "Three figure double tap", Toast.LENGTH_SHORT).show();
             BookActivity4Utils.toggleFocusMode(mAct);
@@ -491,7 +490,7 @@ InputDevice.SOURCE_STYLUS == false, event.getPressure() == 0.390625, event.getTo
         }
 
 
-        int pointerIndex = event.getActionIndex(); // 获取事件对应的指针索引
+        int pointerIndex = event.getActionIndex();
         int toolType = event.getToolType(pointerIndex);
         boolean isStylus = (toolType == MotionEvent.TOOL_TYPE_STYLUS);
         boolean isEraser = (toolType == MotionEvent.TOOL_TYPE_ERASER);
@@ -612,7 +611,7 @@ InputDevice.SOURCE_STYLUS == false, event.getPressure() == 0.390625, event.getTo
         while (versions.size() > version_index + 1 + oldVersionsSize) {
             versions.remove(versions.size() - 1);
         }
-        versions.add(cloneDrawPathList(paths)); // adds to the end ∴ newest changes are at the end of the list
+        versions.add(cloneDrawPathList(paths)); // adds to the end so newest changes are at the end of the list
         System.out.println(versions + " " + versions.size());
         if (versions.size() < (MAX_VERSIONS + 2) - 1 + oldVersionsSize) {
             version_index += 1;
@@ -823,7 +822,6 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
      */
     @SuppressLint("WrongCall")
     public Bitmap toBitmap(boolean isDrawBG) {
-        //FIXME:可能大小不对
         Bitmap bitmap = Bitmap.createBitmap((int) this.documentSize.x, (int) this.documentSize.y, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         this.drawMinimal = true;
@@ -1009,7 +1007,7 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
 
             if (!drawMinimal && getTool() != null && getTool().getToolPaths() != null) {
                 if (EraserTool.USE_SIMPLE_IMPL) {
-                    //skip, 不显示上方的全局灰色遮罩层
+
                 } else {
                     if (getTool() instanceof EraserTool) {
                         paint.setARGB(150, 0, 0, 0);
@@ -1049,7 +1047,6 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
                                 } else if (i == SelectionTool.doneIcon_index) {
                                     drawable = getSelectionTool().doneIcon;
                                 } else if (i == SelectionTool.zoomIcon_index) {
-                                    //FIXME:暂时不允许多个对象缩放, 只允许单个文本和图片缩放
                                     if (getSelectionTool().getSelectedPaths().size() == 1) {
                                         DrawPath path0 = getSelectionTool().getSelectedPaths().get(0);
                                         if (path0 != null &&
@@ -1079,7 +1076,6 @@ InputDevice.SOURCE_STYLUS == true, event.getPressure() == 0.25006106
                                         }
                                     }
                                 } else if (i == SelectionTool.editIcon_index) {
-                                    //FIXME:暂时不允许多个对象编辑, 只允许单个文本编辑
                                     if (getSelectionTool().getSelectedPaths().size() == 1) {
                                         DrawPath path0 = getSelectionTool().getSelectedPaths().get(0);
                                         if (path0 != null &&

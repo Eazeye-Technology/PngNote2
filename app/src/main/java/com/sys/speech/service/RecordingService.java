@@ -306,7 +306,6 @@ public class RecordingService extends Service {
 	private Notification createNotification() {
         if (true) {
             String channelId = null;
-            // 8.0 以上需要特殊处理
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 channelId = createNotificationChannel("com.txkj.drawingapp", "ForegroundService");
             } else {
@@ -477,7 +476,7 @@ public class RecordingService extends Service {
 		if (!dir.exists()) {
 			if (!dir.mkdirs()) {
 				// failed to create dir
-				Toast.makeText(getApplicationContext(), "创建目录失败", Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), "Create directory failed", Toast.LENGTH_SHORT).show();
 				return null; 
 			}
 		}

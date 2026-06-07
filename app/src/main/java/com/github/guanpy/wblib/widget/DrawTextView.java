@@ -33,21 +33,9 @@ public class DrawTextView extends RelativeLayout implements
         View.OnClickListener {
     private final static String TAG = "DrawTextView";
 
-    /**
-     * 显示状态
-     */
     public static final int TEXT_VIEW = 1;
-    /**
-     * 编辑（文字编辑）状态
-     */
     public static final int TEXT_EDIT = 2;
-    /**
-     * 详情（显示删除、编辑按钮）状态
-     */
     public static final int TEXT_DETAIL = 3;
-    /**
-     * 被删除状态
-     */
     public static final int TEXT_DELETE = 4;
 
     /** */
@@ -72,9 +60,6 @@ public class DrawTextView extends RelativeLayout implements
     private DrawPoint mDrawPoint;
 
     private int mWidth;
-    /**
-     * 特殊字符所需
-     */
     private Spannable mSpannable;
 
     public DrawTextView(Context context) {
@@ -128,12 +113,6 @@ public class DrawTextView extends RelativeLayout implements
     }
 
 
-    /**
-     * 初始化界面控件 <br>
-     * Created 2015-8-10 16:55:49
-     *
-     * @author : gpy
-     */
     private void initUI() {
         LayoutInflater.from(mContext).inflate(R.layout.draw_text, this, true);
         mVOutside = (View) findViewById(R.id.v_outside);
@@ -162,75 +141,11 @@ public class DrawTextView extends RelativeLayout implements
         setLayoutParams();
     }
 
-    /**
-     * 初始化监听 <br>
-     * Created 2015-8-10 16:55:49
-     *
-     * @author : gpy
-     */
     //@SuppressLint("ClickableViewAccessibility")
     private void initEvent() {
         mVOutside.setOnClickListener(this);
         mRlText.setOnClickListener(this);
         mEtTextEdit.setOnClickListener(this);
-//        mBtTextDelete.setOnClickListener(this);
-//        mBtTextEdit.setOnClickListener(this);
-//        mTvTextEdit.setOnClickListener(this);
-//        mTvTextEdit.setOnTouchListener(new OnTouchListener() {
-//            int lastX, lastY;
-//
-//            @Override
-//            public boolean onTouch(View view, MotionEvent event) {
-//                if (true) { //if (mDrawPoint.getDrawText().getStatus() == TEXT_DETAIL&& OperationUtils.getInstance().DISABLE) {
-//                    int ea = event.getAction();
-//                    switch (ea) {
-//                        case MotionEvent.ACTION_DOWN:
-//                            // 获取触摸事件触摸位置的原始X坐标
-//                            lastX = (int) event.getRawX();
-//                            lastY = (int) event.getRawY();
-//                            break;
-//                        case MotionEvent.ACTION_MOVE:
-//                            int dx = (int) event.getRawX() - lastX;
-//                            int dy = (int) event.getRawY() - lastY;
-//
-//                            int left = mRlContent.getLeft() + dx;
-//                            int top = mRlContent.getTop() + dy;
-//                            int right = mRlContent.getRight() + dx;
-//                            int bottom = mRlContent.getBottom() + dy;
-//                            if (left < 0) {
-//                                left = 0;
-//                                right = left + mRlContent.getWidth();
-//                            }
-//                            if (right > getWidth()) {
-//                                right = getWidth();
-//                                left = right - mRlContent.getWidth();
-//                            }
-//                            if (top < 0) {
-//                                top = 0;
-//                                bottom = top + mRlContent.getHeight();
-//                            }
-//                            if (bottom > getHeight()) {
-//                                bottom = getHeight();
-//                                top = bottom - mRlContent.getHeight();
-//                            }
-////                            mDrawPoint.getDrawText().setX(left); //FIXME:
-////                            mDrawPoint.getDrawText().setY(top);
-//                            Log.e("移动", "-" + left + "," + top);
-//                            mRlContent.layout(left, top, right, bottom);
-//                            lastX = (int) event.getRawX();
-//                            lastY = (int) event.getRawY();
-//                            break;
-//                        case MotionEvent.ACTION_UP:
-//                            if (null != mCallBackListener) {
-//                                mCallBackListener.onUpdate(mDrawPoint);
-//                            }
-//                            break;
-//                    }
-//                }
-//
-//                return false;
-//            }
-//        });
     }
 
 
@@ -297,19 +212,11 @@ public class DrawTextView extends RelativeLayout implements
     }
     public static int dp2px(Context context, float dpValue) {
         final float scale = context.getResources().getDisplayMetrics().density;
-        return (int) (dpValue * scale + 0.5f); // 0.5f用于四舍五入
+        return (int) (dpValue * scale + 0.5f);
     }
 
     public void switchView(int currentStatus) {
         switch (currentStatus) {
-//            case TEXT_VIEW:
-//                mVOutside.setVisibility(View.GONE);
-//                mEtTextEdit.setVisibility(View.GONE);
-//                mTvTextEdit.setVisibility(View.VISIBLE);
-//                mRlText.setBackgroundResource(R.color.transparent);
-//                mBtTextEdit.setVisibility(View.GONE);
-//                mBtTextDelete.setVisibility(View.GONE);
-//                break;
             case TEXT_EDIT:
                 //mVOutside.setBackgroundResource(R.color.white);
                 mVOutside.setBackgroundResource(R.color.transparent); //FIXME:
@@ -324,38 +231,13 @@ public class DrawTextView extends RelativeLayout implements
                 //FIXME:
                 showSoftKeyBoard(mEtTextEdit);
                 break;
-//            case TEXT_DETAIL:
-//                mVOutside.setBackgroundResource(R.color.transparent);
-//                mVOutside.setVisibility(View.VISIBLE);
-//                mEtTextEdit.setVisibility(View.GONE);
-//                mTvTextEdit.setVisibility(View.VISIBLE);
-//                mRlText.setBackgroundResource(R.drawable.draw_text_border);
-//                mBtTextEdit.setVisibility(View.VISIBLE);
-//                mBtTextDelete.setVisibility(View.VISIBLE);
-//                break;
-//            case TEXT_DELETE:
-//
-//                break;
-//            default:
-//                break;
         }
-        Log.d("gpy","文字宽："+mRlText.getHeight());
-//        if (mDrawPoint.getDrawText().getStatus() != currentStatus) {
-//            mDrawPoint.getDrawText().setStatus(currentStatus);
-//            if (null != mCallBackListener && currentStatus != TEXT_EDIT) {
-//                mCallBackListener.onUpdate(mDrawPoint);
-//            }
-//        }
+        Log.d("gpy","Text width:"+mRlText.getHeight());
 
     }
 
-    /**
-     * 文字编辑完成
-     *
-     * @param isSave 是否保存
-     */
     public void afterEdit(boolean isSave) {
-        Log.d("gpy", "要保存的文字：" + mEtTextEdit.getText().toString());
+        Log.d("gpy", "To save text:" + mEtTextEdit.getText().toString());
         if (isSave) {
 //            mDrawPoint.getDrawText().setStr(mEtTextEdit.getText().toString());
             //FIXME: save
@@ -414,9 +296,6 @@ public class DrawTextView extends RelativeLayout implements
     }
 
     public interface CallBackListener {
-        /**
-         * 更新文字属性
-         */
         void onUpdate(DrawPoint drawPoint);
 
         void onSave(DrawPoint drawPoint);
@@ -430,7 +309,6 @@ public class DrawTextView extends RelativeLayout implements
                 public void run() {
                     mEtTextEdit.setEnabled(true);
                     mEtTextEdit.requestFocus();
-                    // 弹出输入法
                     InputMethodManager imm = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
                     if (true) {
                         imm.showSoftInput(et, 0);//InputMethodManager.RESULT_UNCHANGED_SHOWN);
@@ -447,7 +325,6 @@ public class DrawTextView extends RelativeLayout implements
             return;
         }
         mEtTextEdit.setEnabled(false);
-        // 隐藏输入法
         ((InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE))
                 .hideSoftInputFromWindow(mEtTextEdit.getWindowToken(), 0);
     }

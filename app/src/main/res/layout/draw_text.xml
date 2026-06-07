@@ -22,7 +22,7 @@
             android:background="@drawable/draw_text_border"
             android:gravity="center_vertical"
             >
-            <!--编辑框外框黑线-->
+            <!--Edit frame black line-->
 
             <EditText
                 android:id="@+id/et_text_edit"

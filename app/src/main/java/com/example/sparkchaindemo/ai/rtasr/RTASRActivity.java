@@ -25,11 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/*************************
- * 实时语音转写Demo
- * create by wxw
- * 2024-12-16
- * **********************************/
 public class RTASRActivity extends AppCompatActivity implements View.OnClickListener, AudioRecorderManager.AudioDataCallback{
     private static final String TAG = "AEELog";
     private String RTASRAPIKEY = "";
@@ -38,8 +33,8 @@ public class RTASRActivity extends AppCompatActivity implements View.OnClickList
     private Button btn_audio_start,btn_file_start;
     private RTASR mRTASR;
     boolean isrun = false;
-    String asrFinalResult = "识别结果：\n";
-    String transFinalResult = "翻译结果：\n";
+    String asrFinalResult = "Recognition result:\n";
+    String transFinalResult = "Translation result:\n";
     String audioPath = "";
     private String startMode = "NONE";
     private ASRMode language = ASRMode.CN;
@@ -50,10 +45,10 @@ public class RTASRActivity extends AppCompatActivity implements View.OnClickList
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.ai_rtasr_file_btn) {
-            tv_result.setText("识别结果：\n");
-            tv_transResult.setText("翻译结果：\n");
-            asrFinalResult = "识别结果：\n";
-            transFinalResult = "翻译结果：\n";
+            tv_result.setText("Recognition result:\n");
+            tv_transResult.setText("Translation result:\n");
+            asrFinalResult = "Recognition result:\n";
+            transFinalResult = "Translation result:\n";
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -61,10 +56,10 @@ public class RTASRActivity extends AppCompatActivity implements View.OnClickList
                 }
             }).start();
         } else if (view.getId() == R.id.ai_rtasr_audio_btn) {
-            tv_result.setText("识别结果：\n");
-            tv_transResult.setText("翻译结果：\n");
-            asrFinalResult = "识别结果：\n";
-            transFinalResult = "翻译结果：\n";
+            tv_result.setText("Recognition result:\n");
+            tv_transResult.setText("Translation result:\n");
+            asrFinalResult = "Recognition result:\n";
+            transFinalResult = "Translation result:\n";
 
             new Thread(new Runnable() {
                 @Override
@@ -91,7 +86,7 @@ public class RTASRActivity extends AppCompatActivity implements View.OnClickList
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                btn_audio_start.setText("麦克风识别");
+                                btn_audio_start.setText("Microphone recognition");
                                 btn_audio_start.setEnabled(true);
                                 btn_file_start.setEnabled(true);
                             }
@@ -126,8 +121,8 @@ public class RTASRActivity extends AppCompatActivity implements View.OnClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.ai_rtasr);
-        languageList.add("中文");
-        languageList.add("英文");
+        languageList.add("Chinese");
+        languageList.add("English");
         tv_result = findViewById(R.id.ai_rtasr_asrResult);
         tv_result.setMovementMethod(new ScrollingMovementMethod());
         tv_transResult = findViewById(R.id.ai_rtasr_translateResult);
@@ -141,7 +136,7 @@ public class RTASRActivity extends AppCompatActivity implements View.OnClickList
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
                 String selectedItem = adapterView.getItemAtPosition(position).toString();
                 Log.d(TAG,"language:"+selectedItem);
-                if("中文".equals(selectedItem)){
+                if("Chinese".equals(selectedItem)){
                     language = ASRMode.CN;
                 }else{
                     language = ASRMode.EN;
@@ -163,38 +158,36 @@ public class RTASRActivity extends AppCompatActivity implements View.OnClickList
 
     protected void init() {
         RTASRAPIKEY = getResources().getString(R.string.RTASRAPIKEY);
-        mRTASR = new RTASR(RTASRAPIKEY);//创建RTASR实例
-        mRTASR.registerCallbacks(mRtAsrCallbacks);//注册监听回调
+        mRTASR = new RTASR(RTASRAPIKEY);
+        mRTASR.registerCallbacks(mRtAsrCallbacks);
     }
 
 
     RTASRCallbacks mRtAsrCallbacks = new RTASRCallbacks() {
         @Override
         public void onResult(RTASR.RtAsrResult result, Object usrTag) {
-            //以下信息需要开发者根据自身需求，如无必要，可不需要解析执行。
-            String data      = result.getData();                     //识别结果
-            String rawResult = result.getRawResult();                //云端识别的原始结果
-            int status       = result.getStatus();                   //数据状态
-            String sid       = result.getSid();                      //交互sid
-            String src       = result.getTransResult().getSrc();     //翻译源文本
-            String dst       = result.getTransResult().getDst();     //翻译结果
-            int transStatus  = result.getTransResult().getStatus();  //翻译状态
+            String data      = result.getData();
+            String rawResult = result.getRawResult();
+            int status       = result.getStatus();
+            String sid       = result.getSid();
+            String src       = result.getTransResult().getSrc();
+            String dst       = result.getTransResult().getDst();
+            int transStatus  = result.getTransResult().getStatus();
 
             runOnUiThread(new Runnable() {
-                //结果显示在界面上
                 @Override
                 public void run() {
-                    if(status == 1){//子句流式结果
+                    if(status == 1){
                         String asrText = asrFinalResult + data;
                         tv_result.setText(asrText);
                         toend(tv_result);
-                    }else if(status == 2){//子句plain结果
+                    }else if(status == 2){
                         asrFinalResult = asrFinalResult + data;
                         //FIXME:added
                         String asrText = asrFinalResult;
                         tv_result.setText(asrText);
                         toend(tv_result);
-                    }else if(status == 3){//end结果
+                    }else if(status == 3){
                         tv_result.setText(asrFinalResult);
                         toend(tv_result);
                         if(isrun){
@@ -208,23 +201,22 @@ public class RTASRActivity extends AppCompatActivity implements View.OnClickList
                                 }
                             }else{
                                 if(mRTASR!=null) {
-                                    mRTASR.stop();//停止
+                                    mRTASR.stop();
                                 }
                             }
                             startMode = "NONE";
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    btn_audio_start.setText("麦克风识别");
+                                    btn_audio_start.setText("Microphone Recognition");
                                     btn_audio_start.setEnabled(true);
                                     btn_file_start.setEnabled(true);
                                 }
                             });
                             isrun = false;
                         }
-                    }else if(status == 0){//翻译结果
+                    }else if(status == 0){
                         if(transStatus == 2){
-                            //翻译end结果
                             transFinalResult = transFinalResult + dst;
                             tv_transResult.setText(transFinalResult);
                             toend(tv_transResult);
@@ -240,9 +232,9 @@ public class RTASRActivity extends AppCompatActivity implements View.OnClickList
 
         @Override
         public void onError(RTASR.RtAsrError error, Object usrTag) {
-            int code   = error.getCode();    //错误码
-            String msg = error.getErrMsg();  //错误信息
-            String sid = error.getSid();     //交互sid
+            int code   = error.getCode();
+            String msg = error.getErrMsg();
+            String sid = error.getSid();
             if (isrun) {
                 if ("AUDIO".equals(startMode)) {
                     if (mRTASR != null) {
@@ -254,14 +246,14 @@ public class RTASRActivity extends AppCompatActivity implements View.OnClickList
                     }
                 }else{
                     if(mRTASR!=null) {
-                        mRTASR.stop();//停止
+                        mRTASR.stop();
                     }
                 }
                 startMode = "NONE";
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        btn_audio_start.setText("麦克风识别");
+                        btn_audio_start.setText("Microphone Recognition");
                         btn_audio_start.setEnabled(true);
                         btn_file_start.setEnabled(true);
                     }
@@ -281,38 +273,38 @@ public class RTASRActivity extends AppCompatActivity implements View.OnClickList
         }
     };
 
-    int count = 0;//用户自定义标识
+    int count = 0;
     private void runRtasr_file(ASRMode mode) {
         if(isrun)
             return;
         count ++;
 
         if(mRTASR == null){
-            mRTASR = new RTASR(RTASRAPIKEY);//创建RTASR实例
-            mRTASR.registerCallbacks(mRtAsrCallbacks);//注册监听回调
+            mRTASR = new RTASR(RTASRAPIKEY);
+            mRTASR.registerCallbacks(mRtAsrCallbacks);
         }
 
-        mRTASR.transType("normal");//普通翻译
-        mRTASR.transStrategy(2);//策略2：返回中间过程中的结果。其他策略参考集成文档
+        mRTASR.transType("normal");
+        mRTASR.transStrategy(2);
         if(mode == ASRMode.CN){
-            mRTASR.lang("cn");//转写语种 cn:中文,en:英文。其他语种参考集成文档
-            mRTASR.targetLang("en");//翻译语种 cn:中文,en:英文。其他语种参考集成文档
-            audioPath = "/sdcard/iflytek/asr/cn_test.pcm";//转写音频路径，开发者可根据自身需求修改，但要求有读写权限。Demo仅演示读音频转写。SDK亦支持从麦克风实时读入音频去转写，这里不做展示。
+            mRTASR.lang("cn");
+            mRTASR.targetLang("en");
+            audioPath = "/sdcard/iflytek/asr/cn_test.pcm";
         }else{
-            mRTASR.lang("en");//转写语种 cn:中文,en:英文。其他语种参考集成文档
-            mRTASR.targetLang("cn");//翻译语种 cn:中文,en:英文。其他语种参考集成文档
-            audioPath = "/sdcard/iflytek/asr/en_test.pcm";//转写音频路径，开发者可根据自身需求修改，但要求有读写权限。Demo仅演示读音频转写。SDK亦支持从麦克风实时读入音频去转写，这里不做展示。
+            mRTASR.lang("en");
+            mRTASR.targetLang("cn");
+            audioPath = "/sdcard/iflytek/asr/en_test.pcm";
         }
 
 
-        asrFinalResult = "识别结果：\n";
-        transFinalResult = "翻译结果：\n";
+        asrFinalResult = "Recognition result:\n";
+        transFinalResult = "Translation result:\n";
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 tv_result.setText(asrFinalResult);
                 tv_transResult.setText(transFinalResult);
-                tv_audioPath.setText("识别音频路径:" + audioPath);
+                tv_audioPath.setText("Audio file path:" + audioPath);
                 btn_audio_start.setEnabled(false);
                 btn_file_start.setEnabled(false);
             }
@@ -326,13 +318,12 @@ public class RTASRActivity extends AppCompatActivity implements View.OnClickList
                 @Override
                 public void run() {
                     isrun = false;
-                    tv_audioPath.setText("转写启动出错，错误码:"+ret);
+                    tv_audioPath.setText("Transcription error, code:"+ret);
 
                 }
             });
         }
         try{
-            //读取音频文件送引擎转写
             FileInputStream fs = new FileInputStream(audioPath);
             byte[] buffer = new byte[320];
             int len = 0;
@@ -360,9 +351,9 @@ public class RTASRActivity extends AppCompatActivity implements View.OnClickList
         XXPermissions.with(this).permission("android.permission.RECORD_AUDIO").request(new OnPermission() {
             @Override
             public void hasPermission(List<String> granted, boolean all) {
-                Log.d(TAG,"SDK获取系统权限成功:"+all);
+                Log.d(TAG,"Grant permissions:"+all);
                 for(int i=0;i<granted.size();i++){
-                    Log.d(TAG,"获取到的权限有："+granted.get(i));
+                    Log.d(TAG,"Grant permissions:"+granted.get(i));
                 }
                 if(all){
                     runRtasr_Audio(language);
@@ -372,10 +363,10 @@ public class RTASRActivity extends AppCompatActivity implements View.OnClickList
             @Override
             public void noPermission(List<String> denied, boolean quick) {
                 if(quick){
-                    Log.e(TAG,"onDenied:被永久拒绝授权，请手动授予权限");
+                    Log.e(TAG,"onDenied: please manually grant");
                     XXPermissions.startPermissionActivity(RTASRActivity.this,denied);
                 }else{
-                    Log.e(TAG,"onDenied:权限获取失败");
+                    Log.e(TAG,"onDenied: grant failed");
                 }
             }
         });
@@ -388,30 +379,30 @@ public class RTASRActivity extends AppCompatActivity implements View.OnClickList
         count ++;
         isrun = true;
         if(mRTASR == null){
-            mRTASR = new RTASR(RTASRAPIKEY);//创建RTASR实例
-            mRTASR.registerCallbacks(mRtAsrCallbacks);//注册监听回调
+            mRTASR = new RTASR(RTASRAPIKEY);
+            mRTASR.registerCallbacks(mRtAsrCallbacks);
         }
 
-        mRTASR.transType("normal");//普通翻译
-        mRTASR.transStrategy(2);//策略2：返回中间过程中的结果。其他策略参考集成文档
+        mRTASR.transType("normal");
+        mRTASR.transStrategy(2);
         if(mode == ASRMode.CN){
-            mRTASR.lang("cn");//转写语种 cn:中文,en:英文。其他语种参考集成文档
-            mRTASR.targetLang("en");//翻译语种 cn:中文,en:英文。其他语种参考集成文档
+            mRTASR.lang("cn");
+            mRTASR.targetLang("en");
         }else{
-            mRTASR.lang("en");//转写语种 cn:中文,en:英文。其他语种参考集成文档
-            mRTASR.targetLang("cn");//翻译语种 cn:中文,en:英文。其他语种参考集成文档
+            mRTASR.lang("en");
+            mRTASR.targetLang("cn");
         }
 
 
-        asrFinalResult = "识别结果：\n";
-        transFinalResult = "翻译结果：\n";
+        asrFinalResult = "Recognition result:\n";
+        transFinalResult = "Translation result\n";
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 tv_result.setText(asrFinalResult);
                 tv_transResult.setText(transFinalResult);
-                tv_audioPath.setText("识别音频路径:" + audioPath);
-                btn_audio_start.setText("录音中\n");
+                tv_audioPath.setText("Audio file path:" + audioPath);
+                btn_audio_start.setText("Recording\n");
                 btn_audio_start.setEnabled(false);
                 btn_file_start.setEnabled(false);
             }
@@ -424,7 +415,7 @@ public class RTASRActivity extends AppCompatActivity implements View.OnClickList
                 @Override
                 public void run() {
                     isrun = false;
-                    tv_audioPath.setText("转写启动出错，错误码:"+ret);
+                    tv_audioPath.setText("Transcription error, code:"+ret);
 
                 }
             });
@@ -438,10 +429,6 @@ public class RTASRActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
-
-    /*************************
-     * 显示控件自动下移
-     * *******************************/
     public void toend(TextView tv){
         int scrollAmount = tv.getLayout().getLineTop(tv.getLineCount()) - tv.getHeight();
         if (scrollAmount > 0) {

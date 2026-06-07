@@ -26,7 +26,6 @@
             android:background="#0000FF"
             android:padding="20dp" />
 
-        <!--设置关键属性layout_behavior，外层父布局必须是CoordinatorLayout，behavior_hideable=是否显示，behavior_peekHeight=高度-->
         <androidx.core.widget.NestedScrollView
             android:id="@+id/ar_bottom_sheet"
             android:layout_width="match_parent"

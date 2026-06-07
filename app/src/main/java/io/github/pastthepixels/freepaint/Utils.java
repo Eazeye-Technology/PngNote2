@@ -56,14 +56,13 @@ public class Utils {
 
 
     //--------------------------------
-    //android 计算path到点距离
     //import android.graphics.Path;
     //import android.graphics.PathMeasure;
     public static float distanceToPoint(Path path, float x, float y) {
         PathMeasure pm = new PathMeasure(path, false);
         float[] pos = new float[2];
         float[] tan = new float[2];
-        final float tolerance = 1; // 容忍度，用于找到路径上的点
+        final float tolerance = 1;
 
         for (float dist = 0; dist < pm.getLength(); dist += tolerance) {
             pm.getPosTan(dist, pos, tan);
@@ -71,10 +70,10 @@ public class Utils {
             float dy = y - pos[1];
             float distance = (float) Math.sqrt(dx * dx + dy * dy);
             if (distance < tolerance) {
-                return dist; // 找到了最接近的点，返回其距离
+                return dist;
             }
         }
-        return -1; // 如果没有找到接近的点，返回-1或者抛出异常
+        return -1;
     }
 
     //import android.graphics.Path;
@@ -83,11 +82,8 @@ public class Utils {
         RectF bounds = new RectF();
         path.computeBounds(bounds, true);
         if (bounds.contains(x, y)) {
-            // 点在路径的边界内，可以进一步精确计算距离或使用其他方法判断。
             return true;
         } else {
-            // 点可能在路径附近，但不完全在内部。这里可以添加更复杂的逻辑来判断。
-            // 比如，你可以通过计算点到路径边界的距离来判断。
             return Math.abs(x - bounds.centerX()) + Math.abs(y - bounds.centerY()) < tolerance;
         }
     }
@@ -102,23 +98,22 @@ public class Utils {
         float[] pos = new float[2];
         float minDistance = Float.MAX_VALUE;
         float currentDist = 0;
-        List<PointF> points = new ArrayList<>(); // 存储细分后的点
-        float step = 10; // 分割步长，可以根据需要调整以平衡精度和性能
+        List<PointF> points = new ArrayList<>();
+        float step = 10;
         while (currentDist < pm.getLength()) {
-            pm.getPosTan(currentDist, pos, null); // 获取位置，忽略切线方向
-            points.add(new PointF(pos[0], pos[1])); // 添加到点列表中
-            currentDist += step; // 移动到下一个点
+            pm.getPosTan(currentDist, pos, null);
+            points.add(new PointF(pos[0], pos[1]));
+            currentDist += step;
         }
-        // 计算所有细分点与目标点的距离，找到最小值
         for (PointF point : points) {
             float dx = x - point.x;
             float dy = y - point.y;
-            float distance = (float) Math.sqrt(dx * dx + dy * dy); // 使用欧几里得距离公式计算距离
+            float distance = (float) Math.sqrt(dx * dx + dy * dy);
             if (distance < minDistance) {
-                minDistance = distance; // 更新最小距离值
+                minDistance = distance;
             }
         }
-        return minDistance; // 返回最小距离值，即最近点的距离。
+        return minDistance;
     }
 
     public static boolean isIntersects(RectF rect1, RectF rect2) {

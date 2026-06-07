@@ -166,7 +166,6 @@ public class BookListFragment extends Fragment {
                 }
             }
         }
-        //根据更新时间倒序
         Collections.sort(tempList, new Comparator<Page>() {
             @Override
             public int compare(Page o1, Page o2) {
@@ -234,7 +233,6 @@ public class BookListFragment extends Fragment {
             public void run() {
                 for (int idx = 0; idx < files.size(); ++idx) {
                     FastFile oneBookDir = files.get(idx);
-                    //FIXME: thumbnailBitmap可能会抛异常导致null
                     try {
                         Bitmap thumbnailBitmap = getBookIO().loadThumbnail(oneBookDir);
                         if (BookIO.USE_META_TXT) {
@@ -475,7 +473,6 @@ public class BookListFragment extends Fragment {
 
                     Uri data = files.get(pageIdx).getUri();
                     String filePath = files.get(pageIdx).getFilePath();
-                    //FIXME:可能乱序了
                     if (false) {
                         Toast.makeText(getActivity(),
                                 "filePath == " + filePath,
@@ -626,7 +623,7 @@ public class BookListFragment extends Fragment {
         cancelWaitingProgressDialog();
     }
 
-    private ProgressDialog mProgressDialog = null; // 对话框对象
+    private ProgressDialog mProgressDialog = null;
     protected void createWaitingProgressDialog() {
         if (mProgressDialog == null || !mProgressDialog.isShowing()) {
             mProgressDialog = new ProgressDialog(getActivity());
@@ -899,7 +896,7 @@ public class BookListFragment extends Fragment {
             for (Page page : pageList) {
                 if (page != null && page.getTitle() != null &&
                         page.getTitle().equalsIgnoreCase(textState)) {
-                    return false; //重复名称不允许
+                    return false;
                 }
             }
         }

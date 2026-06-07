@@ -67,7 +67,7 @@ public class BookActivity4VoskDialog implements RecognitionListener {
                 public void hasPermission(List<String> granted, boolean all) {
                     Log.d(TAG,"Permission success:"+all);
                     for(int i=0;i<granted.size();i++){
-                        Log.d(TAG,"Granted："+granted.get(i));
+                        Log.d(TAG,"Granted:"+granted.get(i));
                     }
                     if(all){
                         initModel();

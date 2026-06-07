@@ -25,11 +25,9 @@ public class PcmToWavUtil {
             fis = new FileInputStream(pcmPath);
             fos = new FileOutputStream(wavPath);
 
-            // 1. 写入 WAV 头
             byte[] header = generateWavHeader(fis.available());
             fos.write(header);
 
-            // 2. 写入 PCM 音频数据
             byte[] buffer = new byte[1024];
             int length;
             while ((length = fis.read(buffer)) != -1) {
@@ -44,9 +42,8 @@ public class PcmToWavUtil {
     }
 
     private byte[] generateWavHeader(long totalAudioLen) {
-        // 计算各字段
-        long totalDataLen = totalAudioLen + 36; // 音频数据总长度 + 头部长度（不含 RIFF 头部自身）
-        long byteRate = mSampleRate * getChannelCount() * getBitsPerSample() / 8; // 字节率
+        long totalDataLen = totalAudioLen + 36;
+        long byteRate = mSampleRate * getChannelCount() * getBitsPerSample() / 8;
 
         byte[] header = new byte[44];
         header[0] = 'R';  // RIFF
@@ -105,18 +102,14 @@ public class PcmToWavUtil {
     }
 }
 /*
-// 1. 配置参数
-private static final int SAMPLE_RATE = 44100; // 采样率，推荐44100Hz[reference:3][reference:4]
-private static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO; // 音频通道：单声道[reference:5][reference:6]
-private static final int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT; // 音频数据格式，推荐16bit[reference:7][reference:8]
+private static final int SAMPLE_RATE = 44100;
+private static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO;
+private static final int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
 
-// 根据配置计算最小缓冲区大小
 int bufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT);
-// 2. 创建 AudioRecord 对象
 AudioRecord audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT, bufferSize);
 audioRecord.startRecording();
 
-// 3. 在后台线程循环读取数据
 isRecording = true;
 byte[] buffer = new byte[bufferSize];
 File pcmFile = new File(getExternalFilesDir(null), "audio_record.pcm");
@@ -124,14 +117,13 @@ try (FileOutputStream fos = new FileOutputStream(pcmFile)) {
     while (isRecording) {
         int readSize = audioRecord.read(buffer, 0, buffer.length);
         if (readSize > 0) {
-            fos.write(buffer, 0, readSize); // 将 PCM 数据写入文件
+            fos.write(buffer, 0, readSize);
         }
     }
 } catch (IOException e) {
     e.printStackTrace();
 }
 
-// 4. 停止录音并释放资源
 audioRecord.stop();
 audioRecord.release();
 audioRecord = null;

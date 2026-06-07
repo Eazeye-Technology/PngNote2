@@ -1,7 +1,6 @@
 package com.github.guanpy.wblib.bean;
 
 public class DrawPoint {
-    /**文字*/
     private DrawTextPoint mDrawText;
 
     public DrawTextPoint getDrawText() {

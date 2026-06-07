@@ -58,7 +58,7 @@ public class BookIO {
     private final static String TAG = "BookIO";
 
     public final static boolean USE_META_TXT = true;
-    public final static boolean USE_0000_PNG = false;//FIXME:应为true //FIXME:使用目录中的0000.png作为缩略图保存历史记录
+    public final static boolean USE_0000_PNG = false;
     public final static boolean USE_CONTENT_RESOLVER = false;
     public static String rootPath = new File(Environment.getExternalStorageDirectory(),
             "txkjnote2" //"pngnote"
@@ -273,7 +273,7 @@ public class BookIO {
             }
         } else {
             BitmapFactory.Options option = new BitmapFactory.Options();
-            option.inSampleSize = sampleSize; //缩略图滚动列表才走这里
+            option.inSampleSize = sampleSize;
             result = BitmapFactory.decodeFile(file.getFilePath(), option);
         }
         return result;
@@ -304,11 +304,9 @@ public class BookIO {
         return result;
     }
 
-    //FIXME:最好先读取出来
     public void saveMeta(String pattern, String dirUrlPath, String displayName) {
         OutputStream it = null;
         try {
-            //FIXME:会创建新的文件导致最新图无法读取
             if (D) {
                 Log.e(TAG, "saving meta " + pattern + " to " + dirUrlPath + ", " + displayName);
             }
@@ -371,7 +369,6 @@ public class BookIO {
         if (USE_CONTENT_RESOLVER) {
             OutputStream it = null;
             try {
-                //FIXME:会创建新的文件导致最新图无法读取
                 it = this.resolver.openOutputStream(page.getFile().getUri(), "w"); //"wt"
                 bitmap.compress(Bitmap.CompressFormat.PNG, 80, it);
             } catch (Throwable e) {
@@ -388,7 +385,6 @@ public class BookIO {
         } else {
             OutputStream it = null;
             try {
-                //FIXME:会创建新的文件导致最新图无法读取
                 if (D) {
                     Log.e(TAG, "saving " + page.getFile().getFilePath());
                 }
@@ -441,7 +437,7 @@ public class BookIO {
             SimpleFileMeta itemFound = null;
             itemFound = new SimpleFileMeta();
             itemFound.setCreateTime("" + new Date().getTime());
-            itemFound.setPath(name); //FIXME:可能不是读目录名称
+            itemFound.setPath(name); //FIXME:may be not name
             itemFound.setName(name);
             itemFound.setDispName(FastFile.getDisplayMetaName(folder));
             itemFound.setUpdateTime("" + new Date().getTime());
@@ -460,7 +456,7 @@ public class BookIO {
                             Bitmap emptyBmp = Bitmap.createBitmap(bitmap.getWidth(),
                                     bitmap.getHeight(), Bitmap.Config.ARGB_8888);
                             if (BookIO.USE_META_TXT) {
-                                emptyBmp.eraseColor(0xFFFFFFFF); //走这里 //对外的缩略图需要白色底
+                                emptyBmp.eraseColor(0xFFFFFFFF); //run here
                             } else {
                                 emptyBmp.eraseColor(0x00000000);
                             }
@@ -474,7 +470,7 @@ public class BookIO {
                         eee.printStackTrace();
                     }
                 }
-                if (bitmap != null) { //FIXME:可能不是这个bitmap，而是读第一个0000的png
+                if (bitmap != null) {
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
                     byte[] imageByte = outputStream.toByteArray();
@@ -484,20 +480,20 @@ public class BookIO {
                 Bitmap thumbnailBitmap = loadThumbnailParent(page.getFile());
                 if (USE_META_TXT) {
                     try {
-                        String pattern = null; //注意！！！！！！！不走这里
+                        String pattern = null; //NOTE not run here
                         String metaTxt = loadMetaParent(page.getFile());
                         JSONObject item = new JSONObject(metaTxt);
                         if (item != null) {
                             pattern = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_PATTERN);
                         }
-                        if (pattern != null) {//注意！！！！！！！不走这里
+                        if (pattern != null) {//NOTE not run here
                             Bitmap emptyBmp = Bitmap.createBitmap(thumbnailBitmap.getWidth(),
                                     thumbnailBitmap.getHeight(), Bitmap.Config.ARGB_8888);
-                            //注意！！！！！！！不走这里
+                            //NOTE not run here
                             emptyBmp.eraseColor(0x00000000);
                             CanvasBoox.initBackText(pattern, emptyBmp, BookIO.loadThumbnailParent_size);
                             Canvas canvas = new Canvas(emptyBmp);
-                            Paint paint = new Paint();//注意！！！！！！！不走这里
+                            Paint paint = new Paint();//NOTE not run here
 //                            paint.setColor(0xFFFFFFFF);
 //                            paint.setStyle(Paint.Style.FILL);
 //                            canvas.drawRect(new RectF(0, 0,
@@ -509,7 +505,7 @@ public class BookIO {
                         eee.printStackTrace();
                     }
                 }
-                if (thumbnailBitmap != null) { //FIXME:可能不是这个bitmap，而是读第一个0000的png
+                if (thumbnailBitmap != null) {
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                     thumbnailBitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
                     byte[] imageByte = outputStream.toByteArray();
@@ -660,7 +656,7 @@ public class BookIO {
                     try {
                         Matcher res = pageNamePat.matcher(file.getName());
                         if (res.matches()) {
-                            //FIXME:java.lang.IllegalStateException: No successful match so far。
+                            //FIXME:java.lang.IllegalStateException: No successful match so far
                             int pageIdx = Integer.parseInt(res.group(1));
                             if (BookActivity4Config.USE_UUID_PAGE_NAME) {
                                 if (res.group(1) != null && res.group(1).endsWith(".png")) {
@@ -702,7 +698,6 @@ public class BookIO {
         }
 
         //val lastPageIdx = if(pageMap.isEmpty()) 0 else pageMap.maxOf { it.key }
-        //FIXME：??
         int lastPageIdx = 0;
         if (!pageMap.isEmpty()) {
             int tempKey = 0;
@@ -728,7 +723,6 @@ public class BookIO {
         return new Book(bookDir, pages, bgFile, lastPageIndex);
     }
 
-    //FIXME:不插入空白页而是移动到新文件，可能会不正确
     public Book loadBookParentNoCreate(FastFile bookDir, Book book) {
         Map<Integer, FastFile> pageMap = new HashMap<Integer, FastFile>();
         Map<Integer, String> pageOrderObj = new HashMap<>();
@@ -779,7 +773,7 @@ public class BookIO {
                     try {
                         Matcher res = pageNamePat.matcher(file.getName());
                         if (res.matches()) {
-                            //FIXME:java.lang.IllegalStateException: No successful match so far。
+                            //FIXME:java.lang.IllegalStateException: No successful match so far
                             int pageIdx = Integer.parseInt(res.group(1));
                             pageMap.put(pageIdx, file);
                         }
@@ -791,7 +785,6 @@ public class BookIO {
         }
 
         //val lastPageIdx = if(pageMap.isEmpty()) 0 else pageMap.maxOf { it.key }
-        //FIXME：??
         int lastPageIdx = 0;
         if (!pageMap.isEmpty()) {
             int tempKey = 0;
@@ -821,7 +814,7 @@ public class BookIO {
                 try {
                     Matcher res = pageNamePat.matcher(item.getName());
                     if (res.matches()) {
-                        //FIXME:java.lang.IllegalStateException: No successful match so far。
+                        //FIXME:java.lang.IllegalStateException: No successful match so far
                         int pageIdx = Integer.parseInt(res.group(1));
                         if (pageIdx != i) {
                             String newName = BookPage.newPageName(i, book);
@@ -833,7 +826,6 @@ public class BookIO {
                             boolean r = new File(oldFilePath).delete();
 
                             if (BookIO.USE_META_TXT) {
-                                //覆盖meta文件
                                 String oldFilePath2 = oldFilePath.replace(".png", ".meta");
                                 String newFilePath2 = newFilePath.replace(".png", ".meta");
                                 if (!oldFilePath2.equals(oldFilePath)) {
@@ -849,7 +841,6 @@ public class BookIO {
                                 }
                             }
 
-                            //填充缺失的页面，然后删除
                         }
                    }
                 } catch (Throwable eee) {
@@ -977,14 +968,12 @@ public class BookIO {
         try {
             boolean flag = false;
             File file = new File(sPath);
-            // 判断目录或文件是否存在
-            if (!file.exists()) {  // 不存在返回 false
+            if (!file.exists()) {
                 return flag;
             } else {
-                // 判断是否为文件
-                if (file.isFile()) {  // 为文件时调用删除文件方法
+                if (file.isFile()) {
                     return deleteFile(sPath);
-                } else {  // 为目录时调用删除目录方法
+                } else {
                     return deleteDirectory(sPath);
                 }
             }
@@ -994,57 +983,37 @@ public class BookIO {
         return true;
     }
 
-    /**
-     * 删除目录（文件夹）以及目录下的文件
-     * @param   sPath 被删除目录的文件路径
-     * @return  目录删除成功返回true，否则返回false
-     */
     public static boolean deleteDirectory(String sPath) {
-        //如果sPath不以文件分隔符结尾，自动添加文件分隔符
         if (!sPath.endsWith(File.separator)) {
             sPath = sPath + File.separator;
         }
         File dirFile = new File(sPath);
-        //如果dir对应的文件不存在，或者不是一个目录，则退出
         if (!dirFile.exists() || !dirFile.isDirectory()) {
             return false;
         }
         boolean flag = true;
-        //删除文件夹下的所有文件(包括子目录)
         File[] files = dirFile.listFiles();
         for (int i = 0; i < files.length; i++) {
-            //删除子文件
             if (files[i].isFile()) {
                 flag = deleteFile(files[i].getAbsolutePath());
                 if (!flag) break;
-            } //删除子目录
+            }
             else {
                 flag = deleteDirectory(files[i].getAbsolutePath());
                 if (!flag) break;
             }
         }
         if (!flag) return false;
-        //删除当前目录
-        //FIXME:不删除目录本身，只删除文件
-	    if (dirFile.delete()) {
+        if (dirFile.delete()) {
 	        return true;
 	    } else {
 	        return false;
 	    }
-        /*
-        return true;
-        */
     }
 
-    /**
-     * 删除单个文件
-     * @param   sPath    被删除文件的文件名
-     * @return 单个文件删除成功返回true，否则返回false
-     */
     public static boolean deleteFile(String sPath) {
         boolean flag = false;
         File file = new File(sPath);
-        // 路径为文件且不为空则进行删除
         if (file.isFile() && file.exists()) {
             file.delete();
             flag = true;
@@ -1077,7 +1046,7 @@ public class BookIO {
                         meta.setCreateTime(createTime);
                         meta.setUpdateTime(updateTime);
                         meta.setDispName(dispName);
-                        //搜索过滤
+
                         recentNoteList2.add(meta);
                     }
                 } catch (Throwable eee) {
@@ -1143,7 +1112,7 @@ public class BookIO {
                             meta.setCreateTime(createTime);
                             meta.setUpdateTime(updateTime);
                             meta.setDispName(dispName);
-                            //搜索过滤
+
                             recentNoteList2.add(meta);
                         }
                     }

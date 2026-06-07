@@ -159,7 +159,6 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
             />
         <activity android:name="com.sys.speech.activity.DictResultActivity">
         </activity>
-        <!-- 移动统计分析 -->
         <meta-data
             android:name="IFLYTEK_APPKEY"
             android:value="'598ab79d'" />

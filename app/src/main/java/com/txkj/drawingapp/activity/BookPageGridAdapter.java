@@ -72,7 +72,6 @@ public class BookPageGridAdapter extends BaseAdapter {
             gridholder = (GridViewHolder) convertView.getTag();
         }
 
-        //hide时隐藏Text
         if (position != hidePosition) {
             gridholder.topView.setVisibility(View.VISIBLE);
         } else {
@@ -134,14 +133,11 @@ public class BookPageGridAdapter extends BaseAdapter {
         hidePosition = AdapterView.INVALID_POSITION;
         notifyDataSetChanged();
     }
-    //更新拖动时的gridView
     public void swapView(int draggedPos, int destPos) {
-        //从前向后拖动，其他item依次前移
         if(draggedPos < destPos) {
             dataList.add(destPos + 1, dataList.get(draggedPos));
             dataList.remove(draggedPos);
         }
-        //从后向前拖动，其他item依次后移
         else if(draggedPos > destPos) {
             dataList.add(destPos, dataList.get(draggedPos));
             dataList.remove(draggedPos + 1);

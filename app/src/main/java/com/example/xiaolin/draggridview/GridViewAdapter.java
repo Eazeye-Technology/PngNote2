@@ -47,7 +47,6 @@ public class GridViewAdapter extends BaseAdapter {
             view = (TextView)convertView;
         }
 
-        //hide时隐藏Text
         if(position != hidePosition) {
             view.setText(strList.get(position));
         }
@@ -74,14 +73,11 @@ public class GridViewAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    //更新拖动时的gridView
     public void swapView(int draggedPos, int destPos) {
-        //从前向后拖动，其他item依次前移
         if(draggedPos < destPos) {
             strList.add(destPos+1, getItem(draggedPos));
             strList.remove(draggedPos);
         }
-        //从后向前拖动，其他item依次后移
         else if(draggedPos > destPos) {
             strList.add(destPos, getItem(draggedPos));
             strList.remove(draggedPos+1);

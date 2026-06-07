@@ -25,24 +25,15 @@ import java.io.OutputStream;
 
 public class GetFilePathFromUri {
 
-
-    /**
-     * 根据Uri获取文件绝对路径，解决Android4.4以上版本Uri转换 兼容Android 10
-     *
-     * @param context
-     * @param uri
-     */
     public static String getFileAbsolutePath(Context context, Uri uri) {
         if (context == null || uri == null) {
             return null;
         }
 
-        //4.4以下的版本
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
             return getRealFilePath(context, uri);
         }
 
-        //大于4.4，小于10
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
                 && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
                 && DocumentsContract.isDocumentUri(context, uri)) {
@@ -76,7 +67,6 @@ public class GetFilePathFromUri {
             }
         }
 
-        // MediaStore (and general)  大于等于10
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
             return uriToFileApiQ(context,uri);
         }
@@ -87,7 +77,7 @@ public class GetFilePathFromUri {
             }
             if (Build.VERSION.SDK_INT >= 24)
             {
-                return getFilePathFromUri(context,uri); //content 类型
+                return getFilePathFromUri(context,uri);
             }else {
                 return getDataColumn(context, uri, null, null);
             }
@@ -126,18 +116,10 @@ public class GetFilePathFromUri {
     }
 
 
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is ExternalStorageProvider.
-     */
     private static boolean isExternalStorageDocument(Uri uri) {
         return "com.android.externalstorage.documents".equals(uri.getAuthority());
     }
 
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is DownloadsProvider.
-     */
     private static boolean isDownloadsDocument(Uri uri) {
         return "com.android.providers.downloads.documents".equals(uri.getAuthority());
     }
@@ -160,29 +142,15 @@ public class GetFilePathFromUri {
         return null;
     }
 
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is MediaProvider.
-     */
     private static boolean isMediaDocument(Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 
-    /**
-     * @param uri The Uri to check.
-     * @return Whether the Uri authority is Google Photos.
-     */
     private static boolean isGooglePhotosUri(Uri uri) {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
 
 
-    /**
-     * Android 10 以上适配 另一种写法
-     * @param context
-     * @param uri
-     * @return
-     */
     private static String getFileFromContentUri(Context context, Uri uri) {
         if (uri == null) {
             return null;
@@ -205,20 +173,12 @@ public class GetFilePathFromUri {
         return "";
     }
 
-    /**
-     * Android 10 以上适配
-     * @param context
-     * @param uri
-     * @return
-     */
     @RequiresApi(api = Build.VERSION_CODES.Q)
     private static String uriToFileApiQ(Context context, Uri uri) {
         File file = null;
-        //android10以上转换
         if (uri.getScheme().equals(ContentResolver.SCHEME_FILE)) {
             file = new File(uri.getPath());
         } else if (uri.getScheme().equals(ContentResolver.SCHEME_CONTENT)) {
-            //把文件复制到沙盒目录
             ContentResolver contentResolver = context.getContentResolver();
             Cursor cursor = contentResolver.query(uri, null, null, null, null);
             if (cursor.moveToFirst()) {
@@ -226,8 +186,7 @@ public class GetFilePathFromUri {
                 try {
                     InputStream is = contentResolver.openInputStream(uri);
                     File file1 = new File(context.getExternalCacheDir().getAbsolutePath()+"/"+System.currentTimeMillis());
-                    if (!file1.exists())
-                    {
+                    if (!file1.exists()) {
                         file1.mkdir();
                     }
                     File cache = new File(file1.getPath(), displayName);
@@ -244,34 +203,28 @@ public class GetFilePathFromUri {
         return file.getAbsolutePath();
     }
 
-    private static String getFilePathFromUri(Context context,Uri uri)
-    {
-        String realFilePath = getRealFilePath(context,uri); //防止获取不到真实的地址，因此这里需要进行判断
-        if (!TextUtils.isEmpty(realFilePath))
-        {
+    private static String getFilePathFromUri(Context context,Uri uri) {
+        String realFilePath = getRealFilePath(context,uri);
+        if (!TextUtils.isEmpty(realFilePath)) {
             return realFilePath;
         }
         File filesDir = context.getApplicationContext().getFilesDir();
         String fileName = getFileName(uri);
-        if (!TextUtils.isEmpty(fileName))
-        {
+        if (!TextUtils.isEmpty(fileName)) {
             File copyFile1 = new File(filesDir + File.separator + fileName);
             copyFile(context,uri,copyFile1);
             return copyFile1.getAbsolutePath();
         }
         return null;
     }
-    private static String getFileName(Uri uri)
-    {
-        if (uri == null)
-        {
+    private static String getFileName(Uri uri) {
+        if (uri == null) {
             return null;
         }
         String fileName = null;
         String path = uri.getPath();
         int cut = path.lastIndexOf('/');
-        if (cut != -1)
-        {
+        if (cut != -1) {
             fileName = path.substring(cut+1);
         }
         return fileName;
@@ -279,8 +232,7 @@ public class GetFilePathFromUri {
     private static void copyFile(Context context, Uri srcUri, File dstFile) {
         try {
             InputStream inputStream = context.getContentResolver().openInputStream(srcUri);
-            if (inputStream == null)
-            {
+            if (inputStream == null) {
                 return;
             }
             OutputStream outputStream = new FileOutputStream(dstFile);
@@ -305,10 +257,8 @@ public class GetFilePathFromUri {
                 count += n;
             }
             out.flush();
-        }
-        catch (Exception e)
-        {
-        }finally {
+        } catch (Exception e) {
+        } finally {
             try {
                 out.close();
                 in.close();
@@ -317,6 +267,4 @@ public class GetFilePathFromUri {
         }
         return count;
     }
-
-
 }

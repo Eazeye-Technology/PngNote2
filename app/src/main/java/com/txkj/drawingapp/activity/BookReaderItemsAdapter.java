@@ -162,28 +162,26 @@ public class BookReaderItemsAdapter extends BaseAdapter implements SDRecordingsD
 
                     String timeStr = "";
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        BigDecimal seconds = new BigDecimal(timeStrSimple/*"123.456"*/);  // 使用BigDecimal处理小数点问题
-                        int minutes = seconds.divide(new BigDecimal("60"), 0).intValue(); // 计算分钟数并向下取整
-                        BigDecimal remainingSeconds = seconds.remainder(new BigDecimal("60")); // 计算剩余的秒数
+                        BigDecimal seconds = new BigDecimal(timeStrSimple/*"123.456"*/);
+                        int minutes = seconds.divide(new BigDecimal("60"), 0).intValue();
+                        BigDecimal remainingSeconds = seconds.remainder(new BigDecimal("60"));
                         BigDecimal fractionalSeconds = seconds.subtract(BigDecimal.valueOf(minutes * 60))
-                                .subtract(BigDecimal.valueOf(remainingSeconds.intValue())); // 计算小数部分
-                        int milliseconds = fractionalSeconds.movePointRight(3).intValue(); // 将小数秒转换为毫秒
+                                .subtract(BigDecimal.valueOf(remainingSeconds.intValue()));
+                        int milliseconds = fractionalSeconds.movePointRight(3).intValue();
 
                         timeStr = String.format("%02d:%02d.%01d", minutes, remainingSeconds.intValue(), (int)(milliseconds / 100));
                     } else {
-                        //用java把带小数的秒转为分秒
-
-                        double seconds = 123.456; // 示例：123.456秒
-                        int minutes = (int) (seconds / 60); // 计算分钟数
-                        int remainingSeconds = (int) (seconds % 60); // 计算剩余的秒数
-                        double fractionalSeconds = seconds - Math.floor(seconds); // 计算小数部分
-                        int milliseconds = (int) (fractionalSeconds * 1000); // 将小数秒转换为毫秒
+                        double seconds = 123.456;
+                        int minutes = (int) (seconds / 60);
+                        int remainingSeconds = (int) (seconds % 60);
+                        double fractionalSeconds = seconds - Math.floor(seconds);
+                        int milliseconds = (int) (fractionalSeconds * 1000);
 
                         timeStr = String.format("%02d:%02d.%01d", minutes, remainingSeconds, (int)(milliseconds / 100));
                     }
 
                     if (USE_ONE_LINE) {
-                        content = "【" + speakerName + "】" + timeStr
+                        content = "[" + speakerName + "]" + timeStr
                                 + "\n" + content;
                         holder.title.setText(content);
                         holder.titleTime.setVisibility(View.GONE);

@@ -13,15 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-/**
- * 功能性函数扩展类
- */
 public class FucUtil {
-    /**
-     * 读取asset目录下文件。
-     *
-     * @return content
-     */
     public static String readFile(Context mContext, String file, String code) {
         int len = 0;
         byte[] buf = null;
@@ -39,14 +31,6 @@ public class FucUtil {
         return result;
     }
 
-    /**
-     * 将字节缓冲区按照固定大小进行分割成数组
-     *
-     * @param buffer 缓冲区
-     * @param length 缓冲区大小
-     * @param spsize 切割块大小
-     * @return
-     */
     public static ArrayList<byte[]> splitBuffer(byte[] buffer, int length, int spsize) {
         ArrayList<byte[]> array = new ArrayList<byte[]>();
         if (spsize <= 0 || length <= 0 || buffer == null || buffer.length < length)
@@ -69,12 +53,6 @@ public class FucUtil {
         return array;
     }
 
-    /**
-     * 获取语记是否包含离线听写资源，如未包含跳转至资源下载页面
-     * 1.PLUS_LOCAL_ALL: 本地所有资源
-     * 2.PLUS_LOCAL_ASR: 本地识别资源
-     * 3.PLUS_LOCAL_TTS: 本地合成资源
-     */
     public static String checkLocalResource() {
         String resource = SpeechUtility.getUtility().getParameter(SpeechConstant.PLUS_LOCAL_ASR);
         try {
@@ -85,45 +63,37 @@ public class FucUtil {
                     JSONArray asrArray = result.getJSONObject("result").optJSONArray("asr");
                     if (asrArray != null) {
                         int i = 0;
-                        // 查询否包含离线听写资源
                         for (; i < asrArray.length(); i++) {
                             if ("iat".equals(asrArray.getJSONObject(i).get(SpeechConstant.DOMAIN))) {
-                                //asrArray中包含语言、方言字段，后续会增加支持方言的本地听写。
-                                //如："accent": "mandarin","language": "zh_cn"
                                 break;
                             }
                         }
                         if (i >= asrArray.length()) {
 
                             SpeechUtility.getUtility().openEngineSettings(SpeechConstant.ENG_ASR);
-                            return "没有听写资源，跳转至资源下载页面";
+                            return "no listen resource";
                         }
                     } else {
                         SpeechUtility.getUtility().openEngineSettings(SpeechConstant.ENG_ASR);
-                        return "没有听写资源，跳转至资源下载页面";
+                        return "no listen resource";
                     }
                     break;
                 case ErrorCode.ERROR_VERSION_LOWER:
-                    return "语记版本过低，请更新后使用本地功能";
+                    return "version too low";
                 case ErrorCode.ERROR_INVALID_RESULT:
                     SpeechUtility.getUtility().openEngineSettings(SpeechConstant.ENG_ASR);
-                    return "获取结果出错，跳转至资源下载页面";
+                    return "get result error";
                 case ErrorCode.ERROR_SYSTEM_PREINSTALL:
                 default:
                     break;
             }
         } catch (Exception e) {
             SpeechUtility.getUtility().openEngineSettings(SpeechConstant.ENG_ASR);
-            return "获取结果出错，跳转至资源下载页面";
+            return "get result error";
         }
         return "";
     }
 
-    /**
-     * 读取asset目录下音频文件。
-     *
-     * @return 二进制文件数据
-     */
     public static byte[] readAudioFile(Context context, String filename) {
         try {
             InputStream ins = context.getAssets().open(filename);

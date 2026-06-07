@@ -612,11 +612,6 @@ public class DrawPath {
                                 if (false) {
                                     w = appearance.strokeSize * p.pressure;
                                 } else {
-                                    // 获取手写笔压力（如果支持）
-                                    //if (event.getPressure() > 0 && event.getPressure() <= 1.0f) {
-                                    //    stylusPressure = event.getPressure();
-                                    //    currentStrokeWidth = stylusStrokeWidth * (0.5f + stylusPressure * 0.5f);
-                                    //}
                                     //new pressure algorithm
                                     w = appearance.strokeSize * (0.5f + p.pressure * 0.5f);
                                 }
@@ -1107,7 +1102,6 @@ public class DrawPath {
      * @param path The path to erase.
      */
     public boolean erase(DrawPath path) {
-        // If there's no path to erase we can't do an erasing operation �
         if (getPath() == null) {
             return false;
         }
@@ -1130,13 +1124,11 @@ public class DrawPath {
         }
     }
     public boolean eraseSimple(DrawPath path_) {
-        // If there's no path to erase we can't do an erasing operation �
         if (getPath() == null) {
             return false;
         }
         boolean isContain = false;
         if (false) {
-            //判断划过的地方是否包含已有笔划
             for (Point point : points) {
                 if (path_.containsSimple(point)) {
                     isContain = true;
@@ -1144,7 +1136,6 @@ public class DrawPath {
                 }
             }
         } else if (false) { //wrong, don't see path_.pointsType, see this.pointsType
-            //改成判断已有笔划是否包含划过的地方
 //            if (path_.pointsType == DrawPath.POINTS_TYPE_STROKE) {
 //                for (Point point : path_.points) {
 //                    if (this.containsSimple(point)) {
@@ -1195,7 +1186,6 @@ public class DrawPath {
 //            }
         } else {
             //if true
-            //改成判断已有笔划是否包含划过的地方
             for (Point point : path_.points) {
                 if (this.pointsType == DrawPath.POINTS_TYPE_STROKE) {
                     if (this.containsSimple(point)) {

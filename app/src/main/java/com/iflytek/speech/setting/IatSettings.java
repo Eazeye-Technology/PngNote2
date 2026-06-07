@@ -10,9 +10,6 @@ import android.view.Window;
 import com.iflytek.speech.util.SettingTextWatcher;
 import com.txkj.drawingapp.R;
 
-/**
- * 听写设置界面
- */
 public class IatSettings extends PreferenceActivity implements OnPreferenceChangeListener {
 
     public static final String PREFER_NAME = "com.iflytek.setting";

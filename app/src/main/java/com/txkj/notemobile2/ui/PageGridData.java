@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 import java.util.List;
 
 public class PageGridData {
-    public final static int THUMB_BACK_COLOR = 0xFFFFFFFF;//0xFFCCCCCC; //缩略图背景色
+    public final static int THUMB_BACK_COLOR = 0xFFFFFFFF;//0xFFCCCCCC;
 
     private List<Page> pages;
     private int colNum;

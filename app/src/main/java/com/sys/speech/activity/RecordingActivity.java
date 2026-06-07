@@ -182,7 +182,7 @@ public class RecordingActivity extends Activity implements OnItemClickListener, 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.setContentView(R.layout.speech__activity_recording); //list_reader
-//		this.getActionBar().setTitle("准备录音");
+//		this.getActionBar().setTitle("Ready");
 		
 		Intent intent = this.getIntent();
 		if (intent != null) {
@@ -309,9 +309,9 @@ public class RecordingActivity extends Activity implements OnItemClickListener, 
 			}
 
 			if (mRecordingService.isRecording()) {
-				state_view.setText("正在录音");mRecordingMode=RecordingMode.RECORDING;//mRecordingStatusFragment.setRecordingMode(RecordingMode.RECORDING);
+				state_view.setText("Recording");mRecordingMode=RecordingMode.RECORDING;//mRecordingStatusFragment.setRecordingMode(RecordingMode.RECORDING);
 				filename_textview.setText(mRecordingService.getFilename().replace(".pcm", "")); //mRecordingStatusFragment.setFileName(mRecordingService.getFilename().replace(".pcm", ""));
-				button1.setText("正在录音"); //mRecordingControlsFragment.onRecordingStateChanged(RecordingMode.RECORDING);
+				button1.setText("Recording"); //mRecordingControlsFragment.onRecordingStateChanged(RecordingMode.RECORDING);
 			}
 		}
 
@@ -443,19 +443,15 @@ public class RecordingActivity extends Activity implements OnItemClickListener, 
             //if (mRecordingStatusFragment != null)
             //	mRecordingStatusFragment.setRecordingMode(mRecordingService.getRecordingMode());
             if (state_view != null) {
-                state_view.setText(mRecordingService.getRecordingMode() == RecordingMode.RECORDING ? "正在录音" : "准备录音");mRecordingMode=mRecordingService.getRecordingMode();
+                state_view.setText(mRecordingService.getRecordingMode() == RecordingMode.RECORDING ? "Recording" : "Ready");mRecordingMode=mRecordingService.getRecordingMode();
             }
 
             //if (mRecordingControlsFragment != null)
             //	mRecordingControlsFragment.onRecordingStateChanged(mRecordingService.getRecordingMode());
             if (this.button1 != null) {
-                this.button1.setText(mRecordingService.getRecordingMode() == RecordingMode.RECORDING ? "正在录音" : "准备录音");
+                this.button1.setText(mRecordingService.getRecordingMode() == RecordingMode.RECORDING ? "Recording" : "Ready");
             }
 
-    //		if (mRecordingService.getRecordingMode() == RecordingMode.IDLE)
-    //			getActionBar().setTitle("准备录音");
-    //		else if (mRecordingService.getRecordingMode() == RecordingMode.RECORDING)
-    //			getActionBar().setTitle("正在录音");
         } catch (Throwable eee) {
             eee.printStackTrace();
         }
@@ -584,9 +580,9 @@ public class RecordingActivity extends Activity implements OnItemClickListener, 
         if (requestCode == REQUEST_CODE) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 if (Environment.isExternalStorageManager()) {
-                    // 权限已授予
+
                 } else {
-                    // 权限未授予
+
                 }
             }
         }
@@ -610,9 +606,9 @@ public class RecordingActivity extends Activity implements OnItemClickListener, 
         XXPermissions.with(this).permission(permissions).request(new OnPermission() {
             @Override
             public void hasPermission(List<String> granted, boolean all) {
-                Log.d(TAG,"SDK获取系统权限成功:"+all);
+                Log.d(TAG,"Grant permissions:"+all);
                 for(int i=0;i<granted.size();i++){
-                    Log.d(TAG,"获取到的权限有："+granted.get(i));
+                    Log.d(TAG,"Grant permissions:"+granted.get(i));
                 }
                 if(all) {
                     Toast.makeText(RecordingActivity.this, "Get recording permission successfully", Toast.LENGTH_SHORT).show();
@@ -623,10 +619,10 @@ public class RecordingActivity extends Activity implements OnItemClickListener, 
             @Override
             public void noPermission(List<String> denied, boolean quick) {
                 if(quick){
-                    Log.e(TAG,"onDenied:被永久拒绝授权，请手动授予权限");
+                    Log.e(TAG,"onDenied: please manually grant");
                     XXPermissions.startPermissionActivity(RecordingActivity.this, denied);
                 }else{
-                    Log.e(TAG,"onDenied:权限获取失败");
+                    Log.e(TAG,"onDenied: grant failed");
                 }
             }
         });

@@ -9,15 +9,12 @@ import android.widget.Toast;
 
 import java.util.regex.Pattern;
 
-/**
- * 输入框输入范围控制
- */
 public class SettingTextWatcher implements TextWatcher {
     private int editStart;
     private int editCount;
     private EditTextPreference mEditTextPreference;
-    int minValue;//最小值
-    int maxValue;//最大值
+    int minValue;
+    int maxValue;
     private Context mContext;
 
     public SettingTextWatcher(Context context, EditTextPreference e, int min, int max) {
@@ -51,18 +48,15 @@ public class SettingTextWatcher implements TextWatcher {
             if (num > maxValue || num < minValue) {
                 s.delete(editStart, editStart + editCount);
                 mEditTextPreference.getEditText().setText(s);
-                Toast.makeText(mContext, "超出有效值范围", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, "Overflow", Toast.LENGTH_SHORT).show();
             }
         } else {
             s.delete(editStart, editStart + editCount);
             mEditTextPreference.getEditText().setText(s);
-            Toast.makeText(mContext, "只能输入数字哦", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext, "Only allow number", Toast.LENGTH_SHORT).show();
         }
     }
 
-    /**
-     * 正则表达式-判断是否为数字
-     */
     public static boolean isNumeric(String str) {
         Pattern pattern = Pattern.compile("[0-9]*");
         return pattern.matcher(str).matches();

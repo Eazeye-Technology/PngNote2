@@ -160,8 +160,8 @@ public class BookActivity4Fragment extends Fragment {
     private final static boolean USE_FLOAT_IME_TOOLBAR = false;
     private final static boolean USE_BOTTOM_IME_TOOLBAR = true;
 
-    private final static boolean TIMER_AUTOSAVE = true; //定时器存档
-    public final static boolean SAVING_ASYNC_MULTI = true; //允许多个异步保存
+    private final static boolean TIMER_AUTOSAVE = true;
+    public final static boolean SAVING_ASYNC_MULTI = true;
     private final static int SAVING_ASYNC_MULTI_TIMEOUT = 6; //6sec
     private final ReentrantLock saveLock = new ReentrantLock();
     private final static long DELAY_TIME2 = 10 * 1000L;
@@ -236,7 +236,7 @@ public class BookActivity4Fragment extends Fragment {
 
 
     public String curPattern;
-    private String backText; //背景图案的种类文本
+    private String backText;
 
     private Uri dirUrl;
     public String dirUrlPath;
@@ -609,12 +609,10 @@ public class BookActivity4Fragment extends Fragment {
         }
         this.set_book(this.getBook().addPage());
         if (false) {
-            //FIXME:重复上一张,why????
             if (this.pageBmp != null) {
                 this.savePageInMain(this.pageNum - 1, this.pageBmp, getVecJson(canvas));
             }
         } else {
-            //FIXME:空白页？？？
             if (this.emptyBmp != null) {
                 this.pageBmp = this.emptyBmp; //FIXME:???
             }
@@ -641,13 +639,12 @@ public class BookActivity4Fragment extends Fragment {
         onPageIdxChange(true);
     }
 
-    //删除页面
     private void removeCurrentPageAndGo() {
         if (this.pageNum <= 1) {
             BookPage page = this.getBook().getPage(this._pageIdx);
             addNewPageAndGo(false);
             this.getBook().removePage(page.getFile(), _bookIO);
-        } else if (this._pageIdx <= 0) { //0页的话直接清空就可以了
+        } else if (this._pageIdx <= 0) {
             this._pageIdx = 0; //FIXME:???
             this.ensureSave();
             if (this.pageBmp != null) {
@@ -662,7 +659,6 @@ public class BookActivity4Fragment extends Fragment {
                     CanvasBoox.initBackText(this.backText, this.emptyBmp, 1);
                 }
             }
-            //FIXME:空白页？？？
             if (this.emptyBmp != null) {
                 this.pageBmp = this.emptyBmp; //FIXME:???
             }
@@ -678,7 +674,7 @@ public class BookActivity4Fragment extends Fragment {
 
         //--------------
         this._book = null;
-        set_book(getBook()); //FIXME:???重新加载
+        set_book(getBook()); //FIXME:???reload
         //--------------
 
         onPageIdxChange(false);
@@ -1037,22 +1033,18 @@ public class BookActivity4Fragment extends Fragment {
         }
         if (isClick) {
             if (id == R.id.left_toolkit_item41) {
-                //移动
                 canvas.setTool(DrawCanvas.TOOLS.select);
                 canvas.setEraserMode(false);
                 canvas.setScaleMode(false);
             } else if (id == R.id.left_toolkit_item42) {
-                //多选
                 canvas.setTool(DrawCanvas.TOOLS.select);
                 canvas.setEraserMode(false);
                 canvas.setScaleMode(false);
             } else if (id == R.id.left_toolkit_item43) {
-                //放大
                 canvas.setTool(DrawCanvas.TOOLS.select);
                 canvas.setEraserMode(false);
                 canvas.setScaleMode(true);
             } else if (id == R.id.left_toolkit_item44) {
-                //拖动
                 canvas.setTool(DrawCanvas.TOOLS.pan);
             } else if (id == R.id.left_toolkit_item45) {
                 if (canvas != null) {
@@ -1060,7 +1052,6 @@ public class BookActivity4Fragment extends Fragment {
                     canvas.invalidate();
                 }
 
-                //删除
                 if (false) {
                     canvas.setTool(DrawCanvas.TOOLS.select);
                     canvas.setEraserMode(true);
@@ -1211,7 +1202,7 @@ public class BookActivity4Fragment extends Fragment {
             rootView.findViewById(R.id.left_toolkit2).setVisibility(View.GONE);
             rootView.findViewById(R.id.left_toolkit4).setVisibility(View.VISIBLE);
             if (currentTabIdSubmenu4 == R.id.left_toolkit_item44) {
-                canvas.setTool(DrawCanvas.TOOLS.pan); //拖动背景
+                canvas.setTool(DrawCanvas.TOOLS.pan);
             } else {
                 canvas.setTool(DrawCanvas.TOOLS.select);
             }
@@ -1317,7 +1308,7 @@ public class BookActivity4Fragment extends Fragment {
         }
 
 
-        setPenColor(0xFF000000); //FIXME:初始化画笔
+        setPenColor(0xFF000000);
 
 //        if (this.dirUrlPath != null) {
 //            if (false) {
@@ -1330,7 +1321,7 @@ public class BookActivity4Fragment extends Fragment {
 
         if (BookIO.USE_META_TXT) {
             if (isInitBackText && backText != null) {
-                //如果是创建的才会走这里
+                //run here if create
                 getBookIO().saveMeta(backText, this.dirUrlPath, "0000.meta");
             }
         }
@@ -2571,7 +2562,6 @@ public class BookActivity4Fragment extends Fragment {
                             g_rootView.findViewById(R.id.left_toolkit_global).setVisibility(View.GONE);
                             canvas.getPanTool().moveUp(0);
 
-                            // 获取触摸事件触摸位置的原始X坐标
                             float lastX = event.getX();
                             float lastY = event.getY();
                             dtViewBottom.setVisibility(View.GONE);
@@ -2637,10 +2627,8 @@ public class BookActivity4Fragment extends Fragment {
                                                 }
                                             }
                                             if (false) {
-                                                rootView.findViewById(R.id.top_toolkit_item1).performClick(); //返回绘画模式
+                                                rootView.findViewById(R.id.top_toolkit_item1).performClick();
                                             } else {
-                                                //保留在编辑模式
-                                                //FIXME:调用点击
                                                 if (true) {
                                                     rootView.findViewById(R.id.top_toolkit_item2).performClick();
                                                 } else {
@@ -2665,7 +2653,7 @@ public class BookActivity4Fragment extends Fragment {
                     case MotionEvent.ACTION_UP:
                         break;
                 }
-                return true; //阻止冒泡，阻止绘画
+                return true;
             }
         });
     }
@@ -2753,7 +2741,6 @@ public class BookActivity4Fragment extends Fragment {
                                             path.pointsTextSize// * canvas.getScaleFactor())
                                     );
                                 } else {
-                                    //FIXME:编辑保存
                                     if (path.pointsTextType == DrawPath.POINTS_TEXT_TYPE_RICH) {
                                         path.pointsText = drawPoint.getDrawText().getStr(drawPoint.getDrawText().getUseHtml());
                                     } else {
@@ -2772,10 +2759,8 @@ public class BookActivity4Fragment extends Fragment {
                             }
                         }
                         if (false) {
-                            g_rootView.findViewById(R.id.top_toolkit_item1).performClick(); //返回绘画模式
+                            g_rootView.findViewById(R.id.top_toolkit_item1).performClick();
                         } else {
-                            //保留在编辑模式
-                            //FIXME:调用点击
                             if (true) {
                                 if (false) {
                                     g_rootView.findViewById(R.id.top_toolkit_item2).performClick();
@@ -2844,7 +2829,6 @@ public class BookActivity4Fragment extends Fragment {
             }
         });
 
-        //恢复画笔选择初始状态
         isPenEraserBrush = 1;
         selectPenOrEraser(rootView, 1);
         setPenEraserBrush(canvas,1);
@@ -3421,8 +3405,6 @@ public class BookActivity4Fragment extends Fragment {
 //    @SuppressLint("GestureBackNavigation")
 //    @Override
 //    public void onBackPressed() {
-//        //FIXME:
-//        //FIXME:退出立即保存
 //        if (SAVING_ASYNC) {
 //            if (task == null) {
 //                task = new SavingTask(true);
@@ -3444,7 +3426,7 @@ public class BookActivity4Fragment extends Fragment {
 //        return true;
 //    }
 
-    int isPenEraserBrush = 1; //0:Eraser;1:Pen;2:Brush //初始状态是pen
+    int isPenEraserBrush = 1; //0:Eraser;1:Pen;2:Brush
     //    boolean isEraser = false;
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -3881,7 +3863,7 @@ public class BookActivity4Fragment extends Fragment {
                 eee.printStackTrace();
             } finally {
                 if (locked) {
-                    saveLock.unlock(); // 释放锁
+                    saveLock.unlock();
                 }
             }
             return null;
@@ -3915,23 +3897,10 @@ public class BookActivity4Fragment extends Fragment {
 
     private SavingTask task = null;
     private ExecutorService newFixedThreadPool;
-//    private ProgressDialog mProgressDialog = null; // 对话框对象
     protected void createWaitingProgressDialog() {
-//        if (mProgressDialog == null || !mProgressDialog.isShowing()) {
-//            mProgressDialog = new ProgressDialog(getActivity());
-//            mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-//            mProgressDialog.setTitle("");
-//            mProgressDialog.setMessage("Saving, please wait...");
-//            mProgressDialog.setCancelable(false);
-//            mProgressDialog.show();
-//        }
         BookActivity4Utils.createWaitingProgressDialog(getActivity());
     }
     protected void cancelWaitingProgressDialog() {
-//        if (mProgressDialog != null && mProgressDialog.isShowing()) {
-//            mProgressDialog.dismiss();
-//            mProgressDialog = null;
-//        }
         BookActivity4Utils.cancelWaitingProgressDialog(getActivity());
     }
 
@@ -3960,11 +3929,11 @@ public class BookActivity4Fragment extends Fragment {
     //FIXME:not good
     private void setPenEraserBrush(DrawCanvas canvas, int index) {
         if (index == 0) {
-            canvas.setTool(DrawCanvas.TOOLS.paint); //橡皮擦
+            canvas.setTool(DrawCanvas.TOOLS.paint); //eraser
         } else if (index == 1) {
-            canvas.setTool(DrawCanvas.TOOLS.paint); //画笔1
+            canvas.setTool(DrawCanvas.TOOLS.paint); //pen 1
         } else if (index == 2) {
-            canvas.setTool(DrawCanvas.TOOLS.paint); //画笔2
+            canvas.setTool(DrawCanvas.TOOLS.paint); //pen 2
         }
         canvas.penEraserBrush = index;
     }
@@ -4969,7 +4938,7 @@ public class BookActivity4Fragment extends Fragment {
         getBookIO().savePageOrder(page_old, _book, this._pageIdx, getActivity());
         //--------------
         this._book = null; //if _book == null, it will be reloaded from files
-        set_book(getBook()); //FIXME:???重新加载
+        set_book(getBook()); //FIXME:???reload
         //--------------
         //gotoFirstPage();
         this.ensureSave();
@@ -5017,7 +4986,7 @@ public class BookActivity4Fragment extends Fragment {
 //--------------
             //reload
             this._book = null; //if _book == null, it will be reloaded from files
-            set_book(getBook()); //FIXME:???重新加载
+            set_book(getBook()); //FIXME:???reload
 //--------------
 //--------------
 //gotoFirstPage();
@@ -5052,7 +5021,7 @@ public class BookActivity4Fragment extends Fragment {
         getBookIO().savePageOrder(page_old, _book, this._pageIdx, getActivity());
         //--------------
         this._book = null; //if _book == null, it will be reloaded from files
-        set_book(getBook()); //FIXME:???重新加载
+        set_book(getBook()); //FIXME:???reload
         //--------------
         //gotoFirstPage();
         this.ensureSave();
@@ -5099,7 +5068,7 @@ public class BookActivity4Fragment extends Fragment {
         getBookIO().savePageOrder(page_old, _book, this._pageIdx, getActivity());
         //--------------
         this._book = null; //if _book == null, it will be reloaded from files
-        set_book(getBook()); //FIXME:???重新加载
+        set_book(getBook()); //FIXME:???reload
         //--------------
         //gotoFirstPage();
         this.ensureSave();
@@ -5715,7 +5684,7 @@ public class BookActivity4Fragment extends Fragment {
     private boolean isBackPressed = false;
     public void onBackPressed() {
         isBackPressed = true;
-        //FIXME:退出立即保存
+        //FIXME:exit and save
         if (SAVING_ASYNC) {
             try {
                 if (!SAVING_ASYNC_MULTI) {

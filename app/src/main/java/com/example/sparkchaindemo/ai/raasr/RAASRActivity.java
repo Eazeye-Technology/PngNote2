@@ -31,11 +31,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-/*************************
- * 录音文件转写Demo
- * create by wxw
- * 2024-12-17
- * **********************************/
 public class RAASRActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "AEELog";
     private TextView tv_result;
@@ -44,7 +39,7 @@ public class RAASRActivity extends AppCompatActivity implements View.OnClickList
     private static final int AUDIO_FILE_SELECT_CODE = 1024;
     private String orderId = null;
 
-    private long resultGenTime = 0; //raasr转写结果预计生成时间
+    private long resultGenTime = 0;
     private String requestId;
     private String resultTypes = "transfer";
     private TextView tv_audioPathInfo;
@@ -54,14 +49,13 @@ public class RAASRActivity extends AppCompatActivity implements View.OnClickList
     RAASRCallbacks mRAASRCallbacks = new RAASRCallbacks() {
         @Override
         public void onResult(RAASR.RaAsrResult raAsrResult, Object usrTag) {
-            //以下信息需要开发者根据自身需求，如无必要，可不需要解析执行。
-            int status                                 = raAsrResult.getStatus();//订单流程状态
-            String orderResult                         = raAsrResult.getOrderResult();//转写结果
-            RAASR.RaAsrTransResult[] raAsrTransResults = raAsrResult.getTransResult();//翻译结果实例
-            orderId                                    = raAsrResult.getOrderId();//转写订单ID
-            long originalDuration                      = raAsrResult.getOriginalDuration();//原始音频时长，单位毫秒
-            long realDuration                          = raAsrResult.getRealDuration();//真实音频时长，单位毫秒
-            int taskEstimateTime                       = raAsrResult.getTaskEstimateTime();//订单预估耗时，单位毫秒
+            int status                                 = raAsrResult.getStatus();
+            String orderResult                         = raAsrResult.getOrderResult();
+            RAASR.RaAsrTransResult[] raAsrTransResults = raAsrResult.getTransResult();
+            orderId                                    = raAsrResult.getOrderId();
+            long originalDuration                      = raAsrResult.getOriginalDuration();
+            long realDuration                          = raAsrResult.getRealDuration();
+            int taskEstimateTime                       = raAsrResult.getTaskEstimateTime();
             String usrContext                          = (String)usrTag;
             resultGenTime = System.currentTimeMillis()+taskEstimateTime;
 
@@ -71,7 +65,7 @@ public class RAASRActivity extends AppCompatActivity implements View.OnClickList
             switch(usrContext){
                 case "UPLOAD":
                     Log.d(TAG,"UPLOAD");
-                    showInfo("音频上传成功！订单号为:"+orderId+"\n");
+                    showInfo("Audio uploaded successful! orderId:"+orderId+"\n");
                     setStopButton(btn_stop,false);
                     seleteResult();
                     break;
@@ -80,10 +74,10 @@ public class RAASRActivity extends AppCompatActivity implements View.OnClickList
                     FileUtils.longLog(TAG,orderResult+"\n");
                     if("transfer".equals(resultTypes)){
                         if(!TextUtils.isEmpty(orderResult)) {
-                            showInfo("转写结果：" + analysisResult(orderResult) + "\n");
+                            showInfo("Transcription result:" + analysisResult(orderResult) + "\n");
                             setStopButton(btn_upload,true);
                         }else {
-                            showInfo("未查询到转写结果，正在重新查询...\n");
+                            showInfo("Don't query transcription result, retry...\n");
                             seleteResult();
                         }
                     }else if("translate".equals(resultTypes)){
@@ -91,7 +85,7 @@ public class RAASRActivity extends AppCompatActivity implements View.OnClickList
                         for (int i = 0; i < raAsrTransResults.length; i++) {
                             transResult = transResult + raAsrTransResults[i].getDst();
                         }
-                        showInfo("翻译结果："+transResult+"\n");
+                        showInfo("Translate result:"+transResult+"\n");
                     }
                     break;
             }
@@ -100,10 +94,10 @@ public class RAASRActivity extends AppCompatActivity implements View.OnClickList
 
         @Override
         public void onError(RAASR.RaAsrError raAsrError, Object o) {
-            String errMsg  = raAsrError.getErrMsg();//错误信息
-            int errCode    = raAsrError.getCode();//错误码
-            String orderId = raAsrError.getOrderId();//转写订单ID
-            int failType   = raAsrError.getFailType();//订单异常状态
+            String errMsg  = raAsrError.getErrMsg();
+            int errCode    = raAsrError.getCode();
+            String orderId = raAsrError.getOrderId();
+            int failType   = raAsrError.getFailType();
             String info = "{errMsg:"+errMsg+",errCode:"+errCode+",orderId:"+orderId+",failType:"+failType+"}\n";
             Log.d(TAG,info);
         }
@@ -130,28 +124,28 @@ public class RAASRActivity extends AppCompatActivity implements View.OnClickList
     }
     int count = 0;
     private void runRaasr(){
-        String resultType = "transfer";//结果类型。transfer:转写，translate:翻译。具体参考集成文档
+        String resultType = "transfer";
         resultTypes = resultType;
         if(mRAASR == null){
             initRAASR();
         }
         setStopButton(btn_upload,false);
         orderId = null;
-        mRAASR.transLanguage("en");//翻译目标语种
-        mRAASR.language("cn");//识别语种
-        mRAASR.roleType(0);//是否开启角色分离,0:关闭，1:打开
-        Log.d(TAG,"当前音频路径为:"+audioPath);
+        mRAASR.transLanguage("en");
+        mRAASR.language("cn");
+        mRAASR.roleType(0);
+        Log.d(TAG,"Current audio file path:"+audioPath);
 
         count ++;
-        requestId = "第"+count+"次请求";//客户端用于标记任务的唯一id，最大长度64字符，由客户端保证唯一性，服务回调结果时会会包含此参数
+        requestId = "The "+count+" times query";
 
         int ret = mRAASR.uploadAsync(audioPath,requestId,"UPLOAD");
         setStopButton(btn_stop,true);
         Log.d(TAG,"RAASR start:"+ret);
         if(ret !=0 ){
-            showInfo("转写启动出错，错误码:"+ret+"\n");
+            showInfo("Transcription failed code:"+ret+"\n");
         }else{
-            showInfo("正在上传音频，还请耐心稍等...\n");
+            showInfo("Uploading audio, please wait...\n");
         }
     }
 
@@ -160,19 +154,18 @@ public class RAASRActivity extends AppCompatActivity implements View.OnClickList
             new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    //转写结果生成预计还需要的时间
                     long genRemainTime = resultGenTime-System.currentTimeMillis();
                     long needTime = 10;
                     if(genRemainTime > 0){
                         needTime = genRemainTime/1000 + 1;
                     }
                     String catche = tv_result.getText().toString();
-                    showInfo("正在查询订单号为:"+orderId+"的结果，预计需要"+needTime+"秒，还请耐心等待...\n");
+                    showInfo("OrderId:"+orderId+" result, estimated to require "+needTime+" seconds, please wait...\n");
                     while(needTime>0){
                         try {
                             Thread.sleep(1000);
                             needTime --;
-                            String info = catche + "正在查询订单号为:"+orderId+"的结果，预计需要"+ needTime +"秒，还请耐心等待...\n";
+                            String info = catche + " Query orderId:"+orderId+" result, estimated to require "+ needTime +" seconds, please wait...\n";
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -185,16 +178,16 @@ public class RAASRActivity extends AppCompatActivity implements View.OnClickList
                         }
                     }
                     resultGenTime = 0;
-                    String resultType = "transfer";//结果类型。transfer:转写，translate:翻译。具体参考集成文档
+                    String resultType = "transfer";
                     mRAASR.resultType(resultType);
                     int ret = mRAASR.getResultOnceAsync(orderId,"SELETE");
                     if(ret != 0){
-                        showInfo("转写查询出错，错误码:"+ret+"\n");
+                        showInfo("Transcription failed, error code:"+ret+"\n");
                     }
                 }
             }).start();
         }else{
-            showInfo("没有获取到orderId或者raasr实例！请先点击开始测试或等结果出来后重试！\n");
+            showInfo("Can't get orderId or raasr instance! please click start testing or wait result to retry!\n");
         }
     }
 
@@ -213,13 +206,9 @@ public class RAASRActivity extends AppCompatActivity implements View.OnClickList
                     runRaasr();
                 }
             }).start();
-//            case R.id.ai_raasr_getResult:
-//                seleteResult();
-//                break;
         } else if (view.getId() == R.id.ai_raasr_stop) {
-            //uploadAsync上传过程中，可通过该方法打断.
             int ret = mRAASR.stop();
-            showInfo("停止上传，ret:" + ret + "\n");
+            showInfo("Stop upload, ret:" + ret + "\n");
             setStopButton(btn_stop, false);
             setStopButton(btn_upload, true);
         } else if (view.getId() == R.id.ai_raasr_audiopath) {
@@ -228,21 +217,14 @@ public class RAASRActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
-    /***************
-     * 调用文本管理器，让用户选择要传入的图片
-     * ****************/
     private void showFileChooser() {
         Log.d(TAG,"showFileChooser");
-        //调用系统文件管理器
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-        //设置文件格式
         intent.setType("*/*");
         startActivityForResult(intent, AUDIO_FILE_SELECT_CODE);
     }
-    /***************
-     * 监听用户选择的图片，获取图片所在的路径
-     * ****************/
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         switch (requestCode) {
@@ -252,7 +234,7 @@ public class RAASRActivity extends AppCompatActivity implements View.OnClickList
                     String path = GetFilePathFromUri.getFileAbsolutePath(this, uri);
                     audioPath = path;
                 }
-                tv_audioPathInfo.setText("当前音频路径为:"+audioPath);
+                tv_audioPathInfo.setText("Current audio file path:"+audioPath);
                 break;
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -277,9 +259,6 @@ public class RAASRActivity extends AppCompatActivity implements View.OnClickList
     }
 
 
-    /********************************
-     * 解析转写的lattice结果
-     * *************************************************/
     private List<String> extractChineseCharacters(String jsonString) {
         List<String> chineseCharacters = new ArrayList<>();
         try {
@@ -320,9 +299,6 @@ public class RAASRActivity extends AppCompatActivity implements View.OnClickList
         return result;
     }
 
-    /*************************
-     * 显示控件自动下移
-     * *******************************/
     public void toend(){
         int scrollAmount = tv_result.getLayout().getLineTop(tv_result.getLineCount()) - tv_result.getHeight();
         if (scrollAmount > 0) {

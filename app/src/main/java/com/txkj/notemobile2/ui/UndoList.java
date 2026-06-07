@@ -22,7 +22,7 @@ public class UndoList {
 
     private List<UndoCommand> commandList = new ArrayList<UndoCommand>();
     private int currentPos = -1;
-    private static final int COMMAND_MAX_SIZE = 0x100000 * 1000; //最大位图内存占用数是256K
+    private static final int COMMAND_MAX_SIZE = 0x100000 * 1000;
 
     public void pushUndoCommand(int x, int y, Bitmap undo, Bitmap redo) {
         this.discardLaterCommand();
@@ -57,7 +57,7 @@ public class UndoList {
         for (UndoCommand cmd : this.commandList) {
             res += cmd.getSize();
         }
-        return res; //计算总的位图占用内存量（像素*4字节）
+        return res;
     }
 
     public boolean getCanUndo() {
@@ -106,7 +106,6 @@ public class UndoList {
 
         public void undo(Canvas target) {
             if (BookIO.USE_META_TXT) {
-                //透明色背景，所以需要清除
                 Paint p = new Paint();
                 p.setStyle(Paint.Style.FILL);
                 p.setColor(Color.BLACK);
@@ -123,7 +122,6 @@ public class UndoList {
 
         public void redo(Canvas target) {
             if (BookIO.USE_META_TXT) {
-                //透明色背景，所以需要清除
                 Paint p = new Paint();
                 p.setStyle(Paint.Style.FILL);
                 p.setColor(Color.BLACK);

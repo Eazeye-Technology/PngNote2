@@ -22,9 +22,9 @@ public class BookActivity4test extends AppCompatActivity {
 
         arRecordingCheck.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (!buttonView.isPressed()) return;
-            int se = BottomSheetBehavior.STATE_COLLAPSED;//折叠
-            //int se = BottomSheetBehavior.STATE_HIDDEN;//隐藏
-            if (isChecked) se = BottomSheetBehavior.STATE_EXPANDED;//展开
+            int se = BottomSheetBehavior.STATE_COLLAPSED;
+            //int se = BottomSheetBehavior.STATE_HIDDEN;
+            if (isChecked) se = BottomSheetBehavior.STATE_EXPANDED;
             behavior.setState(se);
         });
     }
