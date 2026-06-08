@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <resources>
-    <!--    <string name="app_name">iFLYTEK Voice Demo</string>-->
-    <!-- Please replace with the appid applied for on the Voice Cloud official website -->
-    <string name="app_id">598ab79d</string>
     <string name="example_explain">This example provides code samples for iFLYTEK Voice Android platform developers, including voice dictation, grammar recognition, semantic understanding, and speech synthesis, aiming to enable users to quickly develop applications based on the voice interface.</string>
     <string name="text_tts_source">
         As an intelligent voice technology provider, iFLYTEK has long-term research accumulation in the field of intelligent voice technology, and has achieved technical accomplishments in Chinese speech synthesis, speech recognition, spoken language evaluation, and many other technologies. iFLYTEK is China\'s "National 863 Program Industrialization Base" oriented towards voice technology industrialization.....

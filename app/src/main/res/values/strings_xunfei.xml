@@ -1,12 +1,12 @@
 <resources>
     <!--https://console.xfyun.cn/services/iat-->
-    <string name="appid">598ab79d</string>
-    <string name="apiSecret">5b054511cd419f828336ce1cdc62ed3e</string>
-    <string name="apikey">22e9886ebe4ac01b6af5a96a6f60a976</string>
+    <string name="appid"></string>
+    <string name="apiSecret"></string>
+    <string name="apikey"></string>
     <!--https://console.xfyun.cn/services/lfasr-->
-    <string name="RAASRAPIKEY">6237aa866513753f4c65696ccf7ffed8</string>
+    <string name="RAASRAPIKEY"></string>
     <!--https://console.xfyun.cn/services/rta-->
-    <string name="RTASRAPIKEY">cb05dfa26b35d6acf4f3b2920cf599d5</string>
+    <string name="RTASRAPIKEY"></string>
 </resources>
 
 

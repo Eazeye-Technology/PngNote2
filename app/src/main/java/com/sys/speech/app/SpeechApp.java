@@ -6,12 +6,9 @@ import com.iflytek.cloud.SpeechUtility;
 import com.txkj.drawingapp.R;
 
 public class SpeechApp extends Application {
-
 	@Override
 	public void onCreate() {
-		SpeechUtility.createUtility(SpeechApp.this, "appid=" + getString(R.string.xunfei_app_id));
-
+		SpeechUtility.createUtility(SpeechApp.this, "appid=" + getString(R.string.appid));
 		super.onCreate();
 	}
-	
 }
