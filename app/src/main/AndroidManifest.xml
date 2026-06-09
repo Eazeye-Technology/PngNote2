@@ -125,46 +125,11 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
 
 
 
-        <!--xunfei-->
-        <activity
-            android:name="com.example.sparkchaindemo.ai.rtasr.RTASRActivity"
-            android:exported="true">
-        </activity>
-<!--        <activity android:name="com.example.sparkchaindemo.ai.asr.asrActivity"/>-->
-        <activity android:name="com.example.sparkchaindemo.ai.raasr.RAASRActivity"
-            android:exported="true"
-            >
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-        </activity>
-<!--        <activity android:name="com.example.sparkchaindemo.ai.imageTrans.IMTSActivity" />-->
-<!--        <activity android:name="com.example.sparkchaindemo.ai.ist.ISTActivity"/>-->
-
 
 
         <!--xunfei old sdk, see https://www.xfyun.cn/sdk/dispatcher-->
-        <activity android:name="com.sys.speech.activity.RecordingActivity"
-            android:exported="true"
-            >
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-        </activity>
-        <service
-            android:name="com.sys.speech.service.RecordingService"
-            android:foregroundServiceType="microphone"
-            />
         <activity android:name="com.sys.speech.activity.DictResultActivity">
         </activity>
-        <meta-data
-            android:name="IFLYTEK_APPKEY"
-            android:value="'598ab79d'" />
-        <meta-data
-            android:name="IFLYTEK_CHANNEL"
-            android:value="Android_Demo" />
 
 
 
@@ -181,23 +146,6 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
         </activity>
 
 
-        <activity
-            android:name="com.iflytek.voicedemo.IatDemo"
-            android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|fontScale"
-            android:screenOrientation="portrait"
-            android:exported="true"
-            >
-        </activity>
-        <activity android:name="com.iflytek.speech.setting.IatSettings" />
-        <activity
-            android:name="com.example.sparkchaindemo.ai.AIMainActivity"
-            android:exported="true"
-            >
-            <!--main-->
-        </activity>
-        <activity
-            android:name="com.example.sparkchaindemo.ai.asr.asrActivity"
-            />
 
         <activity android:name="com.example.xiaolin.draggridview.MainActivity"
             android:exported="true"

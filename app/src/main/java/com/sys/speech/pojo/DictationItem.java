@@ -1,11 +1,15 @@
 package com.sys.speech.pojo;
 
-import com.sys.speech.dialog.RecognizeDialog;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 
 public class DictationItem implements Parcelable {
+    //import com.sys.speech.dialog.RecognizeDialog;
+    public static final String LANG_CHINESE = "mandarin";
+    public static final String LANG_CHINESE_GD = "cantonese";
+    public static final String LANG_ENGLISH = "en_us";
+
 	private int id;
 	private int recordId;
 	private String content;
@@ -19,11 +23,11 @@ public class DictationItem implements Parcelable {
 		if (lang == null) {
 			lang = "";
 		}
-		if (lang.equals(RecognizeDialog.LANG_CHINESE)) {
+		if (lang.equals(LANG_CHINESE)) {
 			result = "Mandarin";
-		} else if (lang.equals(RecognizeDialog.LANG_CHINESE_GD)) {
+		} else if (lang.equals(LANG_CHINESE_GD)) {
 			result = "Cantonese";
-		} else if (lang.equals(RecognizeDialog.LANG_ENGLISH)) {
+		} else if (lang.equals(LANG_ENGLISH)) {
 			result = "English";
 		} else {
 			result = lang;

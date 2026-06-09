@@ -81,7 +81,6 @@ import com.k2fsa.sherpa.onnx.speaker.diarization.screens.ReadWaveFileKt;
 import com.sys.speech.activity.DictResultActivity;
 import com.sys.speech.db.SDRecordingsDatabase;
 import com.sys.speech.dialog.PlayerDialog;
-import com.sys.speech.dialog.RecognizeDialog;
 import com.sys.speech.pojo.RecordingItem;
 import com.txkj.contentbrowser.NoteFragment4;
 import com.txkj.drawingapp.R;
@@ -192,11 +191,9 @@ public class BookActivity4Fragment extends Fragment {
     public final static int TYPE_USE_SHERPA = 2;
     public final static int TYPE_USE_SHERPA_KROKO = 3;
 
-    BookActivity4RTASRDialog rtasrDialog = null;
     BookActivity4VoskDialog voskDialog = null;
     BookActivity4SherpaOnnxDialog sherpaOnnxDialog = null;
     private final static boolean USE_LISTEN = false; //listen or recording?
-    BookActivity4ListenDialog listenDialog;
 
     private final static boolean ENABLE_BOTTOM_SHEET = false;
     
@@ -452,12 +449,7 @@ public class BookActivity4Fragment extends Fragment {
         recordTempDuration();
         if (this.isBackPressed) {
             recordDuration();
-            if (type == TYPE_USE_RTASR) {
-                if (rtasrDialog != null) {
-                    rtasrDialog.onClick_stop();
-                    rtasrDialog = null;
-                }
-            } else if (type == TYPE_USE_VOSK) {
+            if (type == TYPE_USE_VOSK) {
                 if (voskDialog != null) {
                     voskDialog.onClick_stop();
                     voskDialog = null;
@@ -2003,28 +1995,7 @@ public class BookActivity4Fragment extends Fragment {
 
                     g_rootView.findViewById(R.id.rlTranscript).performClick(); //FIXME:added
                     //isRecording
-                    if (type == TYPE_USE_RTASR) {
-                        if (rtasrDialog == null) {
-                            {
-                                Date now = new Date();
-                                Date today = beginOfDay(now);
-                                SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.getDefault());//Locale.ENGLISH);
-                                String dateStr_ = sdf.format(today);
-                                editMeetingDate(dateStr_, today.getTime());
-                                Calendar calendar = Calendar.getInstance();
-                                calendar.setTime(now);
-                                calendar.set(Calendar.SECOND, 0);
-                                calendar.set(Calendar.MILLISECOND, 0);
-                                int hour = calendar.get(Calendar.HOUR_OF_DAY);
-                                int minute = calendar.get(Calendar.MINUTE);
-                                editMeetingTime(hour, minute);
-                                lastRecordTime = calendar.getTime();
-                            }
-                            rtasrDialog = new BookActivity4RTASRDialog(getActivity());
-                            rtasrDialog.onClick_audio();
-                            //startHandlerTask();
-                        }
-                    } else if (type == TYPE_USE_VOSK) {
+                    if (type == TYPE_USE_VOSK) {
                         if (voskDialog == null) {
                             {
                                 Date now = new Date();
@@ -2087,14 +2058,7 @@ public class BookActivity4Fragment extends Fragment {
                         @Override
                         public void run() {
                             recordDuration();
-                            if (type == TYPE_USE_RTASR) {
-                                if (rtasrDialog != null) {
-                                    rtasrDialog.onClick_stop();
-                                    rtasrDialog = null;
-                                } else {
-                                    btn_audio_start_setEnabled(true);
-                                }
-                            } else if (type == TYPE_USE_VOSK) {
+                            if (type == TYPE_USE_VOSK) {
                                 if (voskDialog != null) {
                                     voskDialog.onClick_stop();
                                     voskDialog = null;
@@ -2188,22 +2152,22 @@ public class BookActivity4Fragment extends Fragment {
 
                                                     case 1: {
                                                         //Toast.makeText(MainActivity.this, item.getFilePath(), Toast.LENGTH_SHORT).show();
-                                                        RecognizeDialog recogizeDialog = new RecognizeDialog(getActivity(), item, RecognizeDialog.LANG_CHINESE);
-                                                        recogizeDialog.show();
+//                                                        RecognizeDialog recogizeDialog = new RecognizeDialog(getActivity(), item, RecognizeDialog.LANG_CHINESE);
+//                                                        recogizeDialog.show();
                                                     }
                                                     break;
 
                                                     case 2: {
                                                         //Toast.makeText(MainActivity.this, item.getFilePath(), Toast.LENGTH_SHORT).show();
-                                                        RecognizeDialog recogizeDialog = new RecognizeDialog(getActivity(), item, RecognizeDialog.LANG_CHINESE_GD);
-                                                        recogizeDialog.show();
+//                                                        RecognizeDialog recogizeDialog = new RecognizeDialog(getActivity(), item, RecognizeDialog.LANG_CHINESE_GD);
+//                                                        recogizeDialog.show();
                                                     }
                                                     break;
 
                                                     case 3: {
                                                         //Toast.makeText(MainActivity.this, item.getFilePath(), Toast.LENGTH_SHORT).show();
-                                                        RecognizeDialog recogizeDialog = new RecognizeDialog(getActivity(), item, RecognizeDialog.LANG_ENGLISH);
-                                                        recogizeDialog.show();
+//                                                        RecognizeDialog recogizeDialog = new RecognizeDialog(getActivity(), item, RecognizeDialog.LANG_ENGLISH);
+//                                                        recogizeDialog.show();
                                                     }
                                                     break;
 
@@ -2398,47 +2362,6 @@ public class BookActivity4Fragment extends Fragment {
                 type == TYPE_USE_SHERPA ||
                 type == TYPE_USE_SHERPA_KROKO) {
             //skip
-        } else if (type == TYPE_USE_RTASR) {
-            if (false) {
-                if (rtasrDialog == null) {
-                    rtasrDialog = new BookActivity4RTASRDialog(getActivity());
-                    rtasrDialog.onClick_audio();
-                    //startHandlerTask();
-                } else {
-                    rtasrDialog.onClick_stop();
-                    rtasrDialog = null;
-                }
-            } else {
-                if (g_rootView.findViewById(R.id.startRecord).getVisibility() == View.VISIBLE) {
-                    g_rootView.findViewById(R.id.rlTranscript).performClick(); //FIXME:added
-                    //isRecording
-                    if (rtasrDialog == null) {
-                        rtasrDialog = new BookActivity4RTASRDialog(getActivity());
-                        rtasrDialog.onClick_audio();
-                        //startHandlerTask();
-                    }
-                } else {
-                    Runnable runnable = new Runnable() {
-                        @Override
-                        public void run() {
-                            if (rtasrDialog != null) {
-                                rtasrDialog.onClick_stop();
-                                rtasrDialog = null;
-                            }
-                        }
-                    };
-                    AlertDialog dialogStopRecord = new BookActivity4StopRecordDialog(getActivity(), runnable).create();
-                    dialogStopRecord.show();
-                }
-            }
-        } else if (USE_LISTEN) {
-            if (listenDialog == null) {
-                listenDialog = new BookActivity4ListenDialog(getActivity(), "", "", null, _bookDir.getFilePath());
-                listenDialog.onCreate();
-            } else {
-                listenDialog.onCancel();
-                listenDialog = null;
-            }
         } else {
             if (USE_RECORDING_FRAGMENT_TEST) {
 //                            RecordingFragment fragment = (RecordingFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.fragment_recording);
