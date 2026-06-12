@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!--    <string name="app_name">SherpaASR</string>-->
+    <string name="title_transcribe">Transcription</string>
+    <string name="title_models">Models Manage</string>
+    <string name="start_recording">Start Recording</string>
+    <string name="stop_recording">Stop Recording</string>
+    <string name="hint_transcription">Transcription…</string>
+    <string name="model_name">Model Name</string>
+    <string name="model_status">Status</string>
+    <string name="download">Download</string>
+<!--    <string name="pause">Pause</string>-->
+    <string name="resume">Resume</string>
+    <string name="delete">Delete</string>
+    <string name="downloading">Downloading</string>
+    <string name="downloaded">Downloaded</string>
+    <string name="not_downloaded">Not Downloaded</string>
+    <string name="permission_required">Permission Required</string>
+    <string name="model_download_progress">%1$d%%</string>
+</resources>

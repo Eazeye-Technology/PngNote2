@@ -220,6 +220,10 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
             android:exported="true">
             <!--main, main-->
         </activity>
+        <activity android:name="com.k2fsa.sherpa.onnx.MainDownloadActivity"
+            android:exported="true">
+            <!--main, main-->
+        </activity>
     </application>
 
 </manifest>

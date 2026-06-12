@@ -514,7 +514,7 @@ public class BookActivity4SherpaOnnxDialog {
         new HomophoneReplacerConfig((String)null, "lexicon.txt", "replace.fst", 1, (DefaultConstructorMarker)null);
         Log.i(TAG, "Select model type " + type);
         FeatureConfig var10002 = FeatureConfigKt.getFeatureConfig(this.sampleRateInHz, 80);
-        OnlineModelConfig var10003 = OnlineRecognizerKt.getModelConfig(type);
+        OnlineModelConfig var10003 = OnlineRecognizerKt.getModelConfig(type, 0, mAct);
         Intrinsics.checkNotNull(var10003);
         OnlineRecognizerConfig config = new OnlineRecognizerConfig(var10002, var10003, (OnlineLMConfig)null, (OnlineCtcFstDecoderConfig)null, (HomophoneReplacerConfig)null, OnlineRecognizerKt.getEndpointConfig(), true, (String)null, 0, (String)null, 0.0F, (String)null, (String)null, 0.0F, 16284, (DefaultConstructorMarker)null);
         this.recognizer = new OnlineRecognizer(mAct.getApplication().getAssets(), config);

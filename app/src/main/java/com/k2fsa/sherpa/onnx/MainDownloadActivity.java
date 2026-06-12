@@ -19,25 +19,30 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.documentfile.provider.DocumentFile;
 
+import com.example.sherpaasr.data.ModelRepository;
 import com.k2fsa.sherpa.onnx.speaker.diarization.SpeakerDiarizationObject;
 import com.k2fsa.sherpa.onnx.speaker.diarization.screens.ReadWaveFileKt;
 import com.txkj.drawingapp.R;
 
-import kotlin.Metadata;
-import kotlin.Unit;
-import kotlin.concurrent.ThreadsKt;
-import kotlin.jvm.functions.Function0;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import kotlin.jvm.functions.Function3;
 import kotlin.jvm.internal.DefaultConstructorMarker;
 import kotlin.jvm.internal.Intrinsics;
 import kotlin.jvm.internal.Ref;
 import kotlin.text.StringsKt;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import androidx.documentfile.provider.DocumentFile;
-
-import java.io.File;
 
 //(x) from sherpa-onnx-v1.12.9-android.tar.bz2
 //from sherpa-onnx-1.12.33.zip
@@ -54,7 +59,7 @@ import java.io.File;
 //from https://k2-fsa.github.io/sherpa/onnx/android/apk.html
 //
 //see initModel(), type = 21 or 10
-public final class MainActivity extends AppCompatActivity {
+public final class MainDownloadActivity extends AppCompatActivity {
     private final static String TAG = "MainActivity";
 
     @NotNull
@@ -75,7 +80,7 @@ public final class MainActivity extends AppCompatActivity {
     private String lastText;
     private volatile boolean isRecording;
 
-    public MainActivity() {
+    public MainDownloadActivity() {
         String[] var1 = new String[]{"android.permission.RECORD_AUDIO"};
         this.permissions = var1;
         this.audioSource = 1;
@@ -109,11 +114,9 @@ public final class MainActivity extends AppCompatActivity {
 
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.setContentView(R.layout.activity_main_sherpa_onnx);
+        this.setContentView(R.layout.activity_main_download_test);
         ActivityCompat.requestPermissions((Activity)this, this.permissions, 200);
-        Log.i("sherpa-onnx", "Start to initialize model");
-        this.initModel();
-        Log.i("sherpa-onnx", "Finished initializing model");
+
         View var10001 = this.findViewById(R.id.record_button);
         Intrinsics.checkNotNullExpressionValue(var10001, "findViewById(R.id.record_button)");
         this.recordButton = (Button)var10001;
@@ -141,7 +144,7 @@ public final class MainActivity extends AppCompatActivity {
         var2.setMovementMethod((MovementMethod)(new ScrollingMovementMethod()));
 
 
-        Context a_context = MainActivity.this.getApplicationContext();
+        Context a_context = MainDownloadActivity.this.getApplicationContext();
         ActivityResultLauncher<String[]> launcher = this.registerForActivityResult(new ActivityResultContracts.OpenDocument(),
                 new ActivityResultCallback<Uri>() {
             @Override
@@ -174,7 +177,7 @@ public final class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (false) {
-                    SpeakerDiarizationObject.INSTANCE.initSpeakerDiarization(MainActivity.this.getAssets());
+                    SpeakerDiarizationObject.INSTANCE.initSpeakerDiarization(MainDownloadActivity.this.getAssets());
                     launcher.launch(new String[] {"audio/*"});
                 } else {
                     loadWavFile();
@@ -248,6 +251,33 @@ public final class MainActivity extends AppCompatActivity {
 
     private final void onclick() {
         if (!this.isRecording) {
+            Log.i("sherpa-onnx", "Start to initialize model");
+            if (false) {
+                ModelRepository repository = new ModelRepository(this);
+                String modelFileName = repository.getModels().get(0).getFileName();
+
+                File parent = null;
+                if (ModelRepository.USE_EXTERNAL_FILES) {
+                    parent = getExternalFilesDir(null);
+                } else {
+                    parent = getFilesDir();
+                }
+                File modelArchive = new File(parent,
+                        ModelRepository.MODELS_FOLDER_NAME + File.separator + modelFileName);
+                File modelDir = new File(parent,
+                        ModelRepository.MODELS_FOLDER_NAME + File.separator + modelFileName.replace(".tar.bz2", ""));
+                if (!modelDir.exists()) {
+                    try {
+                        extractTarBz2(modelArchive, modelDir.getParentFile());
+                    } catch (IOException e) {
+                        return;
+                    }
+                }
+            }
+            this.initModel();
+            Log.i("sherpa-onnx", "Finished initializing model");
+
+
             boolean ret = this.initMicrophone();
             if (!ret) {
                 Log.e("sherpa-onnx", "Failed to initialize microphone");
@@ -280,7 +310,7 @@ public final class MainActivity extends AppCompatActivity {
             this.recordingThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    MainActivity.this.processSamples();
+                    MainDownloadActivity.this.processSamples();
                 }
             });
             recordingThread.start();
@@ -309,9 +339,9 @@ public final class MainActivity extends AppCompatActivity {
     private void loadWavFile() {
         SpeakerDiarizationObject.INSTANCE.initSpeakerDiarization(this.getAssets());
 
-        Context a_context = MainActivity.this.getApplicationContext();
-        File pcmFile = new File(MainActivity.this.getExternalFilesDir(null), "audio_record.pcm");
-        File wavFile = new File(MainActivity.this.getExternalFilesDir(null), "audio_record.wav");
+        Context a_context = MainDownloadActivity.this.getApplicationContext();
+        File pcmFile = new File(MainDownloadActivity.this.getExternalFilesDir(null), "audio_record.pcm");
+        File wavFile = new File(MainDownloadActivity.this.getExternalFilesDir(null), "audio_record.wav");
         String filename = wavFile.getAbsolutePath();
         Uri o = Uri.fromFile(new File(filename));
         if (!filename.isEmpty()) {
@@ -323,18 +353,18 @@ public final class MainActivity extends AppCompatActivity {
             if (data.getMsg() != null) {
                 Log.i(TAG, "failed to read " + filename);
                 status = data.getMsg();
-                Toast.makeText(MainActivity.this,
+                Toast.makeText(MainDownloadActivity.this,
                         status,
                         Toast.LENGTH_LONG).show();
             } else if (data.getSampleRate() != SpeakerDiarizationObject.INSTANCE.getSd().sampleRate()) {
                 status = "Expected sample rate: " + SpeakerDiarizationObject.INSTANCE.getSd().sampleRate() +
                         ". Given wave file with sample rate: " + data.getSampleRate();
-                Toast.makeText(MainActivity.this,
+                Toast.makeText(MainDownloadActivity.this,
                         status,
                         Toast.LENGTH_LONG).show();
             } else {
                 samples = data.getSamples();
-                Toast.makeText(MainActivity.this,
+                Toast.makeText(MainDownloadActivity.this,
                         "load " + filename + " success!",
                         Toast.LENGTH_LONG).show();
             }
@@ -494,6 +524,7 @@ public final class MainActivity extends AppCompatActivity {
     }
 
     private final void initModel() {
+        int folderType = 1; //1:from downloaded file; 0:from assets
         int type = 21; // 10 // 0;
         String ruleFsts = null;
         String var6 = null;
@@ -501,10 +532,31 @@ public final class MainActivity extends AppCompatActivity {
         new HomophoneReplacerConfig((String)null, "lexicon.txt", "replace.fst", 1, (DefaultConstructorMarker)null);
         Log.i("sherpa-onnx", "Select model type " + type);
         FeatureConfig var10002 = FeatureConfigKt.getFeatureConfig(this.sampleRateInHz, 80);
-        OnlineModelConfig var10003 = OnlineRecognizerKt.getModelConfig(type, 0, this);
+        OnlineModelConfig var10003 = OnlineRecognizerKt.getModelConfig(type, folderType, this);
         Intrinsics.checkNotNull(var10003);
         OnlineRecognizerConfig config = new OnlineRecognizerConfig(var10002, var10003, (OnlineLMConfig)null, (OnlineCtcFstDecoderConfig)null, (HomophoneReplacerConfig)null, OnlineRecognizerKt.getEndpointConfig(), true, (String)null, 0, (String)null, 0.0F, (String)null, (String)null, 0.0F, 16284, (DefaultConstructorMarker)null);
-        this.recognizer = new OnlineRecognizer(this.getApplication().getAssets(), config);
+        //TODO: be carful here: if load downloaded file, assetManager MUST BE set to null
+        this.recognizer = new OnlineRecognizer(folderType == 1 ? null : this.getApplication().getAssets(), config);
+    }
+
+    private void extractTarBz2(File archive, File destDir) throws IOException {
+        try (TarArchiveInputStream tarIn = new TarArchiveInputStream(
+                new BZip2CompressorInputStream(new BufferedInputStream(new FileInputStream(archive))))) {
+            TarArchiveEntry entry;
+            while ((entry = tarIn.getNextTarEntry()) != null) {
+                File outFile = new File(destDir, entry.getName());
+                if (entry.isDirectory()) {
+                    outFile.mkdirs();
+                } else {
+                    outFile.getParentFile().mkdirs();
+                    try (FileOutputStream fos = new FileOutputStream(outFile)) {
+                        byte[] buf = new byte[8192];
+                        int n;
+                        while ((n = tarIn.read(buf)) != -1) fos.write(buf, 0, n);
+                    }
+                }
+            }
+        }
     }
 }
 
