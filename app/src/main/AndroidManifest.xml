@@ -41,6 +41,7 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
         android:vmSafeMode="false"
         android:name="com.sys.speech.app.SpeechApp"
         android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true"
         >
 
         <!--

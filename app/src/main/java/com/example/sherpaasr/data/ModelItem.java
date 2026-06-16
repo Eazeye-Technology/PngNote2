@@ -10,14 +10,16 @@ public class ModelItem {
     private boolean statusExtract = false;
     private int progress; // 0..100
     private boolean paused;
+    private String language;
 
-    public ModelItem(String name, String url, String fileName) {
+    public ModelItem(String name, String url, String fileName, String language) {
         this.name = name;
         this.url = url;
         this.fileName = fileName;
         this.status = Status.NOT_DOWNLOADED;
         this.progress = 0;
         this.paused = false;
+        this.language = language;
     }
 
     public String getName() { return name; }
@@ -31,4 +33,12 @@ public class ModelItem {
     public void setProgress(int progress) { this.progress = progress; }
     public boolean isPaused() { return paused; }
     public void setPaused(boolean paused) { this.paused = paused; }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
 }

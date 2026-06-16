@@ -497,6 +497,29 @@ public static boolean onBackPressed(Activity context) {
         return 0;
     }
 
+
+    public static String getTranscriptLang(Context context) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            FragmentManager fragmentManager = act.getSupportFragmentManager();
+            Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+            if (currentFragment instanceof BookActivity4Fragment) {
+                return ((BookActivity4Fragment) currentFragment).getTranscriptLang();
+            }
+        }
+        return "";
+    }
+    public static void setTranscriptLang(Context context, String lang) {
+        if (context instanceof BookListActivity) {
+            BookListActivity act = (BookListActivity) context;
+            FragmentManager fragmentManager = act.getSupportFragmentManager();
+            Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+            if (currentFragment instanceof BookActivity4Fragment) {
+                ((BookActivity4Fragment) currentFragment).setTranscriptLang(lang);
+            }
+        }
+    }
+
     public static void setPenColor(Context context, int color) {
         if (context instanceof BookListActivity) {
             BookListActivity act = (BookListActivity) context;

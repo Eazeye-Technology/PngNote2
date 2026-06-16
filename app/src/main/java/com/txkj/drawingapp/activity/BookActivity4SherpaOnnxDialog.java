@@ -514,9 +514,19 @@ public class BookActivity4SherpaOnnxDialog {
         new HomophoneReplacerConfig((String)null, "lexicon.txt", "replace.fst", 1, (DefaultConstructorMarker)null);
         Log.i(TAG, "Select model type " + type);
         FeatureConfig var10002 = FeatureConfigKt.getFeatureConfig(this.sampleRateInHz, 80);
-        OnlineModelConfig var10003 = OnlineRecognizerKt.getModelConfig(type, 0, mAct);
+        OnlineModelConfig var10003 = null;
+        if (type == 21 || type == 10) { //English is embedded in assets
+            var10003 = OnlineRecognizerKt.getModelConfig(type, 0, mAct);
+        } else {
+            var10003 = OnlineRecognizerKt.getModelConfig(type, 1, mAct);
+//            throw new RuntimeException("not implementation");
+        }
         Intrinsics.checkNotNull(var10003);
         OnlineRecognizerConfig config = new OnlineRecognizerConfig(var10002, var10003, (OnlineLMConfig)null, (OnlineCtcFstDecoderConfig)null, (HomophoneReplacerConfig)null, OnlineRecognizerKt.getEndpointConfig(), true, (String)null, 0, (String)null, 0.0F, (String)null, (String)null, 0.0F, 16284, (DefaultConstructorMarker)null);
-        this.recognizer = new OnlineRecognizer(mAct.getApplication().getAssets(), config);
+        if (type == 21 || type == 10) { //English is embedded in assets
+            this.recognizer = new OnlineRecognizer(mAct.getApplication().getAssets(), config);
+        } else { //NOTE: downloaded model files don't set assetManager
+            this.recognizer = new OnlineRecognizer(null, config);
+        }
     }
 }

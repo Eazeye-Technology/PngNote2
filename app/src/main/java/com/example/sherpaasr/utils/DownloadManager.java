@@ -1,6 +1,7 @@
 package com.example.sherpaasr.utils;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -18,6 +19,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -61,6 +64,23 @@ public class DownloadManager {
         DownloadTask task = tasks.remove(item.getFileName());
         if (task != null) task.cancel();
     }
+    public void cancelAll() {
+        try {
+            List<String> names = new ArrayList<>();
+            for (String name : tasks.keySet()) {
+                names.add(name);
+            }
+            for (String name : names) {
+                DownloadTask task = tasks.remove(name);
+                if (task != null) {
+                    task.cancel();
+                }
+            }
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+        }
+    }
+
 
     private class DownloadTask implements Runnable {
         private final ModelItem item;
@@ -91,10 +111,15 @@ public class DownloadManager {
                 conn.setReadTimeout(15000);
                 int response = conn.getResponseCode();
                 boolean supportsRange = (response == HttpURLConnection.HTTP_PARTIAL);
-                long total = conn.getContentLengthLong() + existing;
+                long total = 0;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    total = conn.getContentLengthLong() + existing;
+                }
                 if (!supportsRange) {
                     existing = 0;
-                    total = conn.getContentLengthLong();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        total = conn.getContentLengthLong();
+                    }
                 }
 
                 InputStream in = conn.getInputStream();
@@ -127,6 +152,7 @@ public class DownloadManager {
                 if (!modelDir.exists()) {
                     try {
                         extractTarBz2(modelArchive, modelDir.getParentFile());
+                        modelArchive.delete();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

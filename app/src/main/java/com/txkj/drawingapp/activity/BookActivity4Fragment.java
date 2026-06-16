@@ -76,6 +76,8 @@ import com.google.android.material.slider.LabelFormatter;
 import com.google.android.material.slider.Slider;
 import com.k2fsa.sherpa.onnx.OfflineSpeakerDiarizationConfig;
 import com.k2fsa.sherpa.onnx.OfflineSpeakerDiarizationSegment;
+import com.k2fsa.sherpa.onnx.OnlineModelConfig;
+import com.k2fsa.sherpa.onnx.OnlineRecognizerKt;
 import com.k2fsa.sherpa.onnx.speaker.diarization.SpeakerDiarizationObject;
 import com.k2fsa.sherpa.onnx.speaker.diarization.screens.ReadWaveFileKt;
 import com.sys.speech.activity.DictResultActivity;
@@ -401,11 +403,11 @@ public class BookActivity4Fragment extends Fragment {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    Thread.sleep(SAVE_INTERVAL_MILL);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+//                try {
+//                    Thread.sleep(SAVE_INTERVAL_MILL);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
                 if (isDirty && getCurrentMills() - lastWritten
                                 >= SAVE_INTERVAL_MILL) {
                     isDirty = false;
@@ -2017,6 +2019,49 @@ public class BookActivity4Fragment extends Fragment {
                             //startHandlerTask();
                         }
                     } else if (type == TYPE_USE_SHERPA || type == TYPE_USE_SHERPA_KROKO) {
+                        int modelType = (type == TYPE_USE_SHERPA_KROKO ? 21 : 10); //english
+                        String lang = getTranscriptLang();
+                        if (lang != null) {
+                            if (lang.equals("fr")) {
+                                modelType = 23; //search 23:
+                            } else if (lang.equals("de")) {
+                                modelType = 24; //search 24:
+                            } else if (lang.equals("es")) {
+                                modelType = 22; //search 22:
+                            }
+                        }
+                        OnlineModelConfig var10003 = null;
+                        if (modelType == 21 || modelType == 10) { //English is embedded in assets
+                            var10003 = OnlineRecognizerKt.getModelConfig(modelType, 0, getActivity());
+                        } else {
+                            var10003 = OnlineRecognizerKt.getModelConfig(modelType, 1, getActivity());
+                        }
+                        if (var10003 != null && !(modelType == 21 || modelType == 10)) {
+                            if (var10003.getTransducer() != null) {
+                                String encoder = var10003.getTransducer().getEncoder();
+                                String decoder = var10003.getTransducer().getDecoder();
+                                String joiner = var10003.getTransducer().getJoiner();
+                                if (encoder != null) {
+                                    if (!new File(encoder).exists()) {
+                                        Toast.makeText(getActivity(), "Please download transcription model again", Toast.LENGTH_LONG).show();
+                                        return;
+                                    }
+                                }
+                                if (decoder != null) {
+                                    if (!new File(decoder).exists()) {
+                                        Toast.makeText(getActivity(), "Please download transcription model again", Toast.LENGTH_LONG).show();
+                                        return;
+                                    }
+                                }
+                                if (joiner != null) {
+                                    if (!new File(joiner).exists()) {
+                                        Toast.makeText(getActivity(), "Please download transcription model again", Toast.LENGTH_LONG).show();
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+
                         if (sherpaOnnxDialog == null) {
                             {
                                 Date now = new Date();
@@ -2034,7 +2079,7 @@ public class BookActivity4Fragment extends Fragment {
                                 lastRecordTime = calendar.getTime();
                             }
                             sherpaOnnxDialog = new BookActivity4SherpaOnnxDialog(getActivity(),
-                                    type == TYPE_USE_SHERPA_KROKO ? 21 : 10);
+                                    modelType);
                             //startHandlerTask();
                         }
                     }
@@ -5917,4 +5962,15 @@ public class BookActivity4Fragment extends Fragment {
         return newSummary;
     }
 
+    private final static String TRANSCRIPT_PREF_NAME = "TranscriptPrefs";
+    private final static String TRANSCRIPT_PREF_ITEM_NAME = "TranscriptLang";
+    public void setTranscriptLang(String lang){
+        SharedPreferences.Editor prefs = this.getActivity().getSharedPreferences(TRANSCRIPT_PREF_NAME, Activity.MODE_PRIVATE).edit();
+        prefs.putString(TRANSCRIPT_PREF_ITEM_NAME, lang);
+        prefs.apply();
+    }
+    public String getTranscriptLang(){
+        SharedPreferences prefs = this.getActivity().getSharedPreferences(TRANSCRIPT_PREF_NAME, Activity.MODE_PRIVATE);
+        return prefs.getString(TRANSCRIPT_PREF_ITEM_NAME, "en");
+    }
 }

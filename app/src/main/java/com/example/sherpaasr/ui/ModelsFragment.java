@@ -49,7 +49,7 @@ public class ModelsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        repository = new ModelRepository(requireContext());
+        repository = new ModelRepository(requireContext(), true);
         downloadManager = new DownloadManager();
 
         RecyclerView rv = view.findViewById(R.id.recyclerModels);

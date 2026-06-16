@@ -84,6 +84,17 @@
                             android:src="@drawable/ic_baseline_content_cut_24"
                             />
 
+                        <RadioButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:checked="false"
+                            android:enabled="true"
+                            android:text=""
+                            android:id="@+id/rbDefaultChoose"
+                            android:visibility="visible"
+                            android:layout_marginRight="-10dp"
+                            />
+
                         <TextView
                             android:layout_width="0dp"
                             android:layout_weight="1"
@@ -93,19 +104,22 @@
                             android:textColor="#000000"
                             android:layout_gravity="left|center_vertical"
                             android:gravity="left|center_vertical"
-                            android:layout_marginLeft="20dp"
+                            android:layout_marginLeft="0dp"
                             android:layout_marginRight="20dp"
                             android:visibility="visible"
                             android:textStyle="bold"
+                            android:id="@+id/tvDefaultChoose"
                             />
 
                         <RadioButton
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
-                            android:checked="true"
+                            android:checked="false"
                             android:enabled="true"
-                            android:paddingStart="48dp"
+                            android:paddingStart="48px"
                             android:text=""
+                            android:id="@+id/rbDefaultChoose0"
+                            android:visibility="invisible"
                             />
                     </LinearLayout>
 
@@ -113,15 +127,16 @@
                         android:layout_width="match_parent"
                         android:layout_height="1px"
                         android:background="#000000"
-                        android:visibility="gone"
+                        android:visibility="visible"
                         />
 
                     <LinearLayout
+                        android:id="@+id/llLanguageItem1"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="1dp"
                         android:orientation="horizontal"
-                        android:visibility="gone"
+                        android:visibility="visible"
                         >
                         <ImageView
                             android:layout_width="0px"
@@ -130,43 +145,224 @@
                             android:src="@drawable/ic_baseline_content_cut_24"
                             />
 
+                        <RadioButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:checked="false"
+                            android:enabled="true"
+                            android:text=""
+                            android:visibility="invisible"
+                            android:tag="rbChoose"
+                            android:layout_marginRight="-10dp"
+                            />
+
                         <TextView
                             android:layout_width="0dp"
                             android:layout_weight="1"
                             android:layout_height="wrap_content"
-                            android:textSize="15sp"
+                            android:textSize="@dimen/activity_dialog_upgrade_text_size2"
+                            android:text="French"
+                            android:textColor="#000000"
+                            android:layout_gravity="left|center_vertical"
+                            android:gravity="left|center_vertical"
+                            android:layout_marginLeft="0dp"
+                            android:layout_marginRight="20dp"
+                            android:visibility="visible"
+                            android:textStyle="bold"
+                            android:tag="tvChoose"
+                            />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            android:layout_marginRight="20px"
+                            android:layout_gravity="center_vertical|center"
+                            android:tag="tvStatus"
+                            />
+
+                        <ImageView
+                            android:layout_width="40px"
+                            android:layout_weight="0"
+                            android:layout_height="40px"
+                            android:layout_marginRight="20px"
+                            android:src="@drawable/ic_outline_delete_forever_24"
+                            android:layout_gravity="center_vertical|center"
+                            android:tag="ivDelete"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="5px"
+                            android:visibility="gone"
+                            />
+
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            >
+                            <ImageView
+                                android:layout_width="40px"
+                                android:layout_weight="0"
+                                android:layout_height="40px"
+                                android:layout_marginRight="20px"
+                                android:src="@drawable/ic_outline_delete_forever_24"
+                                android:layout_gravity="center_vertical|center"
+                                android:tag="ivStop"
+                                android:layout_centerVertical="true"
+                                android:layout_marginLeft="5px"
+                                android:visibility="invisible"
+                                />
+
+                            <ImageView
+                                android:layout_width="40px"
+                                android:layout_weight="0"
+                                android:layout_height="40px"
+                                android:layout_marginRight="20px"
+                                android:src="@drawable/ic_baseline_download_24"
+                                android:layout_gravity="center_vertical|center"
+                                android:tag="ivDownload"
+                                android:layout_centerVertical="true"
+                                android:layout_marginLeft="5px"
+                                />
+
+                            <RadioButton
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:checked="false"
+                                android:enabled="true"
+                                android:paddingStart="48px"
+                                android:text=""
+                                android:visibility="invisible"
+                                android:tag="rbChoose0"
+                                />
+                        </RelativeLayout>
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1px"
+                        android:background="#000000"
+                        android:visibility="visible"
+                        />
+
+                    <LinearLayout
+                        android:id="@+id/llLanguageItem2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="1dp"
+                        android:orientation="horizontal"
+                        android:visibility="visible"
+                        >
+                        <ImageView
+                            android:layout_width="0px"
+                            android:layout_weight="0"
+                            android:layout_height="40dp"
+                            android:src="@drawable/ic_baseline_content_cut_24"
+                            />
+
+                        <RadioButton
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:checked="false"
+                            android:enabled="true"
+                            android:text=""
+                            android:visibility="invisible"
+                            android:tag="rbChoose"
+                            android:layout_marginRight="-10dp"
+                            />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:textSize="@dimen/activity_dialog_upgrade_text_size2"
                             android:text="German"
                             android:textColor="#000000"
                             android:layout_gravity="left|center_vertical"
                             android:gravity="left|center_vertical"
-                            android:layout_marginLeft="20dp"
+                            android:layout_marginLeft="0dp"
                             android:layout_marginRight="20dp"
                             android:visibility="visible"
                             android:textStyle="bold"
+                            android:tag="tvChoose"
                             />
 
-                        <RadioButton
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            android:layout_marginRight="20px"
+                            android:layout_gravity="center_vertical|center"
+                            android:tag="tvStatus"
+                            />
+
+                        <ImageView
+                            android:layout_width="40px"
+                            android:layout_weight="0"
+                            android:layout_height="40px"
+                            android:layout_marginRight="20px"
+                            android:src="@drawable/ic_outline_delete_forever_24"
+                            android:layout_gravity="center_vertical|center"
+                            android:tag="ivDelete"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="5px"
+                            android:visibility="gone"
+                            />
+
+                        <RelativeLayout
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
-                            android:checked="false"
-                            android:enabled="true"
-                            android:paddingStart="8dp"
-                            android:text=""/>
+                            >
+                            <ImageView
+                                android:layout_width="40px"
+                                android:layout_weight="0"
+                                android:layout_height="40px"
+                                android:layout_marginRight="20px"
+                                android:src="@drawable/ic_outline_delete_forever_24"
+                                android:layout_gravity="center_vertical|center"
+                                android:tag="ivStop"
+                                android:layout_centerVertical="true"
+                                android:layout_marginLeft="5px"
+                                android:visibility="invisible"
+                                />
+
+                            <ImageView
+                                android:layout_width="40px"
+                                android:layout_weight="0"
+                                android:layout_height="40px"
+                                android:layout_marginRight="20px"
+                                android:src="@drawable/ic_baseline_download_24"
+                                android:layout_gravity="center_vertical|center"
+                                android:tag="ivDownload"
+                                android:layout_centerVertical="true"
+                                android:layout_marginLeft="5px"
+                                />
+
+                            <RadioButton
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:checked="false"
+                                android:enabled="true"
+                                android:paddingStart="48px"
+                                android:text=""
+                                android:visibility="invisible"
+                                android:tag="rbChoose0"
+                                />
+                        </RelativeLayout>
                     </LinearLayout>
 
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1px"
                         android:background="#000000"
-                        android:visibility="gone"
+                        android:visibility="visible"
                         />
 
                     <LinearLayout
+                        android:id="@+id/llLanguageItem3"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="1dp"
                         android:orientation="horizontal"
-                        android:visibility="gone"
+                        android:visibility="visible"
                         >
                         <ImageView
                             android:layout_width="0px"
@@ -175,29 +371,98 @@
                             android:src="@drawable/ic_baseline_content_cut_24"
                             />
 
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:layout_height="wrap_content"
-                            android:textSize="15sp"
-                            android:text="Spanish"
-                            android:textColor="#000000"
-                            android:layout_gravity="left|center_vertical"
-                            android:gravity="left|center_vertical"
-                            android:layout_marginLeft="20dp"
-                            android:layout_marginRight="20dp"
-                            android:visibility="visible"
-                            android:textStyle="bold"
-                            />
-
                         <RadioButton
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
                             android:checked="false"
                             android:enabled="true"
-                            android:paddingStart="8dp"
-                            android:text=""/>
+                            android:text=""
+                            android:visibility="invisible"
+                            android:tag="rbChoose"
+                            android:layout_marginRight="-10dp"
+                            />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:textSize="@dimen/activity_dialog_upgrade_text_size2"
+                            android:text="Spanish"
+                            android:textColor="#000000"
+                            android:layout_gravity="left|center_vertical"
+                            android:gravity="left|center_vertical"
+                            android:layout_marginLeft="0dp"
+                            android:layout_marginRight="20dp"
+                            android:visibility="visible"
+                            android:textStyle="bold"
+                            android:tag="tvChoose"
+                            />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=""
+                            android:layout_marginRight="20px"
+                            android:layout_gravity="center_vertical|center"
+                            android:tag="tvStatus"
+                            />
+
+                        <ImageView
+                            android:layout_width="40px"
+                            android:layout_weight="0"
+                            android:layout_height="40px"
+                            android:layout_marginRight="20px"
+                            android:src="@drawable/ic_outline_delete_forever_24"
+                            android:layout_gravity="center_vertical|center"
+                            android:tag="ivDelete"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="5px"
+                            android:visibility="gone"
+                            />
+
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            >
+                            <ImageView
+                                android:layout_width="40px"
+                                android:layout_weight="0"
+                                android:layout_height="40px"
+                                android:layout_marginRight="20px"
+                                android:src="@drawable/ic_outline_delete_forever_24"
+                                android:layout_gravity="center_vertical|center"
+                                android:tag="ivStop"
+                                android:layout_centerVertical="true"
+                                android:layout_marginLeft="5px"
+                                android:visibility="invisible"
+                                />
+
+                            <ImageView
+                                android:layout_width="40px"
+                                android:layout_weight="0"
+                                android:layout_height="40px"
+                                android:layout_marginRight="20px"
+                                android:src="@drawable/ic_baseline_download_24"
+                                android:layout_gravity="center_vertical|center"
+                                android:tag="ivDownload"
+                                android:layout_centerVertical="true"
+                                android:layout_marginLeft="5px"
+                                />
+
+                            <RadioButton
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:checked="false"
+                                android:enabled="true"
+                                android:paddingStart="48px"
+                                android:text=""
+                                android:visibility="invisible"
+                                android:tag="rbChoose0"
+                                />
+                        </RelativeLayout>
                     </LinearLayout>
+
+
                 </LinearLayout>
 
 

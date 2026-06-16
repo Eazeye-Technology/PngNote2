@@ -253,7 +253,7 @@ public final class MainDownloadActivity extends AppCompatActivity {
         if (!this.isRecording) {
             Log.i("sherpa-onnx", "Start to initialize model");
             if (false) {
-                ModelRepository repository = new ModelRepository(this);
+                ModelRepository repository = new ModelRepository(this, true);
                 String modelFileName = repository.getModels().get(0).getFileName();
 
                 File parent = null;
