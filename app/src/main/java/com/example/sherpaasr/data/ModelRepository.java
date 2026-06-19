@@ -74,6 +74,52 @@ public class ModelRepository {
                     "sherpa-onnx-streaming-zipformer-es-kroko-2025-08-06.tar.bz2",
                     "es"
             ));
+
+            if (false) {
+                models.add(new ModelItem(
+                        "Zipfomer Korean",
+                        "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-streaming-zipformer-korean-2024-06-16.tar.bz2",
+                        "sherpa-onnx-streaming-zipformer-korean-2024-06-16.tar.bz2",
+                        "ko"
+                ));
+
+                models.add(new ModelItem(
+                        "nemo-fast-conformer",
+                        "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-nemo-fast-conformer-transducer-be-de-en-es-fr-hr-it-pl-ru-uk-20k-int8.tar.bz2",
+                        "sherpa-onnx-nemo-fast-conformer-transducer-be-de-en-es-fr-hr-it-pl-ru-uk-20k-int8.tar.bz2",
+                        "be"
+                ));
+                models.add(new ModelItem(
+                        "nemo-fast-conformer",
+                        "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-nemo-fast-conformer-transducer-be-de-en-es-fr-hr-it-pl-ru-uk-20k-int8.tar.bz2",
+                        "sherpa-onnx-nemo-fast-conformer-transducer-be-de-en-es-fr-hr-it-pl-ru-uk-20k-int8.tar.bz2",
+                        "hr"
+                ));
+                models.add(new ModelItem(
+                        "nemo-fast-conformer",
+                        "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-nemo-fast-conformer-transducer-be-de-en-es-fr-hr-it-pl-ru-uk-20k-int8.tar.bz2",
+                        "sherpa-onnx-nemo-fast-conformer-transducer-be-de-en-es-fr-hr-it-pl-ru-uk-20k-int8.tar.bz2",
+                        "it"
+                ));
+                models.add(new ModelItem(
+                        "nemo-fast-conformer",
+                        "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-nemo-fast-conformer-transducer-be-de-en-es-fr-hr-it-pl-ru-uk-20k-int8.tar.bz2",
+                        "sherpa-onnx-nemo-fast-conformer-transducer-be-de-en-es-fr-hr-it-pl-ru-uk-20k-int8.tar.bz2",
+                        "pl"
+                ));
+                models.add(new ModelItem(
+                        "nemo-fast-conformer",
+                        "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-nemo-fast-conformer-transducer-be-de-en-es-fr-hr-it-pl-ru-uk-20k-int8.tar.bz2",
+                        "sherpa-onnx-nemo-fast-conformer-transducer-be-de-en-es-fr-hr-it-pl-ru-uk-20k-int8.tar.bz2",
+                        "uk"
+                ));
+                models.add(new ModelItem(
+                        "zipformer ja reazonspeech",
+                        "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-zipformer-ja-en-reazonspeech-2025-01-17.tar.bz2",
+                        "https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-zipformer-ja-en-reazonspeech-2025-01-17.tar.bz2",
+                        "ja"
+                ));
+            }
         }
 
 
