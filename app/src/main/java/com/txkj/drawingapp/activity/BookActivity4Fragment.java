@@ -107,6 +107,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -2821,6 +2822,16 @@ public class BookActivity4Fragment extends Fragment {
                 editNum.setText(meetingSpeaker);
             }
         }
+
+        //
+        rootView.findViewById(R.id.llSaveWavFile).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openFolderPicker();
+            }
+        });
+
+
         rootView.findViewById(R.id.startDiarization).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -3206,7 +3217,7 @@ public class BookActivity4Fragment extends Fragment {
                 tvDiarizationLog.post(new Runnable() {
                     @Override
                     public void run() {
-                        tvDiarizationLog.setText("progress:" + progress);
+                        tvDiarizationLog.setText("Progress: " + progress);
                     }
                 });
             }
@@ -5809,6 +5820,7 @@ public class BookActivity4Fragment extends Fragment {
 
         LinearLayout llDiarization = (LinearLayout) g_rootView.findViewById(R.id.llDiarization);
         LinearLayout llDiarizationSetting = (LinearLayout) g_rootView.findViewById(R.id.llDiarizationSetting);
+        LinearLayout llSaveWavFile = (LinearLayout) g_rootView.findViewById(R.id.llSaveWavFile);
 
         RadioButton rbASR1 = (RadioButton) g_rootView.findViewById(R.id.rbASR1);
         RadioButton rbASR2 = (RadioButton) g_rootView.findViewById(R.id.rbASR2);
@@ -5835,6 +5847,7 @@ public class BookActivity4Fragment extends Fragment {
 
             llDiarizationSetting.setVisibility(View.GONE);
             llDiarization.setVisibility(View.GONE);
+            llSaveWavFile.setVisibility(View.GONE);
         } else {
             ivStartRecord.setColorFilter(LTGRAY, PorterDuff.Mode.SRC_IN);
             tvStartRecord.setTextColor(LTGRAY);
@@ -5859,6 +5872,7 @@ public class BookActivity4Fragment extends Fragment {
 
             llDiarizationSetting.setVisibility(View.VISIBLE);
             llDiarization.setVisibility(View.VISIBLE);
+            llSaveWavFile.setVisibility(View.VISIBLE);
         }
     }
 
@@ -5972,5 +5986,117 @@ public class BookActivity4Fragment extends Fragment {
     public String getTranscriptLang(){
         SharedPreferences prefs = this.getActivity().getSharedPreferences(TRANSCRIPT_PREF_NAME, Activity.MODE_PRIVATE);
         return prefs.getString(TRANSCRIPT_PREF_ITEM_NAME, "en");
+    }
+
+
+
+    private static final int REQUEST_CODE_PICK_DIR = 1001;
+    /**
+     * Open folder picker using SAF (Storage Access Framework).
+     */
+    private void openFolderPicker() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
+                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+        startActivityForResult(intent, REQUEST_CODE_PICK_DIR);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode != REQUEST_CODE_PICK_DIR || resultCode != Activity.RESULT_OK || data == null) {
+            //tvStatus.setText("No folder selected");
+            Toast.makeText(getActivity(), "No folder selected", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        Uri treeUri = data.getData();
+        if (treeUri == null) {
+            //tvStatus.setText("Failed to get folder path");
+            Toast.makeText(getActivity(), "Failed to get folder path", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // Take persistable permission to avoid losing access after restart
+        getActivity().getContentResolver().takePersistableUriPermission(treeUri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
+        saveWavToFolder(treeUri);
+    }
+
+    /**
+     * Save WAV file to the user-selected folder.
+     */
+    private void saveWavToFolder(Uri treeUri) {
+        try {
+            // 1. Generate auto filename
+            String fileName = WavFileWriter.generateFileName();
+
+            // 2. Create file in the selected directory via DocumentFile
+            androidx.documentfile.provider.DocumentFile pickedDir =
+                    androidx.documentfile.provider.DocumentFile.fromTreeUri(getActivity(), treeUri);
+
+            androidx.documentfile.provider.DocumentFile newFile =
+                    pickedDir.createFile("audio/wav", fileName);
+
+            if (newFile == null) {
+                //tvStatus.setText("Failed to create file");
+                Toast.makeText(getActivity(), "Failed to create file", Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            // 3. Generate sample audio data (replace with real audio source in production)
+            byte[] pcmData = null;//
+            if (false) {
+                pcmData = WavFileWriter.generateSampleAudio();
+            } else {
+                String dirPath = this.dirUrlPath;
+                File wavFile = new File(dirPath, "audio_record.wav");
+                String filename = wavFile.getAbsolutePath();
+                try {
+                    pcmData = readFileWithStream(filename);
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                    Toast.makeText(getActivity(), "Open recording file failed", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+            // 4. Write in WAV format
+            OutputStream out = getActivity().getContentResolver().openOutputStream(newFile.getUri());
+            if (out != null) {
+                try {
+                    if (false) {
+                        WavFileWriter.writeWav(out, pcmData);
+                    } else {
+                        out.write(pcmData);
+                        out.flush();
+                    }
+                } finally {
+                    out.close();
+                }
+            }
+
+            //tvStatus.setText("Saved: " + fileName);
+            Toast.makeText(getActivity(), "Saved: " + fileName, Toast.LENGTH_LONG).show();
+
+        } catch (Exception e) {
+            //tvStatus.setText("Save failed: " + e.getMessage());
+            Toast.makeText(getActivity(), "Save failed", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
+
+    public static byte[] readFileWithStream(String filePath) throws IOException {
+        try (FileInputStream fis = new FileInputStream(filePath);
+             ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[8192];
+            int len;
+            while ((len = fis.read(buffer)) != -1) {
+                bos.write(buffer, 0, len);
+            }
+            return bos.toByteArray();
+        }
     }
 }

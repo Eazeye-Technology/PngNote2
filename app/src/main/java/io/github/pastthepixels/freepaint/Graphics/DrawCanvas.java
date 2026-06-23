@@ -502,7 +502,7 @@ InputDevice.SOURCE_STYLUS == false, event.getPressure() == 0.390625, event.getTo
             BookActivity4Utils.setGlobalDisableFingerDraw(mAct, true);
         } else if (isStylus)  {
             //skip
-            BookActivity4Utils.setGlobalDisableFingerDraw(mAct, true);
+            BookActivity4Utils.setGlobalDisableFingerDraw(mAct, true); //include MotionEvent.ACTION_HOVER_MOVE
         } else {
             if (mIsTyping) {
                 //skip
@@ -525,12 +525,21 @@ InputDevice.SOURCE_STYLUS == false, event.getPressure() == 0.390625, event.getTo
                                             path.appearance.penType == DrawAppearance.PEN_TYPE_6 &&
                                             BookActivity4Fragment.ENABLE_NO_DETECT_SHAPE_PEN)) {
                                 enableRotate = true;
+
+                                //FIXME:added, if finger is outer, stop rotate
+                                Point p = this.mapPoint(event.getX(), event.getY(), 1.0f);
+                                if (!path.containsSimple(p)) {
+                                    enableRotate = false;
+                                }
                             }
                         }
                     }
                 }
-                if (enableRotate) {
+                if (enableRotate && BookActivity4Config.ENABLE_GESTURE_PINCH_ROTATE) {
                     mRotateDetector.onTouchEvent(event);
+//                    if (BookActivity4Config.ENABLE_GESTURE_PINCH_ROTATE) {
+//                        return true; //skip
+//                    }
                 } else {
                     mZoomGestureDetector.onTouchEvent(event);
                 }
