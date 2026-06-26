@@ -14,6 +14,7 @@ import com.sys.speech.pojo.RecordingItem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class SDRecordingsDatabase extends SQLiteOpenHelper {
     private final static boolean USE_WAL = true;
@@ -145,7 +146,9 @@ public class SDRecordingsDatabase extends SQLiteOpenHelper {
             item.setRecType(recType);
             item.setRecContent(recContent);
             this.memdb.add(item);
-            this.memdbAppend.add(item);
+            synchronized (lockMemdbAppend) {
+                this.memdbAppend.add(item);
+            }
             return this.memdb.size() - 1;
         } else {
             try {
@@ -176,9 +179,55 @@ public class SDRecordingsDatabase extends SQLiteOpenHelper {
         }
     }
 
+    private Object lockMemdbAppend = new Object();
     public void saveAll() {
         if (this.memdbAppend != null) {
-            saveRecording(this.memdbAppend);
+            List<RecordingItem> items = new ArrayList<>();
+            synchronized (lockMemdbAppend) {
+                items.addAll(this.memdbAppend);
+            }
+            saveRecording(items);
+        }
+    }
+    public void clearAll() {
+        if (USE_MEMDB) {
+            try {
+                synchronized (lockMemdbAppend) {
+                    this.memdb.clear();
+                }
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+            }
+        }
+    }
+    public void deleteAll() {
+        SQLiteDatabase db = getWritableDatabase();
+        try {
+            if (USE_WAL) db.enableWriteAheadLogging();
+            db.beginTransaction();
+            String[] whereArgs = {};
+            db.delete(RecordingDatabaseItem.TABLE_NAME,
+                    "",
+                    whereArgs);
+            db.setTransactionSuccessful();
+            synchronized (lockMemdbAppend) {
+                this.memdbAppend.clear();
+            }
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+        } finally{
+            db.endTransaction();
+            db.close();
+        }
+
+        if (USE_MEMDB) {
+            //skip
+            //   W  android.view.ViewRootImpl$CalledFromWrongThreadException:
+            //   Only the original thread that created a view hierarchy can touch its views.
+            //   Expected: main Calling: pool-6-thread-2
+        } else {
+            if (mOnDatabaseChangedListener != null)
+                mOnDatabaseChangedListener.onDatabaseEntryUpdated();
         }
     }
     public void saveRecording(List<RecordingItem> items) {
@@ -189,6 +238,10 @@ public class SDRecordingsDatabase extends SQLiteOpenHelper {
         try{
             if (USE_WAL) db.enableWriteAheadLogging();
             db.beginTransaction();
+            String[] whereArgs = {};
+            db.delete(RecordingDatabaseItem.TABLE_NAME,
+                    "",
+                    whereArgs);
             //insert huge data
             //get pre-compiled SQLiteStatement object
             //SQLiteStatement statement = db.compileStatement("insert into tablename(..) value (?,?)")
@@ -211,8 +264,15 @@ public class SDRecordingsDatabase extends SQLiteOpenHelper {
             db.close();
         }
 
-        if (mOnDatabaseChangedListener != null)
-            mOnDatabaseChangedListener.onDatabaseEntryUpdated();
+        if (USE_MEMDB) {
+            //skip
+            //   W  android.view.ViewRootImpl$CalledFromWrongThreadException:
+            //   Only the original thread that created a view hierarchy can touch its views.
+            //   Expected: main Calling: pool-6-thread-2
+        } else {
+            if (mOnDatabaseChangedListener != null)
+                mOnDatabaseChangedListener.onDatabaseEntryUpdated();
+        }
     }
 
     @SuppressLint("Range")

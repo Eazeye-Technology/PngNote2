@@ -2830,6 +2830,47 @@ public class BookActivity4Fragment extends Fragment {
                 openFolderPicker();
             }
         });
+        rootView.findViewById(R.id.llClearRecordingData).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        //erase meeting data
+                        try {
+                            editMeetingDate("", 0L);
+                            editMeetingDurationTemp("");
+                            editMeetingSpeaker("");
+                            editMeetingSummary("");
+                            editMeetingDiarization("", "");
+                            editMeetingDuration("");
+                            editMeetingTime(-1, -1); //clear
+
+                            String dirPath = dirUrlPath;
+                            File pcmFile = new File(dirPath, "audio_record.pcm");
+                            File wavFile = new File(dirPath, "audio_record.wav");
+                            pcmFile.delete();
+                            wavFile.delete();
+
+                            SDRecordingsDatabase mDatabase = BookActivity4Fragment.this.adapter.getDB(); //new SDRecordingsDatabase(getActivity(), _bookDir.getFilePath());
+                            if (mDatabase != null) {
+                                mDatabase.deleteAll();
+                                mDatabase.clearAll();
+                            }
+                            BookActivity4Fragment.this.adapter.setDiarization(
+                                    new ArrayList<OfflineSpeakerDiarizationSegment>());
+                            BookActivity4Fragment.this.adapter.notifyDataSetChanged();
+
+                            updateRecordButtonStatus();
+                        } catch (Throwable eee) {
+                            eee.printStackTrace();
+                        }
+                    }
+                };
+                AlertDialog dialogDel = new BookActivity4DeleteMeetingDialog(getActivity(), runnable).create();
+                dialogDel.show();
+            }
+        });
 
 
         rootView.findViewById(R.id.startDiarization).setOnClickListener(new View.OnClickListener() {
@@ -3834,9 +3875,17 @@ public class BookActivity4Fragment extends Fragment {
                     locked = saveLock.tryLock(SAVING_ASYNC_MULTI_TIMEOUT, TimeUnit.SECONDS);
                     if (locked) {
                         savePageInMain(getPageIdx(), pageBmp, getVecJson(canvas));
+                        SDRecordingsDatabase mDatabase = BookActivity4Fragment.this.adapter.getDB(); //new SDRecordingsDatabase(getActivity(), _bookDir.getFilePath());
+                        if (mDatabase != null) {
+                            mDatabase.saveAll();
+                        }
                     }
                 } else {
                     savePageInMain(getPageIdx(), pageBmp, getVecJson(canvas));
+                    SDRecordingsDatabase mDatabase = BookActivity4Fragment.this.adapter.getDB(); //new SDRecordingsDatabase(getActivity(), _bookDir.getFilePath());
+                    if (mDatabase != null) {
+                        mDatabase.saveAll();
+                    }
                 }
             } catch (Throwable eee) {
                 eee.printStackTrace();
@@ -4416,8 +4465,13 @@ public class BookActivity4Fragment extends Fragment {
             File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
             String str = FastFile.loadMetaText(file_2);
             JSONObject item = new JSONObject(str);
-            item.put(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_HOUR, hour);
-            item.put(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_MINUTE, minute);
+            if (hour == -1 & minute == -1) {
+                item.remove(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_HOUR);
+                item.remove(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_MINUTE);
+            } else {
+                item.put(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_HOUR, hour);
+                item.put(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_MINUTE, minute);
+            }
             FastFile.saveMetaText(file_2, item.toString(), getActivity());
         } catch (JSONException e) {
             e.printStackTrace();
@@ -5821,6 +5875,7 @@ public class BookActivity4Fragment extends Fragment {
         LinearLayout llDiarization = (LinearLayout) g_rootView.findViewById(R.id.llDiarization);
         LinearLayout llDiarizationSetting = (LinearLayout) g_rootView.findViewById(R.id.llDiarizationSetting);
         LinearLayout llSaveWavFile = (LinearLayout) g_rootView.findViewById(R.id.llSaveWavFile);
+        LinearLayout llClearRecordingData = (LinearLayout) g_rootView.findViewById(R.id.llClearRecordingData);
 
         RadioButton rbASR1 = (RadioButton) g_rootView.findViewById(R.id.rbASR1);
         RadioButton rbASR2 = (RadioButton) g_rootView.findViewById(R.id.rbASR2);
@@ -5848,6 +5903,7 @@ public class BookActivity4Fragment extends Fragment {
             llDiarizationSetting.setVisibility(View.GONE);
             llDiarization.setVisibility(View.GONE);
             llSaveWavFile.setVisibility(View.GONE);
+            llClearRecordingData.setVisibility(View.GONE);
         } else {
             ivStartRecord.setColorFilter(LTGRAY, PorterDuff.Mode.SRC_IN);
             tvStartRecord.setTextColor(LTGRAY);
@@ -5873,6 +5929,7 @@ public class BookActivity4Fragment extends Fragment {
             llDiarizationSetting.setVisibility(View.VISIBLE);
             llDiarization.setVisibility(View.VISIBLE);
             llSaveWavFile.setVisibility(View.VISIBLE);
+            llClearRecordingData.setVisibility(View.VISIBLE);
         }
     }
 
