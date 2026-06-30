@@ -360,11 +360,38 @@ public class BookActivity4SherpaOnnxDialog {
 //                                isEndpoint_ = true; //TODO: force call var17.reset(stream);
 //                            }
                             if (text_2.contains(".")) {// || text_2.contains("?")) {
-                                isEndpoint_ = true; //TODO: force call var17.reset(stream);
-                                touchOldText = true;
-                                String oriText = text;
-                                text = oriText.substring(0, oriText.lastIndexOf(".") + 1);
-                                oldText = oriText.substring(oriText.lastIndexOf(".") + 1);
+                                String[] keywords = new String[] {
+                                    "Dr.",
+                                    "Mr.",
+                                    "Miss.",
+                                    "Mrs.",
+                                    "Ms.",
+                                };
+                                boolean isContainAbbr = false;
+                                for (String word : keywords) {
+                                    if (text_2.contains(word)) {
+                                        isContainAbbr = true;
+                                    }
+                                }
+                                int dotCount = 0;
+                                int index = text.indexOf('.');
+                                while (index != -1) {
+                                    dotCount++;
+                                    index = text.indexOf('.', index + 1);
+                                }
+                                if (isContainAbbr && dotCount < 2) {
+                                    //skip
+                                    if (isEndpoint_) {
+                                        oldText = "";
+                                        touchOldText = false;
+                                    }
+                                } else {
+                                    isEndpoint_ = true; //TODO: force call var17.reset(stream);
+                                    touchOldText = true;
+                                    String oriText = text;
+                                    text = oriText.substring(0, oriText.lastIndexOf(".") + 1);
+                                    oldText = oriText.substring(oriText.lastIndexOf(".") + 1);
+                                }
                             } else if (text_2.contains("?")) {
                                 isEndpoint_ = true; //TODO: force call var17.reset(stream);
                                 touchOldText = true;
