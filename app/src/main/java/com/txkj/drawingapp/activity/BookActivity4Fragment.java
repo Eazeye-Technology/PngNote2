@@ -1980,120 +1980,24 @@ public class BookActivity4Fragment extends Fragment {
                     if (!enableRecordButton) {
                         return; //disable record button
                     }
-                    RadioButton rbASR1 = (RadioButton) g_rootView.findViewById(R.id.rbASR1);
-                    RadioButton rbASR2 = (RadioButton) g_rootView.findViewById(R.id.rbASR2);
-                    RadioButton rbASR3 = (RadioButton) g_rootView.findViewById(R.id.rbASR3);
-                    if (TYPE_NO_CHOOSE) {
-                        //skip
-                    } else {
-                        if (rbASR2.isChecked()) {
-                            type = TYPE_USE_SHERPA;
-                        } else if (rbASR3.isChecked()) {
-                            type = TYPE_USE_SHERPA_KROKO;
-                        } else {
-                            type = TYPE_USE_VOSK;
-                        }
-                        setTypeASRTest();
+                    if (isDoStartRecord) {
+                        return;
                     }
-
-                    g_rootView.findViewById(R.id.rlTranscript).performClick(); //FIXME:added
-                    //isRecording
-                    if (type == TYPE_USE_VOSK) {
-                        if (voskDialog == null) {
-                            {
-                                Date now = new Date();
-                                Date today = beginOfDay(now);
-                                SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.getDefault());//Locale.ENGLISH);
-                                String dateStr_ = sdf.format(today);
-                                editMeetingDate(dateStr_, today.getTime());
-                                Calendar calendar = Calendar.getInstance();
-                                calendar.setTime(now);
-                                calendar.set(Calendar.SECOND, 0);
-                                calendar.set(Calendar.MILLISECOND, 0);
-                                int hour = calendar.get(Calendar.HOUR_OF_DAY);
-                                int minute = calendar.get(Calendar.MINUTE);
-                                editMeetingTime(hour, minute);
-                                lastRecordTime = calendar.getTime();
+                    if (USE_SHOW_PLEASE_WAIT) {
+                        isDoStartRecord = true;
+                        TextView tvStartRecord = (TextView) g_rootView.findViewById(R.id.tvStartRecord);
+                        tvStartRecord.setText("Please wait...");
+                        tvStartRecord.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                startRecord();
+                                isDoStartRecord = false;
                             }
-                            voskDialog = new BookActivity4VoskDialog(getActivity());
-                            voskDialog.onClick_audio();
-                            //startHandlerTask();
-                        }
-                    } else if (type == TYPE_USE_SHERPA || type == TYPE_USE_SHERPA_KROKO) {
-                        int modelType = (type == TYPE_USE_SHERPA_KROKO ? 21 : 10); //english
-                        String lang = getTranscriptLang();
-                        if (lang != null) {
-                            if (lang.equals("fr")) {
-                                modelType = 23; //search 23:
-                            } else if (lang.equals("de")) {
-                                modelType = 24; //search 24:
-                            } else if (lang.equals("es")) {
-                                modelType = 22; //search 22:
-                            }
-                        }
-                        OnlineModelConfig var10003 = null;
-                        if (modelType == 21 || modelType == 10) { //English is embedded in assets
-                            var10003 = OnlineRecognizerKt.getModelConfig(modelType, 0, getActivity());
-                        } else {
-                            var10003 = OnlineRecognizerKt.getModelConfig(modelType, 1, getActivity());
-                        }
-                        if (var10003 != null && !(modelType == 21 || modelType == 10)) {
-                            if (var10003.getTransducer() != null) {
-                                String encoder = var10003.getTransducer().getEncoder();
-                                String decoder = var10003.getTransducer().getDecoder();
-                                String joiner = var10003.getTransducer().getJoiner();
-                                if (encoder != null) {
-                                    if (!new File(encoder).exists()) {
-                                        Toast.makeText(getActivity(), "Please download transcription model again", Toast.LENGTH_LONG).show();
-                                        return;
-                                    }
-                                }
-                                if (decoder != null) {
-                                    if (!new File(decoder).exists()) {
-                                        Toast.makeText(getActivity(), "Please download transcription model again", Toast.LENGTH_LONG).show();
-                                        return;
-                                    }
-                                }
-                                if (joiner != null) {
-                                    if (!new File(joiner).exists()) {
-                                        Toast.makeText(getActivity(), "Please download transcription model again", Toast.LENGTH_LONG).show();
-                                        return;
-                                    }
-                                }
-                            }
-                        }
-
-                        if (sherpaOnnxDialog == null) {
-                            {
-                                Date now = new Date();
-                                Date today = beginOfDay(now);
-                                SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.getDefault());//Locale.ENGLISH);
-                                String dateStr_ = sdf.format(today);
-                                editMeetingDate(dateStr_, today.getTime());
-                                Calendar calendar = Calendar.getInstance();
-                                calendar.setTime(now);
-                                calendar.set(Calendar.SECOND, 0);
-                                calendar.set(Calendar.MILLISECOND, 0);
-                                int hour = calendar.get(Calendar.HOUR_OF_DAY);
-                                int minute = calendar.get(Calendar.MINUTE);
-                                editMeetingTime(hour, minute);
-                                lastRecordTime = calendar.getTime();
-                            }
-                            sherpaOnnxDialog = new BookActivity4SherpaOnnxDialog(getActivity(),
-                                    modelType);
-                            //startHandlerTask();
-                        }
-                    }
-
-//                    RadioButton rbASR1 = (RadioButton) g_rootView.findViewById(R.id.rbASR1);
-//                    RadioButton rbASR2 = (RadioButton) g_rootView.findViewById(R.id.rbASR2);
-//                    RadioButton rbASR3 = (RadioButton) g_rootView.findViewById(R.id.rbASR3);
-                    if (TYPE_NO_CHOOSE) {
-                        //sktip
+                        }, 100);
                     } else {
-                        rbASR1.setEnabled(false);
-                        rbASR2.setEnabled(false);
-                        rbASR3.setEnabled(false);
+                        isDoStartRecord = true;
+                        startRecord();
+                        isDoStartRecord = false;
                     }
                 }
             };
@@ -2431,6 +2335,125 @@ public class BookActivity4Fragment extends Fragment {
 //                            }
 //                            Toast.makeText(getActivity(), "total : " + adapter.getCount(), Toast.LENGTH_LONG).show();
             }
+        }
+    }
+
+    boolean isDoStartRecord = false;
+    private void startRecord() {
+        RadioButton rbASR1 = (RadioButton) g_rootView.findViewById(R.id.rbASR1);
+        RadioButton rbASR2 = (RadioButton) g_rootView.findViewById(R.id.rbASR2);
+        RadioButton rbASR3 = (RadioButton) g_rootView.findViewById(R.id.rbASR3);
+        if (TYPE_NO_CHOOSE) {
+            //skip
+        } else {
+            if (rbASR2.isChecked()) {
+                type = TYPE_USE_SHERPA;
+            } else if (rbASR3.isChecked()) {
+                type = TYPE_USE_SHERPA_KROKO;
+            } else {
+                type = TYPE_USE_VOSK;
+            }
+            setTypeASRTest();
+        }
+
+        g_rootView.findViewById(R.id.rlTranscript).performClick(); //FIXME:added
+        //isRecording
+        if (type == TYPE_USE_VOSK) {
+            if (voskDialog == null) {
+                {
+                    Date now = new Date();
+                    Date today = beginOfDay(now);
+                    SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.getDefault());//Locale.ENGLISH);
+                    String dateStr_ = sdf.format(today);
+                    editMeetingDate(dateStr_, today.getTime());
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(now);
+                    calendar.set(Calendar.SECOND, 0);
+                    calendar.set(Calendar.MILLISECOND, 0);
+                    int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                    int minute = calendar.get(Calendar.MINUTE);
+                    editMeetingTime(hour, minute);
+                    lastRecordTime = calendar.getTime();
+                }
+                voskDialog = new BookActivity4VoskDialog(getActivity());
+                voskDialog.onClick_audio();
+                //startHandlerTask();
+            }
+        } else if (type == TYPE_USE_SHERPA || type == TYPE_USE_SHERPA_KROKO) {
+            int modelType = (type == TYPE_USE_SHERPA_KROKO ? 21 : 10); //english
+            String lang = getTranscriptLang();
+            if (lang != null) {
+                if (lang.equals("fr")) {
+                    modelType = 23; //search 23:
+                } else if (lang.equals("de")) {
+                    modelType = 24; //search 24:
+                } else if (lang.equals("es")) {
+                    modelType = 22; //search 22:
+                }
+            }
+            OnlineModelConfig var10003 = null;
+            if (modelType == 21 || modelType == 10) { //English is embedded in assets
+                var10003 = OnlineRecognizerKt.getModelConfig(modelType, 0, getActivity());
+            } else {
+                var10003 = OnlineRecognizerKt.getModelConfig(modelType, 1, getActivity());
+            }
+            if (var10003 != null && !(modelType == 21 || modelType == 10)) {
+                if (var10003.getTransducer() != null) {
+                    String encoder = var10003.getTransducer().getEncoder();
+                    String decoder = var10003.getTransducer().getDecoder();
+                    String joiner = var10003.getTransducer().getJoiner();
+                    if (encoder != null) {
+                        if (!new File(encoder).exists()) {
+                            Toast.makeText(getActivity(), "Please download transcription model again", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                    }
+                    if (decoder != null) {
+                        if (!new File(decoder).exists()) {
+                            Toast.makeText(getActivity(), "Please download transcription model again", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                    }
+                    if (joiner != null) {
+                        if (!new File(joiner).exists()) {
+                            Toast.makeText(getActivity(), "Please download transcription model again", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                    }
+                }
+            }
+
+            if (sherpaOnnxDialog == null) {
+                {
+                    Date now = new Date();
+                    Date today = beginOfDay(now);
+                    SimpleDateFormat sdf = new SimpleDateFormat("MMMM d, yyyy", Locale.getDefault());//Locale.ENGLISH);
+                    String dateStr_ = sdf.format(today);
+                    editMeetingDate(dateStr_, today.getTime());
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(now);
+                    calendar.set(Calendar.SECOND, 0);
+                    calendar.set(Calendar.MILLISECOND, 0);
+                    int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                    int minute = calendar.get(Calendar.MINUTE);
+                    editMeetingTime(hour, minute);
+                    lastRecordTime = calendar.getTime();
+                }
+                sherpaOnnxDialog = new BookActivity4SherpaOnnxDialog(getActivity(),
+                        modelType);
+                //startHandlerTask();
+            }
+        }
+
+//                    RadioButton rbASR1 = (RadioButton) g_rootView.findViewById(R.id.rbASR1);
+//                    RadioButton rbASR2 = (RadioButton) g_rootView.findViewById(R.id.rbASR2);
+//                    RadioButton rbASR3 = (RadioButton) g_rootView.findViewById(R.id.rbASR3);
+        if (TYPE_NO_CHOOSE) {
+            //sktip
+        } else {
+            rbASR1.setEnabled(false);
+            rbASR2.setEnabled(false);
+            rbASR3.setEnabled(false);
         }
     }
 
@@ -5309,9 +5332,15 @@ public class BookActivity4Fragment extends Fragment {
 //        }
 //        Toast.makeText(BookActivity4.this, "total : " + adapter.getCount(), Toast.LENGTH_LONG).show();
     }
+    public final static boolean USE_SHOW_PLEASE_WAIT = true;
     private boolean isTranscriptRecording = false;
     public void btn_audio_start_setEnabled(boolean enable) {
         Log.e(TAG, "btn_audio_start_setEnabled : " + enable);
+        if (USE_SHOW_PLEASE_WAIT) {
+            TextView tvStartRecord = g_rootView.findViewById(R.id.tvStartRecord);
+            tvStartRecord.setText("Start Recording");
+        }
+
         AppCompatImageView btnPanel = (AppCompatImageView) g_rootView.findViewById(R.id.btnPanel);
         AnimationDrawable anim = (AnimationDrawable) btnPanel.getDrawable();
         if (!enable) {
@@ -5903,7 +5932,7 @@ public class BookActivity4Fragment extends Fragment {
             llDiarizationSetting.setVisibility(View.GONE);
             llDiarization.setVisibility(View.GONE);
             llSaveWavFile.setVisibility(View.GONE);
-            llClearRecordingData.setVisibility(View.GONE);
+            //llClearRecordingData.setVisibility(View.GONE);
         } else {
             ivStartRecord.setColorFilter(LTGRAY, PorterDuff.Mode.SRC_IN);
             tvStartRecord.setTextColor(LTGRAY);
@@ -5929,8 +5958,24 @@ public class BookActivity4Fragment extends Fragment {
             llDiarizationSetting.setVisibility(View.VISIBLE);
             llDiarization.setVisibility(View.VISIBLE);
             llSaveWavFile.setVisibility(View.VISIBLE);
-            llClearRecordingData.setVisibility(View.VISIBLE);
+            //llClearRecordingData.setVisibility(View.VISIBLE);
         }
+
+        //-------------
+        //FIXME:20260702
+        boolean canClear = false;
+        Long meetingDate = getMeetingDate();
+        if (meetingDate != null) {
+            if (meetingDate > 0) {
+                canClear = true;
+            }
+        }
+        if (canClear) {
+            llClearRecordingData.setVisibility(View.VISIBLE);
+        } else {
+            llClearRecordingData.setVisibility(View.GONE);
+        }
+        //--------------
     }
 
     //https://github.com/avesha/android.fba.toolkit/blob/master/engine/src/main/java/ru/profi1c/engine/util/DateHelper.java
