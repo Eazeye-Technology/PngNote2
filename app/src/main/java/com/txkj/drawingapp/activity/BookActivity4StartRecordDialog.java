@@ -12,13 +12,13 @@ import androidx.appcompat.app.AlertDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.txkj.drawingapp.R;
 
-public class BookActivity4StopRecordDialog {
+public class BookActivity4StartRecordDialog {
     //private final static int WIN_WIDTH = 312 + 24 * 2;//312;
 
     private Activity mContext;
     private Runnable mRunnable;
 
-    public BookActivity4StopRecordDialog(Activity ctx, Runnable runnable) {
+    public BookActivity4StartRecordDialog(Activity ctx, Runnable runnable) {
         this.mContext = ctx;
         this.mRunnable = runnable;
     }
@@ -26,7 +26,7 @@ public class BookActivity4StopRecordDialog {
     public AlertDialog create() {
         AlertDialog dialog = new MaterialAlertDialogBuilder(this.mContext, BookActivity4Utils.getCenteredTitleThemeOverlay())
                 //.setTitle(title)
-                .setView(R.layout.activity_book4_stop_record)
+                .setView(R.layout.activity_book4_start_record)
                 .setCancelable(true)
 //                .setPositiveButton("Done", new DialogInterface.OnClickListener() {
 //                    @Override

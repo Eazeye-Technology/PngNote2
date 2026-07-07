@@ -74,6 +74,8 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.LabelFormatter;
 import com.google.android.material.slider.Slider;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.k2fsa.sherpa.onnx.OfflineSpeakerDiarizationConfig;
 import com.k2fsa.sherpa.onnx.OfflineSpeakerDiarizationSegment;
 import com.k2fsa.sherpa.onnx.OnlineModelConfig;
@@ -152,6 +154,9 @@ import kotlin.jvm.functions.Function3;
 //isDirty = true; //FIXME: force save
 //TODO:notifyForceSave, when view onSizeChanged or other events, need call it
 public class BookActivity4Fragment extends Fragment {
+    private final static String DEFAULT_EMPTY_TEXT = "-";
+    private final static boolean USE_SNACKBAR = true;
+
     public final static boolean ENABLE_SHAPE_PEN = true; //enable shape pen
     public final static boolean ENABLE_NO_DETECT_SHAPE_PEN = true; //enable shape pen but close auto detect
 
@@ -1949,6 +1954,7 @@ public class BookActivity4Fragment extends Fragment {
             lastRecordTime = null;
         }
     }
+    private Snackbar g_snackBar;
     private void init001(View rootView) {
         {
             View.OnClickListener onClickListenerPause = new View.OnClickListener() {
@@ -1986,14 +1992,36 @@ public class BookActivity4Fragment extends Fragment {
                     if (USE_SHOW_PLEASE_WAIT) {
                         isDoStartRecord = true;
                         TextView tvStartRecord = (TextView) g_rootView.findViewById(R.id.tvStartRecord);
-                        tvStartRecord.setText("Please wait...");
-                        tvStartRecord.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                startRecord();
-                                isDoStartRecord = false;
-                            }
-                        }, 100);
+                        if (USE_SNACKBAR) {
+                            g_snackBar = Snackbar.make(g_rootView,
+                                    "Meeting recording is starting...",
+                                    Snackbar.LENGTH_INDEFINITE);
+                            g_snackBar.addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
+                                @Override
+                                public void onShown(Snackbar transientBottomBar) {
+                                    super.onShown(transientBottomBar);
+                                    if (USE_SNACKBAR) {
+                                        tvStartRecord.postDelayed(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                startRecord();
+                                                isDoStartRecord = false;
+                                            }
+                                        }, 100);
+                                    }
+                                }
+                            });
+                            g_snackBar.show();
+                        } else {
+                            tvStartRecord.setText("Please wait...");
+                            tvStartRecord.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    startRecord();
+                                    isDoStartRecord = false;
+                                }
+                            }, 100);
+                        }
                     } else {
                         isDoStartRecord = true;
                         startRecord();
@@ -2027,6 +2055,10 @@ public class BookActivity4Fragment extends Fragment {
                     };
                     AlertDialog dialogStopRecord = new BookActivity4StopRecordDialog(getActivity(), runnable).create();
                     dialogStopRecord.show();
+
+                    TextView tvTranscriptionReady = (TextView) g_rootView.findViewById(R.id.tvTranscriptionReady);
+                    tvTranscriptionReady.setVisibility(View.GONE);
+
                     updateRecordButtonStatus();
                 }
             };
@@ -2035,10 +2067,12 @@ public class BookActivity4Fragment extends Fragment {
             rootView.findViewById(R.id.pauseRecordOff).setOnClickListener(onClickListenerPause);
             rootView.findViewById(R.id.pauseRecordOn).setOnClickListener(onClickListenerPause);
             ListView viewListViewBook = (ListView) rootView.findViewById(R.id.viewListViewBook);
+            LinearLayout llTranscriptionReady = (LinearLayout) rootView.findViewById(R.id.llTranscriptionReady);
             String meetingId = "";
             String agendaId = "";
             adapter = new BookReaderItemsAdapter(getActivity(), meetingId, agendaId, _bookDir.getFilePath());
             viewListViewBook.setAdapter(adapter);
+            viewListViewBook.setEmptyView(llTranscriptionReady);
             viewListViewBook.setFastScrollEnabled(true);
             viewListViewBook.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
@@ -2826,7 +2860,12 @@ public class BookActivity4Fragment extends Fragment {
         setPenEraserBrush(canvas,1);
 
         TextView tvMeetingSummary = rootView.findViewById(R.id.tvMeetingSummary);
-        tvMeetingSummary.setText(getMeetingSummary());
+        String summary = getMeetingSummary();
+        if (summary != null && !summary.isEmpty()) {
+            tvMeetingSummary.setText(summary);
+        } else {
+            tvMeetingSummary.setText(DEFAULT_EMPTY_TEXT);
+        }
         rootView.findViewById(R.id.tvEditSummary).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -2926,8 +2965,14 @@ public class BookActivity4Fragment extends Fragment {
                 String dateStr_ = sdf.format(newDate);
                 if (dateStr_ != null) {
                     tvMeetingDate.setText(dateStr_);
+                } else {
+                    tvMeetingDate.setText(DEFAULT_EMPTY_TEXT);
                 }
+            } else {
+                tvMeetingDate.setText(DEFAULT_EMPTY_TEXT);
             }
+        } else {
+            tvMeetingDate.setText(DEFAULT_EMPTY_TEXT);
         }
         rootView.findViewById(R.id.llMeetingDate).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -2952,7 +2997,7 @@ public class BookActivity4Fragment extends Fragment {
             String dateStr_ = String.format("%02d:%02d", meetingHour, meetingMinute);
             tvMeetingTime.setText(dateStr_);
         } else {
-            tvMeetingTime.setText("");
+            tvMeetingTime.setText(DEFAULT_EMPTY_TEXT);
         }
         rootView.findViewById(R.id.llMeetingTime).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -2972,6 +3017,7 @@ public class BookActivity4Fragment extends Fragment {
         });
 
         TextView tvMeetingDuration = rootView.findViewById(R.id.tvMeetingDuration);
+        tvMeetingDuration.setText(DEFAULT_EMPTY_TEXT);
         try {
             String duration = getMeetingDuration();
             if (duration == null || duration.length() == 0) {
@@ -4378,7 +4424,7 @@ public class BookActivity4Fragment extends Fragment {
                         ((TextView) g_rootView.findViewById(R.id.tvMeetingDuration)).setText("" + duration + " minute");
                     }
                 } else {
-                    ((TextView) g_rootView.findViewById(R.id.tvMeetingDuration)).setText("");
+                    ((TextView) g_rootView.findViewById(R.id.tvMeetingDuration)).setText(DEFAULT_EMPTY_TEXT);
                 }
             } catch (Throwable eee) {
                 eee.printStackTrace();
@@ -4418,6 +4464,7 @@ public class BookActivity4Fragment extends Fragment {
         } else {
             onCreateAct(g_rootView);
             try {
+                ((TextView) g_rootView.findViewById(R.id.tvMeetingSummary)).setText(DEFAULT_EMPTY_TEXT);
                 ((TextView) g_rootView.findViewById(R.id.tvMeetingSummary)).setText(getMeetingSummary());
             } catch (Throwable eee) {
                 eee.printStackTrace();
@@ -4463,7 +4510,7 @@ public class BookActivity4Fragment extends Fragment {
                     String dateStr_ = sdf.format(newDate);
                     ((TextView) g_rootView.findViewById(R.id.tvMeetingDate)).setText(dateStr_);
                 } else {
-                    ((TextView) g_rootView.findViewById(R.id.tvMeetingDate)).setText("");
+                    ((TextView) g_rootView.findViewById(R.id.tvMeetingDate)).setText(DEFAULT_EMPTY_TEXT);
                 }
             } catch (Throwable eee) {
                 eee.printStackTrace();
@@ -4511,7 +4558,7 @@ public class BookActivity4Fragment extends Fragment {
             try {
                 Integer newDateHour = getMeetingHour();
                 Integer newDateMinute = getMeetingMinute();
-                String dateStr_ = "";
+                String dateStr_ = DEFAULT_EMPTY_TEXT;
                 if (newDateHour != null && newDateMinute != null) {
                     dateStr_ = String.format("%02d:%02d", newDateHour, newDateMinute);
                     ((TextView) g_rootView.findViewById(R.id.tvMeetingTime)).setText(dateStr_);
@@ -5338,7 +5385,16 @@ public class BookActivity4Fragment extends Fragment {
         Log.e(TAG, "btn_audio_start_setEnabled : " + enable);
         if (USE_SHOW_PLEASE_WAIT) {
             TextView tvStartRecord = g_rootView.findViewById(R.id.tvStartRecord);
-            tvStartRecord.setText("Start Recording");
+            tvStartRecord.setText(R.string.start_recording);
+            if (g_snackBar != null && g_snackBar.isShown()) {
+                g_snackBar.dismiss();
+            }
+            TextView tvTranscriptionReady = (TextView) g_rootView.findViewById(R.id.tvTranscriptionReady);
+            tvTranscriptionReady.setVisibility(View.VISIBLE);
+
+            AlertDialog dialog = new BookActivity4StartRecordDialog(
+                    getActivity(), null).create();
+            dialog.show();
         }
 
         AppCompatImageView btnPanel = (AppCompatImageView) g_rootView.findViewById(R.id.btnPanel);
@@ -6045,6 +6101,7 @@ public class BookActivity4Fragment extends Fragment {
 //        } else {
 //            onCreateAct(g_rootView);
 //            try {
+//                ((TextView) g_rootView.findViewById(R.id.tvMeetingSummary)).setText(DEFAULT_EMPTY_TEXT);
 //                ((TextView) g_rootView.findViewById(R.id.tvMeetingSummary)).setText(getMeetingSummary());
 //            } catch (Throwable eee) {
 //                eee.printStackTrace();

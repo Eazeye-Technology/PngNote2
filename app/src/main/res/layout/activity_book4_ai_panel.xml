@@ -157,19 +157,38 @@
                             android:id="@+id/llTranscript"
                             android:background="#F4F0EF"
                             >
-                            <!--                                            <include layout="@layout/a_design_003_trans3"/>-->
-                            <ListView
-                                android:id="@+id/viewListViewBook"
+                            <RelativeLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:cacheColorHint="#00000000"
-                                android:divider="@null"
-                                android:listSelector="#00000000"
-                                />
-
-                            <!--
-                             android:divider="@drawable/speech__main_menu_list_line"
-                               -->
+                                >
+                                <!--                                            <include layout="@layout/a_design_003_trans3"/>-->
+                                <ListView
+                                    android:id="@+id/viewListViewBook"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:cacheColorHint="#00000000"
+                                    android:divider="@null"
+                                    android:listSelector="#00000000"
+                                    />
+                                <!--
+                                 android:divider="@drawable/speech__main_menu_list_line"
+                                   -->
+                                <LinearLayout
+                                    android:id="@+id/llTranscriptionReady"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_centerInParent="true"
+                                    >
+                                    <TextView
+                                        android:id="@+id/tvTranscriptionReady"
+                                        android:visibility="gone"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Ready to record"
+                                        android:textSize="@dimen/activity_book4_ai_panel_tab1_text_size2"
+                                        />
+                                </LinearLayout>
+                            </RelativeLayout>
                         </LinearLayout>
                     </FrameLayout>
                 </LinearLayout>
