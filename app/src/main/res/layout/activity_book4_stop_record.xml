@@ -35,7 +35,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/activity_dialog_upgrade_text_size1"
-                        android:text="Stop recording"
+                        android:text="@string/finish_recording"
                         android:textColor="#000000"
                         android:layout_gravity="center"
                         android:gravity="center"
@@ -54,7 +54,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/activity_dialog_upgrade_text_size2"
-                        android:text="Are you sure to stop the meeting recording?"
+                        android:text="Are you sure you want to stop the meeting recording? This action can't be undone."
                         android:textColor="#FF000000"
                         />
                 </LinearLayout>
@@ -81,6 +81,34 @@
                         android:textColor="#000000"
                         android:layout_gravity="center_vertical"
                         />
+                    <RelativeLayout
+                        android:id="@+id/btnSave"
+                        style="@style/Widget.Material3.Button.TextButton.Icon"
+                        android:layout_width="@dimen/activity_dialog_upgrade_btn_width_delete2"
+                        android:layout_height="@dimen/activity_dialog_upgrade_btn_height_delete2"
+                        android:layout_gravity="center_vertical"
+                        >
+                        <ImageView
+                            android:id="@+id/tvBtnSave2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_finish_recording"
+                            android:layout_centerVertical="true"
+                            />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Yes"
+                            android:textColor="#000000"
+                            android:textSize="@dimen/activity_dialog_upgrade_text_size3"
+                            android:layout_centerVertical="true"
+                            android:layout_toRightOf="@id/tvBtnSave2"
+                            android:layout_marginLeft="@dimen/activity_dialog_upgrade_btn_margin_left_delete2"
+                            />
+                    </RelativeLayout>
+
+                    <!--
+
                     <Button
                         style="@style/Widget.Material3.Button.TextButton.Icon"
                         android:layout_width="@dimen/activity_dialog_upgrade_btn_width_delete1"
@@ -95,6 +123,8 @@
                         android:textColor="#000000"
                         android:layout_gravity="center_vertical"
                         />
+                    -->
+
                     <!--app:icon="@drawable/ic_outline_delete_forever_24_w"
                         -->
                 </LinearLayout>

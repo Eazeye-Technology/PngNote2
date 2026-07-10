@@ -1960,7 +1960,7 @@ public class BookActivity4Fragment extends Fragment {
             View.OnClickListener onClickListenerPause = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (!enableRecordButton) {
+                    if (!enableRecordButton || disableRecordButton) {
                         return; //disable record button
                     }
                     if (g_rootView.findViewById(R.id.stopRecord).getVisibility() == View.VISIBLE) {
@@ -1983,7 +1983,7 @@ public class BookActivity4Fragment extends Fragment {
             View.OnClickListener onClickListener_start = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    if (!enableRecordButton) {
+                    if (!enableRecordButton || disableRecordButton) {
                         return; //disable record button
                     }
                     if (isDoStartRecord) {
@@ -1993,6 +1993,9 @@ public class BookActivity4Fragment extends Fragment {
                         isDoStartRecord = true;
                         TextView tvStartRecord = (TextView) g_rootView.findViewById(R.id.tvStartRecord);
                         if (USE_SNACKBAR) {
+                            disableRecordButton = true; //FIXME:added, for buttons gray
+                            updateRecordButtonStatus();
+                            //btn_audio_start_setEnabled(true);
                             g_snackBar = Snackbar.make(g_rootView,
                                     "Meeting recording is starting...",
                                     Snackbar.LENGTH_INDEFINITE);
@@ -2013,6 +2016,7 @@ public class BookActivity4Fragment extends Fragment {
                             });
                             g_snackBar.show();
                         } else {
+                            btn_audio_start_setEnabled(true); //FIXME:added, for buttons gray
                             tvStartRecord.setText("Please wait...");
                             tvStartRecord.postDelayed(new Runnable() {
                                 @Override
@@ -2056,8 +2060,9 @@ public class BookActivity4Fragment extends Fragment {
                     AlertDialog dialogStopRecord = new BookActivity4StopRecordDialog(getActivity(), runnable).create();
                     dialogStopRecord.show();
 
-                    TextView tvTranscriptionReady = (TextView) g_rootView.findViewById(R.id.tvTranscriptionReady);
-                    tvTranscriptionReady.setVisibility(View.GONE);
+                    //FIXME: don't put here
+//                    TextView tvTranscriptionReady = (TextView) g_rootView.findViewById(R.id.tvTranscriptionReady);
+//                    tvTranscriptionReady.setVisibility(View.GONE);
 
                     updateRecordButtonStatus();
                 }
@@ -5383,19 +5388,29 @@ public class BookActivity4Fragment extends Fragment {
     private boolean isTranscriptRecording = false;
     public void btn_audio_start_setEnabled(boolean enable) {
         Log.e(TAG, "btn_audio_start_setEnabled : " + enable);
-        if (USE_SHOW_PLEASE_WAIT) {
+        if (USE_SHOW_PLEASE_WAIT && !enable) {
+
+            disableRecordButton = false; //FIXME:added, undo gray buttons
+            updateRecordButtonStatus();
+
             TextView tvStartRecord = g_rootView.findViewById(R.id.tvStartRecord);
             tvStartRecord.setText(R.string.start_recording);
             if (g_snackBar != null && g_snackBar.isShown()) {
                 g_snackBar.dismiss();
             }
-            TextView tvTranscriptionReady = (TextView) g_rootView.findViewById(R.id.tvTranscriptionReady);
-            tvTranscriptionReady.setVisibility(View.VISIBLE);
-
             AlertDialog dialog = new BookActivity4StartRecordDialog(
                     getActivity(), null).create();
             dialog.show();
         }
+        TextView tvTranscriptionReady = (TextView) g_rootView.findViewById(R.id.tvTranscriptionReady);
+        if (enable) {
+            //when recording stopped
+            tvTranscriptionReady.setVisibility(View.GONE);
+        } else {
+            //when recording started
+            tvTranscriptionReady.setVisibility(View.VISIBLE);
+        }
+
 
         AppCompatImageView btnPanel = (AppCompatImageView) g_rootView.findViewById(R.id.btnPanel);
         AnimationDrawable anim = (AnimationDrawable) btnPanel.getDrawable();
@@ -5883,6 +5898,7 @@ public class BookActivity4Fragment extends Fragment {
 
     public final static boolean DATE_READONLY = true;
     private boolean enableRecordButton = false;
+    private boolean disableRecordButton = false;
     private void updateRecordButtonStatus() {
         String duration = getMeetingDuration();
         Integer durationVal = null;
@@ -5967,7 +5983,7 @@ public class BookActivity4Fragment extends Fragment {
         RadioButton rbASR3 = (RadioButton) g_rootView.findViewById(R.id.rbASR3);
 
         final int LTGRAY = 0xFF898786; //Color.LTGRAY
-        if (enableRecordButton) {
+        if (enableRecordButton && !disableRecordButton) {
             ivStartRecord.setColorFilter(null);
             tvStartRecord.setTextColor(Color.BLACK);
             llStartRecordOuter.setBackgroundResource(R.drawable.border_background);
@@ -6007,14 +6023,18 @@ public class BookActivity4Fragment extends Fragment {
             ivPauseRecordOn.setColorFilter(LTGRAY, PorterDuff.Mode.SRC_IN);
             tvPauseRecordOn.setTextColor(LTGRAY);
 
-            rbASR1.setEnabled(false);
-            rbASR2.setEnabled(false);
-            rbASR3.setEnabled(false);
+            if (disableRecordButton) {
+                //skip, fake stop status
+            } else {
+                rbASR1.setEnabled(false);
+                rbASR2.setEnabled(false);
+                rbASR3.setEnabled(false);
 
-            llDiarizationSetting.setVisibility(View.VISIBLE);
-            llDiarization.setVisibility(View.VISIBLE);
-            llSaveWavFile.setVisibility(View.VISIBLE);
-            //llClearRecordingData.setVisibility(View.VISIBLE);
+                llDiarizationSetting.setVisibility(View.VISIBLE);
+                llDiarization.setVisibility(View.VISIBLE);
+                llSaveWavFile.setVisibility(View.VISIBLE);
+                //llClearRecordingData.setVisibility(View.VISIBLE);
+            }
         }
 
         //-------------

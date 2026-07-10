@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -44,7 +45,8 @@ public class BookActivity4StopRecordDialog {
                 BookActivity4Utils.runFullScreen(mContext);
 
                 AlertDialog dialog = (AlertDialog) dialogInterface;
-                Button btnSave = (Button) dialog.findViewById(R.id.btnSave);
+                //Button
+                RelativeLayout btnSave = (RelativeLayout) dialog.findViewById(R.id.btnSave);
                 Button btnCancel = (Button) dialog.findViewById(R.id.btnCancel);
                 btnSave.setOnClickListener(new View.OnClickListener() {
                     @Override

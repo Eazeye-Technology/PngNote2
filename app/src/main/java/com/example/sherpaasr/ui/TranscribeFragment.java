@@ -107,7 +107,7 @@ public class TranscribeFragment extends Fragment {
         requireContext().startService(intent);
         requireContext().bindService(intent, connection, Context.BIND_AUTO_CREATE);
         isRecording = true;
-        btnRecord.setText(R.string.stop_recording);
+        btnRecord.setText(R.string.finish_recording);
     }
 
     private void stopRecording() {
