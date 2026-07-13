@@ -3,7 +3,9 @@ package com.txkj.drawingapp.activity;
 import android.content.Context;
 import android.icu.math.BigDecimal;
 import android.os.Build;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -11,24 +13,178 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.widget.PopupMenu;
+
 import com.k2fsa.sherpa.onnx.OfflineSpeakerDiarizationSegment;
 import com.sys.speech.db.SDRecordingsDatabase;
 import com.sys.speech.pojo.RecordingItem;
 import com.txkj.drawingapp.R;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class BookReaderItemsAdapter extends BaseAdapter implements SDRecordingsDatabase.OnDatabaseChangedListener {
     private LayoutInflater mInflater;
 
+    private String m_addFilePath;
     List<OfflineSpeakerDiarizationSegment> m_segmentList = null;
-    public void setDiarization(List<OfflineSpeakerDiarizationSegment> segmentList) {
+    Map<Integer, Integer> m_speakerMap = new HashMap<>();
+    private int m_speakerNum = 3;
+    public void setDiarization(List<OfflineSpeakerDiarizationSegment> segmentList, int speakerNum, String addFilePath, boolean isClear) {
         m_segmentList = segmentList;
+        m_speakerNum = speakerNum;
+        m_addFilePath = addFilePath;
+        if (isClear) {
+            m_speakerMap.clear();
+        } else {
+            loadSpeakerMap(isClear);
+        }
     }
+
+    private void loadSpeakerMap(boolean isClear) {
+        try {
+            String content = null;
+            if (this.m_addFilePath != null) {
+                InputStream fis = null;
+                InputStreamReader isr = null;
+                BufferedReader reader = null;
+                try {
+                    String fullFilePath = m_addFilePath;
+
+                    fis = new FileInputStream(fullFilePath);
+                    isr = new InputStreamReader(fis, "UTF-8");
+                    reader = new BufferedReader(isr);
+                    StringBuffer recentFilesBuffer = new StringBuffer();
+                    while (true) {
+                        String line = reader.readLine();
+                        if (line != null) {
+                            recentFilesBuffer.append(line);
+                            recentFilesBuffer.append("\n");
+                        } else {
+                            break;
+                        }
+                    }
+                    content = recentFilesBuffer.toString();
+                } catch (IOException eee) {
+                    if (reader != null) {
+                        try {
+                            reader.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (isr != null) {
+                        try {
+                            isr.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (fis != null) {
+                        try {
+                            fis.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+            if (content != null) {
+                try {
+                    JSONObject contentObj = new JSONObject(content);
+                    if (contentObj != null) {
+                        m_speakerMap.clear();
+                        Iterator<String> it = contentObj.keys();
+                        while (it.hasNext()) {
+                            String key = it.next();
+                            Integer keyVal = null;
+                            try {
+                                keyVal = Integer.parseInt(key);
+                            } catch (Throwable eee) {
+                            }
+                            Integer valVal = contentObj.optInt(key);
+                            if (keyVal != null && valVal != null) {
+                                m_speakerMap.put(keyVal, valVal);
+                            }
+                        }
+                    }
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+        }
+    }
+    public void saveMap() {
+        JSONObject content = new JSONObject();
+        try {
+            if (m_speakerMap != null) {
+                for (Integer key : m_speakerMap.keySet()) {
+                    content.put("" + key, "" + m_speakerMap.get(key));
+                }
+            }
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        String diaMeta = content.toString();
+        if (this.m_addFilePath != null) {
+            try {
+                try {
+                    String fullFilePath = m_addFilePath;
+                    //Log.e(TAG, "saveDiarizationFile : " + fullFilePath);
+                    if (diaMeta != null && diaMeta.length() > 0) {
+                        OutputStream it = null;
+                        try {
+                            it = new FileOutputStream(fullFilePath);
+                            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(it, StandardCharsets.UTF_8);
+                            BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
+                            bufferedWriter.write(diaMeta);
+                            bufferedWriter.flush();
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                        } finally {
+                            try {
+                                if (it != null) {
+                                    it.close();
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                }
+            } catch (Throwable ee) {
+                ee.printStackTrace();
+            }
+        }
+    }
+
 
     private Context mContext;
     private SDRecordingsDatabase mDatabase;
@@ -214,6 +370,29 @@ public class BookReaderItemsAdapter extends BaseAdapter implements SDRecordingsD
             } else {
                 holder.llTop.setVisibility(View.VISIBLE);
             }
+
+            Integer tempSpeakerIndex = m_speakerMap.get(position);
+            if (tempSpeakerIndex != null) {
+                holder.titleSpeaker.setText("Speaker " + (tempSpeakerIndex + 1));
+            }
+            holder.titleSpeaker.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    PopupMenu popupMenu = new PopupMenu(mContext, view);
+                    Menu menu = popupMenu.getMenu();
+                    for (int i = 0; i < m_speakerNum; ++i) {
+                        final int speakerIndex = i;
+                        menu.add("Speaker " + (i + 1)).setOnMenuItemClickListener(item -> {
+                            //Toast.makeText(this, "You click menu", Toast.LENGTH_SHORT).show();
+                            m_speakerMap.put(position, speakerIndex);
+                            holder.titleSpeaker.setText("Speaker " + (speakerIndex + 1));
+                            notifyDataSetChanged();
+                            return true;
+                        });
+                    }
+                    popupMenu.show();
+                }
+            });
         } else {
             holder.title.setText("");
             holder.llTop.setVisibility(View.GONE);

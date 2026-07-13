@@ -2924,8 +2924,11 @@ public class BookActivity4Fragment extends Fragment {
                                 mDatabase.deleteAll();
                                 mDatabase.clearAll();
                             }
+                            File fAddFilePath = new File(dirUrlPath, BookActivity4Config.USE_DIARIZATION_RESULT_ADD_CONFIG);
+                            String addFilePath = fAddFilePath.getAbsolutePath();
+                            boolean result = fAddFilePath.delete();
                             BookActivity4Fragment.this.adapter.setDiarization(
-                                    new ArrayList<OfflineSpeakerDiarizationSegment>());
+                                    new ArrayList<OfflineSpeakerDiarizationSegment>(), numSpeakers, addFilePath, true);
                             BookActivity4Fragment.this.adapter.notifyDataSetChanged();
 
                             updateRecordButtonStatus();
@@ -3131,7 +3134,7 @@ public class BookActivity4Fragment extends Fragment {
     float[] samples = null;
     String status;
     boolean started = false;
-    int numSpeakers = 0;
+    int numSpeakers = 3; //0;
     float threshold = 0.5f;
     private void startDiarization() {
         try {
@@ -3469,7 +3472,8 @@ public class BookActivity4Fragment extends Fragment {
                 }
             }
             if (adapter != null) {
-                adapter.setDiarization(segmentList);
+                String addFilePath = new File(this.dirUrlPath, BookActivity4Config.USE_DIARIZATION_RESULT_ADD_CONFIG).getAbsolutePath();
+                adapter.setDiarization(segmentList, numSpeakers, addFilePath, false);
                 adapter.notifyDataSetChanged();
             }
         } catch (Throwable eee) {
@@ -3953,12 +3957,18 @@ public class BookActivity4Fragment extends Fragment {
                         if (mDatabase != null) {
                             mDatabase.saveAll();
                         }
+                        if (adapter != null) {
+                            BookActivity4Fragment.this.adapter.saveMap();
+                        }
                     }
                 } else {
                     savePageInMain(getPageIdx(), pageBmp, getVecJson(canvas));
                     SDRecordingsDatabase mDatabase = BookActivity4Fragment.this.adapter.getDB(); //new SDRecordingsDatabase(getActivity(), _bookDir.getFilePath());
                     if (mDatabase != null) {
                         mDatabase.saveAll();
+                    }
+                    if (adapter != null) {
+                        BookActivity4Fragment.this.adapter.saveMap();
                     }
                 }
             } catch (Throwable eee) {
@@ -6131,7 +6141,7 @@ public class BookActivity4Fragment extends Fragment {
 
 
     public String getMeetingSpeaker() {
-        String newSummary = "";
+        String newSummary = "3";
         boolean isFailed = false;
         if (_bookDir == null || _bookDir.getName() == null ||!_bookDir.getName().startsWith(BookActivity4Config.USE_SKETCH_PREFIX)) {
             isFailed = true;
@@ -6147,7 +6157,7 @@ public class BookActivity4Fragment extends Fragment {
             File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
             String str = FastFile.loadMetaText(file_2);
             JSONObject item = new JSONObject(str);
-            newSummary = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_SPEAKER, "");
+            newSummary = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_SPEAKER, "3");
         } catch (JSONException e) {
             e.printStackTrace();
             isFailed = true;

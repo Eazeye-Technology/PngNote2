@@ -354,7 +354,7 @@
                     android:id="@+id/textStateSpeakerNum"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text=""
+                    android:text="3"
                     android:inputType="number"
                     />
             </com.google.android.material.textfield.TextInputLayout>
