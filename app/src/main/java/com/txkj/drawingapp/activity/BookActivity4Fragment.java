@@ -42,6 +42,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
@@ -106,6 +107,7 @@ import com.txkj.notemobile2.ui.Page;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -124,6 +126,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -154,6 +157,8 @@ import kotlin.jvm.functions.Function3;
 //isDirty = true; //FIXME: force save
 //TODO:notifyForceSave, when view onSizeChanged or other events, need call it
 public class BookActivity4Fragment extends Fragment {
+    private final static boolean HIDE_DIARIZATION_PEOPLE_NUM = true; //normally true //for debugging
+
     private final static String DEFAULT_EMPTY_TEXT = "-";
     private final static boolean USE_SNACKBAR = true;
 
@@ -2812,6 +2817,10 @@ public class BookActivity4Fragment extends Fragment {
     }
 
     private void init003(View rootView) {
+        if (true) {
+            LinearLayout llDiarizationSetting = (LinearLayout) g_rootView.findViewById(R.id.llDiarizationSetting);
+            llDiarizationSetting.setVisibility(View.GONE);
+        }
         try {
             _pageIdx = getBook().getLastPageIndex(); //FIXME:added
             canvas.pageIdx = _pageIdx; //FIXME:added
@@ -2885,8 +2894,36 @@ public class BookActivity4Fragment extends Fragment {
         if (meetingSpeaker != null) {
             com.google.android.material.textfield.TextInputEditText editNum =
                     (com.google.android.material.textfield.TextInputEditText)g_rootView.findViewById(R.id.textStateSpeakerNum);
+            LinearLayout llDiarizationSetting = (LinearLayout) g_rootView.findViewById(R.id.llDiarizationSetting);
             if (editNum != null) {
+                if (meetingSpeaker != null &&
+                        (meetingSpeaker.equals("") || meetingSpeaker.equals("0"))) {
+                    meetingSpeaker = "3";
+                }
                 editNum.setText(meetingSpeaker);
+                try {
+                    numSpeakers = Integer.parseInt(meetingSpeaker);
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                    numSpeakers = 3;
+                }
+                editNum.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                    @Override
+                    public void onFocusChange(View view, boolean hasFocus) {
+                        if (!hasFocus) {
+//                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//                            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+
+                            hideKeyboard(editNum);
+                        }
+                    }
+                });
+                llDiarizationSetting.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        hideKeyboard(editNum);
+                    }
+                });
             }
         }
 
@@ -2962,8 +2999,12 @@ public class BookActivity4Fragment extends Fragment {
             @Override
             public void run() {
                 loadDiarizationFile();
+                updateRecordButtonStatus();
+                if (adapter != null) {
+                    adapter.notifyDataSetChanged();
+                }
             }
-        }, 2000);
+        }, 500); //2000
         TextView tvMeetingDate = rootView.findViewById(R.id.tvMeetingDate);
         Long meetingDate = getMeetingDate();
         if (meetingDate != null) {
@@ -3097,6 +3138,36 @@ public class BookActivity4Fragment extends Fragment {
             };
             rgASR.setOnCheckedChangeListener(onCheckedChangeListener);
         }
+
+        //llSpeakerSettingItems
+        TextView tvEditSpeakers = (TextView) g_rootView.findViewById(R.id.tvEditSpeakers);
+        tvEditSpeakers.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                LinearLayout llSpeakerSettingItems = (LinearLayout) g_rootView.findViewById(R.id.llSpeakerSettingItems);
+                boolean showEdit = false;
+                if (tvEditSpeakers.getText().toString().equals("edit")) {
+                    tvEditSpeakers.setText("done");
+                    showEdit = true;
+                } else {
+                    tvEditSpeakers.setText("edit");
+                    showEdit = false;
+                }
+
+                int layout = R.layout.activity_book4_speaker_setting_item;
+                if (llSpeakerSettingItems != null) {
+                    for (int i = 0; i < llSpeakerSettingItems.getChildCount(); ++i) {
+                        View childView = llSpeakerSettingItems.getChildAt(i);
+                        if (childView != null) {
+                            ImageView ivEdit = childView.findViewWithTag("ivEdit");
+                            if (ivEdit != null) {
+                                ivEdit.setVisibility(showEdit ? View.VISIBLE : View.GONE);
+                            }
+                        }
+                    }
+                }
+            }
+        });
     }
 
     public void editMeetingDiarization(String number, String threshold_) {
@@ -3159,10 +3230,13 @@ public class BookActivity4Fragment extends Fragment {
 //                    }
                 }
             } catch (Throwable eee) {
-                numSpeakers = 0;
+                numSpeakers = 3;//0;
 //                if (tvDiarizationLog != null) {
 //                    tvDiarizationLog.setText("Failed, parse error.");
 //                }
+            }
+            if (numSpeakers <= 0) {
+                numSpeakers = 3;
             }
             if (editNum != null) {
                 editNum.setText("" + numSpeakers);
@@ -3251,6 +3325,10 @@ public class BookActivity4Fragment extends Fragment {
                             public void run() {
                                 tvDiarizationLog.setText("Diarization done");
                                 loadDiarizationFile();
+                                updateRecordButtonStatus();
+                                if (adapter != null) {
+                                    adapter.notifyDataSetChanged();
+                                }
                                 g_rootView.findViewById(R.id.rlTranscript).performClick();
                             }
                         });
@@ -5906,6 +5984,7 @@ public class BookActivity4Fragment extends Fragment {
         }
     }
 
+    BookActivity4EditSpeakerDialog alertDialogEditSpeaker = null;
     public final static boolean DATE_READONLY = true;
     private boolean enableRecordButton = false;
     private boolean disableRecordButton = false;
@@ -5987,6 +6066,8 @@ public class BookActivity4Fragment extends Fragment {
         LinearLayout llDiarizationSetting = (LinearLayout) g_rootView.findViewById(R.id.llDiarizationSetting);
         LinearLayout llSaveWavFile = (LinearLayout) g_rootView.findViewById(R.id.llSaveWavFile);
         LinearLayout llClearRecordingData = (LinearLayout) g_rootView.findViewById(R.id.llClearRecordingData);
+        LinearLayout llSpeakerSettings = (LinearLayout) g_rootView.findViewById(R.id.llSpeakerSettings);
+        LinearLayout llSpeakerSettingItems = (LinearLayout) g_rootView.findViewById(R.id.llSpeakerSettingItems);
 
         RadioButton rbASR1 = (RadioButton) g_rootView.findViewById(R.id.rbASR1);
         RadioButton rbASR2 = (RadioButton) g_rootView.findViewById(R.id.rbASR2);
@@ -6015,6 +6096,9 @@ public class BookActivity4Fragment extends Fragment {
             llDiarization.setVisibility(View.GONE);
             llSaveWavFile.setVisibility(View.GONE);
             //llClearRecordingData.setVisibility(View.GONE);
+
+            llSpeakerSettings.setVisibility(View.GONE);
+            llSpeakerSettingItems.removeAllViews();
         } else {
             ivStartRecord.setColorFilter(LTGRAY, PorterDuff.Mode.SRC_IN);
             tvStartRecord.setTextColor(LTGRAY);
@@ -6042,6 +6126,93 @@ public class BookActivity4Fragment extends Fragment {
 
                 llDiarizationSetting.setVisibility(View.VISIBLE);
                 llDiarization.setVisibility(View.VISIBLE);
+                String strSpeaker = getMeetingSpeaker();
+                int speakerNum = -1;
+                try {
+                    speakerNum = Integer.parseInt(strSpeaker);
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                }
+                if (adapter.m_segmentList != null && speakerNum > 0) {
+                    if (HIDE_DIARIZATION_PEOPLE_NUM) {
+                        llDiarizationSetting.setVisibility(View.GONE);
+                    }
+
+                    llSpeakerSettings.setVisibility(View.VISIBLE);
+
+                    llSpeakerSettingItems.removeAllViews();
+                    int speaker_item_margin = getActivity().getResources().getDimensionPixelSize(R.dimen.speaker_item_margin);
+                    for (int i = 0; i < speakerNum; ++i) {
+                        View viewItem = View.inflate(getActivity(), R.layout.activity_book4_speaker_setting_item, null);
+                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT);
+                        lp.topMargin = speaker_item_margin;
+                        lp.bottomMargin = speaker_item_margin;
+                        lp.leftMargin = speaker_item_margin;
+                        lp.rightMargin = speaker_item_margin;
+                        llSpeakerSettingItems.addView(viewItem, lp);
+                    }
+                    //LinearLayout llSpeakerSettingItems = (LinearLayout) g_rootView.findViewById(R.id.llSpeakerSettingItems);
+                    loadSpeakers();
+                    if (adapter != null) {
+                        adapter.setSpeakerSettings(temp_speakerMap);
+                    }
+                    int layout = R.layout.activity_book4_speaker_setting_item;
+                    if (llSpeakerSettingItems != null) {
+                        for (int i = 0; i < llSpeakerSettingItems.getChildCount(); ++i) {
+                            final int index = i;
+                            View childView = llSpeakerSettingItems.getChildAt(i);
+                            if (childView != null) {
+                                TextView tvName = childView.findViewWithTag("tvName");
+                                ImageView ivEdit = childView.findViewWithTag("ivEdit");
+                                if (tvName != null) {
+                                    if (temp_speakerMap != null && temp_speakerMap.containsKey("" + index)) {
+                                        tvName.setText(temp_speakerMap.get("" + index));
+                                    } else {
+                                        tvName.setText("Speaker " + (index + 1));
+                                    }
+                                }
+                                if (ivEdit != null) {
+                                    ivEdit.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            Runnable runnable = new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    if (alertDialogEditSpeaker != null) {
+                                                        View childView = llSpeakerSettingItems.getChildAt(index);
+                                                        if (childView != null) {
+                                                            TextView tvName = childView.findViewWithTag("tvName");
+                                                            if (tvName != null && alertDialogEditSpeaker.strOutput != null) {
+                                                                tvName.setText(alertDialogEditSpeaker.strOutput);
+                                                            }
+                                                        }
+                                                        saveSpeakers();
+                                                        loadSpeakers();
+                                                        if (adapter != null) {
+                                                            adapter.setSpeakerSettings(temp_speakerMap);
+                                                            adapter.notifyDataSetChanged();
+                                                        }
+                                                    }
+                                                }
+                                            };
+                                            alertDialogEditSpeaker = new BookActivity4EditSpeakerDialog(
+                                                    getActivity(),
+                                                    "Speaker " + (index + 1),
+                                                    tvName.getText().toString(),
+                                                    runnable
+                                            );
+                                            alertDialogEditSpeaker.create().show();
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    llSpeakerSettings.setVisibility(View.GONE);
+                    llSpeakerSettingItems.removeAllViews();
+                }
                 llSaveWavFile.setVisibility(View.VISIBLE);
                 //llClearRecordingData.setVisibility(View.VISIBLE);
             }
@@ -6062,6 +6233,134 @@ public class BookActivity4Fragment extends Fragment {
             llClearRecordingData.setVisibility(View.GONE);
         }
         //--------------
+    }
+    private void saveSpeakers() {
+        LinearLayout llSpeakerSettingItems = (LinearLayout) g_rootView.findViewById(R.id.llSpeakerSettingItems);
+        if (llSpeakerSettingItems != null) {
+            Map<String, String> speakers = new HashMap<>();
+            for (int index = 0; index < llSpeakerSettingItems.getChildCount(); ++index) {
+                View childView = llSpeakerSettingItems.getChildAt(index);
+                if (childView != null) {
+                    TextView tvName = childView.findViewWithTag("tvName");
+                    if (tvName != null && alertDialogEditSpeaker.strOutput != null) {
+                        speakers.put("" + index, "" + tvName.getText());
+                    }
+                }
+            }
+            JSONObject content = new JSONObject();
+            try {
+                for (String strKey : speakers.keySet()) {
+                    content.put(strKey, speakers.get(strKey));
+                }
+            } catch (JSONException eee) {
+                eee.printStackTrace();
+            }
+            String diaMeta = content.toString();
+            if (this.dirUrlPath != null) {
+                try {
+                    try {
+                        String filePath = new File(this.dirUrlPath, BookActivity4Config.USE_DIARIZATION_SPEAKERS_CONFIG).getAbsolutePath();
+                        String fullFilePath = filePath;
+                        Log.e(TAG, "saveSpeakers : " + fullFilePath);
+                        if (diaMeta != null && diaMeta.length() > 0) {
+                            OutputStream it = null;
+                            try {
+                                it = new FileOutputStream(fullFilePath);
+                                OutputStreamWriter outputStreamWriter = new OutputStreamWriter(it, StandardCharsets.UTF_8);
+                                BufferedWriter bufferedWriter = new BufferedWriter(outputStreamWriter);
+                                bufferedWriter.write(diaMeta);
+                                bufferedWriter.flush();
+                            } catch (Throwable e) {
+                                e.printStackTrace();
+                            } finally {
+                                try {
+                                    if (it != null) {
+                                        it.close();
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    } catch (Throwable eee) {
+                        eee.printStackTrace();
+                    }
+                } catch (Throwable ee) {
+                    ee.printStackTrace();
+                }
+            }
+        }
+    }
+    Map<String, String> temp_speakerMap = new HashMap<>();
+    private void loadSpeakers() {
+        try {
+            String content = null;
+            if (this.dirUrlPath != null) {
+                InputStream fis = null;
+                InputStreamReader isr = null;
+                BufferedReader reader = null;
+                try {
+                    String filePath = new File(this.dirUrlPath, BookActivity4Config.USE_DIARIZATION_SPEAKERS_CONFIG).getAbsolutePath();
+                    String fullFilePath = filePath;
+                    Log.e(TAG, "loadSpeakers : " + fullFilePath);
+
+                    fis = new FileInputStream(fullFilePath);
+                    isr = new InputStreamReader(fis, "UTF-8");
+                    reader = new BufferedReader(isr);
+                    StringBuffer recentFilesBuffer = new StringBuffer();
+                    while (true) {
+                        String line = reader.readLine();
+                        if (line != null) {
+                            recentFilesBuffer.append(line);
+                            recentFilesBuffer.append("\n");
+                        } else {
+                            break;
+                        }
+                    }
+                    content = recentFilesBuffer.toString();
+                } catch (IOException eee) {
+                    if (reader != null) {
+                        try {
+                            reader.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (isr != null) {
+                        try {
+                            isr.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if (fis != null) {
+                        try {
+                            fis.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+            if (content != null) {
+                try {
+                    JSONObject contentObj = new JSONObject(content);
+                    if (contentObj != null) {
+                        temp_speakerMap.clear();
+                        Iterator<String> it = contentObj.keys();
+                        while (it.hasNext()) {
+                            String key = it.next();
+                            String valVal = contentObj.optString(key);
+                            temp_speakerMap.put(key, valVal);
+                        }
+                    }
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+        }
     }
 
     //https://github.com/avesha/android.fba.toolkit/blob/master/engine/src/main/java/ru/profi1c/engine/util/DateHelper.java
@@ -6141,7 +6440,7 @@ public class BookActivity4Fragment extends Fragment {
 
 
     public String getMeetingSpeaker() {
-        String newSummary = "3";
+        String newSummary = "";
         boolean isFailed = false;
         if (_bookDir == null || _bookDir.getName() == null ||!_bookDir.getName().startsWith(BookActivity4Config.USE_SKETCH_PREFIX)) {
             isFailed = true;
@@ -6157,7 +6456,7 @@ public class BookActivity4Fragment extends Fragment {
             File file_2 = new File(folder, BookActivity4Config.USE_SKETCH_CONFIG);
             String str = FastFile.loadMetaText(file_2);
             JSONObject item = new JSONObject(str);
-            newSummary = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_SPEAKER, "3");
+            newSummary = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_MEETING_SPEAKER, "");
         } catch (JSONException e) {
             e.printStackTrace();
             isFailed = true;

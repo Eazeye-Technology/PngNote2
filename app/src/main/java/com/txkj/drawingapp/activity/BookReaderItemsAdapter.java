@@ -6,6 +6,7 @@ import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -49,9 +50,14 @@ public class BookReaderItemsAdapter extends BaseAdapter implements SDRecordingsD
     private LayoutInflater mInflater;
 
     private String m_addFilePath;
-    List<OfflineSpeakerDiarizationSegment> m_segmentList = null;
-    Map<Integer, Integer> m_speakerMap = new HashMap<>();
-    private int m_speakerNum = 3;
+    public List<OfflineSpeakerDiarizationSegment> m_segmentList = null;
+    public Map<Integer, Integer> m_speakerMap = new HashMap<>();
+    public int m_speakerNum = -1;
+    public Map<String, String> m_speakerSettings = new HashMap<>();
+    public void setSpeakerSettings(Map<String, String> speakerSettings) {
+        m_speakerSettings.clear();
+        m_speakerSettings.putAll(speakerSettings);
+    }
     public void setDiarization(List<OfflineSpeakerDiarizationSegment> segmentList, int speakerNum, String addFilePath, boolean isClear) {
         m_segmentList = segmentList;
         m_speakerNum = speakerNum;
@@ -254,6 +260,7 @@ public class BookReaderItemsAdapter extends BaseAdapter implements SDRecordingsD
 
                     String timeStrSimple = item.getName().substring("sherpa-".length());
                     String speakerName = "?";
+                    int speakerName_index = -1;
                     float timeSimple = -1;
                     try {
                         timeSimple = Float.parseFloat(timeStrSimple);
@@ -265,6 +272,7 @@ public class BookReaderItemsAdapter extends BaseAdapter implements SDRecordingsD
                                             timeSimple < seg.getEnd()) {
                                             //speakerName = "Speaker_" + seg.getSpeaker();
                                             speakerName = "Speaker " + (seg.getSpeaker() + 1);
+                                            speakerName_index = seg.getSpeaker();
                                         }
                                     }
                                 }
@@ -279,6 +287,7 @@ public class BookReaderItemsAdapter extends BaseAdapter implements SDRecordingsD
 //                                                    timeSimple > seg.getStart() - 3) {
 //                                                //speakerName = "Speaker_" + seg.getSpeaker();
 //                                                speakerName = "Speaker " + (seg.getSpeaker() + 1);
+//                                                speakerName_index = seg.getSpeaker();
 //                                            }
 //                                        }
                                         if (timeSimple - deltaTime >= 0) {
@@ -286,6 +295,7 @@ public class BookReaderItemsAdapter extends BaseAdapter implements SDRecordingsD
                                                     timeSimple - deltaTime < seg.getEnd()) {
                                                 //speakerName = "Speaker_" + seg.getSpeaker();
                                                 speakerName = "Speaker " + (seg.getSpeaker() + 1);
+                                                speakerName_index = seg.getSpeaker();
                                             }
                                         }
                                     }
@@ -308,6 +318,7 @@ public class BookReaderItemsAdapter extends BaseAdapter implements SDRecordingsD
                                                     timeSimple - deltaTime < seg.getEnd()) {
                                                 //speakerName = "Speaker_" + seg.getSpeaker();
                                                 speakerName = "Speaker " + (seg.getSpeaker() + 1);
+                                                speakerName_index = seg.getSpeaker();
                                             }
                                         }
                                     }
@@ -346,7 +357,12 @@ public class BookReaderItemsAdapter extends BaseAdapter implements SDRecordingsD
                         holder.title.setText(content);
                         holder.titleTime.setText(timeStr);
                         holder.titleTime.setVisibility(View.VISIBLE);
-                        holder.titleSpeaker.setText(speakerName);
+                        if (m_speakerSettings != null &&
+                                m_speakerSettings.containsKey("" + speakerName_index)) {
+                            holder.titleSpeaker.setText(m_speakerSettings.get("" + speakerName_index));
+                        } else {
+                            holder.titleSpeaker.setText(speakerName);
+                        }
                         holder.titleSpeaker.setVisibility(View.VISIBLE);
                     }
                 } else {
@@ -373,7 +389,12 @@ public class BookReaderItemsAdapter extends BaseAdapter implements SDRecordingsD
 
             Integer tempSpeakerIndex = m_speakerMap.get(position);
             if (tempSpeakerIndex != null) {
-                holder.titleSpeaker.setText("Speaker " + (tempSpeakerIndex + 1));
+                if (m_speakerSettings != null &&
+                        m_speakerSettings.containsKey("" + tempSpeakerIndex)) {
+                    holder.titleSpeaker.setText(m_speakerSettings.get("" + tempSpeakerIndex));
+                } else {
+                    holder.titleSpeaker.setText("Speaker " + (tempSpeakerIndex + 1));
+                }
             }
             holder.titleSpeaker.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -382,10 +403,22 @@ public class BookReaderItemsAdapter extends BaseAdapter implements SDRecordingsD
                     Menu menu = popupMenu.getMenu();
                     for (int i = 0; i < m_speakerNum; ++i) {
                         final int speakerIndex = i;
-                        menu.add("Speaker " + (i + 1)).setOnMenuItemClickListener(item -> {
+                        MenuItem item = null;
+                        if (m_speakerSettings != null &&
+                                m_speakerSettings.containsKey("" + i)) {
+                            item = menu.add(m_speakerSettings.get("" + i));
+                        } else {
+                            item = menu.add("Speaker " + (i + 1));
+                        }
+                        item.setOnMenuItemClickListener(item_ -> {
                             //Toast.makeText(this, "You click menu", Toast.LENGTH_SHORT).show();
                             m_speakerMap.put(position, speakerIndex);
-                            holder.titleSpeaker.setText("Speaker " + (speakerIndex + 1));
+                            if (m_speakerSettings != null &&
+                                    m_speakerSettings.containsKey("" + speakerIndex)) {
+                                holder.titleSpeaker.setText(m_speakerSettings.get("" + speakerIndex));
+                            } else {
+                                holder.titleSpeaker.setText("Speaker " + (speakerIndex + 1));
+                            }
                             notifyDataSetChanged();
                             return true;
                         });
