@@ -2984,7 +2984,15 @@ public class BookActivity4Fragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (true) {
-                    startDiarization();
+                    diarizationButtonGray();
+                    if (true) {
+                        g_rootView.findViewById(R.id.startDiarization).postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                startDiarization();
+                            }
+                        }, 500);
+                    }
                 } else {
                     AlertDialog dialog =
                             new BookActivity4MeetingDiarizationDialog(getActivity(),
@@ -3207,6 +3215,24 @@ public class BookActivity4Fragment extends Fragment {
     boolean started = false;
     int numSpeakers = 3; //0;
     float threshold = 0.5f;
+    private void diarizationButtonGray() {
+        final CardView startDiarization = g_rootView.findViewById(R.id.startDiarization);
+        final TextView tvStartDiarization = g_rootView.findViewById(R.id.tvStartDiarization);
+        final LinearLayout llStartDiarizationOuter = g_rootView.findViewById(R.id.llStartDiarizationOuter);
+        //startDiarization.setCardBackgroundColor(0xFFE6E3E3);
+        llStartDiarizationOuter.setBackgroundResource(R.drawable.border_background_gray);
+        tvStartDiarization.setTextColor(0xFF9A9799);
+        tvStartDiarization.setText("Assign participant labels");
+    }
+    private void diarizationButtonBlack() {
+        final CardView startDiarization = g_rootView.findViewById(R.id.startDiarization);
+        final TextView tvStartDiarization = g_rootView.findViewById(R.id.tvStartDiarization);
+        final LinearLayout llStartDiarizationOuter = g_rootView.findViewById(R.id.llStartDiarizationOuter);
+        //startDiarization.setCardBackgroundColor(0xFF000000);
+        llStartDiarizationOuter.setBackgroundResource(R.drawable.border_background_dark);
+        tvStartDiarization.setTextColor(0xFFFFFFFF);
+        tvStartDiarization.setText("Add participant labels");
+    }
     private void startDiarization() {
         try {
             if (started) {
@@ -3330,6 +3356,7 @@ public class BookActivity4Fragment extends Fragment {
                                     adapter.notifyDataSetChanged();
                                 }
                                 g_rootView.findViewById(R.id.rlTranscript).performClick();
+                                diarizationButtonBlack();
                             }
                         });
                     }
