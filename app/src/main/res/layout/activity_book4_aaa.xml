@@ -9,7 +9,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
-        <io.github.pastthepixels.freepaint.Graphics.DrawCanvas
+        <io.github.pastthepixels.freepaint.Graphics.DualScreenCanvas
             android:id="@+id/canvas"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

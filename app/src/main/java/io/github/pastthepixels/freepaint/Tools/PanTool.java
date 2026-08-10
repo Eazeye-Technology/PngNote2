@@ -16,6 +16,7 @@ import java.util.LinkedList;
 
 import io.github.pastthepixels.freepaint.Graphics.DrawCanvas;
 import io.github.pastthepixels.freepaint.Graphics.DrawPath;
+import io.github.pastthepixels.freepaint.Graphics.IDrawCanvas;
 import io.github.pastthepixels.freepaint.Graphics.Point;
 
 public class PanTool implements Tool {
@@ -32,7 +33,7 @@ public class PanTool implements Tool {
      * Offset that's applied separately to <code>offset</code>, to make sure panning is from the middle of the screen.
      */
     public final Point panOffset = new Point(0f, 0f);
-    final DrawCanvas canvas;
+    final IDrawCanvas canvas;
     /**
      * Location of the last time an ACTION_DOWN touch was initialized (relative positions to that
      * are used for calculating new offsets)
@@ -59,7 +60,7 @@ public class PanTool implements Tool {
      *
      * @param canvas DrawCanvas to bind to the tool
      */
-    public PanTool(DrawCanvas canvas) {
+    public PanTool(IDrawCanvas canvas) {
         this.canvas = canvas;
         this.detector = new ScaleGestureDetector(canvas.getContext(), new ScaleGestureDetector.SimpleOnScaleGestureListener() {
             private final Point lastFocus = new Point(0, 0);
@@ -118,7 +119,7 @@ public class PanTool implements Tool {
                 if (e1.getY() - e2.getY() > VERTICAL_MIN_DISTANCE && Math.abs(velocityY) > MIN_VELOCITY) {
                     //flip up
                     if (BookActivity4Config.ENABLE_GESTURE_NAVIGATION_PANEL) {
-                        BookActivity4Utils.flipUp(canvas.mAct);
+                        BookActivity4Utils.flipUp(canvas.getActivity());
                     }
                     flipTime = System.currentTimeMillis();
                     useFlip = true;
@@ -126,7 +127,7 @@ public class PanTool implements Tool {
                 } else if (e1.getX() - e2.getX() > VERTICAL_MIN_DISTANCE && Math.abs(velocityX) > MIN_VELOCITY) {
                     //flip left
                     if (BookActivity4Config.ENABLE_GESTURE_PREVIOUS_PAGE) {
-                        BookActivity4Utils.previousPage(canvas.mAct);
+                        BookActivity4Utils.previousPage(canvas.getActivity());
                     }
                     flipTime = System.currentTimeMillis();
                     useFlip = true;
@@ -134,7 +135,7 @@ public class PanTool implements Tool {
                 } else if (e2.getX() - e1.getX() > VERTICAL_MIN_DISTANCE && Math.abs(velocityX) > MIN_VELOCITY) {
                     //flip right
                     if (BookActivity4Config.ENABLE_GESTURE_NEXT_PAGE) {
-                        BookActivity4Utils.nextPage(canvas.mAct);
+                        BookActivity4Utils.nextPage(canvas.getActivity());
                     }
                     flipTime = System.currentTimeMillis();
                     useFlip = true;

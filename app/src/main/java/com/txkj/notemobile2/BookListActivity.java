@@ -11,6 +11,8 @@ import android.os.Environment;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -48,10 +50,19 @@ public class BookListActivity extends AppCompatActivity {
 
     public UpgradeUtil upgradeUtil;
 
+    //FIXME:added
+    private void setupPadding() {
+        if (true) {
+            FrameLayout rootLayout = findViewById(R.id.root_layout);
+            rootLayout.setPadding(0, 50, 0, 0);
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_booklist_body);
+        setupPadding();
 
         if (UpgradeUtil.USE_UPGRADE) {
             upgradeUtil = new UpgradeUtil(this);

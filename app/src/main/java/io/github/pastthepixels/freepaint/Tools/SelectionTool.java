@@ -27,6 +27,7 @@ import java.util.List;
 import io.github.pastthepixels.freepaint.Graphics.DrawAppearance;
 import io.github.pastthepixels.freepaint.Graphics.DrawCanvas;
 import io.github.pastthepixels.freepaint.Graphics.DrawPath;
+import io.github.pastthepixels.freepaint.Graphics.IDrawCanvas;
 import io.github.pastthepixels.freepaint.Graphics.Point;
 import io.github.pastthepixels.freepaint.Utils;
 
@@ -46,7 +47,7 @@ public class SelectionTool implements Tool {
     private final LinkedList<DrawPath> selectedPaths = new LinkedList<>();
 
     public final DrawPath currentPath = new DrawPath(null, DrawPath.POINTS_TYPE_STROKE);
-    private final DrawCanvas canvas;
+    private final IDrawCanvas canvas;
     public Point originalPoint = new Point(0, 0);
     public Point previousPoint = null;
     boolean changedDrawPaths = false;
@@ -76,7 +77,7 @@ public class SelectionTool implements Tool {
      *
      * @param canvas The DrawCanvas to bind to
      */
-    public SelectionTool(DrawCanvas canvas) {
+    public SelectionTool(IDrawCanvas canvas) {
         this.canvas = canvas;
         currentPath.isClosed = true;
         APPEARANCE.useDP = APPEARANCE_SELECTED.useDP = true;
@@ -410,7 +411,7 @@ public class SelectionTool implements Tool {
                     // do math to actually select those paths.
                     selectPaths();
                     currentPath.appearance = APPEARANCE_SELECTED;
-                    BookActivity4Utils.onSelectChange(this.canvas.mAct, false);
+                    BookActivity4Utils.onSelectChange(this.canvas.getActivity(), false);
                 } else {
                     //---------------
                     if (getScaleMode()) {
@@ -425,7 +426,7 @@ public class SelectionTool implements Tool {
                 }
                 mode = TOUCH_MODES.none;
                 previousPoint = null;
-                BookActivity4Utils.onSelectChange(this.canvas.mAct, false);
+                BookActivity4Utils.onSelectChange(this.canvas.getActivity(), false);
                 break; // Usually we would say we consumed the input and we shouldn't do a redraw
             // but this is also when we lift our finger a.k.a when we make backups of
             // DrawCanvas.drawPaths.
@@ -437,7 +438,7 @@ public class SelectionTool implements Tool {
     }
 
     private void editText(DrawPath path) {
-        BookActivity4Utils.editText(this.canvas.mAct, path);
+        BookActivity4Utils.editText(this.canvas.getActivity(), path);
     }
 
     private void rebuildStrokeSelectFrame() {
@@ -805,7 +806,7 @@ public class SelectionTool implements Tool {
             float x1 = currentPath.points.get(0).x;
             float x2 = currentPath.points.get(1).x;
             if (Math.abs(x2 - x1) < 2) {
-                if (canvas.mAct != null) {
+                if (canvas.getActivity() != null) {
                     //Toast.makeText(canvas.mAct, "single select", Toast.LENGTH_LONG).show();
                 }
                 isSingleSelect = true;
@@ -826,8 +827,8 @@ public class SelectionTool implements Tool {
         currentPathRegion.setPath(currentPath.generatePath(), clip);
 
         // Bounding box math! (If a path collides with the current path, add it to the selection.)
-        for (int k = canvas.paths.size() - 1; k >= 0; --k) {
-            DrawPath path = canvas.paths.get(k);
+        for (int k = canvas.getPaths().size() - 1; k >= 0; --k) {
+            DrawPath path = canvas.getPaths().get(k);
             //----------------------
             //Removed objects are hidden
             if (path.pointsType == DrawPath.POINTS_TYPE_IMAGE && path.pointsBitmap == null) {
@@ -1121,7 +1122,7 @@ public class SelectionTool implements Tool {
     public enum TOUCH_MODES {none, define, move}
 
     public void eraseCurrentPath() {
-        for (DrawPath path : canvas.paths) {
+        for (DrawPath path : canvas.getPaths()) {
             path.erase(currentPath);
             path.cachePath();
         }
@@ -1144,6 +1145,6 @@ public class SelectionTool implements Tool {
         mode = TOUCH_MODES.none; //TOUCH_MODES.define;
         selectedPaths.clear();
         currentPath.clear();
-        BookActivity4Utils.onSelectChange(this.canvas.mAct, true);
+        BookActivity4Utils.onSelectChange(this.canvas.getActivity(), true);
     }
 }

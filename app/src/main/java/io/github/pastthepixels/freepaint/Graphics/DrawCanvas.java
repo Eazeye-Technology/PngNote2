@@ -58,7 +58,7 @@ import io.github.pastthepixels.freepaint.Tools.PanTool;
 import io.github.pastthepixels.freepaint.Tools.SelectionTool;
 import io.github.pastthepixels.freepaint.Tools.Tool;
 
-public final class DrawCanvas extends View {
+public final class DrawCanvas extends View implements IDrawCanvas {
     private final static boolean USE_JUMP_PAGE_CENTER = true;
 
     private final static double INIT_SCALE = 1.0;//0.8;
@@ -97,6 +97,10 @@ java.util.ConcurrentModificationException
      */
     //public LinkedList<DrawPath> paths = new LinkedList<>();
     public CopyOnWriteArrayList<DrawPath> paths = new CopyOnWriteArrayList<>();
+    public CopyOnWriteArrayList<DrawPath> getPaths() {
+        return paths;
+    }
+
     public int documentColor = Color.WHITE;
     public/*private*/ int version_index = -1;
     public TOOLS tool = TOOLS.none;
@@ -161,6 +165,9 @@ java.util.ConcurrentModificationException
     }
 
     public Activity mAct = null;
+    public Activity getActivity() {
+        return mAct;
+    }
 
     public void initAct(Activity act) {
         this.mAct = act;

@@ -143,6 +143,7 @@ import io.github.pastthepixels.freepaint.Graphics.BitmapVector;
 import io.github.pastthepixels.freepaint.Graphics.DrawAppearance;
 import io.github.pastthepixels.freepaint.Graphics.DrawCanvas;
 import io.github.pastthepixels.freepaint.Graphics.DrawPath;
+import io.github.pastthepixels.freepaint.Graphics.DualScreenCanvas;
 import io.github.pastthepixels.freepaint.Graphics.Point;
 import io.github.pastthepixels.freepaint.MainActivity;
 import io.github.pastthepixels.freepaint.Tools.EraserTool;
@@ -1222,7 +1223,8 @@ public class BookActivity4Fragment extends Fragment {
     //--------------------------
 
     private TextView textViewPageInfo;
-    DrawCanvas canvas;
+    //DrawCanvas canvas;
+    DualScreenCanvas canvas;
     View dtViewBottom;
     DrawTextView dtView_;
     public DrawTextView getDtView(boolean autoCreate) {
@@ -2503,7 +2505,7 @@ public class BookActivity4Fragment extends Fragment {
 
     private void init002(View rootView) {
         //FIXME:throw new RuntimeException("not implemented");
-        canvas = (DrawCanvas) rootView.findViewById(R.id.canvas);
+        canvas = (DualScreenCanvas) rootView.findViewById(R.id.canvas);
         canvas.initAct(getActivity());
         canvas.setPenType(DrawAppearance.PEN_TYPE_1);
         canvas.onVersionChanged();
@@ -4144,7 +4146,7 @@ public class BookActivity4Fragment extends Fragment {
 
 //--------------------------------
     //FIXME:not good
-    private void setPenEraserBrush(DrawCanvas canvas, int index) {
+    private void setPenEraserBrush(DualScreenCanvas canvas, int index) {
         if (index == 0) {
             canvas.setTool(DrawCanvas.TOOLS.paint); //eraser
         } else if (index == 1) {
@@ -4167,19 +4169,19 @@ public class BookActivity4Fragment extends Fragment {
             }
         }
     }
-    private void setOnUpdateListener(DrawCanvas canvas, CanvasBoox.OnUpdateBmpListener listener) {
+    private void setOnUpdateListener(DualScreenCanvas canvas, CanvasBoox.OnUpdateBmpListener listener) {
         mOnUpdateBmpListener = listener;
     }
-    private void setOnUndoStateListener(DrawCanvas canvas, CanvasBoox.OnUndoStateListener listener) {
+    private void setOnUndoStateListener(DualScreenCanvas canvas, CanvasBoox.OnUndoStateListener listener) {
         //TODO:
     }
-    private void onPageIdx(DrawCanvas canvas, int idx, CanvasBoox.OnLoadBitmapListener bitmapLoader, boolean forceReload) {
+    private void onPageIdx(DualScreenCanvas canvas, int idx, CanvasBoox.OnLoadBitmapListener bitmapLoader, boolean forceReload) {
         //TODO:
         if (canvas != null) {
             canvas.onPageIdx(idx, bitmapLoader, forceReload);
         }
     }
-    private void setBackText(DrawCanvas canvas, String backText) {
+    private void setBackText(DualScreenCanvas canvas, String backText) {
         //TODO:
         if (backText != null && canvas != null) {
             if (backText.equals(FileMeta.NONE)) {
@@ -4197,7 +4199,7 @@ public class BookActivity4Fragment extends Fragment {
             }
         }
     }
-    private void init(DrawCanvas canvas, Bitmap initialBmp, Bitmap background, int initialPageIdx, Activity act) {
+    private void init(DualScreenCanvas canvas, Bitmap initialBmp, Bitmap background, int initialPageIdx, Activity act) {
         //TODO:
 //        if (canvas != null && background != null) {
 //            canvas.drawImage(0, 0, background.getWidth(), background.getHeight(), background);
@@ -4208,7 +4210,7 @@ public class BookActivity4Fragment extends Fragment {
 //            canvas.drawImage(0, 0, initialBmp.getWidth(), initialBmp.getHeight(), initialBmp);
 //        }
     }
-    private void drawText(DrawCanvas canvas, String text, int textType, float x, float y, Paint p_, boolean isBold,
+    private void drawText(DualScreenCanvas canvas, String text, int textType, float x, float y, Paint p_, boolean isBold,
                           boolean isItalics,
                           boolean isUnderline,
                           int styleType, int pointsTextColor, float pointsTextSize) {
@@ -4219,28 +4221,28 @@ public class BookActivity4Fragment extends Fragment {
                 styleType, pointsTextColor, pointsTextSize);
         }
     }
-    private DrawPath drawImage(DrawCanvas canvas, int x, int y, int width, int height, Bitmap pic, boolean needMap) {
+    private DrawPath drawImage(DualScreenCanvas canvas, int x, int y, int width, int height, Bitmap pic, boolean needMap) {
         if (canvas != null) {
             return canvas.drawImage(x, y, width, height, pic, needMap);
         }
         return null;
     }
-    private Bitmap getCanvasBitmap(DrawCanvas canvas) {
+    private Bitmap getCanvasBitmap(DualScreenCanvas canvas) {
         return canvas != null ? canvas.toBitmap(false) : null;
     }
-    private void setColor(DrawCanvas canvas, int color) {
+    private void setColor(DualScreenCanvas canvas, int color) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt("strokeColor", color); //"strokeColor" or "fillColor"
         editor.apply();
     }
-    public void setSize(DrawCanvas canvas, float size) {
+    public void setSize(DualScreenCanvas canvas, float size) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("strokeSize", Float.toString(size)); //"strokeColor" or "fillColor"
         editor.apply();
     }
-    private void setBackgroundMode(DrawCanvas canvas, String mode) {
+    private void setBackgroundMode(DualScreenCanvas canvas, String mode) {
         canvas.setBackgroundMode(mode);
     }
     public void updateInfoBar() {
@@ -5591,7 +5593,7 @@ public class BookActivity4Fragment extends Fragment {
         }
     }
 
-    public String getVecJson(DrawCanvas canvas) {
+    public String getVecJson(DualScreenCanvas canvas) {
         if (canvas != null) {
             return canvas.getVecJson();
         }

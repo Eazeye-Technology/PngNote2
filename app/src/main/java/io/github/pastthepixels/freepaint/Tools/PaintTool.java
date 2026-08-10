@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import io.github.pastthepixels.freepaint.Graphics.DrawAppearance;
 import io.github.pastthepixels.freepaint.Graphics.DrawCanvas;
 import io.github.pastthepixels.freepaint.Graphics.DrawPath;
+import io.github.pastthepixels.freepaint.Graphics.IDrawCanvas;
 
 public class PaintTool implements Tool {
     private final static boolean DEBUG_EVENT = true;
@@ -24,7 +25,7 @@ public class PaintTool implements Tool {
      * The default appearance. You can change this! (through settings)
      */
     private final DrawAppearance appearance = new DrawAppearance(Color.BLACK, -1);
-    private final DrawCanvas canvas;
+    private final IDrawCanvas canvas;
     private DrawPath currentPath;
 
     /**
@@ -32,7 +33,7 @@ public class PaintTool implements Tool {
      *
      * @param canvas DrawCanvas to bind to
      */
-    public PaintTool(DrawCanvas canvas) {
+    public PaintTool(IDrawCanvas canvas) {
         this.canvas = canvas;
     }
 
@@ -102,7 +103,7 @@ public class PaintTool implements Tool {
     public void setCancel() {
         this.isCancel = true;
         if (this.currentPath != null) {
-            canvas.paths.remove(this.currentPath);
+            canvas.getPaths().remove(this.currentPath);
         }
     }
 
@@ -127,7 +128,7 @@ public class PaintTool implements Tool {
         //currentPath.simplificationAmount = Double.parseDouble(PreferenceManager.getDefaultSharedPreferences(canvas.getContext()).getString("simplificationAmount", "0"));
         currentPath.isClosed = PreferenceManager.getDefaultSharedPreferences(canvas.getContext()).getBoolean("drawFilledShapes", false);
         currentPath.appearance = appearance.clone();
-        canvas.paths.add(currentPath);
+        canvas.getPaths().add(currentPath);
     }
 
     public DrawAppearance getAppearance() {

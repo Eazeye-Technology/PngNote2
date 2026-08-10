@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import io.github.pastthepixels.freepaint.Graphics.DrawAppearance;
 import io.github.pastthepixels.freepaint.Graphics.DrawCanvas;
 import io.github.pastthepixels.freepaint.Graphics.DrawPath;
+import io.github.pastthepixels.freepaint.Graphics.IDrawCanvas;
 
 /**
  * Erases a filled path region from paths, turning them into filled paths if necessary.
@@ -28,14 +29,14 @@ public class EraserTool implements Tool {
     /**
      * The canvas
      */
-    private final DrawCanvas canvas;
+    private final IDrawCanvas canvas;
 
     /**
      * Init function, binds the tool to a canvas and sets a default appearance for the eraser path
      *
      * @param canvas The canvas to bind the tool to (paths will be sampled from/drawn on here)
      */
-    public EraserTool(DrawCanvas canvas) {
+    public EraserTool(IDrawCanvas canvas) {
         this.canvas = canvas;
         if (USE_SIMPLE_IMPL) {
             this.currentPath.appearance = new DrawAppearance(Color.RED, -1); //for debug
@@ -112,7 +113,7 @@ public class EraserTool implements Tool {
             return false;
         } else {
             boolean isHit = false;
-            for (DrawPath path : canvas.paths) {
+            for (DrawPath path : canvas.getPaths()) {
                 boolean isHit_ = false;
                 if (USE_SIMPLE_IMPL) {
                     isHit_ = path.eraseSimple(currentPath);
@@ -149,7 +150,7 @@ public class EraserTool implements Tool {
         if (USE_SIMPLE_IMPL) {
             //skip
         } else {
-            for (DrawPath path : canvas.paths) {
+            for (DrawPath path : canvas.getPaths()) {
                 DrawPath cloned = new DrawPath(path.getPath(), DrawPath.POINTS_TYPE_STROKE);
                 cloned.points = path.points;
                 cloned.isClosed = path.isClosed;
