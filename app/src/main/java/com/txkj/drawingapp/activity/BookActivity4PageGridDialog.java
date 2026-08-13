@@ -30,6 +30,7 @@ import androidx.appcompat.app.AlertDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.txkj.drawingapp.R;
 import com.txkj.notemobile2.Book;
+import com.txkj.notemobile2.BookListActivity;
 import com.txkj.notemobile2.book.BookIO;
 import com.txkj.notemobile2.book.BookPage;
 import com.txkj.notemobile2.book.FastFile;
@@ -75,6 +76,14 @@ public class BookActivity4PageGridDialog {
                 LinearLayout llTopJump = (LinearLayout) dialog.findViewById(R.id.llTopJump);
                 onshow(mDialog);
                 llTopJump.setVisibility(View.VISIBLE);
+            }
+        });
+        mDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                if (mContext instanceof BookListActivity) {
+                    ((BookListActivity) mContext).onDialogDismiss();
+                }
             }
         });
         updateLayout(mDialog);

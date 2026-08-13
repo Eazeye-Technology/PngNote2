@@ -13,19 +13,24 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 
+import com.foobnix.android.utils.IntegerResponse;
+import com.foobnix.pdf.info.view.CustomSeek;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.slider.Slider;
 import com.txkj.drawingapp.R;
+import com.txkj.notemobile2.BookListActivity;
 
 //popupwindow_pen_style.xml
 public class BookActivity4BrushEditDialog {
     //private final static int WIN_WIDTH = 544 + 24 * 2;
+    final boolean USE_SLIDER = false;
 
     public BookActivity4BrushEditDialog(Activity ctx, int brushId) {
         onCreateAct(ctx, brushId);
@@ -58,6 +63,14 @@ public class BookActivity4BrushEditDialog {
                 onShowDialog(dialog);
             }
         });
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                if (mContext instanceof BookListActivity) {
+                    ((BookListActivity) mContext).onDialogDismiss();
+                }
+            }
+        });
         try {
             Window window = dialog.getWindow();
             if (window != null) {
@@ -72,8 +85,13 @@ public class BookActivity4BrushEditDialog {
 
     private void onSave(AlertDialog dialogInterface) {
         AlertDialog dialog = (AlertDialog) dialogInterface;
-        Slider slider = dialog.findViewById(R.id.slider);
-        outputBrushSize = (int)slider.getValue();
+        if (USE_SLIDER) {
+            Slider slider = dialog.findViewById(R.id.slider);
+            outputBrushSize = (int) slider.getValue();
+        } else {
+            CustomSeek slider = dialog.findViewById(R.id.slider_seek2);
+            outputBrushSize = (int) slider.getCurrentValue();
+        }
         outputIsSave = true;
         BookActivity4Utils.onLongClickSubmenu1_after(mContext,
         BookActivity4BrushEditDialog.this, mBrushId);
@@ -221,20 +239,37 @@ public class BookActivity4BrushEditDialog {
     }
 
     private void setupPenSize(AlertDialog dialog) {
-        Slider slider = (Slider) dialog.findViewById(R.id.slider);
-        if (mBrushId == R.id.left_toolkit_item3) {
-            slider.setValueTo(5.0f * 5); //highlighter
-        } else {
-            slider.setValueTo(5.0f); //not highlighter
-        }
-        slider.setValue(outputBrushSize);
-        slider.addOnChangeListener(new Slider.OnChangeListener() {
-            @Override
-            public void onValueChange(@NonNull Slider slider, float value, boolean fromUser) {
-                outputBrushSize = (int)slider.getValue();
-                updatePreview(dialog);
+        if (USE_SLIDER) {
+            Slider slider = (Slider) dialog.findViewById(R.id.slider);
+            if (mBrushId == R.id.left_toolkit_item3) {
+                slider.setValueTo(5.0f * 5); //highlighter
+            } else {
+                slider.setValueTo(5.0f); //not highlighter
             }
-        });
+            slider.setValue(outputBrushSize);
+            slider.addOnChangeListener(new Slider.OnChangeListener() {
+                @Override
+                public void onValueChange(@NonNull Slider slider, float value, boolean fromUser) {
+                    outputBrushSize = (int)slider.getValue();
+                    updatePreview(dialog);
+                }
+            });
+        } else {
+            CustomSeek slider = dialog.findViewById(R.id.slider_seek2);
+            if (mBrushId == R.id.left_toolkit_item3) { //highlighter
+                slider.init(1, 5 * 5, outputBrushSize);
+            } else {
+                slider.init(1, 5, outputBrushSize); //not highlighter
+            }
+            slider.setOnSeekChanged(new IntegerResponse() {
+                @Override
+                public boolean onResultRecive(int result) {
+                    outputBrushSize = (int)result;
+                    updatePreview(dialog);
+                    return false;
+                }
+            });
+        }
     }
 
     private void setupColors(AlertDialog dialog) {

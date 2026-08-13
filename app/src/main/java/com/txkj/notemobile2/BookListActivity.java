@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.dseink.EinkUtils;
 import com.foobnix.pdf.info.Android6Mod;
 import com.txkj.contentbrowser.NoteFragment2;
 import com.txkj.contentbrowser.NoteFragment3;
@@ -35,6 +36,11 @@ import com.upgradetool.upgrade.UpgradeUtil;
 public class BookListActivity extends AppCompatActivity {
     private final static boolean D = true;
     private final static String TAG = "BookListActivity";
+
+    public void onDialogDismiss() {
+        //FIXME:
+        EinkUtils.forceEinkFullUpdateWithView(findViewById(R.id.content_layout));
+    }
 
 //    public BookListFragment2 bookListFragment2;
     public BookListFragment bookListFragment;

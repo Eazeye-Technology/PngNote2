@@ -24,4 +24,8 @@
     <color name="formula_popup_background">#42515F</color>
     <color name="number_format_popup_background">#42515F</color>
     <color name="explorer_blue">#1eb3dc</color>
+
+
+
+    <color name="tint_gray">#009688</color>
 </resources>

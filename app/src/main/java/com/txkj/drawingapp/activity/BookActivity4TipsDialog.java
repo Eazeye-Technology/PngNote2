@@ -13,6 +13,7 @@ import androidx.appcompat.app.AlertDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.txkj.drawingapp.R;
+import com.txkj.notemobile2.BookListActivity;
 
 public class BookActivity4TipsDialog {
     //private final static int WIN_WIDTH = 630;// + 24 * 2;
@@ -53,6 +54,14 @@ public class BookActivity4TipsDialog {
                         }
                     }
                 });
+            }
+        });
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                if (mAct instanceof BookListActivity) {
+                    ((BookListActivity) mAct).onDialogDismiss();
+                }
             }
         });
         try {

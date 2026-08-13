@@ -20,6 +20,7 @@ import com.example.sherpaasr.utils.DownloadManager;
 import com.foobnix.pdf.info.IMG;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.txkj.drawingapp.R;
+import com.txkj.notemobile2.BookListActivity;
 import com.txkj.notemobile2.colorpicker.FileMeta;
 
 import java.io.File;
@@ -168,6 +169,14 @@ public class BookActivity4TranscriptionLanguage {
 
                 notifyDataSetChanged();
 
+            }
+        });
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                if (mContext instanceof BookListActivity) {
+                    ((BookListActivity) mContext).onDialogDismiss();
+                }
             }
         });
         try {

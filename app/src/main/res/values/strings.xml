@@ -9,4 +9,7 @@
     <string name="delete_button">DELETE</string>
     <string name="note_button">NOTE</string>
     <string name="toggle_button">TOGGLE</string>
+
+    <string name="minus">Minus</string>
+    <string name="plus">Plus</string>
 </resources>

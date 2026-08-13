@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.txkj.drawingapp.R;
+import com.txkj.notemobile2.BookListActivity;
 
 public class BookActivity4StopRecordDialog {
     //private final static int WIN_WIDTH = 312 + 24 * 2;//312;
@@ -67,6 +68,14 @@ public class BookActivity4StopRecordDialog {
                         }
                     }
                 });
+            }
+        });
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                if (mContext instanceof BookListActivity) {
+                    ((BookListActivity) mContext).onDialogDismiss();
+                }
             }
         });
         try {

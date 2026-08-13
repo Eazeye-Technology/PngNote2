@@ -184,7 +184,41 @@
                 app:haloRadius="1px"
                 app:labelBehavior="withinBounds"
                 app:labelStyle="@style/Widget.App.Tooltip"
+                android:focusableInTouchMode="true"
+                android:focusable="true"
+                android:focusedByDefault="true"
+                android:visibility="gone"
                 />
+            <androidx.appcompat.widget.AppCompatSeekBar
+                android:id="@+id/slider_seek"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:value="3.0"
+                android:valueFrom="1.0"
+                android:valueTo="5.0"
+                android:stepSize="1"
+                app:trackHeight="20px"
+                app:thumbHeight="80px"
+                app:thumbRadius="3px"
+                app:thumbElevation="1px"
+                app:thumbTrackGapSize="10px"
+                app:haloRadius="1px"
+                app:labelBehavior="withinBounds"
+                app:labelStyle="@style/Widget.App.Tooltip"
+                android:focusableInTouchMode="true"
+                android:focusable="true"
+                android:focusedByDefault="true"
+                android:visibility="gone"
+                />
+            <com.foobnix.pdf.info.view.CustomSeek
+                android:id="@+id/slider_seek2"
+                android:layout_width="match_parent"
+                android:layout_height="50px"
+                android:layout_marginTop="5dip"
+                app:text=""
+                />
+
             <!--bubble-->
             <!--
             app:thumbHeight="56px"

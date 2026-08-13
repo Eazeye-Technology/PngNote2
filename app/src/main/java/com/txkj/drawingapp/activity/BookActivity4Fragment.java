@@ -92,6 +92,7 @@ import com.txkj.drawingapp.R;
 import com.txkj.drawingapp.db.NoteItem;
 import com.txkj.drawingapp.db.SDNotesDatabase;
 import com.txkj.notemobile2.Book;
+import com.txkj.notemobile2.BookListActivity;
 import com.txkj.notemobile2.PageGridActivity;
 import com.txkj.notemobile2.book.BookIO;
 import com.txkj.notemobile2.book.BookPage;
@@ -843,6 +844,15 @@ public class BookActivity4Fragment extends Fragment {
                                     showNewBrushDialog();
                                 }
                             });
+                        }
+                    });
+                    dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialogInterface) {
+                            Activity mContext = getActivity();
+                            if (mContext instanceof BookListActivity) {
+                                ((BookListActivity) mContext).onDialogDismiss();
+                            }
                         }
                     });
                     dialog.show();
@@ -4325,6 +4335,15 @@ public class BookActivity4Fragment extends Fragment {
                                         .setMessage("Sharing failed. Requires Android 8.0 or above.")
                                         .setCancelable(true)
                                         .setPositiveButton("OK", null)
+                                        .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                                            @Override
+                                            public void onDismiss(DialogInterface dialogInterface) {
+                                                Activity mContext = getActivity();
+                                                if (mContext instanceof BookListActivity) {
+                                                    ((BookListActivity) mContext).onDialogDismiss();
+                                                }
+                                            }
+                                        })
                                         .show();
                             }
                         } else if (view.getId() == R.id.popTextViewInsertImage) {
@@ -4460,6 +4479,15 @@ public class BookActivity4Fragment extends Fragment {
 //                            "and make sure " + BookActivity4Config.USE_SKETCH_CONFIG + " file exists.")
                     .setMessage("Renaming failed")
                     .setPositiveButton("OK", null)
+                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialogInterface) {
+                            Activity mContext = getActivity();
+                            if (mContext instanceof BookListActivity) {
+                                ((BookListActivity) mContext).onDialogDismiss();
+                            }
+                        }
+                    })
                     .show();
         } else {
             onCreateAct(g_rootView);
@@ -4528,6 +4556,15 @@ public class BookActivity4Fragment extends Fragment {
                     .setTitle("Error")
                     .setMessage("Edit meeting duration failed")
                     .setPositiveButton("OK", null)
+                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialogInterface) {
+                            Activity mContext = getActivity();
+                            if (mContext instanceof BookListActivity) {
+                                ((BookListActivity) mContext).onDialogDismiss();
+                            }
+                        }
+                    })
                     .show();
         } else {
             onCreateAct(g_rootView);
@@ -4582,6 +4619,15 @@ public class BookActivity4Fragment extends Fragment {
                     .setTitle("Error")
                     .setMessage("Edit meeting summary failed")
                     .setPositiveButton("OK", null)
+                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialogInterface) {
+                            Activity mContext = getActivity();
+                            if (mContext instanceof BookListActivity) {
+                                ((BookListActivity) mContext).onDialogDismiss();
+                            }
+                        }
+                    })
                     .show();
         } else {
             onCreateAct(g_rootView);
@@ -4621,6 +4667,15 @@ public class BookActivity4Fragment extends Fragment {
                     .setTitle("Error")
                     .setMessage("Edit meeting date failed")
                     .setPositiveButton("OK", null)
+                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialogInterface) {
+                            Activity mContext = getActivity();
+                            if (mContext instanceof BookListActivity) {
+                                ((BookListActivity) mContext).onDialogDismiss();
+                            }
+                        }
+                    })
                     .show();
         } else {
             onCreateAct(g_rootView);
@@ -4674,6 +4729,15 @@ public class BookActivity4Fragment extends Fragment {
                     .setTitle("Error")
                     .setMessage("Edit meeting time failed")
                     .setPositiveButton("OK", null)
+                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialogInterface) {
+                            Activity mContext = getActivity();
+                            if (mContext instanceof BookListActivity) {
+                                ((BookListActivity) mContext).onDialogDismiss();
+                            }
+                        }
+                    })
                     .show();
         } else {
             onCreateAct(g_rootView);
@@ -5328,6 +5392,15 @@ public class BookActivity4Fragment extends Fragment {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
 
+                    }
+                })
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialogInterface) {
+                        Activity mContext = getActivity();
+                        if (mContext instanceof BookListActivity) {
+                            ((BookListActivity) mContext).onDialogDismiss();
+                        }
                     }
                 })
                 .create();

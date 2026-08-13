@@ -742,6 +742,15 @@ public class BookListFragment extends Fragment {
                     input.setText(defaultNoteName);
                 }
             });
+            dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialogInterface) {
+                    Activity mContext = getActivity();
+                    if (mContext instanceof BookListActivity) {
+                        ((BookListActivity) mContext).onDialogDismiss();
+                    }
+                }
+            });
             dialog.show();
         } else if (false) {
             String defaultNoteName = generateNoteName();
@@ -809,6 +818,15 @@ public class BookListFragment extends Fragment {
                             }
                         }
                     });
+                }
+            }
+        });
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                Activity mContext = getActivity();
+                if (mContext instanceof BookListActivity) {
+                    ((BookListActivity) mContext).onDialogDismiss();
                 }
             }
         });

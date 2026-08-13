@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.txkj.drawingapp.R;
+import com.txkj.notemobile2.BookListActivity;
 
 public class NoteFragment4DeleteDialog {
     public static int getCenteredTitleThemeOverlay() {
@@ -69,6 +70,14 @@ public class NoteFragment4DeleteDialog {
                         }
                     }
                 });
+            }
+        });
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                if (mContext instanceof BookListActivity) {
+                    ((BookListActivity) mContext).onDialogDismiss();
+                }
             }
         });
         try {
