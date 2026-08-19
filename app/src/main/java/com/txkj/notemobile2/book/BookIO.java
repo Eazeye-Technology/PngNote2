@@ -123,7 +123,7 @@ public class BookIO {
             }
             if (fragment != null && fragment.getCanvas() instanceof DualScreenCanvas) {
                 {
-                    String path = file.getFilePath().replace(".png", ".ds.png");
+                    String path = file.getFilePath().replace(".png", ".ds.tch");//".ds.png");
                     if (fragment.getCanvas() != null) {
                         EinkPWInterface einkPWlnterface = fragment.getCanvas().einkPWInterface;
                         if (einkPWlnterface != null) {
