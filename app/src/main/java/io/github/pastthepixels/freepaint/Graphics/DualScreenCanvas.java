@@ -25,6 +25,7 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SizeF;
+import android.view.EinkPWInterface;
 import android.view.GestureDetector;
 import android.view.InputDevice;
 import android.view.MotionEvent;
@@ -34,6 +35,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 
+import com.dseink.EinkUtils;
 import com.txkj.drawingapp.activity.BookActivity4Config;
 import com.txkj.drawingapp.activity.BookActivity4Fragment;
 import com.txkj.drawingapp.activity.BookActivity4Utils;
@@ -92,6 +94,7 @@ public class DualScreenCanvas extends View implements IDrawCanvas {
     public Activity getActivity() {
         return mAct;
     }
+    EinkPWInterface einkPWInterface = null;
 
     /**
      * Constructor
@@ -100,6 +103,18 @@ public class DualScreenCanvas extends View implements IDrawCanvas {
         super(context, attrs, defStyleAttr);
         setFocusable(true);
         setFocusableInTouchMode(true);
+
+        if (true) {
+            try {
+                einkPWInterface = EinkUtils.getEinkPWInterfaceWithView(this);
+            } catch (NoSuchMethodError e) {
+                einkPWInterface = null;
+            }
+        }
+        //if one view is not drawable, need to xxx.addOnTopView(view)
+//        if (einkPWInterface != null) {
+//            einkPWInterface.addOnTopView(this);
+//        }
     }
 
     /**
