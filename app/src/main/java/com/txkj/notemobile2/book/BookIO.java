@@ -10,6 +10,7 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.util.Base64;
 import android.util.Log;
+import android.view.EinkPWInterface;
 import android.view.animation.AccelerateInterpolator;
 
 import androidx.activity.ActivityViewModelLazyKt;
@@ -41,6 +42,7 @@ import com.BaseExtractor;
 import com.foobnix.dao2.FileMeta;
 import com.txkj.contentbrowser.NoteFragment4;
 import com.txkj.drawingapp.activity.BookActivity4Config;
+import com.txkj.drawingapp.activity.BookActivity4Fragment;
 import com.txkj.drawingapp.db.NoteItem;
 import com.txkj.drawingapp.db.SDNotesDatabase;
 import com.txkj.notemobile2.Book;
@@ -52,6 +54,7 @@ import org.json.JSONObject;
 import org.librera.LinkedJSONObject;
 
 import io.github.pastthepixels.freepaint.Graphics.BitmapVector;
+import io.github.pastthepixels.freepaint.Graphics.DualScreenCanvas;
 
 public class BookIO {
     private final static boolean D = true;
@@ -74,7 +77,7 @@ public class BookIO {
         this.pageNamePat = Pattern.compile("([0-9][0-9][0-9][0-9])\\.png");
     }
 
-    private BitmapVector loadBitmap(FastFile file) {
+    private BitmapVector loadBitmap(FastFile file, BookActivity4Fragment fragment) {
         BitmapVector result = new BitmapVector();
         if (USE_CONTENT_RESOLVER) {
             ParcelFileDescriptor it = null;
@@ -95,26 +98,41 @@ public class BookIO {
             }
         } else {
             result.bitmap = BitmapFactory.decodeFile(file.getFilePath());
-            try {
-                InputStream fis = new FileInputStream(new File(file.getFilePath().replace(".png", ".vecj")));
-                InputStreamReader isr = new InputStreamReader(fis, "UTF-8");
-                BufferedReader reader = new BufferedReader(isr);
-                StringBuffer vecjBuffer = new StringBuffer();
-                while (true) {
-                    String line = reader.readLine();
-                    if (line != null) {
-                        vecjBuffer.append(line);
-                        vecjBuffer.append("\n");
-                    } else {
-                        break;
+            {
+                try {
+                    InputStream fis = new FileInputStream(new File(file.getFilePath().replace(".png", ".vecj")));
+                    InputStreamReader isr = new InputStreamReader(fis, "UTF-8");
+                    BufferedReader reader = new BufferedReader(isr);
+                    StringBuffer vecjBuffer = new StringBuffer();
+                    while (true) {
+                        String line = reader.readLine();
+                        if (line != null) {
+                            vecjBuffer.append(line);
+                            vecjBuffer.append("\n");
+                        } else {
+                            break;
+                        }
+                    }
+                    result.strVecJson = vecjBuffer.toString();
+                    reader.close();
+                    isr.close();
+                    fis.close();
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                }
+            }
+            if (fragment != null && fragment.getCanvas() instanceof DualScreenCanvas) {
+                {
+                    String path = file.getFilePath().replace(".png", ".ds.png");
+                    if (fragment.getCanvas() != null) {
+                        EinkPWInterface einkPWlnterface = fragment.getCanvas().einkPWInterface;
+                        if (einkPWlnterface != null) {
+                            einkPWlnterface.setLoadFilePath(path, true);
+                            //einkPWlnterface.saveBitmap(true, null);
+                            //einkPWlnterface.setLoadFilePath(null, true);
+                        }
                     }
                 }
-                result.strVecJson = vecjBuffer.toString();
-                reader.close();
-                isr.close();
-                fis.close();
-            } catch (Throwable eee) {
-                eee.printStackTrace();
             }
         }
         return result; //FIXME: check null
@@ -287,19 +305,24 @@ public class BookIO {
         return this.isEmpty(page.getFile());
     }
 
-    public BitmapVector loadBitmap(BookPage page) {
-        return this.loadBitmap(page.getFile());
+    public BitmapVector loadBitmap(BookPage page, BookActivity4Fragment fragment) {
+        return this.loadBitmap(page.getFile(), fragment);
     }
 
-    public BitmapVector loadBitmapOrNull(BookPage page) {
-        return this.isPageEmpty(page) ? null : this.loadBitmap(page);
+    public BitmapVector loadBitmapOrNull(BookPage page, BookActivity4Fragment fragment) {
+        if (false) {
+            //FIXME: if page file size==0, isPageEmpty return true, may make bug
+            return this.isPageEmpty(page) ? null : this.loadBitmap(page, fragment);
+        } else {
+            return this.loadBitmap(page, fragment);
+        }
     }
 
-    public Bitmap loadBgOrNull(Book book) {
+    public Bitmap loadBgOrNull(Book book, BookActivity4Fragment fragment) {
         FastFile it = book.getBgImage();
         Bitmap result = null;
         if (it != null) {
-            result = this.loadBitmap(it).bitmap; //bg vecj not used
+            result = this.loadBitmap(it, fragment).bitmap; //bg vecj not used
         }
         return result;
     }
@@ -365,7 +388,7 @@ public class BookIO {
         }
     }
 
-    public void saveBitmap(BookPage page, Bitmap bitmap, String vecJson, Book book, Activity act, int lastPageIndex) {
+    public void saveBitmap(BookPage page, Bitmap bitmap, String vecJson, Book book, Activity act, int lastPageIndex, BookActivity4Fragment fragment) {
         if (USE_CONTENT_RESOLVER) {
             OutputStream it = null;
             try {
@@ -475,6 +498,17 @@ public class BookIO {
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
                     byte[] imageByte = outputStream.toByteArray();
                     itemFound.setPreview(Base64.encodeToString(imageByte, Base64.DEFAULT));
+                }
+                {
+                    //String path = "你的手与保存路径";
+                    if (fragment.getCanvas() != null) {
+                        EinkPWInterface einkPWlnterface = fragment.getCanvas().einkPWInterface;
+                        if (einkPWlnterface != null) {
+                            //einkPWlnterface.setLoadFilePath(path, true);
+                            einkPWlnterface.saveBitmap(true, null);
+                            //einkPWlnterface.setLoadFilePath(null, true);
+                        }
+                    }
                 }
             } else {
                 Bitmap thumbnailBitmap = loadThumbnailParent(page.getFile());

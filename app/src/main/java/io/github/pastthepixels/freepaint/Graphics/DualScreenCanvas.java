@@ -94,7 +94,7 @@ public class DualScreenCanvas extends View implements IDrawCanvas {
     public Activity getActivity() {
         return mAct;
     }
-    EinkPWInterface einkPWInterface = null;
+    public EinkPWInterface einkPWInterface = null;
 
     /**
      * Constructor
