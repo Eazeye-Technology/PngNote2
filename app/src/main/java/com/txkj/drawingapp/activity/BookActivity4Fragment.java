@@ -1305,6 +1305,9 @@ public class BookActivity4Fragment extends Fragment {
     }
 
     private void init0001(View rootView) {
+        canvas = (DualScreenCanvas) rootView.findViewById(R.id.canvas);
+        canvas.initAct(getActivity());
+
         setColor(canvas, 0xFF000000);  //reset pen color
         setSize(canvas, 1);  //reset pen size
 
@@ -2519,13 +2522,12 @@ public class BookActivity4Fragment extends Fragment {
 
     private void init002(View rootView) {
         //FIXME:throw new RuntimeException("not implemented");
-        canvas = (DualScreenCanvas) rootView.findViewById(R.id.canvas);
-        canvas.initAct(getActivity());
         canvas.setPenType(DrawAppearance.PEN_TYPE_1);
         canvas.onVersionChanged();
         if (canvas.einkPWInterface != null) {
             //FIXME: if one view is not drawable, need to xxx.addOnTopView(view)
             canvas.einkPWInterface.addOnTopView(rootView.findViewById(R.id.cv_left_toolkit1));
+            canvas.einkPWInterface.addOnTopView(rootView.findViewById(R.id.cv_left_toolkit4));
             canvas.einkPWInterface.addOnTopView(rootView.findViewById(R.id.llTab));
             canvas.einkPWInterface.addOnTopView(rootView.findViewById(R.id.llTopBar));
             canvas.einkPWInterface.addOnTopView(rootView.findViewById(R.id.llPanel));
@@ -3860,30 +3862,38 @@ public class BookActivity4Fragment extends Fragment {
     }
 
     private void onUndo() {
-        if (!g_isUndoActive) {
-            return;
-        }
-        undoCount = undoCount + 1;
-        if (isCanRestorePages()) {
-            createWaitingProgressDialog();
-            g_rootView.findViewById(R.id.buttonUndo).postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    undoAndRestorePages();
-                    canvas.undo(true);
-                    cancelWaitingProgressDialog();
-                }
-            }, 0);//100);
-        } else {
+        if (canvas instanceof DualScreenCanvas) {
             canvas.undo(false);
+        } else {
+            if (!g_isUndoActive) {
+                return;
+            }
+            undoCount = undoCount + 1;
+            if (isCanRestorePages()) {
+                createWaitingProgressDialog();
+                g_rootView.findViewById(R.id.buttonUndo).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        undoAndRestorePages();
+                        canvas.undo(true);
+                        cancelWaitingProgressDialog();
+                    }
+                }, 0);//100);
+            } else {
+                canvas.undo(false);
+            }
         }
     }
     private void onRedo() {
-        if (!g_isRedoActive) {
-            return;
+        if (canvas instanceof DualScreenCanvas) {
+            canvas.redo();
+        } else {
+            if (!g_isRedoActive) {
+                return;
+            }
+            redoCount = redoCount + 1;
+            canvas.redo();
         }
-        redoCount = redoCount + 1;
-        canvas.redo();
     }
     private void onUpdatePidxPnum() {
         if (textViewPageInfo != null) {
@@ -4271,6 +4281,8 @@ public class BookActivity4Fragment extends Fragment {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("strokeSize", Float.toString(size)); //"strokeColor" or "fillColor"
         editor.apply();
+
+        canvas.setStrokeSize((int)size);
     }
     private void setBackgroundMode(DualScreenCanvas canvas, String mode) {
         canvas.setBackgroundMode(mode);

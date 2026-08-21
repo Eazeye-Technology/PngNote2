@@ -362,6 +362,7 @@
                     app:cardCornerRadius="40px"
                     app:cardElevation="1px"
                     android:layout_gravity="center|center_vertical"
+                    android:id="@+id/cv_left_toolkit4"
                     >
                     <LinearLayout
                         android:layout_width="wrap_content"
