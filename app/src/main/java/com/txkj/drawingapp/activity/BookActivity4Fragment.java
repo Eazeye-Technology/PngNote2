@@ -67,6 +67,7 @@ import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 
+import com.dseink.EinkUtils;
 import com.foobnix.android.utils.KeyboardsMod;
 import com.github.guanpy.wblib.bean.DrawPoint;
 import com.github.guanpy.wblib.widget.DrawTextView;
@@ -5513,6 +5514,26 @@ public class BookActivity4Fragment extends Fragment {
                 }
             }
     );
+
+    public boolean onKeyUp(final int keyCode, final KeyEvent event) {
+        if (true) {
+            if (EinkUtils.getKeyEventStatus(getActivity()) == 17 || EinkUtils.getKeyEventStatus(getActivity()) == 34) {
+                return false;
+            }
+            if (keyCode == KeyEvent.KEYCODE_PAGE_DOWN) {
+                //onPageDown();
+                //copy from below
+                gotoNextPage();
+                return true;
+            } else if (keyCode == KeyEvent.KEYCODE_PAGE_UP) {
+                //onPageUp();
+                //copy from below
+                gotoPrevPage();
+                return true;
+            }
+        }
+        return false;
+    }
 
 //    DrawCanvas.TOOLS lastTool = DrawCanvas.TOOLS.none;
 //    @Override

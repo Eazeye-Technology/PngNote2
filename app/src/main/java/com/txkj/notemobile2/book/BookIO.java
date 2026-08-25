@@ -127,6 +127,9 @@ public class BookIO {
                     if (fragment.getCanvas() != null) {
                         EinkPWInterface einkPWlnterface = fragment.getCanvas().einkPWInterface;
                         if (einkPWlnterface != null) {
+                            //public abstract void clearContent(Rect rect, boolean post, boolean clearTouch)
+//                            einkPWlnterface.clearContent(null, true, false);
+
                             einkPWlnterface.setLoadFilePath(path, true);
                             //einkPWlnterface.saveBitmap(true, null);
                             //einkPWlnterface.setLoadFilePath(null, true);

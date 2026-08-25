@@ -237,6 +237,18 @@ Android6.onRequestPermissionsResult(this, i, strArr, iArr);
     }
 
     @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        FragmentManager fragmentManager = this.getSupportFragmentManager();
+        Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+        if (currentFragment instanceof BookActivity4Fragment) {
+            if (((BookActivity4Fragment) currentFragment).onKeyUp(keyCode, event)) {
+                return true;
+            }
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
     public void onBackPressed() {
         if (!BookActivity4Utils.onBackPressed(this)) {
             super.onBackPressed();

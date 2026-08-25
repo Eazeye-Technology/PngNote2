@@ -19,6 +19,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 
 import com.dseink.EinkUtils;
+import com.txkj.drawingapp.activity.BookActivity4Utils;
 import com.txkj.notemobile2.colorpicker.FileMeta;
 import com.txkj.notemobile2.ui.CanvasBoox;
 
@@ -282,7 +283,34 @@ public class DualScreenCanvas extends View implements IDrawCanvas {
         return null;
     }
     public void onPageIdx(int idx, CanvasBoox.OnLoadBitmapListener bitmapLoader, boolean forceReload) {
+        //FIXME:
+        if (bitmapLoader != null) {
+            if (true) { //if (forceReload || this.pageIdx != idx) {
+                this.pageIdx = idx;
 
+                // Clear path list/history
+                paths.clear();
+                versions.clear();
+                oldVersionsSize = versions.size();
+                version_index = -1;
+
+                BitmapVector result = bitmapLoader.onLoadBitmap(idx);
+                Bitmap newBmp = result.bitmap;
+                if (result != null && result.strVecJson != null && result.strVecJson.length() > 0) {
+                    this.initialBmp = null;
+                    this.loadVecJson(result.strVecJson);
+                } else if (result != null) {
+                    this.initialBmp = newBmp;
+                }
+
+//                if (USE_JUMP_PAGE_CENTER) {
+//                    centerDocument();
+//                }
+                this.invalidate();
+                onVersionChanged();
+                if (false) BookActivity4Utils.clearRestorePages(mAct);
+            }
+        }
     }
 
     public PaintTool getPaintTool() {
