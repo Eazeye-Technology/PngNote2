@@ -20,6 +20,9 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
 <!--    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />-->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
 <!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
 <!--    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />-->
@@ -102,9 +105,11 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
             android:name="com.txkj.notemobile2.PageGridActivity" />
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.provider"
+            android:authorities="${applicationId}.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
+            <!--android:authorities="${applicationId}.provider"
+            -->
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
@@ -207,7 +212,9 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
         <service
             android:name="com.upgradetool.upgrade.UpdateService"
             android:label="UpdateService"
-            android:process=":update" />
+            android:process=":update"
+            android:foregroundServiceType="dataSync"
+            />
 
 
 

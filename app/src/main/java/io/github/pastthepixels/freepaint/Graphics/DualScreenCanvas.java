@@ -11,6 +11,7 @@ import android.graphics.Paint;
 import android.net.Uri;
 import android.text.Spanned;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.SizeF;
 import android.view.EinkPWInterface;
 import android.view.PWDrawObjectHandler;
@@ -20,6 +21,7 @@ import androidx.annotation.NonNull;
 
 import com.dseink.EinkUtils;
 import com.txkj.drawingapp.activity.BookActivity4Utils;
+import com.txkj.notemobile2.colorpicker.Dips;
 import com.txkj.notemobile2.colorpicker.FileMeta;
 import com.txkj.notemobile2.ui.CanvasBoox;
 
@@ -99,6 +101,19 @@ public class DualScreenCanvas extends View implements IDrawCanvas {
 //        if (einkPWInterface != null) {
 //            einkPWInterface.addOnTopView(this);
 //        }
+
+        {
+            //use screen width height
+            DisplayMetrics DM = new DisplayMetrics();
+            int w = 816;
+            int h = 1056;
+            if (context instanceof Activity) {
+                ((Activity) context).getWindowManager().getDefaultDisplay().getMetrics(DM);
+                w = DM.widthPixels;
+                h = DM.heightPixels;
+            }
+            documentSize.set(w, h);
+        }
     }
 
     /**
@@ -175,7 +190,9 @@ public class DualScreenCanvas extends View implements IDrawCanvas {
     }
 
     public void setTool(DrawCanvas.TOOLS tool) {
-
+        if (tool == DrawCanvas.TOOLS.paint) {
+            setPenType(mPenType, false, false);
+        }
     }
 
     public void setIsTyping(boolean isTyping) {
@@ -209,21 +226,27 @@ public class DualScreenCanvas extends View implements IDrawCanvas {
     }
 
     private int mPenType = DrawAppearance.PEN_TYPE_0;
-    public void setPenType(int penType) {
+    public void setPenType(int penType, boolean isSelect, boolean isEraser) {
         this.mPenType = penType;
         if (einkPWInterface != null) {
-            if (penType == DrawAppearance.PEN_TYPE_1) { //pen1 pen
-                einkPWInterface.setDrawObjectType(PWDrawObjectHandler.DRAW_OBJ_RANDOM_PEN);
-            } else if (penType == DrawAppearance.PEN_TYPE_2) {
-                einkPWInterface.setDrawObjectType(PWDrawObjectHandler.DRAW_OBJ_RANDOM_PEN);
-            } else if (penType == DrawAppearance.PEN_TYPE_3) { //highlight //pen2 mark
-                einkPWInterface.setDrawObjectType(PWDrawObjectHandler.DRAW_OBJ_RANDOM_MARK);
-            } else if (penType == DrawAppearance.PEN_TYPE_4) { //pen3 ball
-                einkPWInterface.setDrawObjectType(PWDrawObjectHandler.DRAW_OBJ_RANDOM_PENCIL);
-            } else if (penType == DrawAppearance.PEN_TYPE_5) {
-                einkPWInterface.setDrawObjectType(PWDrawObjectHandler.DRAW_OBJ_RANDOM_PEN);
-            } else if (penType == DrawAppearance.PEN_TYPE_6) { //pen4 shape
-                einkPWInterface.setDrawObjectType(PWDrawObjectHandler.DRAW_OBJ_RANDOM_PEN);
+            if (isSelect) {
+                einkPWInterface.setDrawObjectType(PWDrawObjectHandler.DRAW_OBJ_LASSO);
+            } else if (isEraser) {
+                einkPWInterface.setDrawObjectType(PWDrawObjectHandler.DRAW_OBJ_CHOICERASE);
+            } else {
+                if (penType == DrawAppearance.PEN_TYPE_1 || penType == DrawAppearance.PEN_TYPE_0) { //pen1 pen
+                    einkPWInterface.setDrawObjectType(PWDrawObjectHandler.DRAW_OBJ_RANDOM_PEN);
+                } else if (penType == DrawAppearance.PEN_TYPE_2) {
+                    einkPWInterface.setDrawObjectType(PWDrawObjectHandler.DRAW_OBJ_RANDOM_PEN);
+                } else if (penType == DrawAppearance.PEN_TYPE_3) { //highlight //pen2 mark
+                    einkPWInterface.setDrawObjectType(PWDrawObjectHandler.DRAW_OBJ_RANDOM_MARK);
+                } else if (penType == DrawAppearance.PEN_TYPE_4) { //pen3 ball
+                    einkPWInterface.setDrawObjectType(PWDrawObjectHandler.DRAW_OBJ_RANDOM_PENCIL);
+                } else if (penType == DrawAppearance.PEN_TYPE_5) {
+                    einkPWInterface.setDrawObjectType(PWDrawObjectHandler.DRAW_OBJ_RANDOM_PEN);
+                } else if (penType == DrawAppearance.PEN_TYPE_6) { //pen4 shape
+                    einkPWInterface.setDrawObjectType(PWDrawObjectHandler.DRAW_OBJ_RANDOM_PEN);
+                }
             }
         }
     }
@@ -236,11 +259,6 @@ public class DualScreenCanvas extends View implements IDrawCanvas {
     }
     public void setEraserMode(boolean eraserMode) {
         this.mIsEraserMode = eraserMode;
-        if (eraserMode) {
-            einkPWInterface.setDrawObjectType(PWDrawObjectHandler.DRAW_OBJ_CHOICERASE);
-        } else {
-            setPenType(mPenType);
-        }
     }
 
     public boolean getScaleMode() {
@@ -347,7 +365,12 @@ public class DualScreenCanvas extends View implements IDrawCanvas {
         if (!drawMinimal) {
             super.onDraw(canvas);
         }
-        canvas.drawColor(0xFFFFFFFF);
+//        if (!mBackgroundMode.isEmpty() && !mBackgroundMode.equals(FileMeta.NONE)) {
+//            canvas.drawColor(0xFFCCCCCC);
+//        } else {
+            canvas.drawColor(0xFFFFFFFF);
+//        }
+        //
         drawBackground(canvas, mBackgroundMode, documentSize.x, documentSize.y);
     }
 
@@ -360,7 +383,35 @@ public class DualScreenCanvas extends View implements IDrawCanvas {
     private Paint.Style mStyle = Paint.Style.STROKE;
     private float mSize = 5f;
     public void drawBackground(Canvas canvas, String backgroundMode, float w, float h) {
-        if (!drawMinimal || drawMinimalBG) {
+        if (false) {
+            //test, don't use
+            Paint paint = new Paint();
+            paint.setColor(Color.argb(50, 0, 0, 0));
+            paint.setStyle(mStyle);
+            paint.setStrokeJoin(Paint.Join.ROUND);
+
+            if (true) {
+                drawGraphPaperBackground(canvas, paint, w, h);
+            } else {
+                paint.setStrokeWidth(mSize - 2f);
+                paint.setColor(0xFF000000);
+                paint.setStrokeWidth(1);
+                paint.setAntiAlias(true);
+                paint.setPathEffect(new DashPathEffect(new float[]{5, 5}, 0));
+                //1 because no line at the top
+                for (int i = 1; i < h / LINE_HEIGHT/* + 1*/; i++) {
+                    canvas.drawLine(0, i * LINE_HEIGHT,
+                            w, i * LINE_HEIGHT, paint);
+                }
+                // 1 because no line at the beginning
+                for (int i = 1; i < w / LINE_HEIGHT/* + 1*/; i++) {
+                    canvas.drawLine(i * LINE_HEIGHT, 0,
+                            i * LINE_HEIGHT, h, paint);
+                }
+            }
+        }
+
+        if (true) { //!drawMinimal || drawMinimalBG) {
             //FileMeta.NONE == FabricView.BACKGROUND_STYLE_BLANK
             //FileMeta.LINED == FabricView.BACKGROUND_STYLE_NOTEBOOK_PAPER
             //FileMeta.DOTTED == FabricView.BACKGROUND_STYLE_DOT_PAPER
@@ -401,16 +452,18 @@ public class DualScreenCanvas extends View implements IDrawCanvas {
         //FIXME:
         //mRedrawBackground = false;
 
-        //FIXME:added
-        if (this.initialBmp != null) {
-            canvas.drawBitmap(this.initialBmp, 0, 0, null);
-        }
+//        //FIXME:added
+//        if (this.initialBmp != null) {
+//            canvas.drawBitmap(this.initialBmp, 0, 0, null);
+//        }
     }
 
 
-    private final static int LINE_HEIGHT = 20;//Dips.dpToPx(25)
+    //FIXME: sync to //CanvasBoox.initBackText //BookIO.copyFile
+    private final static int LINE_HEIGHT = 20 * 5;//FIXME://20;//Dips.dpToPx(25)
     private final static int DOT_HEIGHT = 1;//Dips.dpToPx(2)
-    private final static int LINE_COLOR = 0xFFEBE7E7;
+    //private final static int LINE_COLOR = 0xFFEBE7E7;
+    private final static int LINE_COLOR = 0xFF444444; //FIXME:
     public static int dpToPx__(final int dp) {
         return (int) (dp * Resources.getSystem().getDisplayMetrics().density);
     }
@@ -421,7 +474,7 @@ public class DualScreenCanvas extends View implements IDrawCanvas {
      * @param canvas the canvas to draw on
      * @param paint  the paint to use
      */
-    private void drawGraphPaperBackground(Canvas canvas, Paint paint, float w, float h) {
+    private static void drawGraphPaperBackground(Canvas canvas, Paint paint, float w, float h) {
 /*
                 final paint = Paint()
       ..color = Colors.grey[500].withOpacity(.3)
@@ -455,7 +508,7 @@ public class DualScreenCanvas extends View implements IDrawCanvas {
         }
     }
 
-    private void drawDotPaperBackground(Canvas canvas, Paint paint, float w, float h) {
+    private static void drawDotPaperBackground(Canvas canvas, Paint paint, float w, float h) {
 /*
 final paint = Paint()
         ..color = Colors.grey[500].withOpacity(.3)
@@ -490,7 +543,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
      * @param canvas the canvas to draw on
      * @param paint  the paint to use
      */
-    private void drawNotebookPaperBackground(Canvas canvas, Paint paint, float w, float h) {
+    private static void drawNotebookPaperBackground(Canvas canvas, Paint paint, float w, float h) {
 /*
     final paint = Paint()
       ..color = Colors.grey[500].withOpacity(.3)
@@ -513,7 +566,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
         }
     }
 
-    private void drawNotebookPaperBackgroundLongDash(Canvas canvas, Paint paint, float w, float h) {
+    private static void drawNotebookPaperBackgroundLongDash(Canvas canvas, Paint paint, float w, float h) {
 /*
     final paint = Paint()
       ..color = Colors.grey[500].withOpacity(.3)
@@ -537,7 +590,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
         }
     }
 
-    private void drawNotebookPaperBackgroundShortDash(Canvas canvas, Paint paint, float w, float h) {
+    private static void drawNotebookPaperBackgroundShortDash(Canvas canvas, Paint paint, float w, float h) {
 /*
     final paint = Paint()
       ..color = Colors.grey[500].withOpacity(.3)
@@ -558,6 +611,51 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
         for (int i = 1; i < h / LINE_HEIGHT; i++) {
             canvas.drawLine(0, i * LINE_HEIGHT,
                     w, i * LINE_HEIGHT, paint);
+        }
+    }
+
+    public static void initBackText(String backText, Bitmap bmp, int sampleSize) {
+        if (bmp != null && backText != null) {
+            int w = bmp.getWidth();
+            int h = bmp.getHeight();
+            Canvas canvas = new Canvas(bmp);
+
+            //FileMeta.NONE == FabricView.BACKGROUND_STYLE_BLANK
+            //FileMeta.LINED == FabricView.BACKGROUND_STYLE_NOTEBOOK_PAPER
+            //FileMeta.DOTTED == FabricView.BACKGROUND_STYLE_DOT_PAPER
+            //FileMeta.GRAPH == FabricView.BACKGROUND_STYLE_GRAPH_PAPER
+            if (backText != null &&
+                    !backText.equals(FileMeta.NONE)) {
+                Paint linePaint = new Paint();
+                linePaint.setColor(Color.BLACK);
+                linePaint.setStyle(Paint.Style.STROKE);
+                linePaint.setStrokeJoin(Paint.Join.ROUND);
+                linePaint.setStrokeWidth(1);//mSize - 2f);
+                switch (backText) {
+                    case FileMeta.GRAPH:
+                        drawGraphPaperBackground(canvas, linePaint, w, h);
+                        break;
+
+                    case FileMeta.LINED:
+                        drawNotebookPaperBackground(canvas, linePaint, w, h);
+                        break;
+
+                    case FileMeta.LINED_LONG_DASH:
+                        drawNotebookPaperBackgroundLongDash(canvas, linePaint, w, h);
+                        break;
+
+                    case FileMeta.LINED_SHORT_DASH:
+                        drawNotebookPaperBackgroundShortDash(canvas, linePaint, w, h);
+                        break;
+
+                    case FileMeta.DOTTED:
+                        drawDotPaperBackground(canvas, linePaint, w, h);
+                        break;
+
+                    default:
+                        break;
+                }
+            }
         }
     }
 }

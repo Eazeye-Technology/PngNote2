@@ -20,6 +20,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.foobnix.android.utils.Dips;
 import com.foobnix.android.utils.LOG;
 import com.foobnix.android.utils.TxtUtils;
@@ -69,6 +70,9 @@ public class NoteGridAdapter4 extends RecyclerView.Adapter<NoteGridAdapter4.Grid
         this.dataList = results;
 
         ((Activity)context).getWindowManager().getDefaultDisplay().getMetrics(DM);
+
+        IMG.clearMemoryCache();
+        IMG.clearDiscCache();
     }
 
     @NonNull
@@ -124,6 +128,20 @@ public class NoteGridAdapter4 extends RecyclerView.Adapter<NoteGridAdapter4.Grid
 //                    gridholder.ivCoverImage.setImageResource(R.drawable.glyphicons_144_database_search);
 //                    bindFileMetaView(gridholder, position);
                 } else {
+                    if (fileMeta.getPath() != null && fileMeta.getPath().endsWith("/cover.png")) {
+                        IMG.getCoverPageWithEffect(gridholder.ivBgImage,
+                                fileMeta.getPath().replace("/cover.png", "/bg.png"),
+                                imageSize, new IMG.ResourceReady() {
+                            @Override
+                            public void onResourceReady(Bitmap bitmap) {
+                                try {
+                                    bindFileMetaView(gridholder, position);
+                                } catch (Exception e) {
+                                    LOG.e(e);
+                                }
+                            }
+                        });
+                    }
                     IMG.getCoverPageWithEffect(gridholder.ivCoverImage, fileMeta.getPath(), imageSize, new IMG.ResourceReady() {
                         @Override
                         public void onResourceReady(Bitmap bitmap) {
@@ -199,8 +217,10 @@ public class NoteGridAdapter4 extends RecyclerView.Adapter<NoteGridAdapter4.Grid
 //      holder.ivCoverImageBack.setImageBitmap(page.getBgThumbnail());
         if (true) { //if (AppState.get().isCropBookCovers) {
             holder.ivCoverImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            holder.ivBgImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
         } else {
             holder.ivCoverImage.setScaleType(ImageView.ScaleType.FIT_CENTER); //
+            holder.ivBgImage.setScaleType(ImageView.ScaleType.FIT_CENTER);
         }
         if (fileMeta.checkShow) {
             holder.checkBox.setVisibility(View.VISIBLE);
@@ -217,6 +237,7 @@ public class NoteGridAdapter4 extends RecyclerView.Adapter<NoteGridAdapter4.Grid
 
     public class GridViewHolder extends RecyclerView.ViewHolder {
         private TextView tfBookName;
+        private ImageView ivBgImage;
         private ImageView ivCoverImage;
         private ImageView ivCoverImageBack;
         private LinearLayout llGridTop;
@@ -225,6 +246,7 @@ public class NoteGridAdapter4 extends RecyclerView.Adapter<NoteGridAdapter4.Grid
         public GridViewHolder(@NonNull View itemView) {
             super(itemView);
             tfBookName = (TextView) itemView.findViewById(R.id.bookgrid_name_library);
+            ivBgImage = (ImageView) itemView.findViewById(R.id.browserItemIcon_library_bg);
             ivCoverImage = (ImageView) itemView.findViewById(R.id.browserItemIcon_library);
 //            ivCoverImageBack = (ImageView) itemView.findViewById(R.id.bookgrid_pic_backgroud);
             llGridTop = (LinearLayout) itemView.findViewById(R.id.llGridTop);

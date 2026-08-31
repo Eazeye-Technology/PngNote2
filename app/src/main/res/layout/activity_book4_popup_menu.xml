@@ -86,7 +86,9 @@ app:cardBackgroundColor="#00585858"
                         android:layout_height="@dimen/activity_book4_popup_menu_separator_height"
                         android:layout_marginTop="@dimen/activity_book4_popup_menu_separator_margin_top"
                         android:layout_marginBottom="@dimen/activity_book4_popup_menu_separator_margin_top"
-                        android:background="#C4C7C8" />
+                        android:background="#C4C7C8"
+                        android:id="@+id/popLine1"
+                        />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -138,7 +140,9 @@ app:cardBackgroundColor="#00585858"
                         android:layout_height="@dimen/activity_book4_popup_menu_separator_height"
                         android:layout_marginTop="@dimen/activity_book4_popup_menu_separator_margin_top"
                         android:layout_marginBottom="@dimen/activity_book4_popup_menu_separator_margin_top"
-                        android:background="#C4C7C8" />
+                        android:background="#C4C7C8"
+                        android:id="@+id/popLine2"
+                        />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -189,7 +193,9 @@ app:cardBackgroundColor="#00585858"
                         android:layout_height="@dimen/activity_book4_popup_menu_separator_height"
                         android:layout_marginTop="@dimen/activity_book4_popup_menu_separator_margin_top"
                         android:layout_marginBottom="@dimen/activity_book4_popup_menu_separator_margin_top"
-                        android:background="#C4C7C8" />
+                        android:background="#C4C7C8"
+                        android:id="@+id/popLine3"
+                        />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -232,7 +238,9 @@ app:cardBackgroundColor="#00585858"
                         android:layout_height="@dimen/activity_book4_popup_menu_separator_height"
                         android:layout_marginTop="@dimen/activity_book4_popup_menu_separator_margin_top"
                         android:layout_marginBottom="@dimen/activity_book4_popup_menu_separator_margin_top"
-                        android:background="#C4C7C8" />
+                        android:background="#C4C7C8"
+                        android:id="@+id/popLine4"
+                        />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -411,7 +419,9 @@ app:cardBackgroundColor="#00585858"
                         android:layout_height="@dimen/activity_book4_popup_menu_separator_height"
                         android:layout_marginTop="@dimen/activity_book4_popup_menu_separator_margin_top"
                         android:layout_marginBottom="@dimen/activity_book4_popup_menu_separator_margin_top"
-                        android:background="#C4C7C8" />
+                        android:background="#C4C7C8"
+                        android:id="@+id/popLine5"
+                        />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -567,6 +577,7 @@ app:cardBackgroundColor="#00585858"
                         android:background="#C4C7C8"
                         android:layout_marginTop="@dimen/activity_book4_popup_menu_separator_margin_top"
                         android:layout_marginBottom="@dimen/activity_book4_popup_menu_separator_margin_top"
+                        android:id="@+id/popLine6"
                         />
 
                     <LinearLayout
@@ -629,6 +640,7 @@ app:cardBackgroundColor="#00585858"
                         android:background="#C4C7C8"
                         android:layout_marginTop="@dimen/activity_book4_popup_menu_separator_margin_top"
                         android:layout_marginBottom="@dimen/activity_book4_popup_menu_separator_margin_top"
+                        android:id="@+id/popLine7"
                         />
 
                     <LinearLayout

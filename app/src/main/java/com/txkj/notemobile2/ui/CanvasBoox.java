@@ -278,6 +278,7 @@ public class CanvasBoox extends View {
         this.bmpCanvas = new Canvas(bmp);
     }
 
+    //see DualScreenCanvas.drawBackground
     public static void initBackText(String backText, Bitmap bmp, int sampleSize) {
         if (bmp != null && backText != null) {
             if (backText.equals(FileMeta.DOTTED)) {

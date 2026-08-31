@@ -31,10 +31,13 @@ import java.io.OutputStreamWriter;
 import java.util.List;
 
 public class SpeechApp extends Application {
+    public static Context context;
+
 	@Override
 	public void onCreate() {
 //		SpeechUtility.createUtility(SpeechApp.this, "appid=" + getString(R.string.appid));
 		super.onCreate();
+        context = getApplicationContext();
 	}
 
     @Override

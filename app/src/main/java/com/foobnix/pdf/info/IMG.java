@@ -1,7 +1,9 @@
 package com.foobnix.pdf.info;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
@@ -15,6 +17,7 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.foobnix.android.utils.Dips;
 import com.foobnix.android.utils.LOG;
+import com.sys.speech.app.SpeechApp;
 import com.txkj.notemobile2.BookListActivity;
 
 public class IMG {
@@ -33,10 +36,12 @@ public class IMG {
         String url = path;//IMG.toUrl(path, ImageExtractor.COVER_PAGE, width);
         LOG.d("Bitmap-test-load", path);
         IMG.with(img.getContext())
+                .clearOnStop() //FIXME:added
                 .asBitmap()
                 .load(url)
                 .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
                 .diskCacheStrategy(DiskCacheStrategy.RESOURCE)
+                //.diskCacheStrategy(DiskCacheStrategy.NONE)
                 .listener(new RequestListener<Bitmap>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Bitmap> target, boolean isFirstResource) {
@@ -66,4 +71,66 @@ public class IMG {
             return null;
         }
     }
+
+    public static void pauseRequests(Context a) {
+        LOG.d("Glide-pause", a);
+        //with(a).pauseRequests();
+    }
+
+    public static void resumeRequests(Context a) {
+        LOG.d("Glide-resume", a);
+        //with(a).resumeRequests();
+    }
+
+    public static void clear(ImageView image) {
+        try {
+            LOG.d("Glide-clear", image.getContext());
+            Activity activity = ((Activity) image.getContext());
+            if (Build.VERSION.SDK_INT < 17 || !activity.isDestroyed()) {
+                with(image.getContext()).clear(image);
+            }
+        } catch (Exception e) {
+            LOG.e(e);
+        }
+    }
+
+    public static void clear(Context c, Target t) {
+        LOG.d("Glide-clear", c);
+        try {
+            with(c).clear(t);
+        } catch (Exception e) {
+            LOG.e(e);
+        }
+    }
+
+    public static void clearMemoryCache() {
+        if (SpeechApp.context != null) {
+            Glide.get(SpeechApp.context).clearMemory();
+        }
+    }
+
+    public static void clearDiscCache() {
+        new Thread("@T clearDiscCache") {
+            @Override
+            public void run() {
+                try {
+                    if (SpeechApp.context != null) {
+                        Glide.get(SpeechApp.context).clearDiskCache();
+                    }
+                } catch (Exception e) {
+                    LOG.e(e);
+                }
+            }
+        }.start();
+    }
+
+//    public static void clearCache(String path) {
+//        try {
+//            String url = IMG.toUrl(path, ImageExtractor.COVER_PAGE, IMG.getImageSize());
+//            //Glide.get(LibreraApp.context).clearMemory();
+//            //Glide.get(LibreraApp.context).getRegistry()
+//        } catch (Exception e) {
+//            LOG.e(e);
+//        }
+//    }
 }

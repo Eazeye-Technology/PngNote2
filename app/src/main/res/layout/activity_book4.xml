@@ -1552,6 +1552,7 @@
                         android:background="#F1EDEC"
                         android:padding="10px"
                         android:gravity="center_vertical|center"
+                        android:id="@+id/tabTyping"
                         >
                         <androidx.cardview.widget.CardView
                             android:layout_width="wrap_content"
@@ -1606,6 +1607,7 @@
                         android:background="#F1EDEC"
                         android:padding="10px"
                         android:gravity="center_vertical|center"
+                        android:id="@+id/tabAINoteTalking"
                         >
                         <androidx.cardview.widget.CardView
                             android:layout_width="wrap_content"

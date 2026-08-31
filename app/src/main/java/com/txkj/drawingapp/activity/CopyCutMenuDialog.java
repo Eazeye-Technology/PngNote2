@@ -12,6 +12,7 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.txkj.drawingapp.R;
+import com.txkj.notemobile2.BookListActivity;
 
 public class CopyCutMenuDialog {
     private static final int POPUP_OFFSET_X = 0;//30;
@@ -24,6 +25,24 @@ public class CopyCutMenuDialog {
         //View layout = View.inflate(context, R.layout.activity_main_menu1, null);
         View layout = View.inflate(context, R.layout.activity_book4_popup_menu, null);
         //View wv = layout.findViewById(R.id.wheel);
+
+        if (BookListActivity.USE_DS) {
+            layout.findViewById(R.id.popTextViewCopy).setVisibility(View.GONE);
+            layout.findViewById(R.id.popTextViewPaste).setVisibility(View.GONE);
+            layout.findViewById(R.id.popTextViewCut).setVisibility(View.GONE);
+            layout.findViewById(R.id.popTextViewInsertImage).setVisibility(View.GONE);
+            layout.findViewById(R.id.popTextViewTranscriptLanguage).setVisibility(View.GONE);
+            layout.findViewById(R.id.popButtonShare).setVisibility(View.GONE);
+            layout.findViewById(R.id.popButtonShortcut).setVisibility(View.GONE);
+
+            layout.findViewById(R.id.popLine1).setVisibility(View.GONE);
+            layout.findViewById(R.id.popLine2).setVisibility(View.GONE);
+            layout.findViewById(R.id.popLine3).setVisibility(View.GONE);
+            layout.findViewById(R.id.popLine4).setVisibility(View.GONE);
+            //layout.findViewById(R.id.popLine5).setVisibility(View.GONE);
+            layout.findViewById(R.id.popLine6).setVisibility(View.GONE);
+            layout.findViewById(R.id.popLine7).setVisibility(View.GONE);
+        }
 
         mListener = listener;
         final int[] ids = {

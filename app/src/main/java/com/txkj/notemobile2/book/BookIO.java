@@ -55,6 +55,7 @@ import org.librera.LinkedJSONObject;
 
 import io.github.pastthepixels.freepaint.Graphics.BitmapVector;
 import io.github.pastthepixels.freepaint.Graphics.DualScreenCanvas;
+import io.github.pastthepixels.freepaint.Graphics.Point;
 
 public class BookIO {
     private final static boolean D = true;
@@ -330,7 +331,7 @@ public class BookIO {
         return result;
     }
 
-    public void saveMeta(String pattern, String dirUrlPath, String displayName) {
+    public void saveMeta(String pattern, String dirUrlPath, String displayName, boolean isSaveBgPng, Point documentSize) {
         OutputStream it = null;
         try {
             if (D) {
@@ -356,6 +357,33 @@ public class BookIO {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        }
+        if (isSaveBgPng && documentSize != null && documentSize.x > 0 && documentSize.y > 0) {
+            //FIXME: added: bg.png
+            Bitmap emptyBmp = null;
+            try {
+                if (pattern != null) {
+                    emptyBmp = Bitmap.createBitmap((int)documentSize.x,
+                            (int)documentSize.y, Bitmap.Config.ARGB_8888);
+                    if (BookIO.USE_META_TXT) {
+                        emptyBmp.eraseColor(0xFFFFFFFF); //run here
+                    } else {
+                        emptyBmp.eraseColor(0x00000000);
+                    }
+                    DualScreenCanvas.initBackText(pattern, emptyBmp, 1);
+                }
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+            }
+            if (emptyBmp != null) {
+                File parent = new File(dirUrlPath, displayName).getParentFile();
+                File bgFile = new File(parent, "bg.png");
+                try (FileOutputStream outputStream = new FileOutputStream(bgFile)) {
+                    emptyBmp.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -508,7 +536,17 @@ public class BookIO {
                         EinkPWInterface einkPWlnterface = fragment.getCanvas().einkPWInterface;
                         if (einkPWlnterface != null) {
                             //einkPWlnterface.setLoadFilePath(path, true);
-                            einkPWlnterface.saveBitmap(true, null);
+                            final String mypath_ = einkPWlnterface.getPWBitmapFilePath();
+                            einkPWlnterface.saveBitmap(true, new EinkPWInterface.PWSaveBitmapListener() {
+                                @Override
+                                public void saveDone(String s) {
+                                    if (mypath_ != null) {
+                                        File parent = new File(mypath_).getParentFile();
+                                        File coverFile = new File(parent, "cover.png");
+                                        copyFile(page, mypath_, coverFile.getAbsolutePath());
+                                    }
+                                }
+                            });
                             //einkPWlnterface.setLoadFilePath(null, true);
                         }
                     }
@@ -553,6 +591,63 @@ public class BookIO {
             saveRecent_new(act, itemFound);
         } catch (Throwable eee) {
             eee.printStackTrace();
+        }
+    }
+
+    public void copyFile(BookPage page, String source, String target) {
+        if (true) {
+            try (FileInputStream fis = new FileInputStream(source);
+                 FileOutputStream fos = new FileOutputStream(target)) {
+                byte[] buffer = new byte[8192];
+                int length;
+                while ((length = fis.read(buffer)) > 0) {
+                    fos.write(buffer, 0, length);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            //FIXME: don't use this method, too slow, use bg.png
+            Bitmap bitmap = BitmapFactory.decodeFile(source);
+            if (USE_META_TXT) {
+                if (bitmap != null) {
+                    try {
+                        String pattern = null;
+                        String metaTxt = loadMetaPng(page.getFile());
+                        if (metaTxt != null && !metaTxt.isEmpty()) {
+                            JSONObject item = new JSONObject(metaTxt);
+                            pattern = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_PATTERN);
+                        }
+                        if (pattern != null) {
+                            Bitmap emptyBmp = Bitmap.createBitmap(bitmap.getWidth(),
+                                    bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+                            if (BookIO.USE_META_TXT) {
+                                emptyBmp.eraseColor(0xFFFFFFFF); //run here
+                            } else {
+                                emptyBmp.eraseColor(0x00000000);
+                            }
+                            CanvasBoox.initBackText(pattern, emptyBmp, 1);
+                            Canvas canvas = new Canvas(emptyBmp);
+                            Paint paint = new Paint();
+                            canvas.drawBitmap(bitmap, 0, 0, paint);
+                            bitmap = emptyBmp;
+                        }
+                    } catch (Throwable eee) {
+                        eee.printStackTrace();
+                    }
+                }
+            }
+            if (bitmap != null) {
+//                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+//                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+//                byte[] imageByte = outputStream.toByteArray();
+//                itemFound.setPreview(Base64.encodeToString(imageByte, Base64.DEFAULT));
+                try (FileOutputStream outputStream = new FileOutputStream(target)) {
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

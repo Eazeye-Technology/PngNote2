@@ -99,6 +99,12 @@ public class BookActivity4BrushEditDialog {
 
     public void onShowDialog(AlertDialog dialogInterface) {
         AlertDialog dialog = (AlertDialog) dialogInterface;
+
+        if (BookListActivity.USE_DS) {
+            dialog.findViewById(R.id.tvColor).setVisibility(View.GONE);
+            dialog.findViewById(R.id.llColor).setVisibility(View.GONE);
+        }
+
         Button btnSave = (Button) dialog.findViewById(R.id.btnSave);
         Button btnCancel = (Button) dialog.findViewById(R.id.btnCancel);
         btnSave.setOnClickListener(new View.OnClickListener() {

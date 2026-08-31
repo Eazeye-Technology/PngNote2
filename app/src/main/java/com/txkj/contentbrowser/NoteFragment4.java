@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -42,6 +43,7 @@ import com.foobnix.android.utils.KeyboardsMod;
 import com.foobnix.android.utils.LOG;
 import com.foobnix.dao2.FileMeta;
 import com.foobnix.pdf.info.AppsConfig;
+import com.foobnix.pdf.info.IMG;
 import com.foobnix.pdf.info.view.EditTextHelper;
 import com.sys.speech.db.SDRecordingsDatabase;
 import com.txkj.drawingapp.R;
@@ -711,7 +713,7 @@ class PreferencesKeys {
                 try {
                     LinkedJSONObject item = new LinkedJSONObject(itemNote.getNoteContent());
                     if (item != null) {
-                        String preview = item.optString("preview");
+                        String preview = item.optString("preview"); //cover.png
                         String name = item.optString("name");
                         String path = item.optString("path");
                         String createTime = item.optString("createTime");
@@ -741,7 +743,17 @@ class PreferencesKeys {
                             }
                             fileMeta.setDateTxt(updateTimeStr);
                         }
-                        fileMeta.setPath(preview != null ? BaseExtractor.BASE64_PREFIX + preview : null);
+                        //FIXME:adapt to cover.png
+                        if (preview == null || preview.isEmpty()) {
+                            String APP_FILE = (path != null ? path : "");
+                            String rootPath = new File(Environment.getExternalStorageDirectory(), APPNAME_NEW).toString();
+                            String sketchPath = new File(rootPath, APP_FILE).getAbsolutePath();
+                            String coverPath = new File(sketchPath, "cover.png").getAbsolutePath();
+                            //String bgPath = new File(sketchPath, "bg.png").getAbsolutePath();
+                            fileMeta.setPath(coverPath != null ? coverPath : BaseExtractor.BASE64_PREFIX);
+                        } else {
+                            fileMeta.setPath(preview != null ? BaseExtractor.BASE64_PREFIX + preview : null);
+                        }
 
                         if (txt != null && txt.length() > 0) {
                             if (name.toLowerCase().contains(txt.toLowerCase())) {
@@ -1412,4 +1424,14 @@ class PreferencesKeys {
         cal.setTimeInMillis(0);
         return cal;
     }
+
+//    @Override
+//    public void onDestroyView() {
+//        super.onDestroyView();
+//        if (Build.VERSION.SDK_INT >= 17 && !getActivity().isDestroyed()) {
+//            IMG.clear(getActivity(), target);
+//        } else if (!getActivity().isFinishing()) {
+//            IMG.clear(getActivity(), target);
+//        }
+//    }
 }

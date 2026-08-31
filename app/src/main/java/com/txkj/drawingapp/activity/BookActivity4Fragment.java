@@ -31,6 +31,7 @@ import android.text.TextPaint;
 import android.util.Log;
 import android.util.SizeF;
 import android.util.TypedValue;
+import android.view.EinkPWInterface;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -566,9 +567,28 @@ public class BookActivity4Fragment extends Fragment {
             }
             if (path != null) {
                 Uri u = FileProvider.getUriForFile(getActivity(),
-                        getActivity().getApplicationContext().getPackageName() + ".provider",
+                        getActivity().getApplicationContext().getPackageName() + ".fileprovider",
                         path);
                 this.shareImageUri(u);
+            }
+        } else {
+            if (getCanvas() != null) {
+                EinkPWInterface einkPWlnterface = getCanvas().einkPWInterface;
+                if (einkPWlnterface != null) {
+                    final String mypath_ = einkPWlnterface.getPWBitmapFilePath();
+                    einkPWlnterface.saveBitmap(true, new EinkPWInterface.PWSaveBitmapListener() {
+                        @Override
+                        public void saveDone(String s) {
+                            if (mypath_ != null) {
+                                File path = new File(mypath_);
+                                Uri u = FileProvider.getUriForFile(getActivity(),
+                                        getActivity().getApplicationContext().getPackageName() + ".fileprovider",
+                                        path);
+                                shareImageUri(u);
+                            }
+                        }
+                    });
+                }
             }
         }
     }
@@ -640,7 +660,7 @@ public class BookActivity4Fragment extends Fragment {
             if (false && this.pageBmp != null) {
                 this.savePageInMain(this.pageNum - 1, this.pageBmp, getVecJson(canvas), BookActivity4Fragment.this);
                 if (BookIO.USE_META_TXT) {
-                    getBookIO().saveMeta(backText, this.dirUrlPath, String.format("%04d", this.pageNum - 1) + ".meta");
+                    getBookIO().saveMeta(backText, this.dirUrlPath, String.format("%04d", this.pageNum - 1) + ".meta", false, canvas.documentSize);
                 }
             }
         }
@@ -795,18 +815,18 @@ public class BookActivity4Fragment extends Fragment {
             canvas.setTool(DrawCanvas.TOOLS.paint);
             if (id == R.id.left_toolkit_item1) {
                 //findViewById(R.id.buttonPen2).performClick();
-                canvas.setPenType(DrawAppearance.PEN_TYPE_1);
+                canvas.setPenType(DrawAppearance.PEN_TYPE_1, false, false);
             } else if (id == R.id.left_toolkit_item2) {
                 //findViewById(R.id.buttonEraser2).performClick();
-                canvas.setPenType(DrawAppearance.PEN_TYPE_2);
+                canvas.setPenType(DrawAppearance.PEN_TYPE_2, false, false);
             } else if (id == R.id.left_toolkit_item3) {
-                canvas.setPenType(DrawAppearance.PEN_TYPE_3); //highlight
+                canvas.setPenType(DrawAppearance.PEN_TYPE_3, false, false); //highlight
             } else if (id == R.id.left_toolkit_item4) {
-                canvas.setPenType(DrawAppearance.PEN_TYPE_4);
+                canvas.setPenType(DrawAppearance.PEN_TYPE_4, false, false);
             } else if (id == R.id.left_toolkit_item5) {
-                canvas.setPenType(DrawAppearance.PEN_TYPE_5);
+                canvas.setPenType(DrawAppearance.PEN_TYPE_5, false, false);
             } else if (id == R.id.left_toolkit_item6) {
-                canvas.setPenType(DrawAppearance.PEN_TYPE_6);
+                canvas.setPenType(DrawAppearance.PEN_TYPE_6, false, false);
             }
             updateAppear(id);
 //            if (bottomSheetDialog1 != null) {
@@ -1054,10 +1074,12 @@ public class BookActivity4Fragment extends Fragment {
                 canvas.setTool(DrawCanvas.TOOLS.select);
                 canvas.setEraserMode(false);
                 canvas.setScaleMode(false);
+                canvas.setPenType(0, true, false);
             } else if (id == R.id.left_toolkit_item42) {
                 canvas.setTool(DrawCanvas.TOOLS.select);
                 canvas.setEraserMode(false);
                 canvas.setScaleMode(false);
+                canvas.setPenType(0, true, false);
             } else if (id == R.id.left_toolkit_item43) {
                 canvas.setTool(DrawCanvas.TOOLS.select);
                 canvas.setEraserMode(false);
@@ -1074,12 +1096,14 @@ public class BookActivity4Fragment extends Fragment {
                     canvas.setTool(DrawCanvas.TOOLS.select);
                     canvas.setEraserMode(true);
                     canvas.setScaleMode(false);
+                    canvas.setPenType(0, false, true);
                 } else {
                     if (EraserTool.USE_SIMPLE_IMPL) {
                         //use simple impl of EraserTool
                     }
                     canvas.setTool(DrawCanvas.TOOLS.eraser);
                     canvas.setEraserMode(true);
+                    canvas.setPenType(0, false, true);
                 }
             }
         }
@@ -1271,6 +1295,12 @@ public class BookActivity4Fragment extends Fragment {
         long t0 = System.currentTimeMillis();
         View rootView = inflater.inflate(R.layout.activity_book4, container, false);
         g_rootView = rootView;
+
+        if (BookListActivity.USE_DS) {
+            rootView.findViewById(R.id.tabTyping).setVisibility(View.GONE);
+            rootView.findViewById(R.id.tabAINoteTalking).setVisibility(View.GONE);
+        }
+
         long t1 = System.currentTimeMillis();
         Log.e(TAG, "oncreateview, t1== " + (t1 - t0));
         init0001(rootView);
@@ -1347,7 +1377,7 @@ public class BookActivity4Fragment extends Fragment {
         if (BookIO.USE_META_TXT) {
             if (isInitBackText && backText != null) {
                 //run here if create
-                getBookIO().saveMeta(backText, this.dirUrlPath, "0000.meta");
+                getBookIO().saveMeta(backText, this.dirUrlPath, "0000.meta", false, canvas.documentSize);
             }
         }
     }
@@ -1480,10 +1510,14 @@ public class BookActivity4Fragment extends Fragment {
                 }
             });
         }
-        if (ENABLE_SHAPE_PEN) {
-            g_rootView.findViewById(R.id.left_toolkit_item6).setVisibility(View.VISIBLE);
-        } else {
+        if (BookListActivity.USE_DS) {
             g_rootView.findViewById(R.id.left_toolkit_item6).setVisibility(View.GONE);
+        } else {
+            if (ENABLE_SHAPE_PEN) {
+                g_rootView.findViewById(R.id.left_toolkit_item6).setVisibility(View.VISIBLE);
+            } else {
+                g_rootView.findViewById(R.id.left_toolkit_item6).setVisibility(View.GONE);
+            }
         }
         onClickSubmenu1(rootView, iconsSubmenu1[0], true, true);
         for (int id : iconsSubmenu2) {
@@ -2523,7 +2557,7 @@ public class BookActivity4Fragment extends Fragment {
 
     private void init002(View rootView) {
         //FIXME:throw new RuntimeException("not implemented");
-        canvas.setPenType(DrawAppearance.PEN_TYPE_1);
+        canvas.setPenType(DrawAppearance.PEN_TYPE_1, false, false);
         canvas.onVersionChanged();
         if (canvas.einkPWInterface != null) {
             //FIXME: if one view is not drawable, need to xxx.addOnTopView(view)
@@ -4463,13 +4497,13 @@ public class BookActivity4Fragment extends Fragment {
         if (BookIO.USE_META_TXT) {
             if (false) {
                 getBookIO().saveMeta(backText_, BookActivity4Fragment.this.dirUrlPath,
-                        String.format("%04d", BookActivity4Fragment.this.pageNum - 1) + ".meta");
+                        String.format("%04d", BookActivity4Fragment.this.pageNum - 1) + ".meta", true, canvas.documentSize);
             } else {
                 try {
                     List<FastFile> pages = this.getBook().getPages();
                     FastFile file = pages.get(this._pageIdx);
                     getBookIO().saveMeta(backText_, BookActivity4Fragment.this.dirUrlPath,
-                            new File(file.getFilePath()).getName().replace(".png", ".meta"));
+                            new File(file.getFilePath()).getName().replace(".png", ".meta"), true, canvas.documentSize);
                 } catch (Throwable eee) {
                     eee.printStackTrace();
                 }
