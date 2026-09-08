@@ -1173,6 +1173,35 @@ public class BookActivity4Fragment extends Fragment {
                 ((TextView) view.findViewWithTag("binding_5")).setTextColor(0xFFFFFFFF);
             }
         }
+
+        //FIXME: added
+        if (id == R.id.top_toolkit_item1) {
+            ((TextView) g_rootView.findViewById(R.id.tvToolBar2Drawing)).setTextColor(0xFFFFFFFF);
+            ((ImageView) g_rootView.findViewById(R.id.ivToolBar2Drawing)).setImageResource(R.drawable.ic_my_bar_draw_001_w);
+            ((CardView) g_rootView.findViewById(R.id.left_toolkit_item11)).setCardBackgroundColor(0xFF464647);
+            ((TextView) g_rootView.findViewById(R.id.tvToolBar2Selection)).setTextColor(0xFF000000);
+            ((ImageView) g_rootView.findViewById(R.id.ivToolBar2Selection)).setImageResource(R.drawable.ic_my_bar_select_004);
+            ((CardView) g_rootView.findViewById(R.id.left_toolkit_item13)).setCardBackgroundColor(0x00464647);
+        } else if (id == R.id.top_toolkit_item4) {
+            ((TextView) g_rootView.findViewById(R.id.tvToolBar2Drawing)).setTextColor(0xFF000000);
+            ((ImageView) g_rootView.findViewById(R.id.ivToolBar2Drawing)).setImageResource(R.drawable.ic_my_bar_draw_001);
+            ((CardView) g_rootView.findViewById(R.id.left_toolkit_item11)).setCardBackgroundColor(0x00464647);
+            ((TextView) g_rootView.findViewById(R.id.tvToolBar2Selection)).setTextColor(0xFFFFFFFF);
+            ((ImageView) g_rootView.findViewById(R.id.ivToolBar2Selection)).setImageResource(R.drawable.ic_my_bar_select_004_w);
+            ((CardView) g_rootView.findViewById(R.id.left_toolkit_item13)).setCardBackgroundColor(0xFF464647);
+        }
+
+
+
+
+
+
+
+
+
+
+
+
         if (id == R.id.top_toolkit_item1) {
             //drawing
             dtViewBottom.setVisibility(View.GONE);
@@ -1481,6 +1510,35 @@ public class BookActivity4Fragment extends Fragment {
                 showPopupMenu(rootView, view);
             }
         });
+
+
+        rootView.findViewById(R.id.toolbar2_drawing).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                rootView.findViewById(R.id.top_toolkit_item1).performClick();
+            }
+        });
+        rootView.findViewById(R.id.toolbar2_selection).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                rootView.findViewById(R.id.top_toolkit_item4).performClick();
+            }
+        });
+        //R.id.btnTitleUndo
+        rootView.findViewById(R.id.toolbar2_undo).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                rootView.findViewById(R.id.buttonUndo).performClick();
+            }
+        });
+        rootView.findViewById(R.id.toolbar2_redo).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                rootView.findViewById(R.id.buttonRedo).performClick();
+            }
+        });
+
+
         rootView.findViewById(R.id.btnTitleUndo).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -2568,6 +2626,8 @@ public class BookActivity4Fragment extends Fragment {
             canvas.einkPWInterface.addOnTopView(rootView.findViewById(R.id.llPanel));
             canvas.einkPWInterface.addOnTopView(rootView.findViewById(R.id.llFullscreen2_demo));
             canvas.einkPWInterface.addOnTopView(rootView.findViewById(R.id.btnFullscreenExit));
+
+            canvas.einkPWInterface.addOnTopView(rootView.findViewById(R.id.toolbar2));
         }
         clearRestorePages();
 //        dtView = (DrawTextView) rootView.findViewById(R.id.dtView);
@@ -4427,6 +4487,8 @@ public class BookActivity4Fragment extends Fragment {
                                 intent = Intent.createChooser(intent, "Load image file");
                                 activityResultLauncherLoad.launch(intent);
                             }
+                        } else if (view.getId() == R.id.popTextViewFocusMode) {
+                            toggleFocusMode();
                         } else if (view.getId() == R.id.popButtonShortcut) {
                             AlertDialog dialog = new BookActivity4TipsDialog(getActivity()).create();
                             dialog.show();

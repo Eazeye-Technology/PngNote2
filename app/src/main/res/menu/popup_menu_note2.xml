@@ -10,7 +10,10 @@
         android:title="Autosave Test"
         android:checkable="true"
         android:checked="false"
+        android:visible="false"
         />
     <item android:id="@+id/infomenu"
         android:title="Information"/>
+    <item android:id="@+id/autoupdate"
+        android:title="Auto Update"/>
 </menu>

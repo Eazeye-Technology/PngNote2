@@ -51,6 +51,8 @@ import com.txkj.drawingapp.activity.BookActivity4Config;
 import com.txkj.drawingapp.activity.BookActivity4Utils;
 import com.txkj.drawingapp.db.NoteItem;
 import com.txkj.drawingapp.db.SDNotesDatabase;
+import com.txkj.notemobile2.BookListActivity;
+import com.txkj.notemobile2.MainActivity;
 import com.txkj.notemobile2.book.FastFile;
 
 import org.json.JSONException;
@@ -1070,6 +1072,16 @@ class PreferencesKeys {
             @Override
             public boolean onMenuItemClick(@NonNull MenuItem menuItem) {
                 cancelSelect();
+                return true;
+            }
+        });
+        MenuItem autoupdate = menu.findItem(R.id.autoupdate);
+        autoupdate.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(@NonNull MenuItem menuItem) {
+                if (getActivity() instanceof BookListActivity) {
+                    ((BookListActivity) getActivity()).checkVersion();
+                }
                 return true;
             }
         });

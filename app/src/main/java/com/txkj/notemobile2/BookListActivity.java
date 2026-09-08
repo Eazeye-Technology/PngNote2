@@ -34,6 +34,14 @@ import com.txkj.drawingapp.activity.BookActivity4Utils;
 import com.upgradetool.upgrade.UpgradeUtil;
 
 public class BookListActivity extends AppCompatActivity {
+    public void checkVersion() {
+        if (UpgradeUtil.USE_UPGRADE) {
+            if (upgradeUtil != null) {
+                upgradeUtil.checkVersion();
+            }
+        }
+    }
+
     public final static boolean USE_DS = true;
 
     private final static boolean D = true;
