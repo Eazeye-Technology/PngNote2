@@ -266,6 +266,10 @@ Android6.onRequestPermissionsResult(this, i, strArr, iArr);
             if (((BookActivity4Fragment) currentFragment).onKeyUp(keyCode, event)) {
                 return true;
             }
+            if (keyCode == KeyEvent.KEYCODE_F5) {
+                ((BookActivity4Fragment) currentFragment).onBackPressed();
+                return true;
+            }
         }
         return super.onKeyDown(keyCode, event);
     }

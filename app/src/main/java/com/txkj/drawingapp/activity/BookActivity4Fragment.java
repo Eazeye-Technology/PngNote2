@@ -927,6 +927,7 @@ public class BookActivity4Fragment extends Fragment {
         }
         AlertDialog aDialog = dialog.create();
         aDialog.show();
+        dialog.afterShow(aDialog);
     }
     public void onLongClickSubmenu1_after(BookActivity4BrushEditDialog dialog, int id) {
         if (dialog.outputIsSave) {

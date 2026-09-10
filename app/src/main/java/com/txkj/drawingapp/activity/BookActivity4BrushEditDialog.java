@@ -27,6 +27,13 @@ import com.google.android.material.slider.Slider;
 import com.txkj.drawingapp.R;
 import com.txkj.notemobile2.BookListActivity;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import io.github.pastthepixels.freepaint.Graphics.Point;
+
 //popupwindow_pen_style.xml
 public class BookActivity4BrushEditDialog {
     //private final static int WIN_WIDTH = 544 + 24 * 2;
@@ -81,6 +88,13 @@ public class BookActivity4BrushEditDialog {
             eee.printStackTrace();
         }
         return dialog;
+    }
+
+    public void afterShow(AlertDialog dialog) {
+        if (BookListActivity.USE_DS) {
+            dialog.findViewById(R.id.tvColor).setVisibility(View.GONE);
+            dialog.findViewById(R.id.llColor).setVisibility(View.GONE);
+        }
     }
 
     private void onSave(AlertDialog dialogInterface) {
@@ -186,6 +200,42 @@ public class BookActivity4BrushEditDialog {
                 paint.setAntiAlias(true);
                 canvas.drawLine(p0.x, p0.y, p1.x, p1.y, paint);
             }
+        } else if (mBrushId == R.id.left_toolkit_item4) { //pencil //DrawAppearance.PEN_TYPE_4
+            //search new pencil implementation
+
+            PointF[] points_ = BookActivity4PreviewPath.getPath();
+            Paint paint = new Paint();
+            paint.setColor(outputColor);//Color.BLACK);
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeJoin(Paint.Join.ROUND);
+            paint.setStrokeCap(Paint.Cap.ROUND);
+            paint.setStrokeWidth(dp2px(dialog.getContext(), 5) * outputBrushSize);
+            CopyOnWriteArrayList<Point> points = new CopyOnWriteArrayList<>();
+            for (PointF p : points_) {
+                points.add(new Point(p.x, p.y));
+            }
+
+            int baseColor = paint.getColor();
+            //Paint base = new Paint(paint);
+            boolean useDrawPoints = true;
+            List<Float> toDrawList = new ArrayList<>();
+            for (int i = 0; i < points.size() - 1; ++i) {
+                Point p0 = points.get(i);
+                Point p1 = points.get(i + 1);
+                drawStroke(canvas, p0, p1, paint.getStrokeWidth(), baseColor, useDrawPoints, toDrawList);
+            }
+            if (useDrawPoints) {
+                paint.setStyle(Paint.Style.FILL);
+                paint.setColor((baseColor & 0xFFFFFF) | 0xFF000000);
+                paint.setStrokeWidth(1.1f);
+                //int pos = 0;
+                float[] points__ = new float[toDrawList.size()];
+                for (int i = 0; i < toDrawList.size(); ++i) {
+                    Float p = toDrawList.get(i);
+                    points__[i] = p;
+                }
+                canvas.drawPoints(points__, paint);
+            }
         } else {
             PointF[] points = BookActivity4PreviewPath.getPath();
             Path path = new Path();
@@ -234,7 +284,8 @@ public class BookActivity4BrushEditDialog {
         } else if (mBrushId == R.id.left_toolkit_item3) {
             title = "Edit highlighter brush";
         } else if (mBrushId == R.id.left_toolkit_item4) {
-            title = "Edit marker pen brush";
+            //title = "Edit marker pen brush";
+            title = "Edit pencil brush";
         } else if (mBrushId == R.id.left_toolkit_item5) { //hidden
             title = "Edit pen brush";
         } else if (mBrushId == R.id.left_toolkit_item6) {
@@ -319,6 +370,175 @@ public class BookActivity4BrushEditDialog {
             dialog.findViewById(R.id.colorBtn002).performClick();
         } else if (outputColor == 0xffFFFFFF) {
             dialog.findViewById(R.id.colorBtn003).performClick();
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //
+    //new pencil implementation, 20260429, from Free-hand Drawing App
+    //https://www.figma.com/design/GJTGvpoKP8En3dkw0H2VBl/Free-hand-Drawing-App
+    //
+    private void drawStroke(Canvas ctx,
+                            Point from,
+                            Point to,
+                            double size,
+                            int color,
+                            boolean useDrawPoints,
+                            List<Float> toDrawList
+    ) {
+        Random rand = new Random(0);
+        Paint paint = new Paint();
+        double distance = Math.sqrt(Math.pow(to.x - from.x, 2) + Math.pow(to.y - from.y, 2));
+        int steps = (int)Math.max(Math.ceil(distance), 1);
+        for (int i = 0; i <= steps; i++) {
+            double t = (float)i / steps;
+            double x = from.x + (to.x - from.x) * t;
+            double y = from.y + (to.y - from.y) * t;
+            double pressure = from.pressure + (to.pressure - from.pressure) * t;
+
+            drawPoint(ctx, x, y, pressure, size, color, paint, rand, useDrawPoints, toDrawList);
+        }
+    }
+
+    private final boolean FORCE_PENCIL_SIMPLIFY = false;
+    private void drawPoint(Canvas canvas,
+                           double x,
+                           double y,
+                           double pressure,
+                           double size,
+                           int color,
+                           Paint paint,
+                           Random rand,
+                           boolean useDrawPoints,
+                           List<Float> toDrawList
+    ) {
+        //1.0;//5.0;//
+        final double MAX_LOOP = 5.0;//Double.MAX_VALUE;//5.0;//1.0;//2.0;//5.0;
+        //FIXME:added, loop times don't over MAX_LOOP (like 5.0)
+
+        double effectivePressure = Math.max(0.15, Math.min(1, pressure));
+        double radius = size * effectivePressure;
+
+        double particleDensity = 0.3 + effectivePressure * 0.7;
+        double particleCount = Math.min(MAX_LOOP, Math.floor(radius * 15 * particleDensity));
+
+        double particleOpacity = 0.08 + effectivePressure * 0.15;
+
+        //canvas.save();
+        if (true) {
+            for (int i = 0; i < particleCount; i++) {
+                if (rand.nextDouble() > particleDensity) continue;
+
+                double angle = rand.nextDouble() * Math.PI * 2;
+                double distance = Math.sqrt(rand.nextDouble()) * radius;
+                double px = x + Math.cos(angle) * distance;
+                double py = y + Math.sin(angle) * distance;
+
+                double particleSize = 0.3 + rand.nextDouble() * (0.8 + effectivePressure * 0.8);
+                double opacity = particleOpacity * (0.5 + rand.nextDouble() * 0.5);
+
+//            ctx.globalAlpha = opacity;
+//            ctx.fillStyle = color;
+                paint.setStyle(Paint.Style.FILL);
+                paint.setColor((color & 0xFFFFFF) |
+                        ((((int) (0xFF * opacity)) & 0xFF) << 24));
+                if (useDrawPoints) {
+                    if (toDrawList != null) {
+                        toDrawList.add((float) (px));
+                        toDrawList.add((float) (py));
+                    }
+                } else {
+                    canvas.drawRect(
+                            (float) (px - particleSize / 2),
+                            (float) (py - particleSize / 2),
+                            (float) (px - particleSize / 2) + (float) (particleSize),
+                            (float) (py - particleSize / 2) + (float) (particleSize),
+                            paint
+                    );
+                }
+//                canvas.drawCircle(
+//                        (float) (px - particleSize / 2),
+//                        (float) (py - particleSize / 2),
+//                        (float)size,
+//                        paint);
+            }
+
+            if (true) {
+                double edgeParticles = Math.min(MAX_LOOP, Math.floor(radius * 3));
+                for (int i = 0; i < edgeParticles; i++) {
+                    double angle = rand.nextDouble() * Math.PI * 2;
+                    double distance = radius * (0.7 + rand.nextDouble() * 0.6);
+                    double px = x + Math.cos(angle) * distance;
+                    double py = y + Math.sin(angle) * distance;
+
+                    double particleSize = 0.3 + rand.nextDouble() * 0.8;
+                    double opacity = particleOpacity * 0.3 * (0.3 + rand.nextDouble() * 0.7);
+
+                    //ctx.globalAlpha = opacity;
+                    //ctx.fillStyle = color;
+                    paint.setStyle(Paint.Style.FILL);
+                    paint.setColor((color & 0xFFFFFF) |
+                            ((((int) (0xFF * opacity)) & 0xFF) << 24));
+                    if (useDrawPoints) {
+                        if (toDrawList != null) {
+                            toDrawList.add((float) (px));
+                            toDrawList.add((float) (py));
+                        }
+                    } else {
+                        if (true) {
+                            canvas.drawRect(
+                                    (float) (px - particleSize / 2),
+                                    (float) (py - particleSize / 2),
+                                    (float) (px - particleSize / 2) + (float) (particleSize),
+                                    (float) (py - particleSize / 2) + (float) (particleSize),
+                                    paint
+                            );
+                        } else {
+//                            canvas.drawCircle(
+//                                    (float) (px - particleSize / 2),
+//                                    (float) (py - particleSize / 2),
+//                                    (float) particleSize,
+//                                    paint);
+                        }
+                    }
+                }
+            }
+//            canvas.restore();
+        } else {
+            paint.setStyle(Paint.Style.FILL);
+            paint.setColor((color & 0xFFFFFF) | 0xFF000000);
+            canvas.drawCircle((float)x, (float)y, (float)size, paint);
         }
     }
 }
