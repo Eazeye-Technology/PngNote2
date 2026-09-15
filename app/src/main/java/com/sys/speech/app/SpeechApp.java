@@ -112,8 +112,10 @@ public class SpeechApp extends Application {
         //Log.e(TAG, "recentFiles: " + recentFiles);
         JSONObject item = new JSONObject();
         try {
-            item = new JSONObject(recentFiles);
-            return item.optBoolean("acraEnable", false);
+            if (recentFiles.length() > 0) {
+                item = new JSONObject(recentFiles);
+                return item.optBoolean("acraEnable", false);
+            }
         } catch (Throwable eee) {
             eee.printStackTrace();
         }

@@ -391,7 +391,7 @@ public class DualScreenCanvas extends View implements IDrawCanvas {
             paint.setStrokeJoin(Paint.Join.ROUND);
 
             if (true) {
-                drawGraphPaperBackground(canvas, paint, w, h);
+                drawGraphPaperBackground(canvas, paint, w, h, 1);
             } else {
                 paint.setStrokeWidth(mSize - 2f);
                 paint.setColor(0xFF000000);
@@ -425,23 +425,24 @@ public class DualScreenCanvas extends View implements IDrawCanvas {
                 linePaint.setStrokeWidth(mSize - 2f);
                 switch (backgroundMode) {
                     case FileMeta.GRAPH:
-                        drawGraphPaperBackground(canvas, linePaint, w, h);
+                        drawGraphPaperBackground(canvas, linePaint, w, h, 1);
                         break;
 
                     case FileMeta.LINED:
-                        drawNotebookPaperBackground(canvas, linePaint, w, h);
+                        drawNotebookPaperBackground(canvas, linePaint, w, h, 1);
                         break;
 
                     case FileMeta.LINED_LONG_DASH:
-                        drawNotebookPaperBackgroundLongDash(canvas, linePaint, w, h);
+                        drawNotebookPaperBackgroundLongDash(canvas, linePaint, w, h, 1);
                         break;
 
                     case FileMeta.LINED_SHORT_DASH:
-                        drawNotebookPaperBackgroundShortDash(canvas, linePaint, w, h);
+                        drawNotebookPaperBackgroundShortDash(canvas, linePaint, w, h, 1);
                         break;
 
+
                     case FileMeta.DOTTED:
-                        drawDotPaperBackground(canvas, linePaint, w, h);
+                        drawDotPaperBackground(canvas, linePaint, w, h, 1);
                         break;
 
                     default:
@@ -474,7 +475,7 @@ public class DualScreenCanvas extends View implements IDrawCanvas {
      * @param canvas the canvas to draw on
      * @param paint  the paint to use
      */
-    private static void drawGraphPaperBackground(Canvas canvas, Paint paint, float w, float h) {
+    private static void drawGraphPaperBackground(Canvas canvas, Paint paint, float w, float h, int sampleSize) {
 /*
                 final paint = Paint()
       ..color = Colors.grey[500].withOpacity(.3)
@@ -497,18 +498,18 @@ public class DualScreenCanvas extends View implements IDrawCanvas {
         paint.setAntiAlias(true);
         paint.setPathEffect(new DashPathEffect(new float[]{5, 5}, 0));
         //1 because no line at the top
-        for (int i = 1; i < h / LINE_HEIGHT/* + 1*/; i++) {
-            canvas.drawLine(0, i * LINE_HEIGHT,
-                    w, i * LINE_HEIGHT, paint);
+        for (int i = 1; i < h / (LINE_HEIGHT / sampleSize)/* + 1*/; i++) {
+            canvas.drawLine(0, i * (LINE_HEIGHT / sampleSize),
+                    w, i * (LINE_HEIGHT / sampleSize), paint);
         }
         // 1 because no line at the beginning
-        for (int i = 1; i < w / LINE_HEIGHT/* + 1*/; i++) {
-            canvas.drawLine(i * LINE_HEIGHT, 0,
-                    i * LINE_HEIGHT, h, paint);
+        for (int i = 1; i < w / (LINE_HEIGHT / sampleSize)/* + 1*/; i++) {
+            canvas.drawLine(i * (LINE_HEIGHT / sampleSize), 0,
+                    i * (LINE_HEIGHT / sampleSize), h, paint);
         }
     }
 
-    private static void drawDotPaperBackground(Canvas canvas, Paint paint, float w, float h) {
+    private static void drawDotPaperBackground(Canvas canvas, Paint paint, float w, float h, int sampleSize) {
 /*
 final paint = Paint()
         ..color = Colors.grey[500].withOpacity(.3)
@@ -529,10 +530,10 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
         paint.setColor(LINE_COLOR);//0xFFCCCCCC);
         paint.setAntiAlias(true);
         paint.setStyle(Paint.Style.FILL);
-        for (int i = 1; i < h / LINE_HEIGHT/* + 1*/; i++) {
+        for (int i = 1; i < h / (LINE_HEIGHT / sampleSize)/* + 1*/; i++) {
             // 1 because no line at the beginning
-            for (int j = 1; j < w / LINE_HEIGHT/* + 1*/; j++) {
-                canvas.drawCircle(j * LINE_HEIGHT, i * LINE_HEIGHT, DOT_HEIGHT, paint); //Dips.dpToPx(2)
+            for (int j = 1; j < w / (LINE_HEIGHT / sampleSize)/* + 1*/; j++) {
+                canvas.drawCircle(j * (LINE_HEIGHT / sampleSize), i * (LINE_HEIGHT / sampleSize), DOT_HEIGHT, paint); //Dips.dpToPx(2)
             }
         }
     }
@@ -543,7 +544,7 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
      * @param canvas the canvas to draw on
      * @param paint  the paint to use
      */
-    private static void drawNotebookPaperBackground(Canvas canvas, Paint paint, float w, float h) {
+    private static void drawNotebookPaperBackground(Canvas canvas, Paint paint, float w, float h, int sampleSize) {
 /*
     final paint = Paint()
       ..color = Colors.grey[500].withOpacity(.3)
@@ -560,13 +561,13 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
         paint.setStrokeWidth(1);
         paint.setAntiAlias(true);
         // 1 because no line at the top
-        for (int i = 1; i < h / LINE_HEIGHT; i++) {
-            canvas.drawLine(0, i * LINE_HEIGHT,
-                    w, i * LINE_HEIGHT, paint);
+        for (int i = 1; i < h / (LINE_HEIGHT / sampleSize); i++) {
+            canvas.drawLine(0, i * (LINE_HEIGHT / sampleSize),
+                    w, i * (LINE_HEIGHT / sampleSize), paint);
         }
     }
 
-    private static void drawNotebookPaperBackgroundLongDash(Canvas canvas, Paint paint, float w, float h) {
+    private static void drawNotebookPaperBackgroundLongDash(Canvas canvas, Paint paint, float w, float h, int sampleSize) {
 /*
     final paint = Paint()
       ..color = Colors.grey[500].withOpacity(.3)
@@ -584,13 +585,13 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
         paint.setAntiAlias(true);
         paint.setPathEffect(new DashPathEffect(new float[]{20, 20}, 0));
         // 1 because no line at the top
-        for (int i = 1; i < h / LINE_HEIGHT; i++) {
-            canvas.drawLine(0, i * LINE_HEIGHT,
-                    w, i * LINE_HEIGHT, paint);
+        for (int i = 1; i < h / (LINE_HEIGHT / sampleSize); i++) {
+            canvas.drawLine(0, i * (LINE_HEIGHT / sampleSize),
+                    w, i * (LINE_HEIGHT / sampleSize), paint);
         }
     }
 
-    private static void drawNotebookPaperBackgroundShortDash(Canvas canvas, Paint paint, float w, float h) {
+    private static void drawNotebookPaperBackgroundShortDash(Canvas canvas, Paint paint, float w, float h, int sampleSize) {
 /*
     final paint = Paint()
       ..color = Colors.grey[500].withOpacity(.3)
@@ -608,9 +609,9 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
         paint.setAntiAlias(true);
         paint.setPathEffect(new DashPathEffect(new float[]{5, 5}, 0));
         // 1 because no line at the top
-        for (int i = 1; i < h / LINE_HEIGHT; i++) {
-            canvas.drawLine(0, i * LINE_HEIGHT,
-                    w, i * LINE_HEIGHT, paint);
+        for (int i = 1; i < h / (LINE_HEIGHT / sampleSize); i++) {
+            canvas.drawLine(0, i * (LINE_HEIGHT / sampleSize),
+                    w, i * (LINE_HEIGHT / sampleSize), paint);
         }
     }
 
@@ -633,23 +634,23 @@ for (int i = 1; i < size.height / XppPageSize.pt2mm(5); i++) {
                 linePaint.setStrokeWidth(1);//mSize - 2f);
                 switch (backText) {
                     case FileMeta.GRAPH:
-                        drawGraphPaperBackground(canvas, linePaint, w, h);
+                        drawGraphPaperBackground(canvas, linePaint, w, h, sampleSize);
                         break;
 
                     case FileMeta.LINED:
-                        drawNotebookPaperBackground(canvas, linePaint, w, h);
+                        drawNotebookPaperBackground(canvas, linePaint, w, h, sampleSize);
                         break;
 
                     case FileMeta.LINED_LONG_DASH:
-                        drawNotebookPaperBackgroundLongDash(canvas, linePaint, w, h);
+                        drawNotebookPaperBackgroundLongDash(canvas, linePaint, w, h, sampleSize);
                         break;
 
                     case FileMeta.LINED_SHORT_DASH:
-                        drawNotebookPaperBackgroundShortDash(canvas, linePaint, w, h);
+                        drawNotebookPaperBackgroundShortDash(canvas, linePaint, w, h, sampleSize);
                         break;
 
                     case FileMeta.DOTTED:
-                        drawDotPaperBackground(canvas, linePaint, w, h);
+                        drawDotPaperBackground(canvas, linePaint, w, h, sampleSize);
                         break;
 
                     default:

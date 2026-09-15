@@ -45,6 +45,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import io.github.pastthepixels.freepaint.Graphics.DualScreenCanvas;
+
 public class BookActivity4PageGridDialog {
     public final static boolean HIDE_BUTTONS = true;
 
@@ -388,7 +390,11 @@ public class BookActivity4PageGridDialog {
                                 } else {
                                     emptyBmp.eraseColor(0x00000000);
                                 }
-                                CanvasBoox.initBackText(pattern, emptyBmp, BookIO.loadPageThumbnail_size);
+                                if (false) {
+                                    CanvasBoox.initBackText(pattern, emptyBmp, BookIO.loadPageThumbnail_size);
+                                } else {
+                                    DualScreenCanvas.initBackText(pattern, emptyBmp, BookIO.loadPageThumbnail_size);
+                                }
                                 Canvas canvas = new Canvas(emptyBmp);
                                 Paint paint = new Paint();
                                 canvas.drawBitmap(bitmap, 0, 0, paint);

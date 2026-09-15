@@ -309,10 +309,14 @@ public class BookActivity4Fragment extends Fragment {
                     }
                     try {
                         String metaTxt = bookIO.loadMetaPng(page.getFile());
-                        JSONObject item = new JSONObject(metaTxt);
-                        if (item != null) {
-                            curPattern = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_PATTERN);
-                            backText = curPattern; //FIXME:added
+                        if (metaTxt != null && metaTxt.length() > 0) {
+                            JSONObject item = new JSONObject(metaTxt);
+                            if (item != null) {
+                                curPattern = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_PATTERN);
+                                backText = curPattern; //FIXME:added
+                            }
+                        } else {
+                            Log.e(TAG, "metaTxt == null or empty");
                         }
                     } catch (Throwable eee) {
                         eee.printStackTrace();
@@ -5620,7 +5624,11 @@ public class BookActivity4Fragment extends Fragment {
             if (keyCode == KeyEvent.KEYCODE_PAGE_DOWN) {
                 //onPageDown();
                 //copy from below
-                gotoNextPage();
+                if (this.getPageIdx() + 1 < this.pageNum) {
+                    gotoNextPage();
+                } else {
+                    addNewPageAndGo(false);
+                }
                 return true;
             } else if (keyCode == KeyEvent.KEYCODE_PAGE_UP) {
                 //onPageUp();
@@ -6252,7 +6260,9 @@ public class BookActivity4Fragment extends Fragment {
         String duration = getMeetingDuration();
         Integer durationVal = null;
         try {
-            durationVal = Integer.parseInt(duration);
+            if (duration != null && duration.length() > 0) {
+                durationVal = Integer.parseInt(duration);
+            }
         } catch (Throwable eee) {
             eee.printStackTrace();
         }

@@ -296,7 +296,13 @@ public class BookIO {
         } else {
             BitmapFactory.Options option = new BitmapFactory.Options();
             option.inSampleSize = sampleSize;
-            result = BitmapFactory.decodeFile(file.getFilePath(), option);
+            String filePath = file.getFilePath();
+            String dsFilePath = filePath.replace(".png", ".ds.png");
+            if (new File(dsFilePath).exists()) {
+                result = BitmapFactory.decodeFile(dsFilePath, option);
+            } else {
+                result = BitmapFactory.decodeFile(filePath, option);
+            }
         }
         return result;
     }
@@ -420,11 +426,16 @@ public class BookIO {
     }
 
     public void saveBitmap(BookPage page, Bitmap bitmap, String vecJson, Book book, Activity act, int lastPageIndex, BookActivity4Fragment fragment) {
+        if (bitmap == null) {
+            Log.e(TAG, "saveBitmap, bitmap == null");
+        }
         if (USE_CONTENT_RESOLVER) {
             OutputStream it = null;
             try {
                 it = this.resolver.openOutputStream(page.getFile().getUri(), "w"); //"wt"
-                bitmap.compress(Bitmap.CompressFormat.PNG, 80, it);
+                if (bitmap != null) {
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 80, it);
+                }
             } catch (Throwable e) {
                 e.printStackTrace();
             } finally {
@@ -443,7 +454,9 @@ public class BookIO {
                     Log.e(TAG, "saving " + page.getFile().getFilePath());
                 }
                 it = new FileOutputStream(page.getFile().getFilePath());
-                bitmap.compress(Bitmap.CompressFormat.PNG, 80, it);
+                if (bitmap != null) {
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 80, it);
+                }
                 if (BookIO.USE_META_TXT) {
                     //FIXME: not save .meta here
                     //saveMeta();
@@ -466,7 +479,9 @@ public class BookIO {
                     Log.e(TAG, "saving " + page.getFile().getFilePath().replace(".png", ".vecj"));
                 }
                 it2 = new FileOutputStream(page.getFile().getFilePath().replace(".png", ".vecj"));
-                it2.write(vecJson.getBytes(StandardCharsets.UTF_8));
+                if (vecJson != null) {
+                    it2.write(vecJson.getBytes(StandardCharsets.UTF_8));
+                }
             } catch (Throwable e) {
                 e.printStackTrace();
             } finally {
@@ -506,7 +521,7 @@ public class BookIO {
                             JSONObject item = new JSONObject(metaTxt);
                             pattern = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_PATTERN);
                         }
-                        if (pattern != null) {
+                        if (pattern != null && bitmap != null) {
                             Bitmap emptyBmp = Bitmap.createBitmap(bitmap.getWidth(),
                                     bitmap.getHeight(), Bitmap.Config.ARGB_8888);
                             if (BookIO.USE_META_TXT) {
@@ -596,15 +611,19 @@ public class BookIO {
 
     public void copyFile(BookPage page, String source, String target) {
         if (true) {
-            try (FileInputStream fis = new FileInputStream(source);
-                 FileOutputStream fos = new FileOutputStream(target)) {
-                byte[] buffer = new byte[8192];
-                int length;
-                while ((length = fis.read(buffer)) > 0) {
-                    fos.write(buffer, 0, length);
+            if (new File(source).exists()) {
+                try (FileInputStream fis = new FileInputStream(source);
+                     FileOutputStream fos = new FileOutputStream(target)) {
+                    byte[] buffer = new byte[8192];
+                    int length;
+                    while ((length = fis.read(buffer)) > 0) {
+                        fos.write(buffer, 0, length);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
+            } else {
+                Log.e(TAG, "copyFile not exists: " + source);
             }
         } else {
             //FIXME: don't use this method, too slow, use bg.png

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,7 @@ import com.foobnix.dao2.FileMeta;
 import com.foobnix.pdf.info.IMG;
 import com.txkj.drawingapp.R;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -129,9 +131,27 @@ public class NoteGridAdapter4 extends RecyclerView.Adapter<NoteGridAdapter4.Grid
 //                    bindFileMetaView(gridholder, position);
                 } else {
                     if (fileMeta.getPath() != null && fileMeta.getPath().endsWith("/cover.png")) {
-                        IMG.getCoverPageWithEffect(gridholder.ivBgImage,
-                                fileMeta.getPath().replace("/cover.png", "/bg.png"),
-                                imageSize, new IMG.ResourceReady() {
+                        String path1 = fileMeta.getPath().replace("/cover.png", "/bg.png");
+                        if (new File(path1).exists()) {
+                            IMG.getCoverPageWithEffect(gridholder.ivBgImage,
+                                    path1,
+                                    imageSize, new IMG.ResourceReady() {
+                                        @Override
+                                        public void onResourceReady(Bitmap bitmap) {
+                                            try {
+                                                bindFileMetaView(gridholder, position);
+                                            } catch (Exception e) {
+                                                LOG.e(e);
+                                            }
+                                        }
+                                    });
+                        } else {
+                            Log.e("NoteGridAdapter4", "Not exists: " + path1);
+                        }
+                    }
+                    String path2 = fileMeta.getPath();
+                    if (new File(path2).exists()) {
+                        IMG.getCoverPageWithEffect(gridholder.ivCoverImage, path2, imageSize, new IMG.ResourceReady() {
                             @Override
                             public void onResourceReady(Bitmap bitmap) {
                                 try {
@@ -139,30 +159,23 @@ public class NoteGridAdapter4 extends RecyclerView.Adapter<NoteGridAdapter4.Grid
                                 } catch (Exception e) {
                                     LOG.e(e);
                                 }
+                                //                            try {
+                                //                                if (dataList != null && position < dataList.size() && needRefresh) {
+                                //                                    FileMeta it = AppDB.get().load(fileMeta.getPath());
+                                //                                    if (it != null) {
+                                //                                        dataList.set(position, it);
+                                //                                        bindFileMetaView(gridholder, position);
+                                //                                    }
+                                //                                }
+                                //                            } catch (Exception e) {
+                                //                                LOG.e(e);
+                                //                            }
                             }
                         });
+                    } else {
+
+                        Log.e("NoteGridAdapter4", "Not exists2: " + path2);
                     }
-                    IMG.getCoverPageWithEffect(gridholder.ivCoverImage, fileMeta.getPath(), imageSize, new IMG.ResourceReady() {
-                        @Override
-                        public void onResourceReady(Bitmap bitmap) {
-                            try {
-                                bindFileMetaView(gridholder, position);
-                            } catch (Exception e) {
-                                LOG.e(e);
-                            }
-//                            try {
-//                                if (dataList != null && position < dataList.size() && needRefresh) {
-//                                    FileMeta it = AppDB.get().load(fileMeta.getPath());
-//                                    if (it != null) {
-//                                        dataList.set(position, it);
-//                                        bindFileMetaView(gridholder, position);
-//                                    }
-//                                }
-//                            } catch (Exception e) {
-//                                LOG.e(e);
-//                            }
-                        }
-                    });
                 }
             }
         }

@@ -49,14 +49,14 @@ public class UpgradeUtil {
     public final static boolean USE_UPGRADE = true;
     public final static String USE_UPGRADE_URL1 = "https://software.eazeye.com";
 //    public final static String USE_UPGRADE_URL2 = "/update.json";
-//    public final static String USE_UPGRADE_URL1 = "http://192.168.0.110:8080";
+//    public final static String USE_UPGRADE_URL1 = "http://192.168.0.100:8080";
     public final static String USE_UPGRADE_URL2 = "/update2.json";
 
 
     private final int REQUEST_CODE_WRITE_EXTERNAL_STORAGE_PERMISSION = 100; //FIXME:???
     //don't modify this
     public final static boolean USE_UPGRADE_DEBUG_VERSION = false;//true; //false;//reverse version compare
-    private final static boolean USE_UPGRADE_NEWDIALOG = false; //true; //if without download
+    private final static boolean USE_UPGRADE_NEWDIALOG = true; //true; //if without download
 
     private final static boolean D = false;
     private final static String TAG = "UpgradeUtil";
