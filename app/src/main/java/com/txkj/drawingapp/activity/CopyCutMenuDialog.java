@@ -60,6 +60,7 @@ public class CopyCutMenuDialog {
                 R.id.popButtonPan,
                 R.id.popButtonShortcut,
                 R.id.popTextViewFocusMode,
+                R.id.popTextViewToggleDualScreen,
 
                 R.id.popTextViewCopy,
                 R.id.popTextViewPaste,

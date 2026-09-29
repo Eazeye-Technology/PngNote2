@@ -1,13 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#eaeaea"
     >
     <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:id="@+id/leftArea"
+        android:visibility="gone"
+        >
+        <io.github.pastthepixels.freepaint.Graphics.DualScreenCanvas
+            android:id="@+id/canvasLeft"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:background="?attr/colorSurface"
+            android:backgroundTint="?attr/colorControlHighlight"
+            android:contentDescription="@string/draw_canvas_description"
+            />
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        >
+
+    <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:id="@+id/bodyArea"
+        >
 
         <io.github.pastthepixels.freepaint.Graphics.DualScreenCanvas
             android:id="@+id/canvas"
@@ -2145,3 +2170,4 @@
         </LinearLayout>
     </RelativeLayout>
 </RelativeLayout>
+</LinearLayout>

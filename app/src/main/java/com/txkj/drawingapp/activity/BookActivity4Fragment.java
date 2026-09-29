@@ -68,6 +68,7 @@ import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 
+import com.dseink.DualScreenConstant;
 import com.dseink.EinkUtils;
 import com.foobnix.android.utils.KeyboardsMod;
 import com.github.guanpy.wblib.bean.DrawPoint;
@@ -177,7 +178,7 @@ public class BookActivity4Fragment extends Fragment {
     private final static boolean USE_FLOAT_IME_TOOLBAR = false;
     private final static boolean USE_BOTTOM_IME_TOOLBAR = true;
 
-    private final static boolean TIMER_AUTOSAVE = true;
+    private final static boolean TIMER_AUTOSAVE = true; //false;//
     public final static boolean SAVING_ASYNC_MULTI = true;
     private final static int SAVING_ASYNC_MULTI_TIMEOUT = 6; //6sec
     private final ReentrantLock saveLock = new ReentrantLock();
@@ -293,12 +294,58 @@ public class BookActivity4Fragment extends Fragment {
             idx = this._pageIdx = size - 1;
         }
         if (idx >= 0 && idx < size) { //FIXME: null??
+
+            if (checkCanvas2Index(idx - 1)) {
+                onPageIdx(canvas2, idx - 1, new CanvasBoox.OnLoadBitmapListener() {
+                    @Override
+                    public BitmapVector onLoadBitmap(int idx_) {
+                        BookIO bookIO = getBookIO();
+                        BookPage page = getBook().getPage(idx_);
+                        BitmapVector result = bookIO.loadBitmapOrNull_2(page, BookActivity4Fragment.this);
+                        if (result != null && result.strVecJson != null && result.strVecJson.length() > 0) {
+                            pageBmp = null;
+                            if (canvas != null) {
+                                canvas.loadVecJson(result.strVecJson);
+                            }
+                        } else if (result != null) {
+                            pageBmp = result.bitmap;
+                        }
+                        try {
+                            String metaTxt = bookIO.loadMetaPng(page.getFile());
+                            if (metaTxt != null && metaTxt.length() > 0) {
+                                JSONObject item = new JSONObject(metaTxt);
+                                if (item != null) {
+                                    curPattern = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_PATTERN);
+                                    backText = curPattern; //FIXME:added
+                                }
+                            } else {
+                                Log.e(TAG, "metaTxt == null or empty");
+                            }
+                        } catch (Throwable eee) {
+                            eee.printStackTrace();
+                            if (INIT_EMPTY_BACK_TEXT_WHEN_ADD_PAGE) {
+                                curPattern = FileMeta.NONE;
+                                backText = curPattern;
+                            }
+                        }
+                        setBackText(canvas2, backText); //FIXME:added
+                        isDirty = false;
+                        BitmapVector result_ = new BitmapVector();
+                        result_.bitmap = pageBmp;
+                        result_.strVecJson = result != null ? result.strVecJson : null;
+                        canvas2.onVersionChanged();
+                        if (false) clearRestorePages();
+                        return result_;
+                    }
+                }, forceReload);
+            }
+
             onPageIdx(canvas, idx, new CanvasBoox.OnLoadBitmapListener() {
                 @Override
-                public BitmapVector onLoadBitmap(int idx) {
+                public BitmapVector onLoadBitmap(int idx_) {
                     BookIO bookIO = getBookIO();
-                    BookPage page = getBook().getPage(idx);
-                    BitmapVector result = bookIO.loadBitmapOrNull(page, BookActivity4Fragment.this);
+                    BookPage page = getBook().getPage(idx_);
+                    BitmapVector result = bookIO.loadBitmapOrNull_1(page, BookActivity4Fragment.this);
                     if (result != null && result.strVecJson != null && result.strVecJson.length() > 0) {
                         pageBmp = null;
                         if (canvas != null) {
@@ -335,6 +382,9 @@ public class BookActivity4Fragment extends Fragment {
                     return result_;
                 }
             }, forceReload);
+
+
+
             onUpdatePidxPnum();
         }
     }
@@ -404,8 +454,8 @@ public class BookActivity4Fragment extends Fragment {
         return (new Date()).getTime();
     }
 
-    private synchronized void savePage(final int pageIdx, Bitmap pageBmp, String vecJson, BookActivity4Fragment fragment) {
-        this.getBookIO().saveBitmap(this.getBook().getPage(pageIdx), pageBmp, vecJson, this.getBook(), getActivity(), this._pageIdx, fragment);
+    private synchronized void savePage(final int pageIdx, Bitmap pageBmp, String vecJson, BookActivity4Fragment fragment, int type) {
+        this.getBookIO().saveBitmap(this.getBook().getPage(pageIdx), pageBmp, vecJson, this.getBook(), getActivity(), this._pageIdx, fragment, type);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -414,8 +464,8 @@ public class BookActivity4Fragment extends Fragment {
         }).start();
     }
 
-    private void savePageInMain(int pageIdx, Bitmap pageBmp, String vecJson, BookActivity4Fragment fragment) {
-        this.getBookIO().saveBitmap(this.getBook().getPage(pageIdx), pageBmp, vecJson, this.getBook(), getActivity(), this._pageIdx, fragment);
+    private void savePageInMain(int pageIdx, Bitmap pageBmp, String vecJson, BookActivity4Fragment fragment, int type) {
+        this.getBookIO().saveBitmap(this.getBook().getPage(pageIdx), pageBmp, vecJson, this.getBook(), getActivity(), this._pageIdx, fragment, type);
         this.set_book(this.getBook().assignNonEmpty(pageIdx));
     }
 
@@ -441,7 +491,10 @@ public class BookActivity4Fragment extends Fragment {
                     } finally {
                         bitmapLock.unlock();
                     }
-                    savePage(getPageIdx(), tempBmp, getVecJson(canvas), BookActivity4Fragment.this);
+                    if (checkCanvas2Index(getPageIdx() - 1)) {
+                        savePage(getPageIdx() - 1, tempBmp, getVecJson(canvas2), BookActivity4Fragment.this, 2);
+                    }
+                    savePage(getPageIdx(), tempBmp, getVecJson(canvas), BookActivity4Fragment.this, 1);
                 }
             }
         }).start();
@@ -454,7 +507,10 @@ public class BookActivity4Fragment extends Fragment {
 //            }
             if (this.isDirty) {
                 this.isDirty = false;
-                this.savePageInMain(this.getPageIdx(), this.pageBmp, getVecJson(canvas), BookActivity4Fragment.this);
+                if (checkCanvas2Index(this.getPageIdx() - 1)) {
+                    this.savePageInMain(this.getPageIdx() - 1, this.pageBmp, getVecJson(canvas2), BookActivity4Fragment.this, 2);
+                }
+                this.savePageInMain(this.getPageIdx(), this.pageBmp, getVecJson(canvas), BookActivity4Fragment.this, 1);
             }
         } catch (Throwable eee) {
             eee.printStackTrace();
@@ -487,7 +543,10 @@ public class BookActivity4Fragment extends Fragment {
         if (true) {
             this.ensureSave();
         } else {
-            this.savePageInMain(this.getPageIdx(), this.pageBmp, getVecJson(canvas), BookActivity4Fragment.this);
+            if (checkCanvas2Index(this.getPageIdx() - 1)) {
+                this.savePageInMain(this.getPageIdx() - 1, this.pageBmp, getVecJson(canvas2), BookActivity4Fragment.this, 2);
+            }
+            this.savePageInMain(this.getPageIdx(), this.pageBmp, getVecJson(canvas), BookActivity4Fragment.this, 1);
         }
         saveBrushPreset();
         if (this.isBackPressed) {
@@ -643,7 +702,10 @@ public class BookActivity4Fragment extends Fragment {
         this.set_book(this.getBook().addPage());
         if (false) {
             if (this.pageBmp != null) {
-                this.savePageInMain(this.pageNum - 1, this.pageBmp, getVecJson(canvas), BookActivity4Fragment.this);
+                if (checkCanvas2Index(this.pageNum - 1 - 1)) {
+                    this.savePageInMain(this.pageNum - 1 - 1, this.pageBmp, getVecJson(canvas2), BookActivity4Fragment.this, 2);
+                }
+                this.savePageInMain(this.pageNum - 1, this.pageBmp, getVecJson(canvas), BookActivity4Fragment.this, 1);
             }
         } else {
             if (this.emptyBmp != null) {
@@ -662,7 +724,10 @@ public class BookActivity4Fragment extends Fragment {
             }
 
             if (false && this.pageBmp != null) {
-                this.savePageInMain(this.pageNum - 1, this.pageBmp, getVecJson(canvas), BookActivity4Fragment.this);
+                if (checkCanvas2Index(this.pageNum - 1 - 1)) {
+                    this.savePageInMain(this.pageNum - 1 - 1, this.pageBmp, getVecJson(canvas2), BookActivity4Fragment.this, 2);
+                }
+                this.savePageInMain(this.pageNum - 1, this.pageBmp, getVecJson(canvas), BookActivity4Fragment.this, 1);
                 if (BookIO.USE_META_TXT) {
                     getBookIO().saveMeta(backText, this.dirUrlPath, String.format("%04d", this.pageNum - 1) + ".meta", false, canvas.documentSize);
                 }
@@ -696,7 +761,10 @@ public class BookActivity4Fragment extends Fragment {
                 this.pageBmp = this.emptyBmp; //FIXME:???
             }
             if (false && this.pageBmp != null) {
-                this.savePageInMain(this.pageNum - 1, this.pageBmp, getVecJson(canvas), BookActivity4Fragment.this);
+                if (checkCanvas2Index(this.pageNum - 1 - 1)) {
+                    this.savePageInMain(this.pageNum - 1 - 1, this.pageBmp, getVecJson(canvas2), BookActivity4Fragment.this, 2);
+                }
+                this.savePageInMain(this.pageNum - 1, this.pageBmp, getVecJson(canvas), BookActivity4Fragment.this, 1);
             }
             onPageIdxChange(false);
         } else {
@@ -832,6 +900,36 @@ public class BookActivity4Fragment extends Fragment {
             } else if (id == R.id.left_toolkit_item6) {
                 canvas.setPenType(DrawAppearance.PEN_TYPE_6, false, false);
             }
+
+
+
+
+            canvas2.setTool(DrawCanvas.TOOLS.paint);
+            if (id == R.id.left_toolkit_item1) {
+                //findViewById(R.id.buttonPen2).performClick();
+                canvas2.setPenType(DrawAppearance.PEN_TYPE_1, false, false);
+            } else if (id == R.id.left_toolkit_item2) {
+                //findViewById(R.id.buttonEraser2).performClick();
+                canvas2.setPenType(DrawAppearance.PEN_TYPE_2, false, false);
+            } else if (id == R.id.left_toolkit_item3) {
+                canvas2.setPenType(DrawAppearance.PEN_TYPE_3, false, false); //highlight
+            } else if (id == R.id.left_toolkit_item4) {
+                canvas2.setPenType(DrawAppearance.PEN_TYPE_4, false, false);
+            } else if (id == R.id.left_toolkit_item5) {
+                canvas2.setPenType(DrawAppearance.PEN_TYPE_5, false, false);
+            } else if (id == R.id.left_toolkit_item6) {
+                canvas2.setPenType(DrawAppearance.PEN_TYPE_6, false, false);
+            }
+
+
+
+
+
+
+
+
+
+
             updateAppear(id);
 //            if (bottomSheetDialog1 != null) {
 //                bottomSheetDialog1.show();
@@ -1080,17 +1178,35 @@ public class BookActivity4Fragment extends Fragment {
                 canvas.setEraserMode(false);
                 canvas.setScaleMode(false);
                 canvas.setPenType(0, true, false);
+
+
+                canvas2.setTool(DrawCanvas.TOOLS.select);
+                canvas2.setEraserMode(false);
+                canvas2.setScaleMode(false);
+                canvas2.setPenType(0, true, false);
             } else if (id == R.id.left_toolkit_item42) {
                 canvas.setTool(DrawCanvas.TOOLS.select);
                 canvas.setEraserMode(false);
                 canvas.setScaleMode(false);
                 canvas.setPenType(0, true, false);
+
+                canvas2.setTool(DrawCanvas.TOOLS.select);
+                canvas2.setEraserMode(false);
+                canvas2.setScaleMode(false);
+                canvas2.setPenType(0, true, false);
             } else if (id == R.id.left_toolkit_item43) {
                 canvas.setTool(DrawCanvas.TOOLS.select);
                 canvas.setEraserMode(false);
                 canvas.setScaleMode(true);
+
+                canvas2.setTool(DrawCanvas.TOOLS.select);
+                canvas2.setEraserMode(false);
+                canvas2.setScaleMode(true);
             } else if (id == R.id.left_toolkit_item44) {
                 canvas.setTool(DrawCanvas.TOOLS.pan);
+
+
+                canvas2.setTool(DrawCanvas.TOOLS.pan);
             } else if (id == R.id.left_toolkit_item45) {
                 if (canvas != null) {
                     canvas.getSelectionTool().exitSelect();
@@ -1109,6 +1225,30 @@ public class BookActivity4Fragment extends Fragment {
                     canvas.setTool(DrawCanvas.TOOLS.eraser);
                     canvas.setEraserMode(true);
                     canvas.setPenType(0, false, true);
+                }
+
+
+
+
+
+
+                if (canvas2 != null) {
+                    canvas2.getSelectionTool().exitSelect();
+                    canvas2.invalidate();
+                }
+
+                if (false) {
+                    canvas2.setTool(DrawCanvas.TOOLS.select);
+                    canvas2.setEraserMode(true);
+                    canvas2.setScaleMode(false);
+                    canvas2.setPenType(0, false, true);
+                } else {
+                    if (EraserTool.USE_SIMPLE_IMPL) {
+                        //use simple impl of EraserTool
+                    }
+                    canvas2.setTool(DrawCanvas.TOOLS.eraser);
+                    canvas2.setEraserMode(true);
+                    canvas2.setPenType(0, false, true);
                 }
             }
         }
@@ -1226,6 +1366,7 @@ public class BookActivity4Fragment extends Fragment {
             rootView.findViewById(R.id.left_toolkit2).setVisibility(View.GONE);
             rootView.findViewById(R.id.left_toolkit4).setVisibility(View.GONE);
             canvas.setTool(DrawCanvas.TOOLS.paint);
+            canvas2.setTool(DrawCanvas.TOOLS.paint);
             canvas.setIsTyping(false);
         } else if (id == R.id.top_toolkit_item2) {
             //typing
@@ -1279,8 +1420,10 @@ public class BookActivity4Fragment extends Fragment {
             rootView.findViewById(R.id.left_toolkit4).setVisibility(View.VISIBLE);
             if (currentTabIdSubmenu4 == R.id.left_toolkit_item44) {
                 canvas.setTool(DrawCanvas.TOOLS.pan);
+                canvas2.setTool(DrawCanvas.TOOLS.pan);
             } else {
                 canvas.setTool(DrawCanvas.TOOLS.select);
+                canvas2.setTool(DrawCanvas.TOOLS.select);
             }
             canvas.setIsTyping(false);
         }
@@ -1295,8 +1438,12 @@ public class BookActivity4Fragment extends Fragment {
     private TextView textViewPageInfo;
     //DrawCanvas canvas;
     DualScreenCanvas canvas;
+    DualScreenCanvas canvas2;
     public DualScreenCanvas getCanvas() {
         return canvas;
+    }
+    public DualScreenCanvas getCanvas2() {
+        return canvas2;
     }
     View dtViewBottom;
     DrawTextView dtView_;
@@ -1372,6 +1519,8 @@ public class BookActivity4Fragment extends Fragment {
     private void init0001(View rootView) {
         canvas = (DualScreenCanvas) rootView.findViewById(R.id.canvas);
         canvas.initAct(getActivity());
+        canvas2 = (DualScreenCanvas) rootView.findViewById(R.id.canvasLeft);
+        canvas2.initAct(getActivity());
 
         setColor(canvas, 0xFF000000);  //reset pen color
         setSize(canvas, 1);  //reset pen size
@@ -2622,6 +2771,11 @@ public class BookActivity4Fragment extends Fragment {
         //FIXME:throw new RuntimeException("not implemented");
         canvas.setPenType(DrawAppearance.PEN_TYPE_1, false, false);
         canvas.onVersionChanged();
+
+        canvas2.setPenType(DrawAppearance.PEN_TYPE_1, false, false);
+        canvas2.onVersionChanged();
+
+
         if (canvas.einkPWInterface != null) {
             //FIXME: if one view is not drawable, need to xxx.addOnTopView(view)
             canvas.einkPWInterface.addOnTopView(rootView.findViewById(R.id.cv_left_toolkit1));
@@ -2691,6 +2845,7 @@ public class BookActivity4Fragment extends Fragment {
                         if (selectedText != null) {
                             dtViewBottom.setVisibility(View.GONE);
                             canvas.setTool(DrawCanvas.TOOLS.select);
+                            canvas2.setTool(DrawCanvas.TOOLS.select);
                             onClickTopBar(rootView, iconsTopBar[3], false); //init
 
                             canvas.getSelectionTool().exitSelect();
@@ -2950,35 +3105,73 @@ public class BookActivity4Fragment extends Fragment {
         }
         try {
             _pageIdx = getBook().getLastPageIndex(); //FIXME:added
-            canvas.pageIdx = _pageIdx; //FIXME:added
-            BookPage page = getBook().getPage(getPageIdx());
-            BitmapVector result = getBookIO().loadBitmapOrNull(page, BookActivity4Fragment.this);
-            Bitmap initBmp = null;
-            if (result != null && result.strVecJson != null && result.strVecJson.length() > 0) {
-                initBmp = null;
-                if (canvas != null) {
-                    canvas.loadVecJson(result.strVecJson);
+
+            if (checkCanvas2Index(initialPageIdx - 1) && checkCanvas2Index(_pageIdx - 1))
+            {
+                //init breakpoint
+                canvas2.pageIdx = _pageIdx - 1; //FIXME:added
+                BookPage page = getBook().getPage(getPageIdx());
+                BitmapVector result = getBookIO().loadBitmapOrNull_2(page, BookActivity4Fragment.this);
+                Bitmap initBmp = null;
+                if (result != null && result.strVecJson != null && result.strVecJson.length() > 0) {
+                    initBmp = null;
+                    if (canvas != null) {
+                        canvas.loadVecJson(result.strVecJson);
+                    }
+                } else if (result != null) {
+                    initBmp = result.bitmap;
                 }
-            } else if (result != null) {
-                initBmp = result.bitmap;
+                Bitmap bgBmp = getBookIO().loadBgOrNull_2(getBook(), this);
+                try {
+                    String metaTxt = getBookIO().loadMetaPng(page.getFile());
+                    if (metaTxt != null && metaTxt.length() > 0) {
+                        JSONObject item = new JSONObject(metaTxt);
+                        curPattern = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_PATTERN);
+                        backText = curPattern;
+                    }
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                    if (INIT_EMPTY_BACK_TEXT_WHEN_ADD_PAGE) {
+                        curPattern = FileMeta.NONE;
+                        backText = curPattern;
+                    }
+                }
+                init(canvas, initBmp, bgBmp, initialPageIdx - 1, getActivity());
+                setBackText(canvas, backText);
             }
-            Bitmap bgBmp = getBookIO().loadBgOrNull(getBook(), this);
-            try {
-                String metaTxt = getBookIO().loadMetaPng(page.getFile());
-                if (metaTxt != null && metaTxt.length() > 0) {
-                    JSONObject item = new JSONObject(metaTxt);
-                    curPattern = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_PATTERN);
-                    backText = curPattern;
+            if (true)
+            {
+                //init breakpoint
+                canvas.pageIdx = _pageIdx; //FIXME:added
+                BookPage page = getBook().getPage(getPageIdx());
+                BitmapVector result = getBookIO().loadBitmapOrNull_1(page, BookActivity4Fragment.this);
+                Bitmap initBmp = null;
+                if (result != null && result.strVecJson != null && result.strVecJson.length() > 0) {
+                    initBmp = null;
+                    if (canvas != null) {
+                        canvas.loadVecJson(result.strVecJson);
+                    }
+                } else if (result != null) {
+                    initBmp = result.bitmap;
                 }
-            } catch (Throwable eee) {
-                eee.printStackTrace();
-                if (INIT_EMPTY_BACK_TEXT_WHEN_ADD_PAGE) {
-                    curPattern = FileMeta.NONE;
-                    backText = curPattern;
+                Bitmap bgBmp = getBookIO().loadBgOrNull_1(getBook(), this);
+                try {
+                    String metaTxt = getBookIO().loadMetaPng(page.getFile());
+                    if (metaTxt != null && metaTxt.length() > 0) {
+                        JSONObject item = new JSONObject(metaTxt);
+                        curPattern = item.optString(BookActivity4Config.USE_SKETCH_CONFIG_PATTERN);
+                        backText = curPattern;
+                    }
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                    if (INIT_EMPTY_BACK_TEXT_WHEN_ADD_PAGE) {
+                        curPattern = FileMeta.NONE;
+                        backText = curPattern;
+                    }
                 }
+                init(canvas, initBmp, bgBmp, initialPageIdx, getActivity());
+                setBackText(canvas, backText);
             }
-            init(canvas, initBmp, bgBmp, initialPageIdx, getActivity());
-            setBackText(canvas, backText);
         } catch (Throwable eee) {
             eee.printStackTrace();
         }
@@ -3964,6 +4157,7 @@ public class BookActivity4Fragment extends Fragment {
     private void onUndo() {
         if (canvas instanceof DualScreenCanvas) {
             canvas.undo(false);
+//            canvas2.undo(false);
         } else {
             if (!g_isUndoActive) {
                 return;
@@ -3976,23 +4170,27 @@ public class BookActivity4Fragment extends Fragment {
                     public void run() {
                         undoAndRestorePages();
                         canvas.undo(true);
+//                        canvas2.undo(true);
                         cancelWaitingProgressDialog();
                     }
                 }, 0);//100);
             } else {
                 canvas.undo(false);
+//                canvas2.undo(false);
             }
         }
     }
     private void onRedo() {
         if (canvas instanceof DualScreenCanvas) {
             canvas.redo();
+//            canvas2.redo();
         } else {
             if (!g_isRedoActive) {
                 return;
             }
             redoCount = redoCount + 1;
             canvas.redo();
+//            canvas2.redo();
         }
     }
     private void onUpdatePidxPnum() {
@@ -4199,7 +4397,11 @@ public class BookActivity4Fragment extends Fragment {
                 if (SAVING_ASYNC_MULTI) {
                     locked = saveLock.tryLock(SAVING_ASYNC_MULTI_TIMEOUT, TimeUnit.SECONDS);
                     if (locked) {
-                        savePageInMain(getPageIdx(), pageBmp, getVecJson(canvas), BookActivity4Fragment.this);
+                        if (checkCanvas2Index(getPageIdx() - 1)) {
+                            savePageInMain(getPageIdx() - 1, pageBmp, getVecJson(canvas2), BookActivity4Fragment.this, 2);
+                        }
+                        savePageInMain(getPageIdx(), pageBmp, getVecJson(canvas), BookActivity4Fragment.this, 1);
+
                         SDRecordingsDatabase mDatabase = BookActivity4Fragment.this.adapter.getDB(); //new SDRecordingsDatabase(getActivity(), _bookDir.getFilePath());
                         if (mDatabase != null) {
                             mDatabase.saveAll();
@@ -4209,7 +4411,11 @@ public class BookActivity4Fragment extends Fragment {
                         }
                     }
                 } else {
-                    savePageInMain(getPageIdx(), pageBmp, getVecJson(canvas), BookActivity4Fragment.this);
+                    if (checkCanvas2Index(getPageIdx() - 1)) {
+                        savePageInMain(getPageIdx() - 1, pageBmp, getVecJson(canvas2), BookActivity4Fragment.this, 2);
+                    }
+                    savePageInMain(getPageIdx(), pageBmp, getVecJson(canvas), BookActivity4Fragment.this, 1);
+
                     SDRecordingsDatabase mDatabase = BookActivity4Fragment.this.adapter.getDB(); //new SDRecordingsDatabase(getActivity(), _bookDir.getFilePath());
                     if (mDatabase != null) {
                         mDatabase.saveAll();
@@ -4295,6 +4501,16 @@ public class BookActivity4Fragment extends Fragment {
             canvas.setTool(DrawCanvas.TOOLS.paint); //pen 2
         }
         canvas.penEraserBrush = index;
+
+
+        if (index == 0) {
+            canvas2.setTool(DrawCanvas.TOOLS.paint); //eraser
+        } else if (index == 1) {
+            canvas2.setTool(DrawCanvas.TOOLS.paint); //pen 1
+        } else if (index == 2) {
+            canvas2.setTool(DrawCanvas.TOOLS.paint); //pen 2
+        }
+        canvas2.penEraserBrush = index;
     }
     CanvasBoox.OnUpdateBmpListener mOnUpdateBmpListener;
     @Override
@@ -4383,6 +4599,7 @@ public class BookActivity4Fragment extends Fragment {
         editor.apply();
 
         canvas.setStrokeSize((int)size);
+        canvas2.setStrokeSize((int)size);
     }
     private void setBackgroundMode(DualScreenCanvas canvas, String mode) {
         canvas.setBackgroundMode(mode);
@@ -4455,6 +4672,7 @@ public class BookActivity4Fragment extends Fragment {
                         } else if (view.getId() == R.id.popButtonPan) {
                             if (canvas != null) {
                                 canvas.setTool(DrawCanvas.TOOLS.pan);
+                                canvas2.setTool(DrawCanvas.TOOLS.pan);
                             }
                         } else if (view.getId() == R.id.popButtonShare) {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -4494,6 +4712,8 @@ public class BookActivity4Fragment extends Fragment {
                             }
                         } else if (view.getId() == R.id.popTextViewFocusMode) {
                             toggleFocusMode();
+                        } else if (view.getId() == R.id.popTextViewToggleDualScreen) {
+                            toggleDualScreen();
                         } else if (view.getId() == R.id.popButtonShortcut) {
                             AlertDialog dialog = new BookActivity4TipsDialog(getActivity()).create();
                             dialog.show();
@@ -5221,6 +5441,38 @@ public class BookActivity4Fragment extends Fragment {
         }
     }
 
+    private boolean isUseDualScreen = false;
+    public void toggleDualScreen() {
+        isUseDualScreen = !isUseDualScreen;
+        moveToScreenPanel(isUseDualScreen);
+        if (isUseDualScreen) {
+            g_rootView.findViewById(R.id.leftArea).setVisibility(View.VISIBLE);
+        } else {
+            g_rootView.findViewById(R.id.leftArea).setVisibility(View.GONE);
+        }
+
+        //---------
+        //make it like a jump, to trigger loading and saving
+        if (true) {
+            checkShift(false);
+        }
+        this.ensureSave();
+        int var1 = this.getPageIdx();
+        this._pageIdx = var1;
+        onPageIdxChange(false);
+        //----------
+    }
+
+    private int screenPos = 0;
+    private void moveToScreenPanel(boolean isUseDualScreen) {
+        if (isUseDualScreen) {
+            screenPos = EinkUtils.getCurrentScreenPos(getActivity(), 0);
+            EinkUtils.moveToScreenPanel(getActivity(), DualScreenConstant.EXTRA_LAUNCH_SCREEN_PANEL_BOTH);
+        } else {
+            EinkUtils.moveToScreenPanel(getActivity(), screenPos);
+        }
+    }
+
     public void nextPage() {
         gotoNextPage();
     }
@@ -5572,6 +5824,7 @@ public class BookActivity4Fragment extends Fragment {
                         }
                         if (pathImage != null) {
                             this.canvas.setTool(DrawCanvas.TOOLS.select);
+                            this.canvas2.setTool(DrawCanvas.TOOLS.select);
                             this.canvas.getSelectionTool().mode = SelectionTool.TOUCH_MODES.none;
 
                             this.canvas.getSelectionTool().getSelectedPaths().clear();
@@ -5653,6 +5906,7 @@ public class BookActivity4Fragment extends Fragment {
             if (!isTextMode && this.canvas != null) {
 //                lastTool = this.canvas.tool;
                 this.canvas.setTool(DrawCanvas.TOOLS.pan);
+                this.canvas2.setTool(DrawCanvas.TOOLS.pan);
             }
             return true;
         }
@@ -6184,7 +6438,11 @@ public class BookActivity4Fragment extends Fragment {
             if (false) {
                 ensureSave();
             } else {
-                savePageInMain(getPageIdx(), pageBmp, getVecJson(canvas), BookActivity4Fragment.this);
+                if (checkCanvas2Index(getPageIdx() - 1)) {
+                    savePageInMain(getPageIdx() - 1, pageBmp, getVecJson(canvas2), BookActivity4Fragment.this, 2);
+                }
+
+                savePageInMain(getPageIdx(), pageBmp, getVecJson(canvas), BookActivity4Fragment.this, 1);
             }
             BookActivity4Utils.finish(getActivity(), true);
         }
@@ -6214,6 +6472,9 @@ public class BookActivity4Fragment extends Fragment {
     private boolean isReleased = false;
     public void onDestroyView2() {
         if (!isReleased) {
+            if (isUseDualScreen) {
+                toggleDualScreen();
+            }
             refreshRunnable2 = null; //sometime
             BookActivity4Utils.canPushFragment = true;
             isReleased = true;
@@ -6855,6 +7116,54 @@ public class BookActivity4Fragment extends Fragment {
                 bos.write(buffer, 0, len);
             }
             return bos.toByteArray();
+        }
+    }
+
+    public boolean checkCanvas2Index(int pageIdx) {
+        if (EinkUtils.getCurrentScreenPos(getActivity(),
+                DualScreenConstant.EXTRA_LAUNCH_SCREEN_PANEL_NONE) !=
+                DualScreenConstant.EXTRA_LAUNCH_SCREEN_PANEL_BOTH) {
+            return false;//don't change canvas2
+        }
+        if (false) {
+            checkShift(true);
+        }
+        if (pageIdx >= 0 && pageIdx < this.pageNum) { //check again
+            return true;
+        }
+        return false;
+    }
+
+    public void checkShift(boolean use_onPageIdxChange) {
+        if (EinkUtils.getCurrentScreenPos(getActivity(),
+                DualScreenConstant.EXTRA_LAUNCH_SCREEN_PANEL_NONE) !=
+                DualScreenConstant.EXTRA_LAUNCH_SCREEN_PANEL_BOTH) {
+            return;//don't shift
+        }
+        //if pageIdx == -1, then _pageIdx == 0
+        if (_pageIdx <= 0) {
+            _pageIdx = 1;
+        }
+        if (_pageIdx >= 0 && _pageIdx >= this.pageNum - 1) { //check once, be careful, don't miss this
+            if (shiftAndAddNewPage(use_onPageIdxChange)) {
+                _pageIdx += 1;
+            }
+        }
+    }
+
+
+    private boolean shiftAndAddNewPage(boolean use_onPageIdxChange) {
+        if (this._pageIdx % 2 == 0) {
+            if (this._pageIdx + 1 > this.pageNum - 1) {
+                this.set_book(this.getBook().addPage());
+            }
+            this._pageIdx = this._pageIdx + 1;
+            if (use_onPageIdxChange) {
+                onPageIdxChange(true);
+            }
+            return true;
+        } else {
+            return false;
         }
     }
 }

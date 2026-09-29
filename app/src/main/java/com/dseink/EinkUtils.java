@@ -9,6 +9,27 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+//(x) einkPWInterface.setDrawObjectType
+//canvas.einkPWInterface.addOnTopView
+//einkPWlnterface.setLoadFilePath
+//einkPWlnterface.getPWBitmapFilePath();
+//String mypath_ = einkPWlnterface.getPWBitmapFilePath();
+//einkPWlnterface.saveBitmap
+//einkPWInterface.setPenSettingWidth
+//einkPWInterface.unDo();
+//einkPWInterface.reDo();
+//einkPWInterface = EinkUtils.getEinkPWInterfaceWithView(this);
+//
+//if (idx - 1 >= 0) {
+//if (getPageIdx() - 1 >= 0) {
+//if (this.getPageIdx() - 1 >= 0) {
+//if (this.getPageIdx() - 1 >= 0) {
+//if (this.pageNum - 1 - 1 >= 0) {
+//if (this.pageNum - 1 - 1 >= 0) {
+//if (getPageIdx() - 1 >= 0) {
+//if (getPageIdx() - 1 >= 0) {
+//if (getPageIdx() - 1 >= 0) {
+//
 public class EinkUtils {
     public static void forceEinkFullUpdateWithView(View view) {
         if (view == null) {
@@ -71,6 +92,23 @@ public class EinkUtils {
         } catch (Throwable e) {
             e.printStackTrace();
             return defVal;
+        }
+    }
+
+    public static boolean moveToScreenPanel(Activity activity, int panel) {
+        try {
+            Activity act = (Activity) activity;
+            //return act.getCurrentScreenPanel();
+            Boolean result = null;
+            try {
+                result = ReflectUtils.reflect(act).method("moveToScreenPanel", panel).get();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return result != null ? result.booleanValue() : false;
+        } catch (Throwable e) {
+            e.printStackTrace();
+            return false;
         }
     }
 

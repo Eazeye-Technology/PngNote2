@@ -78,7 +78,8 @@ public class BookIO {
         this.pageNamePat = Pattern.compile("([0-9][0-9][0-9][0-9])\\.png");
     }
 
-    private BitmapVector loadBitmap(FastFile file, BookActivity4Fragment fragment) {
+    //type==0 or 1, right canvas; type==2, left canvas
+    private BitmapVector loadBitmap(FastFile file, BookActivity4Fragment fragment, int type, Integer pageIdx) {
         BitmapVector result = new BitmapVector();
         if (USE_CONTENT_RESOLVER) {
             ParcelFileDescriptor it = null;
@@ -126,14 +127,28 @@ public class BookIO {
                 {
                     String path = file.getFilePath().replace(".png", ".ds.tch");//".ds.png");
                     if (fragment.getCanvas() != null) {
-                        EinkPWInterface einkPWlnterface = fragment.getCanvas().einkPWInterface;
-                        if (einkPWlnterface != null) {
-                            //public abstract void clearContent(Rect rect, boolean post, boolean clearTouch)
+                        if (type == 0 || type == 1) {
+                            EinkPWInterface einkPWlnterface = fragment.getCanvas().einkPWInterface;
+                            if (einkPWlnterface != null) {
+                                //public abstract void clearContent(Rect rect, boolean post, boolean clearTouch)
 //                            einkPWlnterface.clearContent(null, true, false);
 
-                            einkPWlnterface.setLoadFilePath(path, true);
-                            //einkPWlnterface.saveBitmap(true, null);
-                            //einkPWlnterface.setLoadFilePath(null, true);
+                                einkPWlnterface.setLoadFilePath(path, true);
+                                Log.e(TAG, "einkPWlnterface.setLoadFilePath pageIdx == " + pageIdx);
+                                //einkPWlnterface.saveBitmap(true, null);
+                                //einkPWlnterface.setLoadFilePath(null, true);
+                            }
+                        } else {
+                            EinkPWInterface einkPWlnterface2 = fragment.getCanvas2().einkPWInterface;
+                            if (einkPWlnterface2 != null) {
+                                //public abstract void clearContent(Rect rect, boolean post, boolean clearTouch)
+//                            einkPWlnterface.clearContent(null, true, false);
+
+                                einkPWlnterface2.setLoadFilePath(path, true);
+                                Log.e(TAG, "einkPWlnterface2.setLoadFilePath pageIdx == " + pageIdx);
+                                //einkPWlnterface.saveBitmap(true, null);
+                                //einkPWlnterface.setLoadFilePath(null, true);
+                            }
                         }
                     }
                 }
@@ -315,24 +330,47 @@ public class BookIO {
         return this.isEmpty(page.getFile());
     }
 
-    public BitmapVector loadBitmap(BookPage page, BookActivity4Fragment fragment) {
-        return this.loadBitmap(page.getFile(), fragment);
+    public BitmapVector loadBitmap_1(BookPage page, BookActivity4Fragment fragment) {
+        return this.loadBitmap(page.getFile(), fragment, 1, page.getIdx());
     }
 
-    public BitmapVector loadBitmapOrNull(BookPage page, BookActivity4Fragment fragment) {
+    public BitmapVector loadBitmapOrNull_1(BookPage page, BookActivity4Fragment fragment) {
         if (false) {
             //FIXME: if page file size==0, isPageEmpty return true, may make bug
-            return this.isPageEmpty(page) ? null : this.loadBitmap(page, fragment);
+            return this.isPageEmpty(page) ? null : this.loadBitmap_1(page, fragment);
         } else {
-            return this.loadBitmap(page, fragment);
+            return this.loadBitmap_1(page, fragment);
         }
     }
 
-    public Bitmap loadBgOrNull(Book book, BookActivity4Fragment fragment) {
+
+    public BitmapVector loadBitmap_2(BookPage page, BookActivity4Fragment fragment) {
+        return this.loadBitmap(page.getFile(), fragment, 2, page.getIdx());
+    }
+
+    public BitmapVector loadBitmapOrNull_2(BookPage page, BookActivity4Fragment fragment) {
+        if (false) {
+            //FIXME: if page file size==0, isPageEmpty return true, may make bug
+            return this.isPageEmpty(page) ? null : this.loadBitmap_2(page, fragment);
+        } else {
+            return this.loadBitmap_2(page, fragment);
+        }
+    }
+
+    public Bitmap loadBgOrNull_1(Book book, BookActivity4Fragment fragment) {
         FastFile it = book.getBgImage();
         Bitmap result = null;
         if (it != null) {
-            result = this.loadBitmap(it, fragment).bitmap; //bg vecj not used
+            result = this.loadBitmap(it, fragment, 1, null).bitmap; //bg vecj not used
+        }
+        return result;
+    }
+
+    public Bitmap loadBgOrNull_2(Book book, BookActivity4Fragment fragment) {
+        FastFile it = book.getBgImage();
+        Bitmap result = null;
+        if (it != null) {
+            result = this.loadBitmap(it, fragment, 2, null).bitmap; //bg vecj not used
         }
         return result;
     }
@@ -425,7 +463,7 @@ public class BookIO {
         }
     }
 
-    public void saveBitmap(BookPage page, Bitmap bitmap, String vecJson, Book book, Activity act, int lastPageIndex, BookActivity4Fragment fragment) {
+    public void saveBitmap(BookPage page, Bitmap bitmap, String vecJson, Book book, Activity act, int lastPageIndex, BookActivity4Fragment fragment, int type) {
         if (bitmap == null) {
             Log.e(TAG, "saveBitmap, bitmap == null");
         }
@@ -547,22 +585,43 @@ public class BookIO {
                 }
                 {
                     //String path = "你的手与保存路径";
-                    if (fragment.getCanvas() != null) {
-                        EinkPWInterface einkPWlnterface = fragment.getCanvas().einkPWInterface;
-                        if (einkPWlnterface != null) {
-                            //einkPWlnterface.setLoadFilePath(path, true);
-                            final String mypath_ = einkPWlnterface.getPWBitmapFilePath();
-                            einkPWlnterface.saveBitmap(true, new EinkPWInterface.PWSaveBitmapListener() {
-                                @Override
-                                public void saveDone(String s) {
-                                    if (mypath_ != null) {
-                                        File parent = new File(mypath_).getParentFile();
-                                        File coverFile = new File(parent, "cover.png");
-                                        copyFile(page, mypath_, coverFile.getAbsolutePath());
+                    if (type == 0 || type == 1) {
+                        if (fragment.getCanvas() != null) {
+                            EinkPWInterface einkPWlnterface = fragment.getCanvas().einkPWInterface;
+                            if (einkPWlnterface != null) {
+                                //einkPWlnterface.setLoadFilePath(path, true);
+                                final String mypath_ = einkPWlnterface.getPWBitmapFilePath();
+                                einkPWlnterface.saveBitmap(true, new EinkPWInterface.PWSaveBitmapListener() {
+                                    @Override
+                                    public void saveDone(String s) {
+                                        if (mypath_ != null) {
+                                            File parent = new File(mypath_).getParentFile();
+                                            File coverFile = new File(parent, "cover.png");
+                                            copyFile(page, mypath_, coverFile.getAbsolutePath());
+                                        }
                                     }
-                                }
-                            });
-                            //einkPWlnterface.setLoadFilePath(null, true);
+                                });
+                                //einkPWlnterface.setLoadFilePath(null, true);
+                            }
+                        }
+                    } else {
+                        if (fragment.getCanvas2() != null) {
+                            EinkPWInterface einkPWlnterface = fragment.getCanvas2().einkPWInterface;
+                            if (einkPWlnterface != null) {
+                                //einkPWlnterface.setLoadFilePath(path, true);
+                                final String mypath_ = einkPWlnterface.getPWBitmapFilePath();
+                                einkPWlnterface.saveBitmap(true, new EinkPWInterface.PWSaveBitmapListener() {
+                                    @Override
+                                    public void saveDone(String s) {
+                                        if (mypath_ != null) {
+                                            File parent = new File(mypath_).getParentFile();
+                                            File coverFile = new File(parent, "cover.png");
+                                            copyFile(page, mypath_, coverFile.getAbsolutePath());
+                                        }
+                                    }
+                                });
+                                //einkPWlnterface.setLoadFilePath(null, true);
+                            }
                         }
                     }
                 }
