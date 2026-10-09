@@ -1,404 +1,423 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     >
-<!--
-android:background="#f6f3f2"
--->
-    <LinearLayout
-        android:id="@+id/bookTab"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/md_theme_surfaceContainer_highContrast"
-        android:orientation="vertical">
+    <LinearLayout android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        >
+    <!--
+    android:background="#f6f3f2"
+    -->
+        <LinearLayout
+            android:id="@+id/bookTab"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/md_theme_surfaceContainer_highContrast"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/md_theme_surfaceContainer_highContrast"
+                android:orientation="horizontal"
+                android:paddingTop="8dp"
+                android:paddingHorizontal="4dp"
+                android:baselineAligned="false" >
+
+                <LinearLayout
+                    android:layout_width="0px"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_weight="1"
+                    >
+                    <ImageButton
+                        android:id="@+id/imageButtonBack"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:contentDescription="@string/back"
+                        android:src="@drawable/ic_baseline_arrow_back_24"
+                        app:tint="@color/md_theme_onSurface_highContrast"
+                        android:backgroundTint="@color/transparent"
+                        />
+                    <!--android:background="@drawable/toolbar_button"
+                        -->
+                    <!--android:src="@mipmap/ic_launcher"
+                                    -->
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    >
+
+                    <ImageButton
+                        android:id="@+id/buttonListNewBook"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:contentDescription="@string/create_note"
+                        android:src="@drawable/ic_baseline_add_24"
+                        app:tint="@color/md_theme_onSurface_highContrast"
+                        android:backgroundTint="@color/transparent"
+                        />
+                    <!--android:background="@drawable/toolbar_button"
+                        -->
+                    <TextView
+                        android:id="@+id/upload_buttontxt"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="10px"
+                        android:layout_marginRight="10px"
+                        android:gravity="center"
+                        android:text="New Book"
+                        android:textSize="@dimen/mtmobile__treefontsize4"
+                        android:visibility="gone"
+                        />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="visible"
+                    >
+
+                    <ImageButton
+                        android:id="@+id/buttonMore"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:contentDescription="@string/more_note_manipulation_options"
+                        android:src="@drawable/ic_my_bar_more_006"
+                        app:tint="@color/md_theme_onSurface_highContrast"
+                        android:backgroundTint="@color/transparent"
+                        />
+    <!--
+    android:background="@drawable/toolbar_button"
+                        -->
+                    <TextView
+                        android:id="@+id/close_buttontxt"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="10px"
+                        android:layout_marginRight="10px"
+                        android:gravity="center"
+                        android:text="Settings"
+                        android:textSize="@dimen/mtmobile__treefontsize4"
+                        android:visibility="gone"
+                        />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/bookTabTitle"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:text="@string/notes_list"
+                android:layout_gravity="start|center_vertical"
+                android:gravity="start|center_vertical"
+                android:textAppearance="?attr/textAppearanceDisplaySmall"
+                android:layout_marginStart="16dp"
+                >
+            </TextView>
+        </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/md_theme_surfaceContainer_highContrast"
+            android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingTop="8dp"
-            android:paddingHorizontal="4dp"
-            android:baselineAligned="false" >
+            android:layout_margin="16px"
+            android:visibility="gone"
+            >
+
+            <ImageView
+                android:layout_width="30px"
+                android:layout_height="30px"
+                android:src="@drawable/home_note_vector"
+                />
+            <TextView
+                android:layout_gravity="center_vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Notes"
+                android:layout_marginLeft="20px"
+                />
 
             <LinearLayout
                 android:layout_width="0px"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:layout_weight="1"
+                android:orientation="horizontal"
+                android:gravity="right"
                 >
-                <ImageButton
-                    android:id="@+id/imageButtonBack"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:contentDescription="@string/back"
-                    android:src="@drawable/ic_baseline_arrow_back_24"
-                    app:tint="@color/md_theme_onSurface_highContrast"
-                    android:backgroundTint="@color/transparent"
-                    />
-                <!--android:background="@drawable/toolbar_button"
-                    -->
-                <!--android:src="@mipmap/ic_launcher"
-                                -->
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                >
-
-                <ImageButton
-                    android:id="@+id/buttonListNewBook"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:contentDescription="@string/create_note"
-                    android:src="@drawable/ic_baseline_add_24"
-                    app:tint="@color/md_theme_onSurface_highContrast"
-                    android:backgroundTint="@color/transparent"
-                    />
-                <!--android:background="@drawable/toolbar_button"
-                    -->
-                <TextView
-                    android:id="@+id/upload_buttontxt"
+                <!--
+                <AutoCompleteTextView
+                    android:id="@+id/filterLine_Library"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="10px"
-                    android:layout_marginRight="10px"
-                    android:gravity="center"
-                    android:text="New Book"
-                    android:textSize="@dimen/mtmobile__treefontsize4"
-                    android:visibility="gone"
+                    android:hint="Search"
+                    android:layout_gravity="right"
                     />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:visibility="visible"
-                >
-
-                <ImageButton
-                    android:id="@+id/buttonMore"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:contentDescription="@string/more_note_manipulation_options"
-                    android:src="@drawable/ic_my_bar_more_006"
-                    app:tint="@color/md_theme_onSurface_highContrast"
-                    android:backgroundTint="@color/transparent"
-                    />
-<!--
-android:background="@drawable/toolbar_button"
                     -->
-                <TextView
-                    android:id="@+id/close_buttontxt"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginLeft="10px"
-                    android:layout_marginRight="10px"
-                    android:gravity="center"
-                    android:text="Settings"
-                    android:textSize="@dimen/mtmobile__treefontsize4"
-                    android:visibility="gone"
-                    />
+
+                <RelativeLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/rl_content_wx"
+                    android:layout_marginLeft="50px"
+                    >
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:id="@+id/ll_search_wx"
+                        android:gravity="center_vertical"
+                        android:layout_toLeftOf="@+id/iv_right"
+                        android:background="@drawable/bg_search_edit2"
+                        android:padding="5px"
+                        >
+                        <AutoCompleteTextView
+                            android:gravity="top"
+                            android:layout_width="0px"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:textSize="16px"
+                            android:textColor="#cccccc"
+                            android:background="@null"
+                            android:id="@+id/filterLine_Library"
+                            android:maxLines="1"
+                            android:hint="Search"
+                            android:layout_marginLeft="10px"
+                            />
+
+                        <ImageView
+                            android:layout_width="12px"
+                            android:layout_height="12px"
+                            android:id="@+id/iv_search_wx"
+                            android:src="@drawable/serch"
+                            android:layout_marginRight="10px"
+                            android:layout_gravity="center_vertical"
+                            />
+                    </LinearLayout>
+
+                    <ImageView
+                        android:layout_width="24px"
+                        android:layout_height="24px"
+                        android:layout_alignParentRight="true"
+                        android:id="@+id/iv_right"
+                        android:src="@mipmap/ic_launcher"
+                        android:visibility="gone"
+                        />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1px"
+                        android:background="#66CD00"
+                        android:layout_below="@+id/ll_search_wx"
+                        android:layout_marginTop="3px"
+                        android:visibility="gone"
+                        />
+
+                </RelativeLayout>
             </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/buttonNewBookHide"
+                android:layout_width="30px"
+                android:layout_height="30px"
+                android:layout_centerVertical="true"
+                android:layout_gravity="center"
+                android:background="@drawable/toolbar_button"
+                android:gravity="center"
+                android:paddingLeft="5px"
+                android:paddingRight="5px"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_baseline_add_24"
+                android:text="NEW BOOK"
+                android:textAllCaps="true"
+                android:textColor="@color/black"
+                android:textSize="11px" />
 
         </LinearLayout>
 
-        <TextView
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="60dp"
-            android:text="@string/notes_list"
-            android:layout_gravity="start|center_vertical"
-            android:gravity="start|center_vertical"
-            android:textAppearance="?attr/textAppearanceDisplaySmall"
-            android:layout_marginStart="16dp"
-            >
-        </TextView>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_margin="16px"
-        android:visibility="gone"
-        >
-
-        <ImageView
-            android:layout_width="30px"
-            android:layout_height="30px"
-            android:src="@drawable/home_note_vector"
-            />
-        <TextView
-            android:layout_gravity="center_vertical"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Notes"
-            android:layout_marginLeft="20px"
-            />
-
-        <LinearLayout
-            android:layout_width="0px"
-            android:layout_height="wrap_content"
+            android:layout_height="0px"
             android:layout_weight="1"
-            android:orientation="horizontal"
-            android:gravity="right"
+            android:id="@+id/bookListOut"
             >
-            <!--
-            <AutoCompleteTextView
-                android:id="@+id/filterLine_Library"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="Search"
-                android:layout_gravity="right"
-                />
-                -->
-
-            <RelativeLayout
-                android:orientation="vertical"
+            <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/rl_content_wx"
-                android:layout_marginLeft="50px"
+                android:id="@+id/scrollView1"
                 >
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:id="@+id/ll_search_wx"
-                    android:gravity="center_vertical"
-                    android:layout_toLeftOf="@+id/iv_right"
-                    android:background="@drawable/bg_search_edit2"
-                    android:padding="5px"
+                    android:orientation="vertical"
+                    android:padding="16dp"
                     >
-                    <AutoCompleteTextView
-                        android:gravity="top"
-                        android:layout_width="0px"
+                    <TextView
+                        android:id="@+id/tv_notegridview_note1"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textSize="16px"
-                        android:textColor="#cccccc"
-                        android:background="@null"
-                        android:id="@+id/filterLine_Library"
-                        android:maxLines="1"
-                        android:hint="Search"
-                        android:layout_marginLeft="10px"
+                        android:text="@string/today"
+                        android:textAppearance="?attr/textAppearanceTitleSmall"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="18dp"
                         />
-
-                    <ImageView
-                        android:layout_width="12px"
-                        android:layout_height="12px"
-                        android:id="@+id/iv_search_wx"
-                        android:src="@drawable/serch"
-                        android:layout_marginRight="10px"
-                        android:layout_gravity="center_vertical"
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/notegridview_note1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        />
+                    <TextView
+                        android:id="@+id/tv_notegridview_note2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/this_week"
+                        android:textAppearance="?attr/textAppearanceTitleSmall"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="18dp"
+                        />
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/notegridview_note2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="0px"
+                        android:paddingRight="0px"
+                        android:gravity="center"
+                        />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/earlier"
+                        android:textAppearance="?attr/textAppearanceTitleSmall"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="18dp"
+                        />
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/notegridview_note3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="0px"
+                        android:paddingRight="0px"
+                        android:gravity="center"
                         />
                 </LinearLayout>
-
-                <ImageView
-                    android:layout_width="24px"
-                    android:layout_height="24px"
-                    android:layout_alignParentRight="true"
-                    android:id="@+id/iv_right"
-                    android:src="@mipmap/ic_launcher"
-                    android:visibility="gone"
-                    />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1px"
-                    android:background="#66CD00"
-                    android:layout_below="@+id/ll_search_wx"
-                    android:layout_marginTop="3px"
-                    android:visibility="gone"
-                    />
-
-            </RelativeLayout>
-        </LinearLayout>
-
-        <ImageButton
-            android:id="@+id/buttonNewBookHide"
-            android:layout_width="30px"
-            android:layout_height="30px"
-            android:layout_centerVertical="true"
-            android:layout_gravity="center"
-            android:background="@drawable/toolbar_button"
-            android:gravity="center"
-            android:paddingLeft="5px"
-            android:paddingRight="5px"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_baseline_add_24"
-            android:text="NEW BOOK"
-            android:textAllCaps="true"
-            android:textColor="@color/black"
-            android:textSize="11px" />
-
-    </LinearLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="0px"
-        android:layout_weight="1"
-        >
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/scrollView1"
-            >
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp"
-                >
-                <TextView
-                    android:id="@+id/tv_notegridview_note1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/today"
-                    android:textAppearance="?attr/textAppearanceTitleSmall"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="18dp"
-                    />
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/notegridview_note1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    />
-                <TextView
-                    android:id="@+id/tv_notegridview_note2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/this_week"
-                    android:textAppearance="?attr/textAppearanceTitleSmall"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="18dp"
-                    />
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/notegridview_note2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="0px"
-                    android:paddingRight="0px"
-                    android:gravity="center"
-                    />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/earlier"
-                    android:textAppearance="?attr/textAppearanceTitleSmall"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="18dp"
-                    />
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/notegridview_note3"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="0px"
-                    android:paddingRight="0px"
-                    android:gravity="center"
-                    />
-            </LinearLayout>
-        </ScrollView>
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/llEmpty1"
-            android:orientation="vertical"
-            android:layout_centerInParent="true"
-            android:gravity="center"
-            android:visibility="gone"
-            >
-            <com.lsjwzh.widget.materialloadingprogressbar.CircleProgressBar
-                android:id="@+id/progressLoading1"
-                app:mlpb_progress_stoke_width="4dp"
-                app:mlpb_progress_color="@color/md_theme_secondaryContainer_highContrast"
-                app:mlpb_enable_circle_background="false"
-                android:layout_width="240dp"
-                android:layout_height="240dp"
-                android:visibility="visible"/>
-            <!--3px, 36px, #566da9-->
+            </ScrollView>
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/loadingContent1"
+                android:id="@+id/llEmpty1"
                 android:orientation="vertical"
+                android:layout_centerInParent="true"
                 android:gravity="center"
                 android:visibility="gone"
                 >
-                <ImageView
-                    android:contentDescription="@string/decorative_image_of_lines_of_text_and_a_pencil"
-                    android:src="@drawable/note_empty"
-                    android:layout_width="400dp"
-                    android:layout_height="400dp"
-                    android:layout_marginBottom="25dp"
-                    />
-                <TextView
-                    android:id="@+id/tvEmpty1"
+                <com.lsjwzh.widget.materialloadingprogressbar.CircleProgressBar
+                    android:id="@+id/progressLoading1"
+                    app:mlpb_progress_stoke_width="4dp"
+                    app:mlpb_progress_color="@color/md_theme_secondaryContainer_highContrast"
+                    app:mlpb_enable_circle_background="false"
+                    android:layout_width="240dp"
+                    android:layout_height="240dp"
+                    android:visibility="visible"/>
+                <!--3px, 36px, #566da9-->
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/md_theme_onSurfaceVariant_highContrast"
-                    android:text="@string/notes_will_appear_here"
-                    android:textAppearance="?attr/textAppearanceHeadlineLarge"
-                    android:layout_marginTop="24dp"
-                    android:layout_marginBottom="24dp"
-                    />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/md_theme_onSurfaceVariant_highContrast"
-                    android:textAppearance="?attr/textAppearanceHeadlineSmall"
-                    android:text="@string/create_a_new_note_by_pressing_the_button"
+                    android:id="@+id/loadingContent1"
+                    android:orientation="vertical"
                     android:gravity="center"
-                    android:layout_marginBottom="24dp"
-                    />
+                    android:visibility="gone"
+                    >
+                    <ImageView
+                        android:contentDescription="@string/decorative_image_of_lines_of_text_and_a_pencil"
+                        android:src="@drawable/note_empty"
+                        android:layout_width="400dp"
+                        android:layout_height="400dp"
+                        android:layout_marginBottom="25dp"
+                        />
+                    <TextView
+                        android:id="@+id/tvEmpty1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/md_theme_onSurfaceVariant_highContrast"
+                        android:text="@string/notes_will_appear_here"
+                        android:textAppearance="?attr/textAppearanceHeadlineLarge"
+                        android:layout_marginTop="24dp"
+                        android:layout_marginBottom="24dp"
+                        />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/md_theme_onSurfaceVariant_highContrast"
+                        android:textAppearance="?attr/textAppearanceHeadlineSmall"
+                        android:text="@string/create_a_new_note_by_pressing_the_button"
+                        android:gravity="center"
+                        android:layout_marginBottom="24dp"
+                        />
+                </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
-    </RelativeLayout>
+        </RelativeLayout>
 
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1px"
-        android:background="#EDEDED"
-        android:layout_margin="10px"
-        android:visibility="gone"
-        />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10px"
-        android:layout_marginLeft="10px"
-        android:layout_marginRight="10px"
-        android:visibility="gone"
-        >
-        <TextView
-            android:id="@+id/tvPageInfo"
-            android:layout_width="0px"
-            android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:text=""
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-        <!--app:layout_constraintBottom_toTopOf="@id/button_first"
-            -->
-<!--Page 1 of 3-->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=" &lt;&gt; "
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="#EDEDED"
+            android:layout_margin="10px"
             android:visibility="gone"
             />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10px"
+            android:layout_marginLeft="10px"
+            android:layout_marginRight="10px"
+            android:visibility="gone"
+            >
+            <TextView
+                android:id="@+id/tvPageInfo"
+                android:layout_width="0px"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text=""
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+            <!--app:layout_constraintBottom_toTopOf="@id/button_first"
+                -->
+    <!--Page 1 of 3-->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" &lt;&gt; "
+                android:visibility="gone"
+                />
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+    <RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/popup_loading"
+    android:visibility="gone"
+        >
+    <include
+        android:layout_width="350px"
+        android:layout_height="350px"
+        android:layout_centerInParent="true"
+        layout="@layout/activity_book4_popup_loading_note"
+        />
+    </RelativeLayout>
+</RelativeLayout>

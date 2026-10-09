@@ -49,6 +49,7 @@ import com.sys.speech.db.SDRecordingsDatabase;
 import com.txkj.drawingapp.R;
 import com.txkj.drawingapp.activity.BookActivity4Config;
 import com.txkj.drawingapp.activity.BookActivity4Utils;
+import com.txkj.drawingapp.activity.LoadingNoteDialog;
 import com.txkj.drawingapp.db.NoteItem;
 import com.txkj.drawingapp.db.SDNotesDatabase;
 import com.txkj.notemobile2.BookListActivity;
@@ -155,10 +156,12 @@ class PreferencesKeys {
 
     }
 
+    private View g_topView;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_note4, container, false);
+        g_topView = view;
 //        view.findViewById(R.id.button_second).setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
@@ -463,22 +466,47 @@ class PreferencesKeys {
 
         if (BookActivity4Utils.APP_OPEN != null && BookActivity4Utils.APP_OPEN.equals("NEW")) {
             isIntentNew = true;
-            onNewBook();
+            if (g_topView != null) {
+                g_topView.findViewById(R.id.bookTabTitle).setVisibility(View.GONE);
+                g_topView.findViewById(R.id.bookListOut).setVisibility(View.GONE);
+            }
+            BookActivity4Utils.showLoading(getActivity(), new Runnable() {
+                @Override
+                public void run() {
+                    if (true) {
+                        onNewBook();
+                    }
+                }
+            });
         } else if (BookActivity4Utils.APP_FILE != null && !BookActivity4Utils.APP_FILE.equals("")) {
             isIntentOpen = true;
-            String APP_FILE = BookActivity4Utils.APP_FILE;
-            String rootPath = new File(Environment.getExternalStorageDirectory(), APPNAME_NEW).toString();
-            File dirPath = new File(rootPath, APP_FILE);
-            if (APP_FILE != null) {
-                BookActivity4Utils.openBookUI(getActivity(),
-                        Uri.fromFile(dirPath), dirPath.getAbsolutePath(), null, null,
-                        false, true);
+            if (g_topView != null) {
+                g_topView.findViewById(R.id.bookTabTitle).setVisibility(View.GONE);
+                g_topView.findViewById(R.id.bookListOut).setVisibility(View.GONE);
             }
+            BookActivity4Utils.showLoading(getActivity(), new Runnable() {
+                @Override
+                public void run() {
+                    if (true) {
+                        String APP_FILE = BookActivity4Utils.APP_FILE;
+                        String rootPath = new File(Environment.getExternalStorageDirectory(), APPNAME_NEW).toString();
+                        File dirPath = new File(rootPath, APP_FILE);
+                        if (APP_FILE != null) {
+                            BookActivity4Utils.openBookUI(getActivity(),
+                                    Uri.fromFile(dirPath), dirPath.getAbsolutePath(), null, null,
+                                    false, true);
+                            BookActivity4Utils.hideLoading(getActivity());
+                        }
+                    }
+                }
+            });
         }
         if (isIntentNew || isIntentOpen) {
 //            view.findViewById(R.id.llTop).setVisibility(View.GONE);
 //            view.findViewById(R.id.tvLoading).setVisibility(View.GONE);
 //            view.findViewById(R.id.progressLoading1).setVisibility(View.VISIBLE);
+
+            //FIXME: hide progressbar
             if (true) {
                 progressLoading1.setVisibility(View.GONE);
             } else {
@@ -591,6 +619,7 @@ class PreferencesKeys {
                         }
                     } finally {
                         cancelWaitingProgressDialog();
+                        BookActivity4Utils.hideLoading(getActivity());
                     }
                 }
             });
@@ -901,7 +930,7 @@ class PreferencesKeys {
 //            throw new RuntimeException(e);
 //        }
 
-        if (isIntentNew) {
+        if (isIntentNew || isIntentOpen) {
             //skip
         } else {
             if (recentNoteAdapter1.getItemCount() == 0) {
@@ -1446,4 +1475,8 @@ class PreferencesKeys {
 //            IMG.clear(getActivity(), target);
 //        }
 //    }
+
+    public boolean onBackPressed() {
+        return false; //call upper activity finish();
+    }
 }

@@ -6,12 +6,14 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.activity.result.contract.ActivityResultContract;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.txkj.contentbrowser.NoteFragment2;
 import com.txkj.contentbrowser.NoteFragment3;
+import com.txkj.contentbrowser.NoteFragment4;
 import com.txkj.drawingapp.R;
 import com.txkj.notemobile2.BookListActivity;
 import com.txkj.notemobile2.BookListFragment;
@@ -37,6 +39,31 @@ public class BookActivity4Utils {
     public static String APP_FILE;
 
     public static boolean canPushFragment = true;
+
+    public static void showLoading(Activity context, Runnable runnable) {
+        try {
+            if (context instanceof BookListActivity) {
+                BookListActivity act = (BookListActivity) context;
+                act.findViewById(R.id.content_layout).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        LoadingNoteDialog.show(act, act.findViewById(R.id.content_layout), runnable, act.findViewById(R.id.popup_loading));
+                    }
+                });
+            }
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+        }
+    }
+    public static void hideLoading(Activity context) {
+        try {
+            if (context instanceof BookListActivity) {
+                LoadingNoteDialog.dismiss();
+            }
+        } catch (Throwable eee) {
+            eee.printStackTrace();
+        }
+    }
 
     public static void editText(Activity context, DrawPath path) {
         if (context instanceof BookListActivity) {
@@ -84,6 +111,9 @@ public static boolean onBackPressed(Activity context) {
         if (currentFragment instanceof BookActivity4Fragment) {
             ((BookActivity4Fragment) currentFragment).onBackPressed();
             return true;
+        } else if (currentFragment instanceof NoteFragment4) {
+            ((NoteFragment4) currentFragment).onBackPressed();
+            return false; //call finish
         } else {
             BookActivity4Utils.setGlobalDisableFingerDraw(act, false);
             act.finish();

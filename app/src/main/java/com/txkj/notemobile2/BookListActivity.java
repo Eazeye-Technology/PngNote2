@@ -254,6 +254,14 @@ Android6.onRequestPermissionsResult(this, i, strArr, iArr);
             if (((BookActivity4Fragment) currentFragment).onKeyDown(keyCode, event)) {
                 return true;
             }
+        } else if (currentFragment instanceof NoteFragment4) {
+            //135, status bar back button
+            if (keyCode == 135) {
+                if (!((NoteFragment4) currentFragment).onBackPressed()) {
+                    finish();
+                    return true;
+                }
+            }
         }
         return super.onKeyDown(keyCode, event);
     }
