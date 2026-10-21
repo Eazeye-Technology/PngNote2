@@ -38,6 +38,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.dseink.EinkUtils;
 import com.foobnix.pdf.info.Android6Mod;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.txkj.drawingapp.R;
@@ -632,6 +633,7 @@ public class BookListFragment extends Fragment {
             mProgressDialog.setMessage("Creating note, please wait...");
             mProgressDialog.setCancelable(false);
             mProgressDialog.show();
+            EinkUtils.centerToRightScreen(getActivity(), mProgressDialog);
         }
     }
     protected void cancelWaitingProgressDialog() {

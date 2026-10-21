@@ -529,10 +529,10 @@
                         >
                         <Button
                             style="@style/Widget.Material3.Button.TextButton.Icon"
-                            android:layout_width="76px"
+                            android:layout_width="152px"
                             android:layout_height="40px"
                             android:text="Cancel"
-                            android:textSize="14px"
+                            android:textSize="28px"
                             app:icon="@null"
                             android:id="@+id/btnCancel"
                             android:padding="0px"
@@ -542,10 +542,10 @@
                             -->
                         <Button
                             style="@style/Widget.Material3.Button.TextButton.Icon"
-                            android:layout_width="76px"
+                            android:layout_width="152px"
                             android:layout_height="40px"
                             android:text="Done"
-                            android:textSize="14px"
+                            android:textSize="28px"
                             app:icon="@null"
                             android:id="@+id/btnSave"
                             android:padding="0px"

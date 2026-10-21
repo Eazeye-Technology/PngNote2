@@ -42,6 +42,7 @@ import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -795,18 +796,42 @@ public class BookActivity4Fragment extends Fragment {
 
     private void gotoPrevPage() {
         this.ensureSave();
-        int var1 = this.getPageIdx();
-        if (var1 >= 1) {
-            this._pageIdx = var1 - 1;
-            onPageIdxChange(false);
+        if (false) { //isUseDualScreen) {
+            int var1 = this.getPageIdx();
+            if (var1 >= 2) {
+                this._pageIdx = var1 - 2;
+                onPageIdxChange(false);
+            }
+        } else {
+            int var1 = this.getPageIdx();
+            if (isUseDualScreen) {
+                if (var1 >= 2) {
+                    this._pageIdx = var1 - 1;
+                    onPageIdxChange(false);
+                }
+            } else {
+                if (var1 >= 1) {
+                    this._pageIdx = var1 - 1;
+                    onPageIdxChange(false);
+                }
+            }
         }
     }
 
     private void gotoNextPage() {
         this.ensureSave();
         int var1 = this.getPageIdx();
-        this._pageIdx = var1 + 1;
-        onPageIdxChange(false);
+        if (false) { //isUseDualScreen) {
+            if (var1 + 2 <= this.pageNum - 1) {
+                this._pageIdx = var1 + 2;
+                onPageIdxChange(false);
+            }
+        } else {
+            if (var1 + 1 <= this.pageNum - 1) {
+                this._pageIdx = var1 + 1;
+                onPageIdxChange(false);
+            }
+        }
     }
 
     private void gotoGridPage() {
@@ -1468,6 +1493,7 @@ public class BookActivity4Fragment extends Fragment {
 
     View g_rootView;
 
+
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container,
@@ -1476,6 +1502,44 @@ public class BookActivity4Fragment extends Fragment {
         long t0 = System.currentTimeMillis();
         View rootView = inflater.inflate(R.layout.activity_book4, container, false);
         g_rootView = rootView;
+
+//        rootView.setFocusable(true);
+//        rootView.setFocusableInTouchMode(true);
+//        rootView.requestFocus();
+//        rootView.setOnKeyListener(new View.OnKeyListener() {
+//            @Override
+//            public boolean onKey(View view, int keyCode, KeyEvent event) {
+//                EditText etDebug = g_rootView.findViewById(R.id.etDebug);
+//                if (event.getAction() == KeyEvent.ACTION_UP) {
+//                    if (etDebug != null) {
+//                        etDebug.append("Up, time" + System.currentTimeMillis() + "keyCode + " + keyCode +
+//                                "|" + KeyEvent.KEYCODE_PAGE_DOWN + "," + KeyEvent.KEYCODE_PAGE_UP +
+//                                "\n");
+//                        etDebug.setSelection(etDebug.length());
+//                    }
+//                    return true;
+//                    //return onKeyUp(keyCode, event);
+//                } else if (event.getAction() == KeyEvent.ACTION_DOWN) {
+//                    if (etDebug != null) {
+//                        etDebug.append("Down, time" + System.currentTimeMillis() + "keyCode + " + keyCode +
+//                                "|" + KeyEvent.KEYCODE_PAGE_DOWN + "," + KeyEvent.KEYCODE_PAGE_UP +
+//                                "\n");
+//                        etDebug.setSelection(etDebug.length());
+//                    }
+//                    return true;
+//                    //return onKeyDown(keyCode, event);
+//                } else {
+//                    if (etDebug != null) {
+//                        etDebug.append("???, time" + System.currentTimeMillis() + "keyCode + " + keyCode +
+//                                "|" + KeyEvent.KEYCODE_PAGE_DOWN + "," + KeyEvent.KEYCODE_PAGE_UP +
+//                                "\n");
+//                        etDebug.setSelection(etDebug.length());
+//                        return true;
+//                    }
+//                }
+//                return false;
+//            }
+//        });
 
         if (BookListActivity.USE_DS) {
             rootView.findViewById(R.id.tabTyping).setVisibility(View.GONE);
@@ -1691,6 +1755,21 @@ public class BookActivity4Fragment extends Fragment {
                 rootView.findViewById(R.id.buttonRedo).performClick();
             }
         });
+        rootView.findViewById(R.id.toolbar2_undo_2).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //rootView.findViewById(R.id.buttonUndo).performClick();
+                onUndo2();
+            }
+        });
+        rootView.findViewById(R.id.toolbar2_redo_2).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //rootView.findViewById(R.id.buttonRedo).performClick();
+                onRedo2();
+            }
+        });
+
 
 
         rootView.findViewById(R.id.btnTitleUndo).setOnClickListener(new View.OnClickListener() {
@@ -4193,6 +4272,16 @@ public class BookActivity4Fragment extends Fragment {
 //            canvas2.redo();
         }
     }
+    private void onUndo2() {
+        if (canvas2 instanceof DualScreenCanvas) {
+            canvas2.undo(false);
+        }
+    }
+    private void onRedo2() {
+        if (canvas2 instanceof DualScreenCanvas) {
+            canvas2.redo();
+        }
+    }
     private void onUpdatePidxPnum() {
         if (textViewPageInfo != null) {
             textViewPageInfo.post(new Runnable() {
@@ -5871,6 +5960,15 @@ public class BookActivity4Fragment extends Fragment {
 
     public boolean onKeyUp(final int keyCode, final KeyEvent event) {
         if (true) {
+//            if (g_rootView != null) {
+//                EditText etDebug = g_rootView.findViewById(R.id.etDebug);
+//                if (etDebug != null) {
+//                    etDebug.append("Up, time" + System.currentTimeMillis() + "keyCode + " + keyCode +
+//                            "|" + KeyEvent.KEYCODE_PAGE_DOWN + "," + KeyEvent.KEYCODE_PAGE_UP +
+//                            "\n");
+//                    etDebug.setSelection(etDebug.length());
+//                }
+//            }
             if (EinkUtils.getKeyEventStatus(getActivity()) == 17 || EinkUtils.getKeyEventStatus(getActivity()) == 34) {
                 return false;
             }
@@ -5896,6 +5994,18 @@ public class BookActivity4Fragment extends Fragment {
 //    DrawCanvas.TOOLS lastTool = DrawCanvas.TOOLS.none;
 //    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+//        if (g_rootView != null) {
+//            EditText etDebug = g_rootView.findViewById(R.id.etDebug);
+//            if (etDebug != null) {
+//                etDebug.append("Down, time" + System.currentTimeMillis() + "keyCode + " + keyCode +
+//                        "|" + KeyEvent.KEYCODE_PAGE_DOWN + "," + KeyEvent.KEYCODE_PAGE_UP +
+//                        "\n");
+//                etDebug.setSelection(etDebug.length());
+//            }
+//        }
+        if (EinkUtils.getKeyEventStatus(getActivity()) == 17 || EinkUtils.getKeyEventStatus(getActivity()) == 34) {
+            return false;
+        }
         if (keyCode == KeyEvent.KEYCODE_MENU) { //keyboard F1, need enable keyboard
             boolean isTextMode = false;
             if (g_rootView != null &&
@@ -5908,6 +6018,9 @@ public class BookActivity4Fragment extends Fragment {
                 this.canvas.setTool(DrawCanvas.TOOLS.pan);
                 this.canvas2.setTool(DrawCanvas.TOOLS.pan);
             }
+            return true;
+        } else if (keyCode == KeyEvent.KEYCODE_F9) { //139
+            onBackPressed();
             return true;
         }
         return false;
@@ -7140,20 +7253,40 @@ public class BookActivity4Fragment extends Fragment {
                 DualScreenConstant.EXTRA_LAUNCH_SCREEN_PANEL_BOTH) {
             return;//don't shift
         }
-        //if pageIdx == -1, then _pageIdx == 0
-        if (_pageIdx <= 0) {
-            _pageIdx = 1;
+        if (false) {
+            //don't use % 2
+
+            //if pageIdx == -1, then _pageIdx == 0
+            if (_pageIdx <= 0) {
+                _pageIdx = 1;
+            }
         }
         if (_pageIdx >= 0 && _pageIdx >= this.pageNum - 1) { //check once, be careful, don't miss this
             if (shiftAndAddNewPage(use_onPageIdxChange)) {
                 _pageIdx += 1;
             }
+        } else if (_pageIdx == 0) {
+            _pageIdx += 1;
         }
     }
 
 
     private boolean shiftAndAddNewPage(boolean use_onPageIdxChange) {
-        if (this._pageIdx % 2 == 0) {
+        if (false) {
+            //don't use % 2
+            if (this._pageIdx % 2 == 0) {
+                if (this._pageIdx + 1 > this.pageNum - 1) {
+                    this.set_book(this.getBook().addPage());
+                }
+                this._pageIdx = this._pageIdx + 1;
+                if (use_onPageIdxChange) {
+                    onPageIdxChange(true);
+                }
+                return true;
+            } else {
+                return false;
+            }
+        } else {
             if (this._pageIdx + 1 > this.pageNum - 1) {
                 this.set_book(this.getBook().addPage());
             }
@@ -7161,8 +7294,6 @@ public class BookActivity4Fragment extends Fragment {
             if (use_onPageIdxChange) {
                 onPageIdxChange(true);
             }
-            return true;
-        } else {
             return false;
         }
     }

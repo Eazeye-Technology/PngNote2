@@ -247,7 +247,50 @@ Android6.onRequestPermissionsResult(this, i, strArr, iArr);
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        //Log.e(TAG, "dispatchKeyEvent == " + event.toString());
+        try {
+            if (event != null && event.getAction() == KeyEvent.ACTION_UP) {
+                int keyCode = event.getKeyCode();
+                FragmentManager fragmentManager = this.getSupportFragmentManager();
+                Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+                if (currentFragment instanceof BookActivity4Fragment) {
+                    if (((BookActivity4Fragment) currentFragment).onKeyUp(keyCode, event)) {
+                        return true;
+                    }
+                    if (keyCode == KeyEvent.KEYCODE_F5) {
+                        ((BookActivity4Fragment) currentFragment).onBackPressed();
+                        return true;
+                    }
+                }
+            } else if (event != null && event.getAction() == KeyEvent.ACTION_DOWN) {
+                int keyCode = event.getKeyCode();
+                FragmentManager fragmentManager = this.getSupportFragmentManager();
+                Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
+                if (currentFragment instanceof BookActivity4Fragment) {
+                    if (((BookActivity4Fragment) currentFragment).onKeyDown(keyCode, event)) {
+                        return true;
+                    }
+                } else if (currentFragment instanceof NoteFragment4) {
+                    //135, status bar back button
+                    if (keyCode == 135) {
+                        if (!((NoteFragment4) currentFragment).onBackPressed()) {
+                            finish();
+                            return true;
+                        }
+                    }
+                }
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        return super.dispatchKeyEvent(event);
+    }
+
+
+    //TODO: Use dispatchKeyEvent instead, because it may crash and sometimes no input
+    //@Override
+    public boolean onKeyDown__(int keyCode, KeyEvent event) {
         FragmentManager fragmentManager = this.getSupportFragmentManager();
         Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
         if (currentFragment instanceof BookActivity4Fragment) {
@@ -266,8 +309,9 @@ Android6.onRequestPermissionsResult(this, i, strArr, iArr);
         return super.onKeyDown(keyCode, event);
     }
 
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
+    //TODO: Use dispatchKeyEvent instead, because it may crash and sometimes no input
+    //@Override
+    public boolean onKeyUp__(int keyCode, KeyEvent event) {
         FragmentManager fragmentManager = this.getSupportFragmentManager();
         Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
         if (currentFragment instanceof BookActivity4Fragment) {
@@ -341,6 +385,7 @@ Android6.onRequestPermissionsResult(this, i, strArr, iArr);
             mProgressDialog.setMessage("Saving, please wait...");
             mProgressDialog.setCancelable(false);
             mProgressDialog.show();
+            EinkUtils.centerToRightScreen(this, mProgressDialog);
         }
     }
     public void cancelWaitingProgressDialog() {
