@@ -138,5 +138,6 @@ public class DrawAppearance {
     public final static int PEN_TYPE_4 = 4;//Pen brush - mainly to draw slim lines. Doesn't respond to stylus pressure
     public final static int PEN_TYPE_5 = 5;//Pencil brush - similar to stylus pen, but responds to stylus pressure. Has a slight granular texture
     public final static int PEN_TYPE_6 = 6;//Shapes - autocorrects input to create vector-like shapes. See Remarkable's shape tool for reference https://remarkable.com/using-remarkable/setup-and-basics/how-to-draw-shapes-on-remarkable
+    public final static int PEN_TYPE_7 = 7;//Eraser
     public int penType = PEN_TYPE_0;
 }

@@ -858,6 +858,7 @@ public class BookActivity4Fragment extends Fragment {
             R.id.left_toolkit_item4, //3 pencil //hidden
             R.id.left_toolkit_item5,
             R.id.left_toolkit_item6, //6 shape //hidden //shape pen
+            R.id.left_toolkit_item7, //7 eraser
     };
     public int getActiveIconIdSubmenu1(int id, boolean isActive) {
         if (id == R.id.left_toolkit_item1) {
@@ -872,6 +873,8 @@ public class BookActivity4Fragment extends Fragment {
             return isActive ? R.drawable.ic_my_pen_005_w: R.drawable.ic_my_pen_005;
         } else if (id == R.id.left_toolkit_item6) {
             return isActive ? R.drawable.ic_my_pen_006_w: R.drawable.ic_my_pen_006;
+        } else if (id == R.id.left_toolkit_item7) {
+            return isActive ? R.drawable.ic_my_pen_007_w: R.drawable.ic_my_pen_007;
         }
         return 0;
     }
@@ -924,6 +927,8 @@ public class BookActivity4Fragment extends Fragment {
                 canvas.setPenType(DrawAppearance.PEN_TYPE_5, false, false);
             } else if (id == R.id.left_toolkit_item6) {
                 canvas.setPenType(DrawAppearance.PEN_TYPE_6, false, false);
+            } else if (id == R.id.left_toolkit_item7) {
+                canvas.setPenType(DrawAppearance.PEN_TYPE_7, false, false);
             }
 
 
@@ -1025,12 +1030,14 @@ public class BookActivity4Fragment extends Fragment {
     private int left_toolkit_item4_color = Color.BLACK;
     private int left_toolkit_item5_color = Color.BLACK;
     private int left_toolkit_item6_color = Color.BLACK;
+    private int left_toolkit_item7_color = Color.BLACK;
     private int left_toolkit_item1_size = 1;
     private int left_toolkit_item2_size = 1;
     private int left_toolkit_item3_size = 1;
     private int left_toolkit_item4_size = 1;
     private int left_toolkit_item5_size = 1;
     private int left_toolkit_item6_size = 1;
+    private int left_toolkit_item7_size = 1;
     public void onLongClickSubmenu1(int id, boolean isClick) {
         BookActivity4BrushEditDialog dialog = new BookActivity4BrushEditDialog(getActivity(), id);
         if (id == R.id.left_toolkit_item1) {
@@ -1051,6 +1058,9 @@ public class BookActivity4Fragment extends Fragment {
         } else if (id == R.id.left_toolkit_item6) {
             dialog.outputColor = left_toolkit_item6_color;
             dialog.outputBrushSize = left_toolkit_item6_size;
+        } else if (id == R.id.left_toolkit_item7) {
+            dialog.outputColor = left_toolkit_item7_color;
+            dialog.outputBrushSize = left_toolkit_item7_size;
         }
         AlertDialog aDialog = dialog.create();
         aDialog.show();
@@ -1076,6 +1086,9 @@ public class BookActivity4Fragment extends Fragment {
             } else if (id == R.id.left_toolkit_item6) {
                 left_toolkit_item6_color = dialog.outputColor;
                 left_toolkit_item6_size = dialog.outputBrushSize;
+            } else if (id == R.id.left_toolkit_item7) {
+                left_toolkit_item7_color = dialog.outputColor;
+                left_toolkit_item7_size = dialog.outputBrushSize;
             }
             updateAppear(id);
             saveBrushPreset();
@@ -6313,7 +6326,12 @@ public class BookActivity4Fragment extends Fragment {
                     eee.printStackTrace();
                     this.left_toolkit_item6_color = Color.BLACK;
                 }
-
+                try {
+                    this.left_toolkit_item7_color = item.optInt("left_toolkit_item7_color", Color.BLACK);
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                    this.left_toolkit_item7_color = Color.BLACK;
+                }
 
                 try {
                     this.left_toolkit_item1_size = item.optInt("left_toolkit_item1_size", 1);
@@ -6353,6 +6371,13 @@ public class BookActivity4Fragment extends Fragment {
                 } catch (Throwable eee) {
                     eee.printStackTrace();
                     this.left_toolkit_item6_size = 1;
+                }
+
+                try {
+                    this.left_toolkit_item7_size = item.optInt("left_toolkit_item7_size", 1);
+                } catch (Throwable eee) {
+                    eee.printStackTrace();
+                    this.left_toolkit_item7_size = 1;
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -6397,7 +6422,12 @@ public class BookActivity4Fragment extends Fragment {
                 eee.printStackTrace();
                 this.left_toolkit_item6_color = Color.BLACK;
             }
-
+            try {
+                this.left_toolkit_item7_color = preferences.getInt("left_toolkit_item7_color", Color.BLACK);
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+                this.left_toolkit_item7_color = Color.BLACK;
+            }
 
             try {
                 this.left_toolkit_item1_size = preferences.getInt("left_toolkit_item1_size", 1);
@@ -6437,6 +6467,12 @@ public class BookActivity4Fragment extends Fragment {
             } catch (Throwable eee) {
                 eee.printStackTrace();
                 this.left_toolkit_item6_size = 1;
+            }
+            try {
+                this.left_toolkit_item7_size = preferences.getInt("left_toolkit_item7_size", 1);
+            } catch (Throwable eee) {
+                eee.printStackTrace();
+                this.left_toolkit_item7_size = 1;
             }
         }
     }

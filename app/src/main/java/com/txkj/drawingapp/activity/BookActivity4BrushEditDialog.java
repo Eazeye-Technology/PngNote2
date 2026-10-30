@@ -140,6 +140,10 @@ public class BookActivity4BrushEditDialog {
         });
 
         ImageView ivPenIcon = (ImageView) dialog.findViewById(R.id.ivPenIcon);
+        CardView cv_preview = dialog.findViewById(R.id.cv_preview);
+        if (cv_preview != null) {
+            cv_preview.setVisibility(View.VISIBLE);
+        }
         if (mBrushId == R.id.left_toolkit_item1) {
             ivPenIcon.setBackgroundResource(R.drawable.ic_my_pen_001_w);
         } else if (mBrushId == R.id.left_toolkit_item2) {
@@ -152,6 +156,11 @@ public class BookActivity4BrushEditDialog {
             ivPenIcon.setBackgroundResource(R.drawable.ic_my_pen_005_w);
         } else if (mBrushId == R.id.left_toolkit_item6) {
             ivPenIcon.setBackgroundResource(R.drawable.ic_my_pen_006_w);
+        } else if (mBrushId == R.id.left_toolkit_item7) {
+            ivPenIcon.setBackgroundResource(R.drawable.ic_my_pen_007_w);
+            if (cv_preview != null) {
+                cv_preview.setVisibility(View.GONE);
+            }
         }
 
         setupPenSize(dialog);
@@ -290,6 +299,8 @@ public class BookActivity4BrushEditDialog {
             title = "Edit pen brush";
         } else if (mBrushId == R.id.left_toolkit_item6) {
             title = "Edit pen brush";
+        } else if (mBrushId == R.id.left_toolkit_item7) {
+            title = "Edit eraser";
         }
         TextView ivTitle = (TextView) dialog.findViewById(R.id.ivTitle);
         ivTitle.setText(title);

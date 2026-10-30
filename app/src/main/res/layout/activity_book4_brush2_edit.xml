@@ -37,6 +37,7 @@
         android:layout_centerHorizontal="true"
         android:visibility="visible"
         android:layout_marginTop="16px"
+        android:id="@+id/cv_preview"
         >
         <!--
         android:layout_width="496px"
@@ -230,6 +231,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:layout_marginRight="70dp"
+                android:layout_marginLeft="30dp"
                 >
                 <ImageView
                     android:layout_width="wrap_content"
@@ -522,10 +525,10 @@
         >
         <Button
             style="@style/Widget.Material3.Button.TextButton.Icon"
-            android:layout_width="76px"
-            android:layout_height="40px"
+            android:layout_width="152px"
+            android:layout_height="80px"
             android:text="Cancel"
-            android:textSize="14px"
+            android:textSize="28px"
             app:icon="@null"
             android:id="@+id/btnCancel"
             android:padding="0px"
@@ -535,10 +538,10 @@
             -->
         <Button
             style="@style/Widget.Material3.Button.TextButton.Icon"
-            android:layout_width="76px"
-            android:layout_height="40px"
+            android:layout_width="152px"
+            android:layout_height="80px"
             android:text="Save"
-            android:textSize="14px"
+            android:textSize="28px"
             app:icon="@null"
             android:id="@+id/btnSave"
             android:padding="0px"

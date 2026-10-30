@@ -246,8 +246,8 @@ Android6.onRequestPermissionsResult(this, i, strArr, iArr);
         outState.putBoolean(STATE_DISABLE_FINGER_DRAW, globalDisableFingerDraw);
     }
 
-    @Override
-    public boolean dispatchKeyEvent(KeyEvent event) {
+    //@Override
+    public boolean dispatchKeyEvent__(KeyEvent event) {
         //Log.e(TAG, "dispatchKeyEvent == " + event.toString());
         try {
             if (event != null && event.getAction() == KeyEvent.ACTION_UP) {
@@ -289,8 +289,8 @@ Android6.onRequestPermissionsResult(this, i, strArr, iArr);
 
 
     //TODO: Use dispatchKeyEvent instead, because it may crash and sometimes no input
-    //@Override
-    public boolean onKeyDown__(int keyCode, KeyEvent event) {
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
         FragmentManager fragmentManager = this.getSupportFragmentManager();
         Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
         if (currentFragment instanceof BookActivity4Fragment) {
@@ -310,8 +310,8 @@ Android6.onRequestPermissionsResult(this, i, strArr, iArr);
     }
 
     //TODO: Use dispatchKeyEvent instead, because it may crash and sometimes no input
-    //@Override
-    public boolean onKeyUp__(int keyCode, KeyEvent event) {
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
         FragmentManager fragmentManager = this.getSupportFragmentManager();
         Fragment currentFragment = fragmentManager.getFragments().get(fragmentManager.getFragments().size() - 1);
         if (currentFragment instanceof BookActivity4Fragment) {

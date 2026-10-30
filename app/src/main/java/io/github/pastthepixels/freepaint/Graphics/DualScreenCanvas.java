@@ -246,6 +246,8 @@ public class DualScreenCanvas extends View implements IDrawCanvas {
                     einkPWInterface.setDrawObjectType(PWDrawObjectHandler.DRAW_OBJ_RANDOM_PEN);
                 } else if (penType == DrawAppearance.PEN_TYPE_6) { //pen4 shape
                     einkPWInterface.setDrawObjectType(PWDrawObjectHandler.DRAW_OBJ_RANDOM_PEN);
+                } else if (penType == DrawAppearance.PEN_TYPE_7) { //eraser
+                    einkPWInterface.setDrawObjectType(PWDrawObjectHandler.DRAW_OBJ_ERASE);
                 }
             }
         }
