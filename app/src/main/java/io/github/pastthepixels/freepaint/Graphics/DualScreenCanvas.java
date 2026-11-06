@@ -41,7 +41,11 @@ import io.github.pastthepixels.freepaint.Tools.Tool;
 public class DualScreenCanvas extends View implements IDrawCanvas {
     public void setStrokeSize(int strokeSize) {
         if (einkPWInterface != null) {
-            einkPWInterface.setPenSettingWidth(strokeSize);
+            if (!mIsEraserTool) {
+                einkPWInterface.setPenSettingWidth(strokeSize);
+            } else {
+                einkPWInterface.setPenEraseWidth(strokeSize);
+            }
         }
     }
 
@@ -225,15 +229,23 @@ public class DualScreenCanvas extends View implements IDrawCanvas {
         return mBackgroundMode;
     }
 
+    private boolean mIsEraserTool = false;
     private int mPenType = DrawAppearance.PEN_TYPE_0;
     public void setPenType(int penType, boolean isSelect, boolean isEraser) {
-        this.mPenType = penType;
+        if (isSelect || isEraser) {
+            //skip, keep last pen type
+        } else {
+            this.mPenType = penType; //record last pen type
+        }
         if (einkPWInterface != null) {
             if (isSelect) {
                 einkPWInterface.setDrawObjectType(PWDrawObjectHandler.DRAW_OBJ_LASSO);
+                mIsEraserTool = false;
             } else if (isEraser) {
                 einkPWInterface.setDrawObjectType(PWDrawObjectHandler.DRAW_OBJ_CHOICERASE);
+                mIsEraserTool = false;
             } else {
+                mIsEraserTool = false;
                 if (penType == DrawAppearance.PEN_TYPE_1 || penType == DrawAppearance.PEN_TYPE_0) { //pen1 pen
                     einkPWInterface.setDrawObjectType(PWDrawObjectHandler.DRAW_OBJ_RANDOM_PEN);
                 } else if (penType == DrawAppearance.PEN_TYPE_2) {
@@ -248,6 +260,11 @@ public class DualScreenCanvas extends View implements IDrawCanvas {
                     einkPWInterface.setDrawObjectType(PWDrawObjectHandler.DRAW_OBJ_RANDOM_PEN);
                 } else if (penType == DrawAppearance.PEN_TYPE_7) { //eraser
                     einkPWInterface.setDrawObjectType(PWDrawObjectHandler.DRAW_OBJ_ERASE);
+//                    einkPWInterface.setPenEraseWidth(10);
+//                    einkPWInterface.disablePenErase(false);
+//                    short i = 1;
+//                    einkPWInterface.setEinkEraseMode(i);
+                    mIsEraserTool = true;
                 }
             }
         }

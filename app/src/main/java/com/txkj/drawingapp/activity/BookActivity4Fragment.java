@@ -36,6 +36,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.PWDrawObjectHandler;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -164,6 +165,9 @@ import kotlin.jvm.functions.Function3;
 //isDirty = true; //FIXME: force save
 //TODO:notifyForceSave, when view onSizeChanged or other events, need call it
 public class BookActivity4Fragment extends Fragment {
+    private final static boolean USE_TWO_IN_ONE_UNDO = true;
+    private final static boolean USE_HIDDEN_UNDO = true;
+
     private final static boolean HIDE_DIARIZATION_PEOPLE_NUM = true; //normally true //for debugging
 
     private final static String DEFAULT_EMPTY_TEXT = "-";
@@ -1064,6 +1068,7 @@ public class BookActivity4Fragment extends Fragment {
         }
         AlertDialog aDialog = dialog.create();
         aDialog.show();
+        EinkUtils.centerToRightScreenBG(getActivity(), aDialog);
         dialog.afterShow(aDialog);
     }
     public void onLongClickSubmenu1_after(BookActivity4BrushEditDialog dialog, int id) {
@@ -1593,11 +1598,93 @@ public class BookActivity4Fragment extends Fragment {
         return rootView;
     }
 
+    int currentDrawingEditScreen;
     private void init0001(View rootView) {
         canvas = (DualScreenCanvas) rootView.findViewById(R.id.canvas);
         canvas.initAct(getActivity());
         canvas2 = (DualScreenCanvas) rootView.findViewById(R.id.canvasLeft);
         canvas2.initAct(getActivity());
+
+        canvas.einkPWInterface.setDrawEventListener(new EinkPWInterface.PWDrawEvent() {
+            @Override
+            public void onTouchDrawStart(Bitmap bitmap, boolean b) {
+                if (canvas.einkPWInterface.getDrawObjectType() == PWDrawObjectHandler.DRAW_OBJ_LASSO){
+                    currentDrawingEditScreen = 1;
+                    canvas2.einkPWInterface.onLassoReset();
+//                    if (isStick&&DataBeanManager.copyBitmap!=null){
+//                        elik_a?.onLassoPaste(DataBeanManager.copyBitmap)
+//                        DataBeanManager.copyBitmap=null
+//                        isStick=false
+//                    }
+                }
+//                elik_a?.setShifted(isCurrent&&isParallel)
+            }
+
+            @Override
+            public void onTouchDrawEnd(Bitmap bitmap, Rect rect, ArrayList<android.graphics.Point> arrayList) {
+                removeList.clear();
+                revocationList.add(1);
+                if (revocationList.size() > UNDO_LIST_MAX) {
+                    revocationList.remove(0);
+                }
+//                if (canvas.einkPWInterface.getCurDrawObjStatus() == true){
+//                    //reDrawGeometry(elik_a!!,1)
+//                }
+                //onElikSava_a()
+                //elik_a?.saveBitmap(true) {}
+                canvas.einkPWInterface.saveBitmap(true, new EinkPWInterface.PWSaveBitmapListener() {
+                    @Override
+                    public void saveDone(String s) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onOneWordDone(Bitmap bitmap, Rect rect) {
+
+            }
+        });
+        canvas2.einkPWInterface.setDrawEventListener(new EinkPWInterface.PWDrawEvent() {
+            @Override
+            public void onTouchDrawStart(Bitmap bitmap, boolean b) {
+                if (canvas2.einkPWInterface.getDrawObjectType() == PWDrawObjectHandler.DRAW_OBJ_LASSO){
+                    currentDrawingEditScreen = 2;
+                    canvas2.einkPWInterface.onLassoReset();
+//                    if (isStick&&DataBeanManager.copyBitmap!=null){
+//                        elik_a?.onLassoPaste(DataBeanManager.copyBitmap)
+//                        DataBeanManager.copyBitmap=null
+//                        isStick=false
+//                    }
+                }
+//                elik_a?.setShifted(isCurrent&&isParallel)
+            }
+
+            @Override
+            public void onTouchDrawEnd(Bitmap bitmap, Rect rect, ArrayList<android.graphics.Point> arrayList) {
+                removeList.clear();
+                revocationList.add(2);
+                if (revocationList.size() > UNDO_LIST_MAX) {
+                    revocationList.remove(0);
+                }
+//                if (canvas.einkPWInterface.getCurDrawObjStatus() == true){
+//                    //reDrawGeometry(elik_a!!,1)
+//                }
+                //onElikSava_a()
+                //elik_a?.saveBitmap(true) {}
+                canvas2.einkPWInterface.saveBitmap(true, new EinkPWInterface.PWSaveBitmapListener() {
+                    @Override
+                    public void saveDone(String s) {
+
+                    }
+                });
+            }
+
+            @Override
+            public void onOneWordDone(Bitmap bitmap, Rect rect) {
+
+            }
+        });
 
         setColor(canvas, 0xFF000000);  //reset pen color
         setSize(canvas, 1);  //reset pen size
@@ -1782,6 +1869,18 @@ public class BookActivity4Fragment extends Fragment {
                 onRedo2();
             }
         });
+        if (USE_TWO_IN_ONE_UNDO) {
+            rootView.findViewById(R.id.toolbar2_2).setVisibility(View.GONE);
+        } else {
+            rootView.findViewById(R.id.toolbar2_2).setVisibility(View.VISIBLE);
+        }
+        if (USE_HIDDEN_UNDO) {
+            rootView.findViewById(R.id.left_toolkit_item14).setVisibility(View.GONE);
+            rootView.findViewById(R.id.left_toolkit_item16).setVisibility(View.GONE);
+        } else {
+            rootView.findViewById(R.id.left_toolkit_item14).setVisibility(View.VISIBLE);
+            rootView.findViewById(R.id.left_toolkit_item16).setVisibility(View.VISIBLE);
+        }
 
 
 
@@ -4246,53 +4345,94 @@ public class BookActivity4Fragment extends Fragment {
         }
     }
 
+    private final static int UNDO_LIST_MAX = 17;
+    List<Integer> revocationList = new ArrayList<>();
+    List<Integer> removeList = new ArrayList<>();
     private void onUndo() {
-        if (canvas instanceof DualScreenCanvas) {
-            canvas.undo(false);
-//            canvas2.undo(false);
-        } else {
-            if (!g_isUndoActive) {
-                return;
-            }
-            undoCount = undoCount + 1;
-            if (isCanRestorePages()) {
-                createWaitingProgressDialog();
-                g_rootView.findViewById(R.id.buttonUndo).postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        undoAndRestorePages();
-                        canvas.undo(true);
-//                        canvas2.undo(true);
-                        cancelWaitingProgressDialog();
+        if (USE_TWO_IN_ONE_UNDO) {
+            if (revocationList.size() > 0) {
+                Integer type = revocationList.get(revocationList.size() - 1);
+                if (type != null) {
+                    if (type.equals(1)) {
+                        canvas.undo(false);
+                    } else {
+                        canvas2.undo(false);
                     }
-                }, 0);//100);
-            } else {
+                }
+                removeList.add(type);
+                revocationList.remove(revocationList.size() - 1);
+            }
+        } else {
+            if (canvas instanceof DualScreenCanvas) {
                 canvas.undo(false);
-//                canvas2.undo(false);
+                //            canvas2.undo(false);
+            } else {
+                if (!g_isUndoActive) {
+                    return;
+                }
+                undoCount = undoCount + 1;
+                if (isCanRestorePages()) {
+                    createWaitingProgressDialog();
+                    g_rootView.findViewById(R.id.buttonUndo).postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            undoAndRestorePages();
+                            canvas.undo(true);
+                            //                        canvas2.undo(true);
+                            cancelWaitingProgressDialog();
+                        }
+                    }, 0);//100);
+                } else {
+                    canvas.undo(false);
+                    //                canvas2.undo(false);
+                }
             }
         }
     }
     private void onRedo() {
-        if (canvas instanceof DualScreenCanvas) {
-            canvas.redo();
-//            canvas2.redo();
-        } else {
-            if (!g_isRedoActive) {
-                return;
+        if (USE_TWO_IN_ONE_UNDO) {
+            if (removeList.size() > 0) {
+                Integer type = removeList.get(removeList.size() - 1);
+                if (type != null) {
+                    if (type.equals(1)) {
+                        canvas.redo();
+                    } else {
+                        canvas2.redo();
+                    }
+                }
+                revocationList.add(type);
+                removeList.remove(removeList.size() - 1);
             }
-            redoCount = redoCount + 1;
-            canvas.redo();
-//            canvas2.redo();
+        } else {
+            if (canvas instanceof DualScreenCanvas) {
+                canvas.redo();
+                //            canvas2.redo();
+            } else {
+                if (!g_isRedoActive) {
+                    return;
+                }
+                redoCount = redoCount + 1;
+                canvas.redo();
+                //            canvas2.redo();
+            }
         }
     }
     private void onUndo2() {
-        if (canvas2 instanceof DualScreenCanvas) {
-            canvas2.undo(false);
+        if (USE_TWO_IN_ONE_UNDO) {
+            //skip
+        } else {
+            if (canvas2 instanceof DualScreenCanvas) {
+                canvas2.undo(false);
+            }
         }
     }
     private void onRedo2() {
-        if (canvas2 instanceof DualScreenCanvas) {
-            canvas2.redo();
+        if (USE_TWO_IN_ONE_UNDO) {
+            //skip
+        } else {
+            if (canvas2 instanceof DualScreenCanvas) {
+                canvas2.redo();
+            }
         }
     }
     private void onUpdatePidxPnum() {
@@ -4753,6 +4893,7 @@ public class BookActivity4Fragment extends Fragment {
                                                     BookActivity4Fragment.this.dirUrlPath)
                                                     .create();
                                             dialog.show();
+                                            EinkUtils.centerToRightScreenBG(getActivity(), dialog);
                                             cancelWaitingProgressDialog();
                                         }
                                     }, 0);//100);
@@ -4855,6 +4996,7 @@ public class BookActivity4Fragment extends Fragment {
                                     .create();
                             if (dialog != null) {
                                 dialog.show();
+                                EinkUtils.centerToRightScreenBG(getActivity(), dialog);
                             }
                         } else if (view.getId() == R.id.popTextViewPageBackground) {
                             String backgroundMode = null;//-1;
@@ -4865,6 +5007,7 @@ public class BookActivity4Fragment extends Fragment {
                                     .create();
                             if (dialog != null) {
                                 dialog.show();
+                                EinkUtils.centerToRightScreenBG(getActivity(), dialog);
                             }
                         } else if (view.getId() == R.id.popTextViewTranscriptLanguage) {
                             AlertDialog dialog = new BookActivity4TranscriptionLanguage(getActivity())

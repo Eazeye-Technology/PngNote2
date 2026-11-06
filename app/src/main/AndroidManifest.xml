@@ -71,10 +71,15 @@ at com.gzsys.speech.service.RecordingService.startRecording(RecordingService.jav
         <activity
             android:name="com.txkj.notemobile2.BookListActivity"
             android:exported="true"
-            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
+            android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize"
             android:windowSoftInputMode="adjustResize|stateHidden"
             android:launchMode="singleTask"
             >
+            <!--
+            dual-screen:android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize"
+            old:android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
+            -->
+
             <!--
             adjustPan
             android:windowSoftInputMode="adjustPan|stateHidden"
