@@ -310,7 +310,7 @@ public class BookActivity4BrushEditDialog {
         if (USE_SLIDER) {
             Slider slider = (Slider) dialog.findViewById(R.id.slider);
             if (mBrushId == R.id.left_toolkit_item3) {
-                slider.setValueTo(5.0f * 5); //highlighter
+                slider.setValueTo(20/*5.0f*/ * 5); //highlighter
             } else {
                 slider.setValueTo(5.0f); //not highlighter
             }
@@ -325,7 +325,7 @@ public class BookActivity4BrushEditDialog {
         } else {
             CustomSeek slider = dialog.findViewById(R.id.slider_seek2);
             if (mBrushId == R.id.left_toolkit_item3) { //highlighter
-                slider.init(1, 5 * 5, outputBrushSize);
+                slider.init(1, 20/*5*/ * 5, outputBrushSize);
             } else {
                 slider.init(1, 5, outputBrushSize); //not highlighter
             }

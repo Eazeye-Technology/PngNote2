@@ -165,6 +165,8 @@ import kotlin.jvm.functions.Function3;
 //isDirty = true; //FIXME: force save
 //TODO:notifyForceSave, when view onSizeChanged or other events, need call it
 public class BookActivity4Fragment extends Fragment {
+    private final static int HIGHLIGHT_COLOR = 0xFFC7C7C7;
+
     private final static boolean USE_TWO_IN_ONE_UNDO = true;
     private final static boolean USE_HIDDEN_UNDO = true;
 
@@ -916,7 +918,7 @@ public class BookActivity4Fragment extends Fragment {
             }
         }
         if (isClick) {
-            canvas.setTool(DrawCanvas.TOOLS.paint);
+            canvas.setTool(DrawCanvas.TOOLS.paint, false);
             if (id == R.id.left_toolkit_item1) {
                 //findViewById(R.id.buttonPen2).performClick();
                 canvas.setPenType(DrawAppearance.PEN_TYPE_1, false, false);
@@ -938,7 +940,7 @@ public class BookActivity4Fragment extends Fragment {
 
 
 
-            canvas2.setTool(DrawCanvas.TOOLS.paint);
+            canvas2.setTool(DrawCanvas.TOOLS.paint, false);
             if (id == R.id.left_toolkit_item1) {
                 //findViewById(R.id.buttonPen2).performClick();
                 canvas2.setPenType(DrawAppearance.PEN_TYPE_1, false, false);
@@ -953,6 +955,8 @@ public class BookActivity4Fragment extends Fragment {
                 canvas2.setPenType(DrawAppearance.PEN_TYPE_5, false, false);
             } else if (id == R.id.left_toolkit_item6) {
                 canvas2.setPenType(DrawAppearance.PEN_TYPE_6, false, false);
+            } else if (id == R.id.left_toolkit_item7) {
+                canvas2.setPenType(DrawAppearance.PEN_TYPE_7, false, false);
             }
 
 
@@ -1217,39 +1221,39 @@ public class BookActivity4Fragment extends Fragment {
         }
         if (isClick) {
             if (id == R.id.left_toolkit_item41) {
-                canvas.setTool(DrawCanvas.TOOLS.select);
+                canvas.setTool(DrawCanvas.TOOLS.select, false);
                 canvas.setEraserMode(false);
                 canvas.setScaleMode(false);
                 canvas.setPenType(0, true, false);
 
 
-                canvas2.setTool(DrawCanvas.TOOLS.select);
+                canvas2.setTool(DrawCanvas.TOOLS.select, false);
                 canvas2.setEraserMode(false);
                 canvas2.setScaleMode(false);
                 canvas2.setPenType(0, true, false);
             } else if (id == R.id.left_toolkit_item42) {
-                canvas.setTool(DrawCanvas.TOOLS.select);
+                canvas.setTool(DrawCanvas.TOOLS.select, false);
                 canvas.setEraserMode(false);
                 canvas.setScaleMode(false);
                 canvas.setPenType(0, true, false);
 
-                canvas2.setTool(DrawCanvas.TOOLS.select);
+                canvas2.setTool(DrawCanvas.TOOLS.select, false);
                 canvas2.setEraserMode(false);
                 canvas2.setScaleMode(false);
                 canvas2.setPenType(0, true, false);
             } else if (id == R.id.left_toolkit_item43) {
-                canvas.setTool(DrawCanvas.TOOLS.select);
+                canvas.setTool(DrawCanvas.TOOLS.select, false);
                 canvas.setEraserMode(false);
                 canvas.setScaleMode(true);
 
-                canvas2.setTool(DrawCanvas.TOOLS.select);
+                canvas2.setTool(DrawCanvas.TOOLS.select, false);
                 canvas2.setEraserMode(false);
                 canvas2.setScaleMode(true);
             } else if (id == R.id.left_toolkit_item44) {
-                canvas.setTool(DrawCanvas.TOOLS.pan);
+                canvas.setTool(DrawCanvas.TOOLS.pan, false);
 
 
-                canvas2.setTool(DrawCanvas.TOOLS.pan);
+                canvas2.setTool(DrawCanvas.TOOLS.pan, false);
             } else if (id == R.id.left_toolkit_item45) {
                 if (canvas != null) {
                     canvas.getSelectionTool().exitSelect();
@@ -1257,7 +1261,7 @@ public class BookActivity4Fragment extends Fragment {
                 }
 
                 if (false) {
-                    canvas.setTool(DrawCanvas.TOOLS.select);
+                    canvas.setTool(DrawCanvas.TOOLS.select, false);
                     canvas.setEraserMode(true);
                     canvas.setScaleMode(false);
                     canvas.setPenType(0, false, true);
@@ -1265,7 +1269,7 @@ public class BookActivity4Fragment extends Fragment {
                     if (EraserTool.USE_SIMPLE_IMPL) {
                         //use simple impl of EraserTool
                     }
-                    canvas.setTool(DrawCanvas.TOOLS.eraser);
+                    canvas.setTool(DrawCanvas.TOOLS.eraser, false);
                     canvas.setEraserMode(true);
                     canvas.setPenType(0, false, true);
                 }
@@ -1281,7 +1285,7 @@ public class BookActivity4Fragment extends Fragment {
                 }
 
                 if (false) {
-                    canvas2.setTool(DrawCanvas.TOOLS.select);
+                    canvas2.setTool(DrawCanvas.TOOLS.select, false);
                     canvas2.setEraserMode(true);
                     canvas2.setScaleMode(false);
                     canvas2.setPenType(0, false, true);
@@ -1289,7 +1293,7 @@ public class BookActivity4Fragment extends Fragment {
                     if (EraserTool.USE_SIMPLE_IMPL) {
                         //use simple impl of EraserTool
                     }
-                    canvas2.setTool(DrawCanvas.TOOLS.eraser);
+                    canvas2.setTool(DrawCanvas.TOOLS.eraser, false);
                     canvas2.setEraserMode(true);
                     canvas2.setPenType(0, false, true);
                 }
@@ -1408,8 +1412,8 @@ public class BookActivity4Fragment extends Fragment {
             rootView.findViewById(R.id.left_toolkit1).setVisibility(View.VISIBLE);
             rootView.findViewById(R.id.left_toolkit2).setVisibility(View.GONE);
             rootView.findViewById(R.id.left_toolkit4).setVisibility(View.GONE);
-            canvas.setTool(DrawCanvas.TOOLS.paint);
-            canvas2.setTool(DrawCanvas.TOOLS.paint);
+            canvas.setTool(DrawCanvas.TOOLS.paint, true);
+            canvas2.setTool(DrawCanvas.TOOLS.paint, true);
             canvas.setIsTyping(false);
         } else if (id == R.id.top_toolkit_item2) {
             //typing
@@ -1462,11 +1466,11 @@ public class BookActivity4Fragment extends Fragment {
             rootView.findViewById(R.id.left_toolkit2).setVisibility(View.GONE);
             rootView.findViewById(R.id.left_toolkit4).setVisibility(View.VISIBLE);
             if (currentTabIdSubmenu4 == R.id.left_toolkit_item44) {
-                canvas.setTool(DrawCanvas.TOOLS.pan);
-                canvas2.setTool(DrawCanvas.TOOLS.pan);
+                canvas.setTool(DrawCanvas.TOOLS.pan, true);
+                canvas2.setTool(DrawCanvas.TOOLS.pan, true);
             } else {
-                canvas.setTool(DrawCanvas.TOOLS.select);
-                canvas2.setTool(DrawCanvas.TOOLS.select);
+                canvas.setTool(DrawCanvas.TOOLS.select, true);
+                canvas2.setTool(DrawCanvas.TOOLS.select, true);
             }
             canvas.setIsTyping(false);
         }
@@ -3035,8 +3039,8 @@ public class BookActivity4Fragment extends Fragment {
                         }
                         if (selectedText != null) {
                             dtViewBottom.setVisibility(View.GONE);
-                            canvas.setTool(DrawCanvas.TOOLS.select);
-                            canvas2.setTool(DrawCanvas.TOOLS.select);
+                            canvas.setTool(DrawCanvas.TOOLS.select, false);
+                            canvas2.setTool(DrawCanvas.TOOLS.select, false);
                             onClickTopBar(rootView, iconsTopBar[3], false); //init
 
                             canvas.getSelectionTool().exitSelect();
@@ -4736,21 +4740,21 @@ public class BookActivity4Fragment extends Fragment {
     //FIXME:not good
     private void setPenEraserBrush(DualScreenCanvas canvas, int index) {
         if (index == 0) {
-            canvas.setTool(DrawCanvas.TOOLS.paint); //eraser
+            canvas.setTool(DrawCanvas.TOOLS.paint, false); //eraser
         } else if (index == 1) {
-            canvas.setTool(DrawCanvas.TOOLS.paint); //pen 1
+            canvas.setTool(DrawCanvas.TOOLS.paint, false); //pen 1
         } else if (index == 2) {
-            canvas.setTool(DrawCanvas.TOOLS.paint); //pen 2
+            canvas.setTool(DrawCanvas.TOOLS.paint, false); //pen 2
         }
         canvas.penEraserBrush = index;
 
 
         if (index == 0) {
-            canvas2.setTool(DrawCanvas.TOOLS.paint); //eraser
+            canvas2.setTool(DrawCanvas.TOOLS.paint, false); //eraser
         } else if (index == 1) {
-            canvas2.setTool(DrawCanvas.TOOLS.paint); //pen 1
+            canvas2.setTool(DrawCanvas.TOOLS.paint, false); //pen 1
         } else if (index == 2) {
-            canvas2.setTool(DrawCanvas.TOOLS.paint); //pen 2
+            canvas2.setTool(DrawCanvas.TOOLS.paint, false); //pen 2
         }
         canvas2.penEraserBrush = index;
     }
@@ -4833,6 +4837,9 @@ public class BookActivity4Fragment extends Fragment {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt("strokeColor", color); //"strokeColor" or "fillColor"
         editor.apply();
+
+        canvas.setStrokeColor(color);
+        canvas2.setStrokeColor(color);
     }
     public void setSize(DualScreenCanvas canvas, float size) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -4914,8 +4921,8 @@ public class BookActivity4Fragment extends Fragment {
                             addNewPageAndGo(false);
                         } else if (view.getId() == R.id.popButtonPan) {
                             if (canvas != null) {
-                                canvas.setTool(DrawCanvas.TOOLS.pan);
-                                canvas2.setTool(DrawCanvas.TOOLS.pan);
+                                canvas.setTool(DrawCanvas.TOOLS.pan, false);
+                                canvas2.setTool(DrawCanvas.TOOLS.pan, false);
                             }
                         } else if (view.getId() == R.id.popButtonShare) {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -6068,8 +6075,8 @@ public class BookActivity4Fragment extends Fragment {
                             inputStream.close();
                         }
                         if (pathImage != null) {
-                            this.canvas.setTool(DrawCanvas.TOOLS.select);
-                            this.canvas2.setTool(DrawCanvas.TOOLS.select);
+                            this.canvas.setTool(DrawCanvas.TOOLS.select, false);
+                            this.canvas2.setTool(DrawCanvas.TOOLS.select, false);
                             this.canvas.getSelectionTool().mode = SelectionTool.TOUCH_MODES.none;
 
                             this.canvas.getSelectionTool().getSelectedPaths().clear();
@@ -6171,8 +6178,8 @@ public class BookActivity4Fragment extends Fragment {
             }
             if (!isTextMode && this.canvas != null) {
 //                lastTool = this.canvas.tool;
-                this.canvas.setTool(DrawCanvas.TOOLS.pan);
-                this.canvas2.setTool(DrawCanvas.TOOLS.pan);
+                this.canvas.setTool(DrawCanvas.TOOLS.pan, false);
+                this.canvas2.setTool(DrawCanvas.TOOLS.pan, false);
             }
             return true;
         } else if (keyCode == KeyEvent.KEYCODE_F9) { //139
@@ -6445,10 +6452,10 @@ public class BookActivity4Fragment extends Fragment {
                     this.left_toolkit_item2_color = Color.BLACK;
                 }
                 try {
-                    this.left_toolkit_item3_color = item.optInt("left_toolkit_item3_color", Color.BLACK);
+                    this.left_toolkit_item3_color = item.optInt("left_toolkit_item3_color", HIGHLIGHT_COLOR);//Color.BLACK);
                 } catch (Throwable eee) {
                     eee.printStackTrace();
-                    this.left_toolkit_item3_color = Color.BLACK;
+                    this.left_toolkit_item3_color = HIGHLIGHT_COLOR;//Color.BLACK;
                 }
 
                 try {
@@ -6490,10 +6497,10 @@ public class BookActivity4Fragment extends Fragment {
                 }
                 ////highlight
                 try {
-                    this.left_toolkit_item3_size = item.optInt("left_toolkit_item3_size", 5);//1);
+                    this.left_toolkit_item3_size = item.optInt("left_toolkit_item3_size", 20);//5);//1);
                 } catch (Throwable eee) {
                     eee.printStackTrace();
-                    this.left_toolkit_item3_size = 5;
+                    this.left_toolkit_item3_size = 20;//5;
                 }
 
 
@@ -6541,10 +6548,10 @@ public class BookActivity4Fragment extends Fragment {
                 this.left_toolkit_item2_color = Color.BLACK;
             }
             try {
-                this.left_toolkit_item3_color = preferences.getInt("left_toolkit_item3_color", Color.BLACK);
+                this.left_toolkit_item3_color = preferences.getInt("left_toolkit_item3_color", HIGHLIGHT_COLOR);//Color.BLACK);
             } catch (Throwable eee) {
                 eee.printStackTrace();
-                this.left_toolkit_item3_color = Color.BLACK;
+                this.left_toolkit_item3_color = HIGHLIGHT_COLOR;//Color.BLACK;
             }
 
             try {
@@ -6586,10 +6593,10 @@ public class BookActivity4Fragment extends Fragment {
             }
             //highlight
             try {
-                this.left_toolkit_item3_size = preferences.getInt("left_toolkit_item3_size", 5);//1);
+                this.left_toolkit_item3_size = preferences.getInt("left_toolkit_item3_size", 20);//5);//1);
             } catch (Throwable eee) {
                 eee.printStackTrace();
-                this.left_toolkit_item3_size = 5;//1;
+                this.left_toolkit_item3_size = 20;//5;//1;
             }
 
 

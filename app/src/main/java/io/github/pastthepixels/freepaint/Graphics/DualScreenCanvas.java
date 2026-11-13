@@ -39,12 +39,24 @@ import io.github.pastthepixels.freepaint.Tools.SelectionTool;
 import io.github.pastthepixels.freepaint.Tools.Tool;
 
 public class DualScreenCanvas extends View implements IDrawCanvas {
+    public void setStrokeColor(int strokeColor) {
+        if (einkPWInterface != null) {
+            if (!mIsEraserTool) {
+                einkPWInterface.setPenColor(strokeColor);
+            } else {
+                einkPWInterface.setPenColor(strokeColor);
+            }
+        }
+    }
+
     public void setStrokeSize(int strokeSize) {
         if (einkPWInterface != null) {
             if (!mIsEraserTool) {
                 einkPWInterface.setPenSettingWidth(strokeSize);
             } else {
-                einkPWInterface.setPenEraseWidth(strokeSize);
+                einkPWInterface.setPenEraseWidth(strokeSize * 10); //use this
+                //einkPWInterface.setPenEraseWidthExt(strokeSize * 100);
+                //einkPWInterface.setPenStdEraseWidth(strokeSize * 100);
             }
         }
     }
@@ -193,9 +205,23 @@ public class DualScreenCanvas extends View implements IDrawCanvas {
         return null;
     }
 
-    public void setTool(DrawCanvas.TOOLS tool) {
-        if (tool == DrawCanvas.TOOLS.paint) {
-            setPenType(mPenType, false, false);
+    public void setTool(DrawCanvas.TOOLS tool, boolean isClickTopBar) {
+        if (isClickTopBar) {
+            if (tool == DrawCanvas.TOOLS.paint) {
+                //FIXME:don't call setPenType here, use DualScreenCanvas.setPenType()
+                setPenType(mPenType, false, false);
+                if (this.einkPWInterface != null) {
+                    this.einkPWInterface.onLassoReset();
+                }
+            } else if (tool == DrawCanvas.TOOLS.select) {
+                if (this.einkPWInterface != null) {
+                    this.einkPWInterface.onLassoReset();
+                }
+                if (!mIsSelect && !mIsEraser) {
+                    mIsSelect = true;
+                }
+                setPenType(0, this.mIsSelect, this.mIsEraser);
+            }
         }
     }
 
@@ -231,9 +257,16 @@ public class DualScreenCanvas extends View implements IDrawCanvas {
 
     private boolean mIsEraserTool = false;
     private int mPenType = DrawAppearance.PEN_TYPE_0;
+    private boolean mIsSelect = false;
+    private boolean mIsEraser = false;
     public void setPenType(int penType, boolean isSelect, boolean isEraser) {
         if (isSelect || isEraser) {
             //skip, keep last pen type
+            if (isSelect) {
+                this.mIsSelect = true;
+            } else if (isEraser) {
+                this.mIsEraser = true;
+            }
         } else {
             this.mPenType = penType; //record last pen type
         }
