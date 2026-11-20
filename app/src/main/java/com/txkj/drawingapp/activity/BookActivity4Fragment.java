@@ -303,7 +303,7 @@ public class BookActivity4Fragment extends Fragment {
         if (idx >= 0 && idx < size) { //FIXME: null??
 
             if (checkCanvas2Index(idx - 1)) {
-                onPageIdx(canvas2, idx - 1, new CanvasBoox.OnLoadBitmapListener() {
+                onPageIdx(getCanvas2_Left(), idx - 1, new CanvasBoox.OnLoadBitmapListener() {
                     @Override
                     public BitmapVector onLoadBitmap(int idx_) {
                         BookIO bookIO = getBookIO();
@@ -311,8 +311,8 @@ public class BookActivity4Fragment extends Fragment {
                         BitmapVector result = bookIO.loadBitmapOrNull_2(page, BookActivity4Fragment.this);
                         if (result != null && result.strVecJson != null && result.strVecJson.length() > 0) {
                             pageBmp = null;
-                            if (canvas != null) {
-                                canvas.loadVecJson(result.strVecJson);
+                            if (getCanvas2_Left() != null) {
+                                getCanvas2_Left().loadVecJson(result.strVecJson);
                             }
                         } else if (result != null) {
                             pageBmp = result.bitmap;
@@ -335,19 +335,19 @@ public class BookActivity4Fragment extends Fragment {
                                 backText = curPattern;
                             }
                         }
-                        setBackText(canvas2, backText); //FIXME:added
+                        setBackText(getCanvas2_Left(), backText); //FIXME:added
                         isDirty = false;
                         BitmapVector result_ = new BitmapVector();
                         result_.bitmap = pageBmp;
                         result_.strVecJson = result != null ? result.strVecJson : null;
-                        canvas2.onVersionChanged();
+                        getCanvas2_Left().onVersionChanged();
                         if (false) clearRestorePages();
                         return result_;
                     }
                 }, forceReload);
             }
 
-            onPageIdx(canvas, idx, new CanvasBoox.OnLoadBitmapListener() {
+            onPageIdx(getCanvas_Right(), idx, new CanvasBoox.OnLoadBitmapListener() {
                 @Override
                 public BitmapVector onLoadBitmap(int idx_) {
                     BookIO bookIO = getBookIO();
@@ -355,8 +355,8 @@ public class BookActivity4Fragment extends Fragment {
                     BitmapVector result = bookIO.loadBitmapOrNull_1(page, BookActivity4Fragment.this);
                     if (result != null && result.strVecJson != null && result.strVecJson.length() > 0) {
                         pageBmp = null;
-                        if (canvas != null) {
-                            canvas.loadVecJson(result.strVecJson);
+                        if (getCanvas_Right() != null) {
+                            getCanvas_Right().loadVecJson(result.strVecJson);
                         }
                     } else if (result != null) {
                         pageBmp = result.bitmap;
@@ -379,12 +379,12 @@ public class BookActivity4Fragment extends Fragment {
                             backText = curPattern;
                         }
                     }
-                    setBackText(canvas, backText); //FIXME:added
+                    setBackText(getCanvas_Right(), backText); //FIXME:added
                     isDirty = false;
                     BitmapVector result_ = new BitmapVector();
                     result_.bitmap = pageBmp;
                     result_.strVecJson = result != null ? result.strVecJson : null;
-                    canvas.onVersionChanged();
+                    getCanvas_Right().onVersionChanged();
                     if (false) clearRestorePages();
                     return result_;
                 }
@@ -499,9 +499,9 @@ public class BookActivity4Fragment extends Fragment {
                         bitmapLock.unlock();
                     }
                     if (checkCanvas2Index(getPageIdx() - 1)) {
-                        savePage(getPageIdx() - 1, tempBmp, getVecJson(canvas2), BookActivity4Fragment.this, 2);
+                        savePage(getPageIdx() - 1, tempBmp, getVecJson(getCanvas2_Left()), BookActivity4Fragment.this, 2);
                     }
-                    savePage(getPageIdx(), tempBmp, getVecJson(canvas), BookActivity4Fragment.this, 1);
+                    savePage(getPageIdx(), tempBmp, getVecJson(getCanvas_Right()), BookActivity4Fragment.this, 1);
                 }
             }
         }).start();
@@ -515,9 +515,9 @@ public class BookActivity4Fragment extends Fragment {
             if (this.isDirty) {
                 this.isDirty = false;
                 if (checkCanvas2Index(this.getPageIdx() - 1)) {
-                    this.savePageInMain(this.getPageIdx() - 1, this.pageBmp, getVecJson(canvas2), BookActivity4Fragment.this, 2);
+                    this.savePageInMain(this.getPageIdx() - 1, this.pageBmp, getVecJson(getCanvas2_Left()), BookActivity4Fragment.this, 2);
                 }
-                this.savePageInMain(this.getPageIdx(), this.pageBmp, getVecJson(canvas), BookActivity4Fragment.this, 1);
+                this.savePageInMain(this.getPageIdx(), this.pageBmp, getVecJson(getCanvas_Right()), BookActivity4Fragment.this, 1);
             }
         } catch (Throwable eee) {
             eee.printStackTrace();
@@ -551,9 +551,9 @@ public class BookActivity4Fragment extends Fragment {
             this.ensureSave();
         } else {
             if (checkCanvas2Index(this.getPageIdx() - 1)) {
-                this.savePageInMain(this.getPageIdx() - 1, this.pageBmp, getVecJson(canvas2), BookActivity4Fragment.this, 2);
+                this.savePageInMain(this.getPageIdx() - 1, this.pageBmp, getVecJson(getCanvas2_Left()), BookActivity4Fragment.this, 2);
             }
-            this.savePageInMain(this.getPageIdx(), this.pageBmp, getVecJson(canvas), BookActivity4Fragment.this, 1);
+            this.savePageInMain(this.getPageIdx(), this.pageBmp, getVecJson(getCanvas_Right()), BookActivity4Fragment.this, 1);
         }
         saveBrushPreset();
         if (this.isBackPressed) {
@@ -710,9 +710,9 @@ public class BookActivity4Fragment extends Fragment {
         if (false) {
             if (this.pageBmp != null) {
                 if (checkCanvas2Index(this.pageNum - 1 - 1)) {
-                    this.savePageInMain(this.pageNum - 1 - 1, this.pageBmp, getVecJson(canvas2), BookActivity4Fragment.this, 2);
+                    this.savePageInMain(this.pageNum - 1 - 1, this.pageBmp, getVecJson(getCanvas2_Left()), BookActivity4Fragment.this, 2);
                 }
-                this.savePageInMain(this.pageNum - 1, this.pageBmp, getVecJson(canvas), BookActivity4Fragment.this, 1);
+                this.savePageInMain(this.pageNum - 1, this.pageBmp, getVecJson(getCanvas_Right()), BookActivity4Fragment.this, 1);
             }
         } else {
             if (this.emptyBmp != null) {
@@ -732,11 +732,11 @@ public class BookActivity4Fragment extends Fragment {
 
             if (false && this.pageBmp != null) {
                 if (checkCanvas2Index(this.pageNum - 1 - 1)) {
-                    this.savePageInMain(this.pageNum - 1 - 1, this.pageBmp, getVecJson(canvas2), BookActivity4Fragment.this, 2);
+                    this.savePageInMain(this.pageNum - 1 - 1, this.pageBmp, getVecJson(getCanvas2_Left()), BookActivity4Fragment.this, 2);
                 }
-                this.savePageInMain(this.pageNum - 1, this.pageBmp, getVecJson(canvas), BookActivity4Fragment.this, 1);
+                this.savePageInMain(this.pageNum - 1, this.pageBmp, getVecJson(getCanvas_Right()), BookActivity4Fragment.this, 1);
                 if (BookIO.USE_META_TXT) {
-                    getBookIO().saveMeta(backText, this.dirUrlPath, String.format("%04d", this.pageNum - 1) + ".meta", false, canvas.documentSize);
+                    getBookIO().saveMeta(backText, this.dirUrlPath, String.format("%04d", this.pageNum - 1) + ".meta", false, getCanvas_Right().documentSize);
                 }
             }
         }
@@ -769,9 +769,9 @@ public class BookActivity4Fragment extends Fragment {
             }
             if (false && this.pageBmp != null) {
                 if (checkCanvas2Index(this.pageNum - 1 - 1)) {
-                    this.savePageInMain(this.pageNum - 1 - 1, this.pageBmp, getVecJson(canvas2), BookActivity4Fragment.this, 2);
+                    this.savePageInMain(this.pageNum - 1 - 1, this.pageBmp, getVecJson(getCanvas2_Left()), BookActivity4Fragment.this, 2);
                 }
-                this.savePageInMain(this.pageNum - 1, this.pageBmp, getVecJson(canvas), BookActivity4Fragment.this, 1);
+                this.savePageInMain(this.pageNum - 1, this.pageBmp, getVecJson(getCanvas_Right()), BookActivity4Fragment.this, 1);
             }
             onPageIdxChange(false);
         } else {
@@ -1492,6 +1492,33 @@ public class BookActivity4Fragment extends Fragment {
     public DualScreenCanvas getCanvas2() {
         return canvas2;
     }
+    public final static boolean ENABLE_SWAP_SCREEN = false;
+    public DualScreenCanvas getCanvas_Right() {
+        if (ENABLE_SWAP_SCREEN && EinkUtils.getCurrentScreenPos(getActivity(), 0) ==
+                DualScreenConstant.EXTRA_LAUNCH_SCREEN_PANEL_BOTH) {
+            if (EinkUtils.getRightScreen(getActivity())) {
+                return canvas;
+            } else {
+                return canvas2;
+            }
+        } else {
+            return canvas;
+        }
+    }
+    public DualScreenCanvas getCanvas2_Left() {
+        if (ENABLE_SWAP_SCREEN && EinkUtils.getCurrentScreenPos(getActivity(), 0) ==
+                DualScreenConstant.EXTRA_LAUNCH_SCREEN_PANEL_BOTH) {
+            if (EinkUtils.getRightScreen(getActivity())) {
+                return canvas2;
+            } else {
+                return canvas;
+            }
+        } else {
+            return canvas2;
+        }
+    }
+
+
     View dtViewBottom;
     DrawTextView dtView_;
     public DrawTextView getDtView(boolean autoCreate) {
@@ -1587,6 +1614,7 @@ public class BookActivity4Fragment extends Fragment {
         Log.e(TAG, "oncreateview, t6== " + (t6 - t5));
         onClickTopBar(rootView, iconsTopBar[0], false); //init
         runFullScreen(getActivity());
+        CopyCutMenuDialog.updateRightScreen(getActivity(), g_rootView);
         long t7 = System.currentTimeMillis();
         Log.e(TAG, "oncreateview, t7== " + (t7 - t6));
 
@@ -3304,14 +3332,14 @@ public class BookActivity4Fragment extends Fragment {
             if (checkCanvas2Index(initialPageIdx - 1) && checkCanvas2Index(_pageIdx - 1))
             {
                 //init breakpoint
-                canvas2.pageIdx = _pageIdx - 1; //FIXME:added
+                getCanvas2_Left().pageIdx = _pageIdx - 1; //FIXME:added
                 BookPage page = getBook().getPage(getPageIdx());
                 BitmapVector result = getBookIO().loadBitmapOrNull_2(page, BookActivity4Fragment.this);
                 Bitmap initBmp = null;
                 if (result != null && result.strVecJson != null && result.strVecJson.length() > 0) {
                     initBmp = null;
-                    if (canvas != null) {
-                        canvas.loadVecJson(result.strVecJson);
+                    if (getCanvas2_Left() != null) {
+                        getCanvas2_Left().loadVecJson(result.strVecJson);
                     }
                 } else if (result != null) {
                     initBmp = result.bitmap;
@@ -3331,20 +3359,20 @@ public class BookActivity4Fragment extends Fragment {
                         backText = curPattern;
                     }
                 }
-                init(canvas, initBmp, bgBmp, initialPageIdx - 1, getActivity());
-                setBackText(canvas, backText);
+                init(getCanvas2_Left(), initBmp, bgBmp, initialPageIdx - 1, getActivity());
+                setBackText(getCanvas2_Left(), backText);
             }
             if (true)
             {
                 //init breakpoint
-                canvas.pageIdx = _pageIdx; //FIXME:added
+                getCanvas_Right().pageIdx = _pageIdx; //FIXME:added
                 BookPage page = getBook().getPage(getPageIdx());
                 BitmapVector result = getBookIO().loadBitmapOrNull_1(page, BookActivity4Fragment.this);
                 Bitmap initBmp = null;
                 if (result != null && result.strVecJson != null && result.strVecJson.length() > 0) {
                     initBmp = null;
-                    if (canvas != null) {
-                        canvas.loadVecJson(result.strVecJson);
+                    if (getCanvas_Right() != null) {
+                        getCanvas_Right().loadVecJson(result.strVecJson);
                     }
                 } else if (result != null) {
                     initBmp = result.bitmap;
@@ -3364,20 +3392,20 @@ public class BookActivity4Fragment extends Fragment {
                         backText = curPattern;
                     }
                 }
-                init(canvas, initBmp, bgBmp, initialPageIdx, getActivity());
-                setBackText(canvas, backText);
+                init(getCanvas_Right(), initBmp, bgBmp, initialPageIdx, getActivity());
+                setBackText(getCanvas_Right(), backText);
             }
         } catch (Throwable eee) {
             eee.printStackTrace();
         }
-        canvas.setClipToOutline(true);
-        setOnUpdateListener(canvas, new CanvasBoox.OnUpdateBmpListener() {
+        getCanvas_Right().setClipToOutline(true);
+        setOnUpdateListener(getCanvas_Right(), new CanvasBoox.OnUpdateBmpListener() {
             @Override
             public void onUpdateBmp(Bitmap bmp) {
                 notifyBitmapUpdate(bmp);
             }
         });
-        setOnUndoStateListener(canvas, new CanvasBoox.OnUndoStateListener() {
+        setOnUndoStateListener(getCanvas_Right(), new CanvasBoox.OnUndoStateListener() {
             @Override
             public void onUndoState(Boolean undo, Boolean redo) {
                 notifyUndoStateChanged(undo, redo);
@@ -3387,6 +3415,7 @@ public class BookActivity4Fragment extends Fragment {
         isPenEraserBrush = 1;
         selectPenOrEraser(rootView, 1);
         setPenEraserBrush(canvas,1);
+        setPenEraserBrush(canvas2,1);
 
         TextView tvMeetingSummary = rootView.findViewById(R.id.tvMeetingSummary);
         String summary = getMeetingSummary();
@@ -4644,9 +4673,9 @@ public class BookActivity4Fragment extends Fragment {
                     locked = saveLock.tryLock(SAVING_ASYNC_MULTI_TIMEOUT, TimeUnit.SECONDS);
                     if (locked) {
                         if (checkCanvas2Index(getPageIdx() - 1)) {
-                            savePageInMain(getPageIdx() - 1, pageBmp, getVecJson(canvas2), BookActivity4Fragment.this, 2);
+                            savePageInMain(getPageIdx() - 1, pageBmp, getVecJson(getCanvas2_Left()), BookActivity4Fragment.this, 2);
                         }
-                        savePageInMain(getPageIdx(), pageBmp, getVecJson(canvas), BookActivity4Fragment.this, 1);
+                        savePageInMain(getPageIdx(), pageBmp, getVecJson(getCanvas_Right()), BookActivity4Fragment.this, 1);
 
                         SDRecordingsDatabase mDatabase = BookActivity4Fragment.this.adapter.getDB(); //new SDRecordingsDatabase(getActivity(), _bookDir.getFilePath());
                         if (mDatabase != null) {
@@ -4658,9 +4687,9 @@ public class BookActivity4Fragment extends Fragment {
                     }
                 } else {
                     if (checkCanvas2Index(getPageIdx() - 1)) {
-                        savePageInMain(getPageIdx() - 1, pageBmp, getVecJson(canvas2), BookActivity4Fragment.this, 2);
+                        savePageInMain(getPageIdx() - 1, pageBmp, getVecJson(getCanvas2_Left()), BookActivity4Fragment.this, 2);
                     }
-                    savePageInMain(getPageIdx(), pageBmp, getVecJson(canvas), BookActivity4Fragment.this, 1);
+                    savePageInMain(getPageIdx(), pageBmp, getVecJson(getCanvas_Right()), BookActivity4Fragment.this, 1);
 
                     SDRecordingsDatabase mDatabase = BookActivity4Fragment.this.adapter.getDB(); //new SDRecordingsDatabase(getActivity(), _bookDir.getFilePath());
                     if (mDatabase != null) {
@@ -5025,7 +5054,7 @@ public class BookActivity4Fragment extends Fragment {
                         }
                     }
                 }
-            }, this.copyPaths != null && !this.copyPaths.isEmpty());
+            }, this.copyPaths != null && !this.copyPaths.isEmpty(), g_rootView);
         }
     }
 
@@ -6738,10 +6767,10 @@ public class BookActivity4Fragment extends Fragment {
                 ensureSave();
             } else {
                 if (checkCanvas2Index(getPageIdx() - 1)) {
-                    savePageInMain(getPageIdx() - 1, pageBmp, getVecJson(canvas2), BookActivity4Fragment.this, 2);
+                    savePageInMain(getPageIdx() - 1, pageBmp, getVecJson(getCanvas2_Left()), BookActivity4Fragment.this, 2);
                 }
 
-                savePageInMain(getPageIdx(), pageBmp, getVecJson(canvas), BookActivity4Fragment.this, 1);
+                savePageInMain(getPageIdx(), pageBmp, getVecJson(getCanvas_Right()), BookActivity4Fragment.this, 1);
             }
             BookActivity4Utils.finish(getActivity(), true);
         }

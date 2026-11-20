@@ -11,6 +11,7 @@ import android.os.Environment;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
@@ -34,11 +35,16 @@ import com.txkj.drawingapp.activity.BookActivity4Utils;
 import com.upgradetool.upgrade.UpgradeUtil;
 
 public class BookListActivity extends AppCompatActivity {
-    public void checkVersion() {
+    public void checkVersion(boolean hasFeedback) {
         if (UpgradeUtil.USE_UPGRADE) {
             if (upgradeUtil != null) {
-                upgradeUtil.checkVersion();
+                upgradeUtil.checkVersion(hasFeedback);
             }
+        }
+    }
+    public void startCheckVersionAnimation(View view) {
+        if (upgradeUtil != null && upgradeUtil.rotateAnimHelper != null) {
+            upgradeUtil.rotateAnimHelper.start(view);
         }
     }
 
@@ -121,7 +127,7 @@ public class BookListActivity extends AppCompatActivity {
             if (UpgradeUtil.USE_UPGRADE) {
                 if (upgradeUtil != null) {
                     upgradeUtil.onCreateUpdateReceiver();
-                    upgradeUtil.checkVersion();
+                    upgradeUtil.checkVersion(false);
                 }
             }
         }

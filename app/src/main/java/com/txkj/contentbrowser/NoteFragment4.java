@@ -1109,7 +1109,7 @@ class PreferencesKeys {
             @Override
             public boolean onMenuItemClick(@NonNull MenuItem menuItem) {
                 if (getActivity() instanceof BookListActivity) {
-                    ((BookListActivity) getActivity()).checkVersion();
+                    ((BookListActivity) getActivity()).checkVersion(true);
                 }
                 return true;
             }

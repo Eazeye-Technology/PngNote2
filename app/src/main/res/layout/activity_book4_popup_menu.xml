@@ -754,6 +754,83 @@ app:cardBackgroundColor="#00585858"
                             android:visibility="visible" />
                     </LinearLayout>
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:minHeight="60dp"
+                        android:layout_height="@dimen/activity_book4_popup_menu_item_height"
+                        android:clickable="true"
+                        android:gravity="center_vertical"
+                        android:visibility="visible"
+                        >
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0"
+                            android:padding="5dip"
+                            android:src="@drawable/ic_my_display_tools"
+                            android:layout_marginRight="10dp"
+                            android:layout_marginLeft="10dp"
+                            />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="0dp"
+                            android:layout_marginRight="20dp"
+                            android:ellipsize="end"
+                            android:textStyle="bold"
+                            android:text="Display Tools"
+                            />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="0dp"
+                            android:layout_marginRight="0dp"
+                            android:ellipsize="end"
+                            android:textStyle="bold"
+                            android:text="Right Screen"
+                            android:id="@+id/tvDisplayTool"
+                            />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/activity_book4_popup_menu_separator_height"
+                        android:background="#C4C7C8"
+                        android:layout_marginTop="@dimen/activity_book4_popup_menu_separator_margin_top"
+                        android:layout_marginBottom="@dimen/activity_book4_popup_menu_separator_margin_top"
+                        android:id="@+id/popLine8"
+                        />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:minHeight="60dp"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:gravity="center_vertical"
+                        android:visibility="gone"
+                        android:id="@+id/llVersion"
+                        android:foreground="?android:attr/selectableItemBackground"
+                        >
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="20dp"
+                            android:layout_marginRight="40dp"
+                            android:ellipsize="end"
+                            android:textStyle="bold"
+                            android:text="v0.0.0"
+                            android:id="@+id/tvVersion"
+                            />
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="0"
+                            android:padding="5dip"
+                            android:src="@drawable/ic_my_refresh"
+                            android:layout_marginRight="40dp"
+                            android:id="@+id/ivVersion"
+                            />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
 
